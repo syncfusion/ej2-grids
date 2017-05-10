@@ -1,32 +1,47 @@
 {
-  "name": "@syncfusion/ej2-grids",
-  "version": "1.0.0",
-  "description": "Syncfusion TypeScript Grid Components",
-  "author": "Syncfusion Inc.",
-  "license": "SEE LICENSE IN license",
-  "module": "dist/es6/index.js",
-  "dependencies": {
-    "@syncfusion/ej2-base": "*",
-    "@syncfusion/ej2-data": "*"
-  },
-  "devDependencies": {
-    "@syncfusion/ej2-build": "*",
-    "@types/chai": "^3.4.28",
-    "@types/es6-promise": "0.0.28",
-    "@types/jasmine": "^2.2.29",
-    "@types/jasmine-ajax": "^3.1.27",
-    "@types/requirejs": "^2.1.26"
-  },
-  "scripts": {
-    "test": "gulp ci-test",
-    "compile": "gulp ci-compile",
-    "ci-publish": "gulp ci-publish"
-  },
-  "config": {
-    "ghooks": {
-      "pre-commit": "gulp pre-commit",
-      "pre-push": "gulp pre-push",
-      "commit-msg": "gulp commit-msg"
-    }
-  }
+	"name": "@syncfusion/ej2-grids",
+	"version": "1.0.0",
+	"description": "Syncfusion TypeScript Grid Components",
+	"author": "Syncfusion Inc.",
+	"license": "SEE LICENSE IN license",
+	"module": "dist/es6/index.js",
+	"dependencies": {
+		"@syncfusion/ej2-base": "*",
+		"@syncfusion/ej2-data": "*"
+	},
+	"devDependencies": {
+		"@types/chai": "^3.4.28",
+		"@types/es6-promise": "0.0.28",
+		"@types/jasmine": "^2.2.29",
+		"@types/jasmine-ajax": "^3.1.27",
+		"@types/requirejs": "^2.1.26",
+		"canteen": "^1.0.5",
+		"es6-promise": "^3.2.1",
+		"gulp": "^3.9.1",
+		"jasmine-ajax": "^3.3.1",
+		"jasmine-core": "^2.6.1",
+		"karma": "^1.7.0",
+		"karma-generic-preprocessor": "^1.1.0",
+		"karma-htmlfile-reporter": "^0.3.5",
+		"karma-jasmine": "^1.1.0",
+		"karma-jasmine-ajax": "^0.1.13",
+		"karma-phantomjs-launcher": "^1.0.4",
+		"karma-requirejs": "^1.1.0",
+		"nedb": "^1.8.0",
+		"phantomjs-prebuilt": "^2.1.14",
+		"requirejs": "^2.3.3",
+		"simple-odata-server": "^0.3.1"
+	},
+	"scripts": {
+		"test": "gulp ci-test",
+		"compile": "gulp ci-compile",
+		"ci-publish": "gulp ci-publish"
+	},
+	"config": {
+		"ghooks": {
+			"pre-commit": "gulp pre-commit",
+			"pre-push": "gulp pre-push",
+			"commit-msg": "gulp commit-msg"
+		}
+	}
 }
