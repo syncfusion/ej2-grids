@@ -19,5 +19,3 @@ The most important features available in the Grid components are paging, sorting
 ## Resources
 * [Demo](http://ej2.syncfusion.com/demos/#/grid/default.html)
 * [Documentation](http://ej2.syncfusion.com/documentation/grid/)
-* [Angular Demo](http://ej2.syncfusion.com/angular/demos/#/grid/default)
-* [Angular Documentation](http://ej2.syncfusion.com/angular/documentation/grid/)
