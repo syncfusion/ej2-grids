@@ -1,0 +1,115 @@
+$grid-font-size: 13px;
+$grid-icon-color: $default-icon-color;
+$grid-hover-icon-color: $hover-icon-color;
+$grid-icon-font-size: 10px;
+$grid-border-type: $border-type;
+$grid-border-size: $border-size;
+$grid-vertical-border-size: $border-size;
+$grid-horizontal-border-size: $border-size;
+$grid-font-family: $font-family;
+
+$grid-header-font-size: 14px;
+$grid-header-icon-color: $header-icon-color;
+$grid-header-bg-color: $header-bg-color;
+$grid-header-border-color: $content-border-color;
+$grid-header-color: $header-font-color;
+$grid-sorted-header-color: $header-font-color;
+
+$grid-content-bg-color: $content-bg-color;
+$grid-cell-border-color: $content-border-color;
+$grid-altrow-bg-color: lighten($hover-bg-color, 10%);
+$grid-hover-bg-color: darken($hover-bg-color, 5%);
+$grid-popup-bg-color: $content-bg-color;
+
+$grid-sortnumber-bg-color: #bbbdc0;
+$grid-sortnumber-color: #fff;
+
+$grid-row-selection-bg-color: $active-bg-color;
+$grid-row-selection-color: $active-font-color;
+$grid-cell-selection-bg-color: darken($active-bg-color, 5%);
+$grid-cell-selection-color: $active-font-color;
+$grid-drag-selection-bg-color: $active-bg-color;
+$grid-drag-selection-color: $content-border-color;
+
+$grid-drag-clone-bg-color: $hover-bg-color;
+$grid-drag-clone-border-color: $content-border-color;
+$grid-drag-clone-color: $header-font-color;
+$grid-drag-clone-opacity: .6;
+
+$group-droparea-color: $active-font-color;
+$group-droparea-bg-color: $active-bg-color;
+$group-droparea-hover-color: $active-font-color;
+$group-droparea-hover-bg-color:  $active-bg-color;
+
+$group-header-color: $header-font-color;
+$group-header-bg-color: $header-bg-color;
+$group-header-hover-color: $header-font-color;
+$group-header-hover-bg-color: $header-bg-color;
+$group-header-border-radius: 9px;
+$group-row-bg-stcolor: #ececec;
+$group-row-bg-color: lighten($group-row-bg-stcolor, 4%);
+
+$filter-text-color: $content-font-color;
+
+$grid-content-font-color: $content-font-color;
+$grid-header-padding: .5em;
+$grid-header-bottom-padding: 0;
+$grid-content-padding: .7em;
+$grid-content-right-padding: .7em;
+$grid-headerconent-font-opacity: 1;
+$grid-conent-font-opacity: 1;
+$grid-rowcell-line-height: 14px;
+$grid-headercell-line-height: 40px;
+$grid-filtercell-line-height: 27px;
+$grid-filterbar-input-border-width: 1px;
+$grid-filterbarcell-border-width: 1px 0 0 1px;
+$grid-filterbarcell-padding: 4px 7px;
+$grid-group-height: 48px;
+$grid-grouparea-font-size: 19px;
+$grid-grouparea-margin: 0 0 0 10px;
+$group-border-width: 1px solid;
+$grouped-droparea-bg-color: $active-bg-color;
+$group-collapse-icon-text-indent: 8px;
+$group-expand-icon-text-indent: 8px;
+$grid-textbox-animation-color: #000;
+$grid-textbox-animation-bordersize: 1px;
+$grid-header-font-weight: bold;
+$grid-content-font-size: 12px;
+$group-area-padding: 5px 0 8px;
+$group-text-padding-right: 3px;
+$group-sorticon-font-size: 11px;
+$group-sorticon-margin-left: 0;
+$group-ungroupicon-padding: 5px 3px;
+$group-unpgrouicon-margin-left: 0;
+$grouped-text-font-size: 13px;
+$grid-grouptopleftcell-border-top: 0;
+$grid-grouped-padding: 8px 0 5px;
+$grid-ungroup-icon-opactiy: 1px;
+$grid-grouped-headercell-padding: 6px;
+$grid-headecell-height: 33px;
+$grid-default-color: '';
+$grid-stackedheadercell-border-size: 1px 0 1px 1px;
+$group-text-align: center;
+$grid-icon-default-color: #fff;
+$grid-right-border: 1px;
+$grid-header-border-width: 0 0 0 1px;
+$grid-grouparea-first-cell-margin: '';
+$grid-hide-icon-content: '\e825';
+$grid-rowcell-broder-width: 1px 0 0 1px;
+$grid-headercell-both-border-width: 0 0 1px 1px;
+$grid-rowcell-both-border-width: 1px 0 0 1px;
+$grid-filtercell-both-border-width: 0 0 0 1px;
+$grid-indentcell-border-width: 0 1px 0 0;
+$grid-headercelldiv-line-height: 29px;
+$grid-filterbarcell-text-indent: 1px;
+$grid-grouptext-margin-right: 4px;
+$grid-groupdroparea-rtl-text-align: center;
+$grid-rtl-th-firstcell-border-left: 1px;
+$grid-gd-clone-border-radius: 0;
+$group-ungroupicon-font-size: 11px;
+$grid-checkbox-cell-padding-top-bottom: 8px;
+$grid-rtl-headercell-border-width: 0 0 0 1px;
+$grid-rowselect-text-indent: 1px;
+$grid-ungroup-rtl-padding-top: 3px;
+
+

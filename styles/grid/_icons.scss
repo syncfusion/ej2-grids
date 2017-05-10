@@ -1,0 +1,61 @@
+  @include export-module('grid-icons') {
+  /*! component icons */
+
+  .e-grid {
+
+    .e-icon-ascending::before {
+      content: '\e840';
+    }
+
+    .e-icon-descending::before {
+      content: '\e83f';
+    }
+
+    .e-icon-hide::before {
+      content: '\e825';
+    }
+
+    .e-ungroupbutton.e-icon-hide::before {
+      content: $grid-hide-icon-content;
+    }
+
+    .e-icon-rowselect::before {
+      content: '\e930';
+    }
+
+    .e-icon-sortdirect::before {
+      content: '\e890';
+    }
+
+    .e-icon-gdownarrow::before {
+      content: '\e83d';
+    }
+
+    .e-icon-grightarrow::before {
+      content: '\e859';
+    }
+
+    &.e-rtl {
+      .e-icon-grightarrow::before {
+        content: '\e854';
+      }
+    }
+
+    .e-icon-group::before {
+      content: '\e926';
+    }
+
+    .e-icon-ungroup::before {
+      content: '\e926';
+    }
+
+    .e-icon-reorderuparrow::before {
+      content: '\e918';
+    }
+
+    .e-icon-reorderdownarrow::before {
+      content: '\e919';
+    }
+
+  }
+  }

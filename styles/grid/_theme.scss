@@ -1,0 +1,229 @@
+@include export-module('grid-theme') {
+  /*! Grid theme */
+  .e-grid {
+    border-color: $grid-header-border-color;
+
+    .e-icons {
+      color: $grid-icon-color;
+    }
+
+    .e-gridheader .e-icons:not(.e-icon-hide) {
+      color: $grid-icon-default-color;
+    }
+
+    .e-groupdroparea .e-icons {
+      color: $grid-header-icon-color;
+    }
+
+    &.e-default {
+      background-color: $grid-default-color;
+    }
+
+    .e-gridheader {
+      background-color: $grid-header-bg-color;
+      border-bottom-color: $grid-header-border-color;
+      border-top-color: $grid-header-border-color;
+      color: $grid-header-color;
+    }
+
+    th.e-headercell[aria-sort='ascending'] .e-headertext,
+    th.e-headercell[aria-sort='descending'] .e-headertext,
+    th.e-headercell[aria-sort='ascending'] .e-sortfilterdiv,
+    th.e-headercell[aria-sort='descending'] .e-sortfilterdiv {
+      color: $grid-sorted-header-color;
+      opacity: 1;
+    }
+
+    &.e-default.e-verticallines .e-headercell.e-stackedheadercell {
+      border-color: $grid-header-border-color;
+    }
+
+    &.e-default.e-horizontallines .e-grouptopleftcell {
+      border-color: $grid-header-border-color;
+    }
+
+    .e-filterbarcell input {
+      border-color: $grid-header-border-color;
+    }
+
+    .e-gridcontent {
+      background-color: $grid-content-bg-color;
+    }
+
+    .e-headercontent {
+      border-color: $grid-header-border-color;
+    }
+
+    .e-headercell {
+      background-color: $grid-header-bg-color;
+      border-color: $grid-header-border-color;
+    }
+
+    tr  th.e-firstcell {
+      border-left-color: $grid-header-border-color;
+      border-right-color: $grid-header-border-color;
+    }
+
+    .e-altrow {
+      background-color: $grid-altrow-bg-color;
+    }
+
+    .e-rowcell {
+      color: $grid-content-font-color;
+      opacity: $grid-conent-font-opacity;
+    }
+
+    .e-rowcell,
+    .e-groupcaption,
+    .e-indentcell,
+    .e-recordplusexpand,
+    .e-recordpluscollapse {
+      border-color: $grid-cell-border-color;
+    }
+
+    &.e-default .e-grouptopleftcell {
+      border-color: $grid-header-border-color;
+  }
+
+    &.e-gridhover tr[role='row']:hover .e-rowcell {
+      &:not(.e-cellselectionbackground):not(.e-active) {
+        background-color: $grid-hover-bg-color;
+      }
+    }
+
+    .e-sortnumber {
+      background-color: $grid-sortnumber-bg-color;
+      color: $grid-sortnumber-color;
+    }
+
+    td.e-active {
+      background: $grid-row-selection-bg-color;
+      color: $grid-row-selection-color;
+    }
+
+    td.e-cellselectionbackground {
+      background: $grid-cell-selection-bg-color;
+      color: $grid-cell-selection-color;
+    }
+
+    .e-filterbarcell,
+    .e-filterbarcelldisabled {
+      background-color: $grid-header-bg-color;
+      background-image: none;
+      border-color: $grid-header-border-color;
+    }
+
+    .e-filterdiv .e-filtertext {
+      color: $filter-text-color;
+    }
+
+    .e-filterdiv .e-filtertext:focus {
+      border-color: $grid-textbox-animation-color;
+      opacity: 1;
+     }
+
+    .e-gridpopup .e-content {
+      background-color: $grid-popup-bg-color;
+      border-color: $grid-header-border-color;
+    }
+
+    .e-gridpopup span:hover,
+    .e-gridpopup .e-spanclicked {
+      border-color: $grid-icon-color;
+    }
+
+    .e-gridpopup .e-downtail::before,
+    .e-gridpopup .e-downtail {
+      border-top-color: $grid-header-border-color;
+    }
+
+    .e-gridpopup .e-downtail::after {
+      border-top-color: $grid-popup-bg-color;
+    }
+
+    .e-gridpopup .e-uptail::before,
+    .e-gridpopup .e-uptail {
+      border-bottom-color: $grid-header-border-color;
+    }
+
+    .e-gridpopup .e-uptail::after {
+      border-bottom-color: $grid-popup-bg-color;
+    }
+
+    .e-cloneproperties {
+      background-color: $grid-drag-clone-bg-color;
+      border-color: $grid-drag-clone-border-color;
+      color: $grid-drag-clone-color;
+    }
+
+    .e-draganddrop {
+      opacity: .5;
+    }
+
+    .e-griddragarea {
+      background-color: $grid-drag-clone-bg-color;
+      border-color: $grid-drag-clone-bg-color;
+      color: $grid-row-selection-color;
+    }
+
+    .e-groupdroparea {
+      background-color: $group-droparea-bg-color;
+      border-top-color: $grid-header-border-color;
+      color: $group-droparea-color;
+    }
+
+    .e-groupdroparea.e-hover {
+      background-color: $group-droparea-hover-bg-color;
+    }
+
+    .e-groupdroparea.e-grouped {
+      background-color: $grouped-droparea-bg-color;
+    }
+
+    .e-groupheadercell {
+      background-color: $group-header-bg-color;
+      border-color: $grid-header-border-color;
+      border-radius: $group-header-border-radius;
+      color: $group-header-color;
+    }
+
+    .e-ungroupbutton:hover {
+      color: $grid-hover-icon-color;
+      opacity: 1;
+    }
+
+    .e-ungroupbutton {
+      opacity: $grid-ungroup-icon-opactiy;
+    }
+
+    .e-groupcaption,
+    .e-indentcell,
+    .e-recordplusexpand,
+    .e-recordpluscollapse {
+      background-color: $group-row-bg-color;
+    }
+
+    .e-grouptopleftcell {
+      background-color: $grid-header-bg-color;
+      border-color: $grid-header-border-color;
+    }
+
+    .e-stackedheadercell {
+      border-bottom-color:  $grid-header-border-color;
+    }
+
+    .e-verticallines tr th {
+      border-color:  $grid-header-border-color;
+    }
+
+    &.e-rtl {
+
+      & .e-verticallines tr th:first-child:not(.e-firstcell) {
+        border-color:  $grid-header-border-color;
+    }
+
+    }
+
+  }
+
+}

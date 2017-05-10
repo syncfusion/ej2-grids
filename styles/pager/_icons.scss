@@ -1,0 +1,22 @@
+  @include export-module('pager-icons') {
+  /*! component icons */
+
+  .e-pager {
+
+    .e-icon-last::before {
+      content: $pager-last-content-icon;
+    }
+
+    .e-icon-first::before {
+      content: $pager-first-content-icon;
+    }
+
+    .e-icon-prev::before {
+      content: $pager-prev-content-icon;
+    }
+
+    .e-icon-next::before {
+      content: $pager-next-content-icon;
+    }
+  }
+  }
