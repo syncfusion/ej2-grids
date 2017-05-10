@@ -115,7 +115,7 @@ export interface SearchSettingsModel {
 export interface RowDropSettingsModel {
 
     /**
-     * Defines the ID of EJ2 droppable control on which row drop should occur.        */    targetID?: string;
+     * Defines the ID of droppable control on which row drop should occur.        */    targetID?: string;
 
 }
 
@@ -222,7 +222,7 @@ export interface GridModel extends ComponentModel{
      * Defines the print modes. The available print modes are        * * allpages - Print all pages records of the Grid.      * * currentpage - Print current page records of the Grid.     * @default allpages     */    printMode?: PrintMode;
 
     /**
-     * It is used to render grid table rows.      * If the `dataSource` is an array of JavaScript objects,      * then Grid will create instance of EJ2 [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html)      * from this `dataSource`.      * If the `dataSource` is an existing EJ2 [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html),     *  the Grid will not initialize a new one.      * @default []         */    dataSource?: Object | DataManager;
+     * It is used to render grid table rows.      * If the `dataSource` is an array of JavaScript objects,      * then Grid will create instance of [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html)      * from this `dataSource`.      * If the `dataSource` is an existing [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html),     *  the Grid will not initialize a new one.      * @default []         */    dataSource?: Object | DataManager;
 
     /**
      * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html)      * which will execute along with data processing.         * @default null         */    query?: Query;

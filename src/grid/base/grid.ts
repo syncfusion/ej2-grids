@@ -313,7 +313,7 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
  */
 export class RowDropSettings extends ChildProperty<RowDropSettings> {
     /**   
-     * Defines the ID of EJ2 droppable control on which row drop should occur.   
+     * Defines the ID of droppable control on which row drop should occur.   
      */
     @Property()
     public targetID: string;
@@ -364,7 +364,7 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
 
 
 /**
- * Represents the EJ2 Grid control. 
+ * Represents the Grid control. 
  * ```html
  * <div id="grid"></div>
  * <script>
@@ -707,9 +707,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * It is used to render grid table rows. 
      * If the `dataSource` is an array of JavaScript objects, 
-     * then Grid will create instance of EJ2 [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html) 
+     * then Grid will create instance of [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html) 
      * from this `dataSource`. 
-     * If the `dataSource` is an existing EJ2 [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html),
+     * If the `dataSource` is an existing [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html),
      *  the Grid will not initialize a new one. 
      * @default []    
      */

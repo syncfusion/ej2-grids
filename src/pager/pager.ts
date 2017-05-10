@@ -14,7 +14,7 @@ export interface IRender {
 }
 
 /**
- * Represents the EJ2 `Pager` control. 
+ * Represents the `Pager` control. 
  * ```html
  * <div id="pager"/>
  * ```
