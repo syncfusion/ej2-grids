@@ -33,15 +33,6 @@
 		"simple-odata-server": "^0.3.1"
 	},
 	"scripts": {
-		"test": "gulp ci-test",
-		"compile": "gulp ci-compile",
-		"ci-publish": "gulp ci-publish"
-	},
-	"config": {
-		"ghooks": {
-			"pre-commit": "gulp pre-commit",
-			"pre-push": "gulp pre-push",
-			"commit-msg": "gulp commit-msg"
-		}
+		"test": "gulp test"
 	}
 }
