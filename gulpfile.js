@@ -1,7 +1,37 @@
 'use strict';
 
 var gulp = require('gulp');
-var path = require('path');
+
+/**
+ * Build ts and scss files
+ */
+gulp.task('build', ['scripts', 'styles']);
+
+/**
+ * Compile ts files
+ */
+gulp.task('scripts', function() {
+    var ts = require('gulp-typescript');
+    var tsProject = ts.createProject('tsconfig.json', { typescript: require('typescript') });
+
+    var tsResult = gulp.src(['./**/*.ts', '!./node_modules/**/*.ts'], { base: '.' })
+        .pipe(tsProject());
+    tsResult.js.pipe(gulp.dest('./'));
+});
+
+/**
+ * Compile scss files
+ */
+gulp.task('styles', function() {
+    var sass = require('gulp-sass');
+    return gulp.src(['./**/*.scss', '!./node_modules/**/*.scss'], { base: './' })
+        .pipe(sass({
+            outputStyle: 'expanded',
+            includePaths: './node_modules/@syncfusion/'
+        }))
+        .pipe(gulp.dest('.'));
+});/* jshint strict: false */
+/* jshint undef: false */
 
 var service, proxyPort;
 
@@ -9,6 +39,7 @@ var service, proxyPort;
  * Run test scripts
  */
 gulp.task('test', function(done) {
+    var path = require('path');
     var packageJson = require('./package.json');
     if (packageJson.dependencies['@syncfusion/ej2-data'] || packageJson.name === '@syncfusion/ej2-data') {
         console.log('Service Started');

@@ -15,9 +15,13 @@
 		"@types/jasmine": "^2.2.29",
 		"@types/jasmine-ajax": "^3.1.27",
 		"@types/requirejs": "^2.1.26",
-		"canteen": "^1.0.5",
 		"es6-promise": "^3.2.1",
 		"gulp": "^3.9.1",
+		"gulp-sass": "^3.1.0",
+		"gulp-typescript": "^3.1.6",
+		"requirejs": "^2.3.3",
+		"typescript": "2.2.2",
+		"canteen": "^1.0.5",
 		"jasmine-ajax": "^3.3.1",
 		"jasmine-core": "^2.6.1",
 		"karma": "^1.7.0",
@@ -29,19 +33,10 @@
 		"karma-requirejs": "^1.1.0",
 		"nedb": "^1.8.0",
 		"phantomjs-prebuilt": "^2.1.14",
-		"requirejs": "^2.3.3",
 		"simple-odata-server": "^0.3.1"
 	},
 	"scripts": {
-		"test": "gulp ci-test",
-		"compile": "gulp ci-compile",
-		"ci-publish": "gulp ci-publish"
-	},
-	"config": {
-		"ghooks": {
-			"pre-commit": "gulp pre-commit",
-			"pre-push": "gulp pre-push",
-			"commit-msg": "gulp commit-msg"
-		}
+		"build": "gulp build",
+		"test": "gulp test"
 	}
 }
