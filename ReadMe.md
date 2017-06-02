@@ -5,6 +5,7 @@ It will pull data from a data source, such as array of JSON objects, `OData web 
 Also displaying a column header to identify the field with support for grouped records.
 
 The most important features available in the Grid components are paging, sorting, filtering, searching and grouping.
+Also, it comes with full documentation and support which is available for commercial and community licensed users. To know more, please visit www.syncfusion.com. 
 
 ## Key Features
 
