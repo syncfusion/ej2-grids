@@ -123,7 +123,6 @@ export class Group implements IAction {
             }
             this.contentRefresh = true;
         }
-        this.recalcIndentWidth();
     }
 
     private keyPressHandler(e: KeyboardEventArgs): void {
@@ -137,13 +136,11 @@ export class Group implements IAction {
             case 'altUpArrow':
                 let selected: number[] = gObj.allowSelection ? gObj.getSelectedRowIndexes() : [];
                 if (selected.length) {
-                    let selIndex: number = selected[selected.length - 1];
-                    let rows: Element[] = gObj.getRows();
-                    let dataRow: HTMLTableRowElement =
-                        gObj.getContent().querySelector('tr[aria-rowindex="' + selIndex + '"]') as HTMLTableRowElement;
+                    let rows: HTMLCollection = gObj.getContentTable().querySelector('tbody').children;
+                    let dataRow: HTMLTableRowElement = gObj.getDataRows()[selected[selected.length - 1]] as HTMLTableRowElement;
                     let grpRow: Element;
                     for (let i: number = dataRow.rowIndex; i >= 0; i--) {
-                        if (!rows[i].classList.contains('e-row')) {
+                        if (!rows[i].classList.contains('e-row') && !rows[i].classList.contains('e-detailrow')) {
                             grpRow = rows[i];
                             break;
                         }
@@ -216,7 +213,7 @@ export class Group implements IAction {
         if (trgt) {
             let cellIdx: number = trgt.cellIndex;
             let rowIdx: number = (trgt.parentElement as HTMLTableRowElement).rowIndex;
-            let rowNodes: NodeListOf<Element> = this.parent.getContent().querySelectorAll('tr');
+            let rowNodes: HTMLCollection = this.parent.getContentTable().querySelector('tbody').children;
             let rows: HTMLTableRowElement[] = [].slice.call(rowNodes).slice(rowIdx + 1, rowNodes.length);
             let isHide: boolean;
             let expandElem: Element;
@@ -234,7 +231,8 @@ export class Group implements IAction {
             }
             this.aria.setExpand(trgt, expand);
             for (let i: number = 0, len: number = rows.length; i < len; i++) {
-                if (rows[i].querySelectorAll('td')[cellIdx] && rows[i].querySelectorAll('td')[cellIdx].classList.contains('e-indentcell')) {
+                if (rows[i].querySelectorAll('td')[cellIdx] &&
+                    rows[i].querySelectorAll('td')[cellIdx].classList.contains('e-indentcell') && rows) {
                     if (isHide) {
                         rows[i].style.display = 'none';
                     } else {
@@ -243,6 +241,11 @@ export class Group implements IAction {
                             expandElem = rows[i].querySelector('.e-recordplusexpand');
                             if (expandElem) {
                                 toExpand.push(expandElem);
+                            }
+                            if (rows[i].classList.contains('e-detailrow')) {
+                                if (rows[i - 1].querySelectorAll('.e-detailsrowcollapse').length) {
+                                    rows[i].style.display = 'none';
+                                }
                             }
                         }
                     }
@@ -259,7 +262,7 @@ export class Group implements IAction {
     }
 
     private expandCollapse(isExpand: boolean): void {
-        let rowNodes: NodeListOf<Element> = this.parent.getContent().querySelectorAll('tr');
+        let rowNodes: HTMLCollection = this.parent.getContentTable().querySelector('tbody').children;
         let row: Element;
         for (let i: number = 0, len: number = rowNodes.length; i < len; i++) {
             if (rowNodes[i].querySelectorAll('.e-recordplusexpand, .e-recordpluscollapse').length) {
@@ -503,29 +506,6 @@ export class Group implements IAction {
         this.parent.trigger(events.actionComplete, extend(e, args));
     }
 
-    /**    
-     * @hidden
-     */
-    public recalcIndentWidth(): void {
-        let gObj: IGrid = this.parent;
-        if (!gObj.groupSettings.columns.length || gObj.getHeaderTable().querySelector('.e-emptycell').getAttribute('indentRefreshed') ||
-            !gObj.getContentTable()) {
-            return;
-        }
-        let indentWidth: number = (gObj.getHeaderTable().querySelector('.e-grouptopleftcell') as HTMLElement).offsetWidth;
-        let headerCol: HTMLElement[] = [].slice.call(gObj.getHeaderTable().querySelector('colgroup').childNodes);
-        let contentCol: HTMLElement[] = [].slice.call(gObj.getContentTable().querySelector('colgroup').childNodes);
-        let perPixel: number = indentWidth / 30;
-        if (perPixel >= 1) {
-            indentWidth = (30 / perPixel);
-        }
-        for (let i: number = 0; i < this.groupSettings.columns.length; i++) {
-            headerCol[i].style.width = indentWidth + 'px';
-            contentCol[i].style.width = indentWidth + 'px';
-        }
-        gObj.getHeaderTable().querySelector('.e-emptycell').setAttribute('indentRefreshed', 'true');
-    }
-
     private addColToGroupDrop(field: string): void {
         let gObj: IGrid = this.parent;
         let direction: string = 'ascending';
@@ -676,7 +656,6 @@ export class Group implements IAction {
         let header: Element;
         let cols: SortDescriptorModel[] = gObj.sortSettings.columns;
         let gCols: string[] = gObj.groupSettings.columns;
-        this.recalcIndentWidth();
         this.refreshToggleBtn();
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             header = gObj.getColumnHeaderByField(cols[i].field);

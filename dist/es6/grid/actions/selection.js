@@ -1,7 +1,7 @@
 import { Browser, EventHandler } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, isUndefined } from '@syncfusion/ej2-base/util';
 import { remove, createElement, closest, classList } from '@syncfusion/ej2-base/dom';
-import { setCssInGridPopUp, getPosition } from '../base/util';
+import { setCssInGridPopUp, getPosition, parentsUntil } from '../base/util';
 import * as events from '../base/constant';
 var Selection = (function () {
     function Selection(parent, selectionSettings) {
@@ -126,9 +126,9 @@ var Selection = (function () {
         return indexes;
     };
     Selection.prototype.clearRow = function () {
+        this.clearRowSelection();
         this.selectedRowIndexes = [];
         this.selectedRecords = [];
-        this.clearRowSelection();
     };
     Selection.prototype.updateRowProps = function (startIndex) {
         this.prevRowIndex = startIndex;
@@ -154,7 +154,7 @@ var Selection = (function () {
     };
     Selection.prototype.clearRowSelection = function () {
         if (this.isRowSelected) {
-            var selectedRows = this.parent.getContentTable().querySelectorAll('tr[aria-selected="true"]');
+            var rows = this.parent.getDataRows();
             var data = [];
             var row = [];
             var rowIndex = [];
@@ -168,9 +168,9 @@ var Selection = (function () {
                     rowIndex: rowIndex, data: data, row: row
                 });
             }
-            for (var i = 0, len = selectedRows.length; i < len; i++) {
-                selectedRows[i].removeAttribute('aria-selected');
-                this.addRemoveClassesForRow(selectedRows[i], false, 'e-selectionbackground', 'e-active');
+            for (var i = 0, len = this.selectedRowIndexes.length; i < len; i++) {
+                rows[this.selectedRowIndexes[i]].removeAttribute('aria-selected');
+                this.addRemoveClassesForRow(rows[this.selectedRowIndexes[i]], false, 'e-selectionbackground', 'e-active');
             }
             if (this.isTrigger) {
                 this.parent.trigger(events.rowDeselected, {
@@ -366,7 +366,7 @@ var Selection = (function () {
     Selection.prototype.clearCellSelection = function () {
         if (this.isCellSelected) {
             var gObj = this.parent;
-            var selectedCells = gObj.getContentTable().querySelectorAll('.e-cellselectionbackground');
+            var selectedCells = this.getSelectedCellsElement();
             var rowCell = this.selectedRowCellIndexes;
             var data = [];
             var cells = [];
@@ -392,6 +392,14 @@ var Selection = (function () {
                 });
             }
         }
+    };
+    Selection.prototype.getSelectedCellsElement = function () {
+        var rows = this.parent.getDataRows();
+        var cells = [];
+        for (var i = 0, len = rows.length; i < len; i++) {
+            cells = cells.concat([].slice.call(rows[i].querySelectorAll('.e-cellselectionbackground')));
+        }
+        return cells;
     };
     Selection.prototype.mouseMoveHandler = function (e) {
         e.preventDefault();
@@ -435,6 +443,10 @@ var Selection = (function () {
     };
     Selection.prototype.mouseDownHandler = function (e) {
         var target = e.target;
+        var gridElement = parentsUntil(target, 'e-grid');
+        if (gridElement && gridElement.id !== this.parent.element.id) {
+            return;
+        }
         if (e.shiftKey || e.ctrlKey) {
             e.preventDefault();
         }
@@ -632,7 +644,8 @@ var Selection = (function () {
                 var height = row.offsetHeight;
                 var rowIndex = row.rowIndex;
                 scrollElem.scrollTop = scrollElem.scrollTop + (e.action === 'downArrow' ? height : height * -1);
-                if (this.checkVisible(row) && rowIndex !== 0 && this.parent.getContent().querySelectorAll('tr').length !== rowIndex + 1) {
+                if (this.checkVisible(row) &&
+                    rowIndex !== 0 && this.parent.getContentTable().querySelector('tbody').children.length !== rowIndex + 1) {
                     e.preventDefault();
                 }
             }
@@ -651,10 +664,10 @@ var Selection = (function () {
         return element.getBoundingClientRect().height;
     };
     Selection.prototype.ctrlPlusA = function () {
-        if (this.isRowType()) {
+        if (this.isRowType() && !this.isSingleSel()) {
             this.selectRowsByRange(0, this.parent.getRows().length - 1);
         }
-        if (this.isCellType()) {
+        if (this.isCellType() && !this.isSingleSel()) {
             this.selectCellsByRange({ rowIndex: 0, cellIndex: 0 }, { rowIndex: this.parent.getRows().length - 1, cellIndex: this.parent.getColumns().length - 1 });
         }
     };
@@ -710,7 +723,7 @@ var Selection = (function () {
     Selection.prototype.shiftDownKey = function () {
         var gObj = this.parent;
         this.isMultiShiftRequest = true;
-        if (this.isRowType()) {
+        if (this.isRowType() && !this.isSingleSel()) {
             if (!isUndefined(this.prevRowIndex)) {
                 var endIndex = isUndefined(gObj.selectedRowIndex) ? this.prevRowIndex + 1 :
                     (gObj.selectedRowIndex + 1 < this.parent.getRows().length ?
@@ -723,7 +736,7 @@ var Selection = (function () {
                 this.selectRow(0);
             }
         }
-        if (this.isCellType()) {
+        if (this.isCellType() && !this.isSingleSel()) {
             if (!isUndefined(this.prevCIdxs)) {
                 if (this.prevECIdxs.rowIndex + 1 < this.parent.getRows().length) {
                     this.selectCellsByRange(this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex + 1, cellIndex: this.prevECIdxs.cellIndex });
@@ -738,12 +751,12 @@ var Selection = (function () {
     Selection.prototype.shiftUpKey = function () {
         var gObj = this.parent;
         this.isMultiShiftRequest = true;
-        if (this.isRowType() && !isUndefined(this.prevRowIndex)) {
+        if (this.isRowType() && !isUndefined(this.prevRowIndex) && !this.isSingleSel()) {
             var endIndex = isUndefined(gObj.selectedRowIndex) ? (this.prevRowIndex - 1 > -1 ? (this.prevRowIndex - 1) : 0) :
                 ((gObj.selectedRowIndex - 1) > -1 ? gObj.selectedRowIndex - 1 : gObj.selectedRowIndex);
             this.selectRowsByRange(this.prevRowIndex, endIndex);
         }
-        if (this.isCellType() && !isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1) {
+        if (this.isCellType() && !isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1 && !this.isSingleSel()) {
             this.selectCellsByRange(this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex - 1, cellIndex: this.prevECIdxs.cellIndex });
         }
         this.isMultiShiftRequest = false;
@@ -757,13 +770,13 @@ var Selection = (function () {
     Selection.prototype.applyShiftLeftRightKey = function (key, cond) {
         var gObj = this.parent;
         this.isMultiShiftRequest = true;
-        if (this.isCellType()) {
+        if (this.isCellType() && !this.isSingleSel()) {
             if (cond) {
                 this.selectCellsByRange(this.prevCIdxs, {
                     rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key
                 });
             }
-            else {
+            else if (!this.isSingleSel()) {
                 if (this.selectionSettings.cellSelectionMode === 'flow' &&
                     (key > 0 ? this.prevECIdxs.rowIndex + 1 < this.parent.pageSettings.pageSize : this.prevECIdxs.rowIndex - 1 > -1)) {
                     this.selectCellsByRange(this.prevCIdxs, {
@@ -793,7 +806,11 @@ var Selection = (function () {
         for (var _i = 2; _i < arguments.length; _i++) {
             args[_i - 2] = arguments[_i];
         }
-        var cells = row.querySelectorAll('.e-rowcell');
+        var cells = [].slice.call(row.querySelectorAll('.e-rowcell'));
+        var cell = row.querySelector('.e-detailsrowcollapse') || row.querySelector('.e-detailsrowexpand');
+        if (cell) {
+            cells.push(cell);
+        }
         for (var i = 0, len = cells.length; i < len; i++) {
             if (isAdd) {
                 classList(cells[i], args.slice(), []);

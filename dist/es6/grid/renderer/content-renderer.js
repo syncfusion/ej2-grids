@@ -72,7 +72,13 @@ var ContentRender = (function () {
             }
             frag.appendChild(tr);
             this.rows.push(modelData[i]);
-            this.rowElements.push(tr);
+            if (modelData[i].isDataRow) {
+                var td = tr.querySelectorAll('.e-rowcell:not(.e-hide)')[0];
+                if (td) {
+                    td.classList.add('e-detailrowvisible');
+                }
+                this.rowElements.push(tr);
+            }
             this.ariaService.setOptions(this.getTable(), { colcount: gObj.getColumns().length.toString() });
         }
         getUpdateUsingRaf(function () {
@@ -113,6 +119,9 @@ var ContentRender = (function () {
     };
     ContentRender.prototype.getColGroup = function () {
         return this.colgroup;
+    };
+    ContentRender.prototype.setRowElements = function (elements) {
+        this.rowElements = elements;
     };
     ContentRender.prototype.setColGroup = function (colGroup) {
         return this.colgroup = colGroup;

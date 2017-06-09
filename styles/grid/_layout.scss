@@ -32,7 +32,15 @@
     &.e-default.e-verticallines .e-grouptopleftcell,
     &.e-default.e-bothlines .e-grouptopleftcell,
     &.e-default.e-hidelines .e-grouptopleftcell {
-      border-top: 0;
+      border-top-width: 0;
+    }
+
+    &.e-default.e-verticallines,
+    &.e-default.e-hidelines {
+      & .e-detailsrowcollapse,
+      & .e-detailsrowexpand {
+        border-top-width: 0;
+      }
     }
 
     &.e-default.e-horizontallines .e-grouptopleftcell {
@@ -66,7 +74,8 @@
       cursor: default;
     }
 
-    .e-gridheader .e-headercell {
+    .e-gridheader .e-headercell,
+    .e-gridheader .e-detailheadercell {
       user-select: none;
     }
 
@@ -94,7 +103,8 @@
       border-width: $grid-filtercell-both-border-width;
     }
 
-    .e-headercell {
+    .e-headercell,
+    .e-detailheadercell {
       border-style: $grid-border-type;
       border-width: $grid-header-border-width;
       font-size: $grid-header-font-size;
@@ -176,11 +186,18 @@
       white-space: nowrap;
     }
 
-    &.e-default .e-headercell {
+    &.e-default .e-headercell,
+    &.e-default .e-detailheadercell {
       border-width: $grid-header-border-width;
     }
 
-    &.e-default.e-verticallines .e-headercell {
+    [aria-selected] + tr .e-detailindentcell {
+      border-top-style: $grid-border-type;
+      border-top-width: $grid-border-size;
+    }
+
+    &.e-default.e-verticallines .e-headercell,
+    &.e-default.e-verticallines .e-detailheadercell {
       border-width: 0 0 0 $grid-border-size;
     }
 
@@ -196,7 +213,8 @@
       border-left-width: 0;
     }
 
-    &.e-default.e-bothlines .e-headercell {
+    &.e-default.e-bothlines .e-headercell,
+    &.e-default.e-bothlines .e-detailheadercell {
       border-width: $grid-headercell-both-border-width;
     }
 
@@ -208,6 +226,7 @@
     &.e-default tr {
       & td:first-child,
       & th.e-headercell:first-child:not(.e-firstcell),
+      & th.e-detailheadercell:first-child,
       & th.e-filterbarcell:first-child {
         border-left-width: 0;
       }
@@ -268,6 +287,24 @@
       box-sizing: border-box;
     }
 
+    .e-detailsrowcollapse,
+    .e-detailsrowexpand {
+      border-style: $grid-border-type;
+      border-width: $grid-rowcell-broder-width;
+      cursor: pointer;
+    }
+
+    .e-detailindentcell {
+      border-right-style: $grid-border-type;
+      border-right-width: $grid-border-size;
+    }
+
+    .e-detailcell {
+      border-top-style: $grid-border-type;
+      border-top-width: $grid-border-size;
+      padding: .3em;
+    }
+
     &.e-verticallines .e-rowcell,
     &.e-verticallines .e-filterbarcell {
       border-width: 0 0 0 $grid-border-size;
@@ -276,6 +313,8 @@
     &.e-hidelines .e-rowcell,
     &.e-horizontallines .e-headercell,
     &.e-hidelines .e-headercell,
+    &.e-horizontallines .e-detailheadercell,
+    &.e-hidelines .e-detailheadercell,
     &.e-hidelines tr th.e-firstcell,
     &.e-hidelines .e-filterbarcell {
       border-width: 0;
@@ -295,6 +334,24 @@
     &.e-hidelines {
       & .e-rowcell.e-lastrowcell {
         border-bottom-width: $grid-border-size;
+      }
+    }
+
+    &.e-horizontallines,
+    &.e-verticallines,
+    &.e-hidelines,
+    &.e-bothlines {
+      & .e-detailrowvisible {
+        border-left-width: 0;
+      }
+    }
+
+    &.e-verticallines,
+    &.e-hidelines {
+      & .e-firstchildrow .e-rowcell,
+      & .e-firstchildrow .e-detailsrowcollapse,
+      & .e-firstchildrow .e-detailsrowexpand {
+        border-top-width: 1px;
       }
     }
 
@@ -640,17 +697,14 @@
 
     .e-indentcell {
       border-style: $grid-border-type;
-      border-width: 0 0 0 $grid-border-size;
-    }
-
-    &.e-default:not(.e-verticallines):not(.e-bothlines):not(.e-hidelines) .e-indentcell {
-      border-width: $grid-indentcell-border-width;
+      border-width: 0 $grid-border-size 0 0;
     }
 
     .e-recordplusexpand,
     .e-recordpluscollapse {
       border-style: $grid-border-type;
-      border-width: $grid-border-size 0 0 $grid-border-size;
+      border-width: $grid-border-size 0 0;
+      cursor: pointer;
     }
 
     .e-groupcaption {
@@ -677,7 +731,8 @@
 
     &.e-rtl {
 
-      & .e-headercell {
+      & .e-headercell,
+      & .e-detailheadercell {
         border-width: $grid-rtl-headercell-border-width;
         text-align: right;
 
@@ -777,7 +832,7 @@
         border-width: $grid-border-size $grid-border-size 3px;
       }
 
-      &.e-default tr {
+      & tr {
         & td:first-child,
         & th:first-child {
           border-left-width: $grid-rtl-th-firstcell-border-left;
@@ -799,7 +854,8 @@
     }
 
       &.e-default th:first-child
-      &.e-default .e-headercell {
+      &.e-default .e-headercell,
+      &.e-default .e-detailheadercell {
         border-width: $grid-header-border-width;
       }
 
@@ -809,21 +865,13 @@
 
       &.e-default.e-verticallines .e-headercell,
       &.e-default.e-verticallines .e-rowcell,
-      &.e-default.e-verticallines .e-filterbarcell {
+      &.e-default.e-verticallines .e-filterbarcell,
+      &.e-default.e-verticallines .e-detailheadercell {
         border-width: 0 0  0 $grid-border-size;
       }
 
       &.e-default.e-verticallines tr th:first-child:not(.e-firstcell) {
         border-left-width: $grid-border-size;
-     }
-
-      &.e-default.e-horizontallines tr th:first-child:not(.e-firstcell),
-      &.e-default.e-horizontallines tr td:first-child {
-        border-left: 0;
-     }
-
-      &.e-default.e-verticallines tr th:last-child:not(.e-firstcell) {
-        border-left-width: 0;
      }
 
       &.e-default .e-stackedheadercell {
@@ -843,7 +891,8 @@
         padding-top: 4px;
     }
 
-      &.e-default.e-bothlines .e-headercell {
+      &.e-default.e-bothlines .e-headercell,
+      &.e-default.e-bothlines .e-detailheadercell {
         border-width: $grid-headercell-both-border-width;
       }
 
@@ -864,11 +913,13 @@
 
       &.e-hidelines .e-rowcell,
       &.e-hidelines .e-headercell,
+      &.e-hidelines .e-detailheadercell,
       &.e-hidelines .e-filterbarcell {
         border-width: 0;
       }
 
       &.e-horizontallines .e-headercell,
+      &.e-horizontallines .e-detailheadercell,
       &.e-horizontallines .e-rowcell,
       &.e-horizontallines .e-filterbarcell {
         border-width: $grid-border-size 0 0;
@@ -879,6 +930,13 @@
       &.e-hidelines {
         & .e-rowcell.e-lastrowcell {
           border-bottom-width: $grid-border-size;
+        }
+      }
+
+      &.e-verticallines,
+      &.e-hidelines {
+        & .e-firstchildrow .e-rowcell {
+          border-top-width: 1px;
         }
       }
 
@@ -910,16 +968,16 @@
         float: left;
       }
 
-      & .e-indentcell {
+      & tr td.e-indentcell {
         border-style: $grid-border-type;
-        border-width: 0 $grid-border-size 0 0;
+        border-width: 0 0 0 $grid-border-size;
       }
 
-      & .e-recordplusexpand,
-      & .e-recordpluscollapse {
-        border-style: $grid-border-type;
-        border-width: $grid-border-size $grid-border-size 0 0;
-      }
+      & .e-detailindentcell {
+        border-left-style: $grid-border-type;
+        border-left-width: $grid-border-size;
+        border-right-width: 0;
+    }
 
     }
 

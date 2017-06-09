@@ -108,6 +108,10 @@ var HeaderRender = (function () {
                 colGroup.appendChild(col);
             }
         }
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            col = createElement('col');
+            colGroup.appendChild(col);
+        }
         for (var i = 0, len = cols.length; i < len; i++) {
             col = createElement('col');
             if (cols[i].visible === false) {
@@ -120,10 +124,13 @@ var HeaderRender = (function () {
     HeaderRender.prototype.ensureColumns = function (rows) {
         var gObj = this.parent;
         for (var i = 0, len = rows.length; i < len; i++) {
-            if (this.parent.allowGrouping) {
+            if (gObj.allowGrouping) {
                 for (var c = 0, len_2 = gObj.groupSettings.columns.length; c < len_2; c++) {
                     rows[i].cells.push(this.generateCell({}, CellType.HeaderIndent));
                 }
+            }
+            if (gObj.detailsTemplate || gObj.childGrid) {
+                rows[i].cells.push(this.generateCell({}, CellType.DetailHeader));
             }
         }
         return rows;

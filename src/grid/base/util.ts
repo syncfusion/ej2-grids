@@ -233,3 +233,16 @@ let uid: number = 0;
 export function getUid(prefix: string): string {
     return prefix + uid++;
 }
+
+/** @hidden */
+export function parents(elem: Element, selector: string, isID?: boolean): Element[] {
+    let parent: Element = elem;
+    let parents: Element[] = [];
+    while (parent) {
+        if (isID ? parent.id === selector : parent.classList.contains(selector)) {
+            parents.push(parent);
+        }
+        parent = parent.parentElement;
+    }
+    return parents;
+}

@@ -64,6 +64,9 @@ export class RowRenderer implements IRowRenderer {
         if (row.isDataRow) {
             this.parent.trigger(rowDataBound, extend(rowArgs, <RowDataBoundEventArgs>{ row: tr }));
         }
+        if (row.cssClass) {
+            tr.classList.add(row.cssClass);
+        }
         return tr;
     }
 

@@ -234,8 +234,13 @@ var Grid = (function (_super) {
     Grid.prototype.getPersistData = function () {
         var keyEntity = ['allowPaging', 'pageSettings', 'allowSorting', 'sortSettings', 'allowSelection',
             'selectionSettings', 'allowFiltering', 'filterSettings', 'gridLines',
-            'create', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
-            'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound'];
+            'created', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
+            'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound', 'groupSettings', 'columns', 'allowKeyboard',
+            'enableAltRow', 'enableHover', 'allowTextWrap', 'searchSettings', 'selectedRowIndex', 'allowReordering',
+            'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
+            'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
+            'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailsDataBound', 'detailsTemplate',
+            'childGrid', 'queryString'];
         return this.addOnPersist(keyEntity);
     };
     Grid.prototype.requiredModules = function () {
@@ -280,6 +285,12 @@ var Grid = (function (_super) {
             modules.push({
                 member: 'group',
                 args: [this, this.groupSettings, this.sortedColumns, this.serviceLocator]
+            });
+        }
+        if (this.isDetail()) {
+            modules.push({
+                member: 'detailsRow',
+                args: [this]
             });
         }
         return modules;
@@ -348,7 +359,6 @@ var Grid = (function (_super) {
                     action([this.element], 'e-gridhover');
                     break;
                 case 'dataSource':
-                case 'query':
                     this.notify(events.dataSourceModified, {});
                     this.renderModule.refresh();
                     break;
@@ -360,14 +370,6 @@ var Grid = (function (_super) {
                     this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
                     if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)) {
                         requireRefresh = true;
-                    }
-                    break;
-                case 'allowTextWrap':
-                    if (this.allowTextWrap) {
-                        this.applyTextWrap();
-                    }
-                    else {
-                        this.removeTextWrap();
                     }
                     break;
                 case 'locale':
@@ -399,7 +401,11 @@ var Grid = (function (_super) {
                     this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
                     break;
                 case 'rowTemplate':
-                    this.updateRowTemplateFn();
+                    this.rowTemplateFn = this.templateComplier(this.rowTemplate);
+                    requireRefresh = true;
+                    break;
+                case 'detailsTemplate':
+                    this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
                     requireRefresh = true;
                     break;
                 case 'allowGrouping':
@@ -407,6 +413,9 @@ var Grid = (function (_super) {
                     this.headerModule.refreshUI();
                     requireRefresh = true;
                     checkCursor = true;
+                    break;
+                case 'childGrid':
+                    requireRefresh = true;
                     break;
             }
         }
@@ -440,6 +449,14 @@ var Grid = (function (_super) {
                 break;
             case 'selectionSettings':
                 this.notify(events.inBoundModelChanged, { module: 'selection', properties: newProp.selectionSettings });
+                break;
+            case 'allowTextWrap':
+                if (this.allowTextWrap) {
+                    this.applyTextWrap();
+                }
+                else {
+                    this.removeTextWrap();
+                }
                 break;
         }
     };
@@ -511,13 +528,23 @@ var Grid = (function (_super) {
         this.gridPager = element;
     };
     Grid.prototype.getRowByIndex = function (index) {
-        return this.getContentTable().querySelectorAll('.e-row')[index];
+        return this.getDataRows()[index];
     };
     Grid.prototype.getRows = function () {
         return this.contentModule.getRowElements();
     };
+    Grid.prototype.getDataRows = function () {
+        var rows = this.getContentTable().querySelector('tbody').children;
+        var dataRows = [];
+        for (var i = 0, len = rows.length; i < len; i++) {
+            if (rows[i].classList.contains('e-row')) {
+                dataRows.push(rows[i]);
+            }
+        }
+        return dataRows;
+    };
     Grid.prototype.getCellFromIndex = function (rowIndex, columnIndex) {
-        return this.getContent().querySelectorAll('.e-row')[rowIndex].querySelectorAll('.e-rowcell')[columnIndex];
+        return this.getDataRows()[rowIndex].querySelectorAll('.e-rowcell')[columnIndex];
     };
     Grid.prototype.getColumnHeaderByIndex = function (index) {
         return this.getHeaderTable().querySelectorAll('.e-headercell')[index];
@@ -575,6 +602,9 @@ var Grid = (function (_super) {
         if (this.allowGrouping) {
             index += this.groupSettings.columns.length;
         }
+        if (this.isDetail()) {
+            index++;
+        }
         return index;
     };
     Grid.prototype.getColumnFieldNames = function () {
@@ -591,6 +621,18 @@ var Grid = (function (_super) {
     Grid.prototype.getRowTemplate = function () {
         return this.rowTemplateFn;
     };
+    Grid.prototype.getDetailTemplate = function () {
+        return this.detailsTemplateFn;
+    };
+    Grid.prototype.getPrimaryKeyFieldNames = function () {
+        var keys = [];
+        for (var key = 0, col = this.columns, cLen = col.length; key < cLen; key++) {
+            if (col[key].isPrimaryKey) {
+                keys.push(col[key].field);
+            }
+        }
+        return keys;
+    };
     Grid.prototype.refresh = function () {
         this.headerModule.refreshUI();
         this.renderModule.refresh();
@@ -599,7 +641,7 @@ var Grid = (function (_super) {
         this.headerModule.refreshUI();
     };
     Grid.prototype.getSelectedRows = function () {
-        return this.selectionModule.selectedRecords;
+        return this.selectionModule ? this.selectionModule.selectedRecords : [];
     };
     Grid.prototype.getSelectedRowIndexes = function () {
         return this.selectionModule.selectedRowIndexes;
@@ -667,6 +709,31 @@ var Grid = (function (_super) {
     Grid.prototype.print = function () {
         this.printModule.print();
     };
+    Grid.prototype.recalcIndentWidth = function () {
+        if ((!this.groupSettings.columns.length && !this.isDetail()) ||
+            this.getHeaderTable().querySelector('.e-emptycell').getAttribute('indentRefreshed') ||
+            !this.getContentTable()) {
+            return;
+        }
+        var indentWidth = this.getHeaderTable().querySelector('.e-emptycell').parentElement.offsetWidth;
+        var headerCol = [].slice.call(this.getHeaderTable().querySelector('colgroup').childNodes);
+        var contentCol = [].slice.call(this.getContentTable().querySelector('colgroup').childNodes);
+        var perPixel = indentWidth / 30;
+        var i = 0;
+        if (perPixel >= 1) {
+            indentWidth = (30 / perPixel);
+        }
+        while (i < this.groupSettings.columns.length) {
+            headerCol[i].style.width = indentWidth + 'px';
+            contentCol[i].style.width = indentWidth + 'px';
+            i++;
+        }
+        if (this.isDetail()) {
+            headerCol[i].style.width = indentWidth + 'px';
+            contentCol[i].style.width = indentWidth + 'px';
+        }
+        this.getHeaderTable().querySelector('.e-emptycell').setAttribute('indentRefreshed', 'true');
+    };
     Grid.prototype.reorderColumns = function (fromFName, toFName) {
         this.reorderModule.reorderColumns(fromFName, toFName);
     };
@@ -709,20 +776,27 @@ var Grid = (function (_super) {
                 }
             }
         }
-        this.updateRowTemplateFn();
+        this.rowTemplateFn = this.templateComplier(this.rowTemplate);
+        this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
+        if (!isNullOrUndefined(this.parentDetails)) {
+            var value = isNullOrUndefined(this.parentDetails.parentKeyFieldValue) ? 'undefined' :
+                this.parentDetails.parentKeyFieldValue;
+            this.query.where(this.queryString, 'equal', value, true);
+        }
     };
-    Grid.prototype.updateRowTemplateFn = function () {
-        if (this.rowTemplate) {
+    Grid.prototype.templateComplier = function (template) {
+        if (template) {
             var e = void 0;
             try {
-                if (document.querySelectorAll(this.rowTemplate).length) {
-                    this.rowTemplateFn = templateComplier(document.querySelector(this.rowTemplate).innerHTML.trim());
+                if (document.querySelectorAll(template).length) {
+                    return templateComplier(document.querySelector(template).innerHTML.trim());
                 }
             }
             catch (e) {
-                this.rowTemplateFn = templateComplier(this.rowTemplate);
+                return templateComplier(template);
             }
         }
+        return undefined;
     };
     Grid.prototype.gridRender = function () {
         this.updateRTL();
@@ -815,12 +889,17 @@ var Grid = (function (_super) {
             return;
         }
         this.on(events.dataReady, this.dataReady, this);
+        this.on(events.contentReady, this.recalcIndentWidth, this);
+        this.on(events.headerRefreshed, this.recalcIndentWidth, this);
     };
     Grid.prototype.removeListener = function () {
         this.off(events.dataReady, this.dataReady);
+        this.off(events.contentReady, this.recalcIndentWidth);
+        this.off(events.headerRefreshed, this.recalcIndentWidth);
     };
     Grid.prototype.mouseClickHandler = function (e) {
-        if ((parentsUntil(e.target, 'e-gridpopup') && e.touches) || this.element.querySelectorAll('.e-cloneproperties').length) {
+        if (this.isChildGrid(e) || (parentsUntil(e.target, 'e-gridpopup') && e.touches) ||
+            this.element.querySelectorAll('.e-cloneproperties').length) {
             return;
         }
         if (((!this.allowRowDragAndDrop && parentsUntil(e.target, 'e-gridcontent')) ||
@@ -833,6 +912,9 @@ var Grid = (function (_super) {
         this.notify(events.click, e);
     };
     Grid.prototype.focusOutHandler = function (e) {
+        if (this.isChildGrid(e)) {
+            return;
+        }
         if (!parentsUntil(e.target, 'e-grid')) {
             this.element.querySelector('.e-gridpopup').style.display = 'none';
         }
@@ -841,7 +923,20 @@ var Grid = (function (_super) {
             filterClear.classList.add('e-hide');
         }
     };
+    Grid.prototype.isChildGrid = function (e) {
+        var gridElement = parentsUntil(e.target, 'e-grid');
+        if (gridElement && gridElement.id !== this.element.id) {
+            return true;
+        }
+        return false;
+    };
+    Grid.prototype.isDetail = function () {
+        return (this.detailsTemplate && this.detailsTemplate.length > 1) || !isNullOrUndefined(this.childGrid);
+    };
     Grid.prototype.keyActionHandler = function (e) {
+        if (this.isChildGrid(e)) {
+            return;
+        }
         if (this.allowKeyboard) {
             this.notify(events.keyPressed, e);
         }
@@ -921,6 +1016,15 @@ __decorate([
     Property()
 ], Grid.prototype, "rowTemplate", void 0);
 __decorate([
+    Property()
+], Grid.prototype, "detailsTemplate", void 0);
+__decorate([
+    Property()
+], Grid.prototype, "childGrid", void 0);
+__decorate([
+    Property()
+], Grid.prototype, "queryString", void 0);
+__decorate([
     Property('allpages')
 ], Grid.prototype, "printMode", void 0);
 __decorate([
@@ -995,6 +1099,18 @@ __decorate([
 __decorate([
     Event()
 ], Grid.prototype, "beforePrint", void 0);
+__decorate([
+    Event()
+], Grid.prototype, "detailsDataBound", void 0);
+__decorate([
+    Event()
+], Grid.prototype, "rowDragStart", void 0);
+__decorate([
+    Event()
+], Grid.prototype, "rowDrag", void 0);
+__decorate([
+    Event()
+], Grid.prototype, "rowDrop", void 0);
 Grid = __decorate([
     NotifyPropertyChanges
 ], Grid);

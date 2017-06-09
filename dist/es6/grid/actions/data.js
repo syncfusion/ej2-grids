@@ -15,11 +15,11 @@ var Data = (function () {
         var gObj = this.parent;
         this.dataManager = gObj.dataSource instanceof DataManager ? gObj.dataSource :
             (isNullOrUndefined(gObj.dataSource) ? new DataManager() : new DataManager(gObj.dataSource));
-        this.query = gObj.query instanceof Query ? gObj.query : new Query();
+        gObj.query = gObj.query instanceof Query ? gObj.query : new Query();
     };
     Data.prototype.generateQuery = function () {
         var gObj = this.parent;
-        var query = this.query.clone();
+        var query = gObj.query.clone();
         if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
             var columns = gObj.filterSettings.columns;
             for (var _i = 0, columns_1 = columns; _i < columns_1.length; _i++) {

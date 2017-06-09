@@ -3,7 +3,7 @@ import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Column, ColumnModel } from '../models/column';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
 import { PageSettingsModel } from '../models/models';
-import { RowDropSettingsModel, GroupSettingsModel } from './grid-model';
+import { RowDropSettingsModel, GroupSettingsModel, GridModel } from './grid-model';
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
 import { GridLine, Action, CellType, SortDirection, PrintMode } from './enum';
@@ -82,7 +82,7 @@ export interface IGrid extends Component<HTMLElement> {
      * It is used to select the row while initializing the grid.
      * @default -1       
      */
-    selectedRowIndex: number;
+    selectedRowIndex?: number;
 
     /**
      * Specifies the selectionSettings for Grid.
@@ -147,7 +147,7 @@ export interface IGrid extends Component<HTMLElement> {
      * Specifies whether the allowRowDragAndDrop is enable or not.
      * @default false
      */
-    allowRowDragAndDrop: boolean;
+    allowRowDragAndDrop?: boolean;
 
     /**
      * Specifies whether the gridLines mode
@@ -158,7 +158,24 @@ export interface IGrid extends Component<HTMLElement> {
     /**
      * Specifies rowTemplate     
      */
-    rowTemplate: string;
+    rowTemplate?: string;
+
+    /**
+     * Specifies detailTemplate     
+     */
+    detailsTemplate?: string;
+
+    /**    
+     * Defines the child Grid to add inside the data rows of the parent Grid with expand/collapse options.       
+     */
+    childGrid?: GridModel;
+
+
+    /**    
+     * Defines the relation between parent and child grid.       
+     */
+    queryString?: string;
+
 
     /**
      * Specifies the printMode
@@ -178,43 +195,48 @@ export interface IGrid extends Component<HTMLElement> {
      */
     query?: Query;
     //public methods
-    getHeaderContent(): Element;
-    setGridHeaderContent(value: Element): void;
-    getContentTable(): Element;
-    setGridContentTable(value: Element): void;
-    getContent(): Element;
-    setGridContent(value: Element): void;
-    getHeaderTable(): Element;
-    setGridHeaderTable(value: Element): void;
-    getPager(): Element;
-    setGridPager(value: Element): void;
-    getRowByIndex(index: number): Element;
-    getColumnHeaderByIndex(index: number): Element;
-    getColumnByField(field: string): Column;
-    getColumnIndexByField(field: string): number;
-    getColumnByUid(uid: string): Column;
-    getColumnIndexByUid(uid: string): number;
-    getUidByColumnField(field: string): string;
-    getNormalizedColumnIndex(uid: string): number;
-    getRows(): Element[];
-    getCellFromIndex(rowIndex: number, columnIndex: number): Element;
-    getColumnFieldNames(): string[];
-    getSelectedRows(): Element[];
-    getSelectedRecords(): Object[];
-    getSelectedRowIndexes(): number[];
-    selectRows(indexes: number[]): void;
-    clearSelection(): void;
-    updateExternalMessage(message: string): void;
-    getColumns(isRefresh?: boolean): Column[];
-    getRowTemplate(): Function;
-    sortColumn(columnName: string, sortDirection: SortDirection, isMultiSort?: boolean): void;
-    removeSortColumn(field: string): void;
-    getColumnHeaderByUid(uid: string): Element;
-    getColumnHeaderByField(field: string): Element;
-    showColumns(keys: string | string[], showBy?: string): void;
-    hideColumns(keys: string | string[], hideBy?: string): void;
+    getHeaderContent?(): Element;
+    setGridHeaderContent?(value: Element): void;
+    getContentTable?(): Element;
+    setGridContentTable?(value: Element): void;
+    getContent?(): Element;
+    setGridContent?(value: Element): void;
+    getHeaderTable?(): Element;
+    setGridHeaderTable?(value: Element): void;
+    getFooterContent?(): Element;
+    getFooterContentTable?(): Element;
+    getPager?(): Element;
+    setGridPager?(value: Element): void;
+    getRowByIndex?(index: number): Element;
+    getColumnHeaderByIndex?(index: number): Element;
+    getColumnByField?(field: string): Column;
+    getColumnIndexByField?(field: string): number;
+    getColumnByUid?(uid: string): Column;
+    getColumnIndexByUid?(uid: string): number;
+    getUidByColumnField?(field: string): string;
+    getNormalizedColumnIndex?(uid: string): number;
+    getRows?(): Element[];
+    getCellFromIndex?(rowIndex: number, columnIndex: number): Element;
+    getColumnFieldNames?(): string[];
+    getSelectedRows?(): Element[];
+    getSelectedRecords?(): Object[];
+    getSelectedRowIndexes?(): number[];
+    selectRows?(indexes: number[]): void;
+    clearSelection?(): void;
+    updateExternalMessage?(message: string): void;
+    getColumns?(isRefresh?: boolean): Column[];
+    getRowTemplate?(): Function;
+    getDetailTemplate?(): Function;
+    sortColumn?(columnName: string, sortDirection: SortDirection, isMultiSort?: boolean): void;
+    removeSortColumn?(field: string): void;
+    getColumnHeaderByUid?(uid: string): Element;
+    getColumnHeaderByField?(field: string): Element;
+    showColumns?(keys: string | string[], showBy?: string): void;
+    hideColumns?(keys: string | string[], hideBy?: string): void;
     getVisibleColumns?(): Column[];
     refreshHeader?(): void;
+    getDataRows?(): Element[];
+    getPrimaryKeyFieldNames?(): string[];
 }
 
 /** @hidden */
@@ -400,6 +422,8 @@ export interface IRow {
     subRowDetails?: Object;
 
     height?: string;
+
+    cssClass?: string;
 }
 /**
  * @hidden
@@ -458,6 +482,13 @@ export interface PrintEventArgs extends ActionEventArgs {
     element?: Element;
     /** Defines the current selected rows. */
     selectedRows?: NodeListOf<Element>;
+}
+
+export interface DetailsDataBoundEventArgs extends ActionEventArgs {
+    /** Defines the Details row element. */
+    detailsElement?: Element;
+    /** Defines the selected row data. */
+    data?: Object;
 }
 
 export interface RowDeselectEventArgs {
@@ -536,6 +567,17 @@ export interface QueryCellInfoEventArgs {
     column?: Column;
 }
 
+export interface RowDragEventArgs {
+    /** Defines the selected rows element. */
+    rows?: Element;
+    /** Defines the target element from which drag starts. */
+    target?: Element;
+    /** Defines the type of the element dragged. */
+    draggableType?: string;
+    /** Defines the selected row data. */
+    data?: Object[];
+}
+
 /**
  * @hidden
  */
@@ -549,4 +591,16 @@ export interface EJ2Intance extends HTMLElement {
 export interface IPosition {
     x: number;
     y: number;
+}
+
+/**
+ * @hidden
+ */
+export interface ParentDetails {
+    parentID?: string;
+    parentPrimaryKeys?: string[];
+    parentKeyField?: string;
+    parentKeyFieldValue?: string;
+    parentRowData?: Object;
+
 }

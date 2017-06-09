@@ -29,6 +29,8 @@ export class Row {
 
     public height: string;
 
+    public cssClass: string;
+
     constructor(options: { [x: string]: Object }) {
         merge(this, options);
     }

@@ -9,6 +9,8 @@ export var CellType;
     CellType[CellType["Expand"] = 6] = "Expand";
     CellType[CellType["HeaderIndent"] = 7] = "HeaderIndent";
     CellType[CellType["StackedHeader"] = 8] = "StackedHeader";
+    CellType[CellType["DetailHeader"] = 9] = "DetailHeader";
+    CellType[CellType["DetailExpand"] = 10] = "DetailExpand";
 })(CellType || (CellType = {}));
 export var RenderType;
 (function (RenderType) {

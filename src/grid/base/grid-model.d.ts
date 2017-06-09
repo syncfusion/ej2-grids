@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, ChildProperty, compile as templateComplier, Browser } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base/util';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base/dom';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager } from '@syncfusion/ej2-data';import { iterateArrayOrObject, prepareColumns, parentsUntil } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';import { Render } from '../renderer/render';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { Data } from '../actions/data';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { PageSettingsModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';
+import { Component, ModuleDeclaration, ChildProperty, compile as templateComplier, Browser } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base/util';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base/dom';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager } from '@syncfusion/ej2-data';import { iterateArrayOrObject, prepareColumns, parentsUntil } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';import { DetailsDataBoundEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';import { Render } from '../renderer/render';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { Data } from '../actions/data';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { PageSettingsModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';import { DetailsRow } from '../actions/details-row';
 import {ComponentModel} from '@syncfusion/ej2-base';
 
 /**
@@ -216,7 +216,16 @@ export interface GridModel extends ComponentModel{
      * Defines the grid lines mode. The available modes are        * * both - Displays both the horizontal and vertical grid lines.      * * none - No grid lines are displayed.     * * horizontal - Displays the horizontal grid lines only.      * * vertical - Displays the vertical grid lines only.     * * default - Displays grid lines based on the theme.     * @default default     */    gridLines?: GridLine;
 
     /**
-     * Defines the row template as string or element selector which is used to render rows as template. <br>     * Note: The row template must be a table row.       */    rowTemplate?: string;
+     * Defines the row template as string or element selector which is used to render rows as template. <br>     * > The row template must be a table row.       */    rowTemplate?: string;
+
+    /**
+     * Defines the detail template as string or element selector which is used to render details row as template.            */    detailsTemplate?: string;
+
+    /**
+     * Defines Grid options to render child Grid. It requires the `queryString` for parent and child relationship.             */    childGrid?: GridModel;
+
+    /**
+     * Defines the relation between parent and child Grid.            */    queryString?: string;
 
     /**
      * Defines the print modes. The available print modes are        * * allpages - Print all pages records of the Grid.      * * currentpage - Print current page records of the Grid.     * @default allpages     */    printMode?: PrintMode;
@@ -292,5 +301,17 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Triggers before the print action starts.       * @event      */    beforePrint?: EmitType<PrintEventArgs>;
+
+    /**
+     * Triggers after details row expanded.     * > This event triggers at initial expand.      * @event      */    detailsDataBound?: EmitType<DetailsDataBoundEventArgs>;
+
+    /**
+     * Triggers when row elements is dragged.      * @event       */    rowDragStart?: EmitType<RowDragEventArgs>;
+
+    /**
+     * Triggers when row elements is dragged (moved) continuously.      * @event       */    rowDrag?: EmitType<RowDragEventArgs>;
+
+    /**
+     * Triggers when row elements is dropped on target row.      * @event       */    rowDrop?: EmitType<RowDragEventArgs>;
 
 }

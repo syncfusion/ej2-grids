@@ -188,15 +188,12 @@ describe('Pager base module', () => {
             setTimeout(() => { done(); }, 1000);
         });
 
-        it('getPersistData testing', () => {
-            expect(pagerObj.getPersistData()).toEqual('{"enableExternalMessage":false,"enablePagerMessage":true,"currentPage":8,"pageSize":5,"pageCount":5,"totalRecordsCount":100,"customText":""}');
-        });
-
         it('getLocalizedLabel testing', () => {
             expect(pagerObj.getLocalizedLabel('firstPageTooltip')).toEqual('Go to first page');
         });
 
         afterAll(() => {
+            pagerObj.getPersistData();
             pagerObj.destroy();
             elem.remove();
         });

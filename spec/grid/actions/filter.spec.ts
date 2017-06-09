@@ -662,6 +662,7 @@ describe('Filtering module', () => {
         it('allowfiltering false testing', () => {
             gridObj.allowFiltering = false;
             gridObj.dataBind();
+            gridObj.actionComplete = undefined;
             expect(gridObj.element.querySelectorAll('.e-filterbar').length).toEqual(0);
         });
 

@@ -131,6 +131,13 @@ describe('Grouping module', () => {
             expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(18);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altDownArrow', preventDefault: () => { } });
             expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(18);
+            gridObj.allowSelection = false;
+            gridObj.dataBind();
+            (<any>gridObj.groupModule).keyPressHandler({ action: 'altUpArrow', preventDefault: () => { } });
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(18);
+            gridObj.allowSelection = true;
+            gridObj.dataBind();
+
         });
 
         it('multi column group testing', (done: Function) => {
@@ -552,6 +559,54 @@ describe('Grouping module', () => {
             expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0] as HTMLElement).style.display).toEqual('none');
         });
 
+        it('hide group toggle button', () => {
+            gridObj.groupSettings.showToggleButton = false;
+            gridObj.dataBind();
+            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toEqual(0);
+        });
+
+        it('show group toggle button', () => {
+            gridObj.groupSettings.showToggleButton = true;
+            gridObj.dataBind();
+            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toEqual(gridObj.columns.length);
+        });
+
+        it('hide ungroup button', () => {
+            gridObj.groupSettings.showUngroupButton = false;
+            gridObj.dataBind();
+            expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0].
+                querySelectorAll('.e-ungroupbutton')[0] as HTMLElement).style.display).toEqual('none');
+        });
+
+        it('show ungroup button', () => {
+            gridObj.groupSettings.showUngroupButton = true;
+            gridObj.dataBind();
+            expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0].
+                querySelectorAll('.e-ungroupbutton')[0] as HTMLElement).style.display).toEqual('');
+        });
+
+        it('hide Grouped Column', (done: Function) => {
+            actionComplete = () => {
+                expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toEqual(gridObj.groupSettings.columns.length);
+                expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toEqual(gridObj.groupSettings.columns.length * 12);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupSettings.showGroupedColumn = false;
+            gridObj.dataBind();
+        });
+
+        it('show Grouped Column', (done: Function) => {
+            actionComplete = () => {
+                expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toEqual(0);
+                expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toEqual(0);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupSettings.showGroupedColumn = true;
+            gridObj.dataBind();
+        });
+
         it('ungroup from toogele header testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
                 expect(gridObj.groupSettings.columns.length).toEqual(0);
@@ -608,19 +663,6 @@ describe('Grouping module', () => {
             (<any>gridObj.groupModule).contentRefresh = false;
             gridObj.groupModule.groupColumn('EmployeeID');
             expect(1).toEqual(1);
-            //for coverage
-            gridObj.groupSettings.showToggleButton = false;
-            gridObj.dataBind();
-            gridObj.groupSettings.showToggleButton = true;
-            gridObj.dataBind();
-            gridObj.groupSettings.showGroupedColumn = false;
-            gridObj.dataBind();
-            gridObj.groupSettings.showGroupedColumn = true;
-            gridObj.dataBind();
-            gridObj.groupSettings.showDropArea = false;
-            gridObj.dataBind();
-            gridObj.groupSettings.showDropArea = true;
-            gridObj.dataBind();
         });
 
         afterAll(() => {
@@ -670,7 +712,7 @@ describe('Grouping module', () => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toEqual(3);
                 done();
-            }
+            };
             gridObj.groupModule.groupColumn('EmployeeID');
             gridObj.actionComplete = actionComplete;
             gridObj.dataBind();
@@ -681,7 +723,7 @@ describe('Grouping module', () => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(2);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toEqual(3);
                 done();
-            }
+            };
             gridObj.actionComplete = actionComplete;
             gridObj.sortColumn('OrderDate', 'ascending');
             gridObj.dataBind();
@@ -692,7 +734,7 @@ describe('Grouping module', () => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toEqual(0);
                 done();
-            }
+            };
             gridObj.actionComplete = actionComplete;
             gridObj.groupModule.ungroupColumn('EmployeeID');
             gridObj.dataBind();
@@ -701,7 +743,7 @@ describe('Grouping module', () => {
             let actionComplete = (args: Object) => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(0);
                 done();
-            }
+            };
             gridObj.actionComplete = actionComplete;
             gridObj.clearSorting();
             gridObj.dataBind();
@@ -992,6 +1034,69 @@ describe('Grouping module', () => {
         });
         it('test', () => {
             expect(1).toEqual(1);
+        });
+        afterAll(() => {
+            elem.remove();
+        });
+
+    });
+
+    // initially grouping and sort same column
+    describe('Grouping and sorting same column', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'ShipCity', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: { columns: ['EmployeeID'] },
+                    sortSettings: { columns: [{ field: 'EmployeeID', direction: 'ascending' }] },
+                    allowSorting: true,
+                    allowPaging: true,
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('initial render testing', () => {
+            expect(gridObj.groupSettings.columns.length).toEqual(gridObj.sortSettings.columns.length);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-sortnumber').length).toEqual(0);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
+        });
+        it('clear Grouping', (done: Function) => {
+            actionComplete = () => {
+                expect(gridObj.sortSettings.columns.length).toEqual(1);
+                expect(gridObj.groupSettings.columns.length).toEqual(0);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
+                expect(gridObj.getContent().querySelectorAll('tr').length).toEqual(12);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupModule.ungroupColumn('EmployeeID');
+            gridObj.dataBind();
+        });
+        it('clear sorting', (done: Function) => {
+            actionComplete = () => {
+                expect(gridObj.sortSettings.columns.length).toEqual(0);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(0);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.clearSorting();
+            gridObj.dataBind();
         });
         afterAll(() => {
             elem.remove();

@@ -78,6 +78,10 @@ export class Filter implements IAction {
             row.data = this.values;
             this.element = rowRenderer.render(row, <Column[]>gObj.getColumns());
             this.parent.getHeaderContent().querySelector('thead').appendChild(this.element);
+            let detail: Element = this.element.querySelector('.e-detailheadercell');
+            if (detail) {
+                detail.className = 'e-filterbarcell e-mastercell';
+            }
             this.wireEvents();
         }
     }
@@ -109,6 +113,9 @@ export class Filter implements IAction {
             for (let c: number = 0, len: number = this.parent.groupSettings.columns.length; c < len; c++) {
                 cells.push(this.generateCell({} as Column, CellType.HeaderIndent));
             }
+        }
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            cells.push(this.generateCell({} as Column, CellType.DetailHeader));
         }
         for (let dummy of this.parent.getColumns() as Column[]) {
             cells.push(this.generateCell(dummy));
@@ -233,7 +240,7 @@ export class Filter implements IAction {
     }
 
     /** 
-     * Filters grid row by column name with given options. 
+     * Filters grid row by column name with given options.
      * @param  {string} fieldName - Defines the field name of the filter column. 
      * @param  {string} filterOperator - Defines the operator by how to filter records.
      * @param  {string | number | Date | boolean} filterValue - Defines the value which is used to filter records.

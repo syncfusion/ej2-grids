@@ -9,3 +9,4 @@ export * from './actions/reorder';
 export * from './actions/row-reorder';
 export * from './actions/group';
 export * from './actions/print';
+export * from './actions/details-row';

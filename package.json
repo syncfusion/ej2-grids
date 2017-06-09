@@ -35,6 +35,21 @@
 		"phantomjs-prebuilt": "^2.1.14",
 		"simple-odata-server": "^0.3.1"
 	},
+	"keywords": [
+		"ej2",
+		"syncfusion",
+		"ej2-grids",
+		"web-components",
+		"JavaScript",
+		"TypeScript",
+		"grid",
+		"data",
+		"table"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/syncfusion/ej2-grids.git"
+	},
 	"scripts": {
 		"build": "gulp build",
 		"test": "gulp test"

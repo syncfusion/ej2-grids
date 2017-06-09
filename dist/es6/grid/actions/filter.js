@@ -37,6 +37,10 @@ var Filter = (function () {
             row.data = this.values;
             this.element = rowRenderer.render(row, gObj.getColumns());
             this.parent.getHeaderContent().querySelector('thead').appendChild(this.element);
+            var detail = this.element.querySelector('.e-detailheadercell');
+            if (detail) {
+                detail.className = 'e-filterbarcell e-mastercell';
+            }
             this.wireEvents();
         }
     };
@@ -59,6 +63,9 @@ var Filter = (function () {
             for (var c = 0, len = this.parent.groupSettings.columns.length; c < len; c++) {
                 cells.push(this.generateCell({}, CellType.HeaderIndent));
             }
+        }
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            cells.push(this.generateCell({}, CellType.DetailHeader));
         }
         for (var _i = 0, _a = this.parent.getColumns(); _i < _a.length; _i++) {
             var dummy = _a[_i];

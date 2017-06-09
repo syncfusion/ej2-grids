@@ -179,3 +179,14 @@ var uid = 0;
 export function getUid(prefix) {
     return prefix + uid++;
 }
+export function parents(elem, selector, isID) {
+    var parent = elem;
+    var parents = [];
+    while (parent) {
+        if (isID ? parent.id === selector : parent.classList.contains(selector)) {
+            parents.push(parent);
+        }
+        parent = parent.parentElement;
+    }
+    return parents;
+}

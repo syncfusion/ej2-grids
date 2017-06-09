@@ -16,10 +16,14 @@ export class ColumnWidthService {
     }
 
     public setWidthToColumns(): void {
+        let i: number = 0;
         if (this.parent.allowGrouping) {
-            for (let i: number = 0, len: number = this.parent.groupSettings.columns.length; i < len; i++) {
+            for (let len: number = this.parent.groupSettings.columns.length; i < len; i++) {
                 this.setColumnWidth(new Column({ width: '30px' }), i);
             }
+        }
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            this.setColumnWidth(new Column({ width: '30px' }), i);
         }
         (<Column[]>this.parent.getColumns()).forEach((column: Column) => {
             this.setColumnWidth(column);

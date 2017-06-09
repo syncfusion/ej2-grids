@@ -114,7 +114,14 @@ export class ContentRender implements IRenderer {
             }
             frag.appendChild(tr);
             this.rows.push(modelData[i]);
-            this.rowElements.push(tr);
+            if (modelData[i].isDataRow) {
+                //detailrowvisible 
+                let td: Element = tr.querySelectorAll('.e-rowcell:not(.e-hide)')[0];
+                if (td) {
+                    td.classList.add('e-detailrowvisible');
+                }
+                this.rowElements.push(tr);
+            }
             this.ariaService.setOptions(this.getTable() as HTMLElement, { colcount: gObj.getColumns().length.toString() });
         }
         getUpdateUsingRaf<HTMLElement>(
@@ -191,6 +198,14 @@ export class ContentRender implements IRenderer {
      */
     public getColGroup(): Element {
         return this.colgroup;
+    }
+
+    /**
+     * Get the content table data row elements
+     * @return {Element} 
+     */
+    public setRowElements(elements: Element[]): void {
+        this.rowElements = elements;
     }
 
     /**

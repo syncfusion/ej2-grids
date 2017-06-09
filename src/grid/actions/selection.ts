@@ -3,7 +3,7 @@ import { isNullOrUndefined, isUndefined } from '@syncfusion/ej2-base/util';
 import { remove, createElement, closest, classList } from '@syncfusion/ej2-base/dom';
 import { IGrid, IAction, IIndex, ISelectedCell, IPosition } from '../base/interface';
 import { SelectionSettings } from '../base/grid';
-import { setCssInGridPopUp, getPosition } from '../base/util';
+import { setCssInGridPopUp, getPosition, parentsUntil } from '../base/util';
 import * as events from '../base/constant';
 
 /**
@@ -231,9 +231,9 @@ export class Selection implements IAction {
     }
 
     private clearRow(): void {
+        this.clearRowSelection();
         this.selectedRowIndexes = [];
         this.selectedRecords = [];
-        this.clearRowSelection();
     }
 
     private updateRowProps(startIndex: number): void {
@@ -271,7 +271,7 @@ export class Selection implements IAction {
      */
     public clearRowSelection(): void {
         if (this.isRowSelected) {
-            let selectedRows: NodeListOf<Element> = this.parent.getContentTable().querySelectorAll('tr[aria-selected="true"]');
+            let rows: Element[] = this.parent.getDataRows();
             let data: Object[] = [];
             let row: Element[] = [];
             let rowIndex: number[] = [];
@@ -286,9 +286,9 @@ export class Selection implements IAction {
                     rowIndex: rowIndex, data: data, row: row
                 });
             }
-            for (let i: number = 0, len: number = selectedRows.length; i < len; i++) {
-                selectedRows[i].removeAttribute('aria-selected');
-                this.addRemoveClassesForRow(selectedRows[i], false, 'e-selectionbackground', 'e-active');
+            for (let i: number = 0, len: number = this.selectedRowIndexes.length; i < len; i++) {
+                rows[this.selectedRowIndexes[i]].removeAttribute('aria-selected');
+                this.addRemoveClassesForRow(rows[this.selectedRowIndexes[i]], false, 'e-selectionbackground', 'e-active');
             }
             if (this.isTrigger) {
                 this.parent.trigger(events.rowDeselected, {
@@ -533,7 +533,7 @@ export class Selection implements IAction {
     public clearCellSelection(): void {
         if (this.isCellSelected) {
             let gObj: IGrid = this.parent;
-            let selectedCells: NodeListOf<Element> = gObj.getContentTable().querySelectorAll('.e-cellselectionbackground');
+            let selectedCells: Element[] = this.getSelectedCellsElement();
             let rowCell: ISelectedCell[] = this.selectedRowCellIndexes;
             let data: Object[] = [];
             let cells: Element[] = [];
@@ -562,6 +562,15 @@ export class Selection implements IAction {
                 });
             }
         }
+    }
+
+    private getSelectedCellsElement(): Element[] {
+        let rows: Element[] = this.parent.getDataRows();
+        let cells: Element[] = [];
+        for (let i: number = 0, len: number = rows.length; i < len; i++) {
+            cells = cells.concat([].slice.call(rows[i].querySelectorAll('.e-cellselectionbackground')));
+        }
+        return cells;
     }
 
     private mouseMoveHandler(e: MouseEventArgs): void {
@@ -608,6 +617,10 @@ export class Selection implements IAction {
 
     private mouseDownHandler(e: MouseEventArgs): void {
         let target: Element = e.target as Element;
+        let gridElement: Element = parentsUntil(target, 'e-grid');
+        if (gridElement && gridElement.id !== this.parent.element.id) {
+            return;
+        }
         if (e.shiftKey || e.ctrlKey) {
             e.preventDefault();
         }
@@ -820,7 +833,8 @@ export class Selection implements IAction {
                 let height: number = row.offsetHeight;
                 let rowIndex: number = row.rowIndex;
                 scrollElem.scrollTop = scrollElem.scrollTop + (e.action === 'downArrow' ? height : height * -1);
-                if (this.checkVisible(row) && rowIndex !== 0 && this.parent.getContent().querySelectorAll('tr').length !== rowIndex + 1) {
+                if (this.checkVisible(row) &&
+                    rowIndex !== 0 && this.parent.getContentTable().querySelector('tbody').children.length !== rowIndex + 1) {
                     e.preventDefault();
                 }
             }
@@ -847,10 +861,10 @@ export class Selection implements IAction {
      * @hidden
      */
     public ctrlPlusA(): void {
-        if (this.isRowType()) {
+        if (this.isRowType() && !this.isSingleSel()) {
             this.selectRowsByRange(0, this.parent.getRows().length - 1);
         }
-        if (this.isCellType()) {
+        if (this.isCellType() && !this.isSingleSel()) {
             this.selectCellsByRange(
                 { rowIndex: 0, cellIndex: 0 },
                 { rowIndex: this.parent.getRows().length - 1, cellIndex: this.parent.getColumns().length - 1 });
@@ -964,7 +978,7 @@ export class Selection implements IAction {
     public shiftDownKey(): void {
         let gObj: IGrid = this.parent;
         this.isMultiShiftRequest = true;
-        if (this.isRowType()) {
+        if (this.isRowType() && !this.isSingleSel()) {
             if (!isUndefined(this.prevRowIndex)) {
                 let endIndex: number = isUndefined(gObj.selectedRowIndex) ? this.prevRowIndex + 1 :
                     (gObj.selectedRowIndex + 1 < this.parent.getRows().length ?
@@ -976,7 +990,7 @@ export class Selection implements IAction {
                 this.selectRow(0);
             }
         }
-        if (this.isCellType()) {
+        if (this.isCellType() && !this.isSingleSel()) {
             if (!isUndefined(this.prevCIdxs)) {
                 if (this.prevECIdxs.rowIndex + 1 < this.parent.getRows().length) {
                     this.selectCellsByRange(
@@ -998,12 +1012,12 @@ export class Selection implements IAction {
     public shiftUpKey(): void {
         let gObj: IGrid = this.parent;
         this.isMultiShiftRequest = true;
-        if (this.isRowType() && !isUndefined(this.prevRowIndex)) {
+        if (this.isRowType() && !isUndefined(this.prevRowIndex) && !this.isSingleSel()) {
             let endIndex: number = isUndefined(gObj.selectedRowIndex) ? (this.prevRowIndex - 1 > -1 ? (this.prevRowIndex - 1) : 0) :
                 ((gObj.selectedRowIndex - 1) > -1 ? gObj.selectedRowIndex - 1 : gObj.selectedRowIndex);
             this.selectRowsByRange(this.prevRowIndex, endIndex);
         }
-        if (this.isCellType() && !isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1) {
+        if (this.isCellType() && !isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1 && !this.isSingleSel()) {
             this.selectCellsByRange(
                 this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex - 1, cellIndex: this.prevECIdxs.cellIndex });
         }
@@ -1032,13 +1046,13 @@ export class Selection implements IAction {
     private applyShiftLeftRightKey(key: number, cond: boolean): void {
         let gObj: IGrid = this.parent;
         this.isMultiShiftRequest = true;
-        if (this.isCellType()) {
+        if (this.isCellType() && !this.isSingleSel()) {
             if (cond) {
                 this.selectCellsByRange(
                     this.prevCIdxs, {
                         rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key
                     });
-            } else {
+            } else if (!this.isSingleSel()) {
                 if (this.selectionSettings.cellSelectionMode === 'flow' &&
                     (key > 0 ? this.prevECIdxs.rowIndex + 1 < this.parent.pageSettings.pageSize : this.prevECIdxs.rowIndex - 1 > -1)) {
                     this.selectCellsByRange(
@@ -1079,7 +1093,11 @@ export class Selection implements IAction {
     }
 
     private addRemoveClassesForRow(row: Element, isAdd: boolean, ...args: string[]): void {
-        let cells: NodeListOf<Element> = row.querySelectorAll('.e-rowcell');
+        let cells: Element[] = [].slice.call(row.querySelectorAll('.e-rowcell'));
+        let cell: Element = row.querySelector('.e-detailsrowcollapse') || row.querySelector('.e-detailsrowexpand');
+        if (cell) {
+            cells.push(cell);
+        }
         for (let i: number = 0, len: number = cells.length; i < len; i++) {
             if (isAdd) {
                 classList(cells[i], [...args], []);

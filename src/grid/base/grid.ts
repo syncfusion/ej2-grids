@@ -8,9 +8,10 @@ import { GridModel } from './grid-model';
 import { iterateArrayOrObject, prepareColumns, parentsUntil } from './util';
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
-import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs } from './interface';
+import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';
-import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs } from './interface';
+import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
+import { DetailsDataBoundEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
@@ -37,6 +38,7 @@ import { ShowHide } from '../actions/show-hide';
 import { Scroll } from '../actions/scroll';
 import { Group } from '../actions/group';
 import { Print } from '../actions/print';
+import { DetailsRow } from '../actions/details-row';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -380,6 +382,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private isInitial: boolean = true;
     private columnModel: Column[];
     private rowTemplateFn: Function;
+    private detailsTemplateFn: Function;
     private sortedColumns: string[] = [];
     /** @hidden */
     public recordsCount: number;
@@ -387,6 +390,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Gets the current visible records of Grid.
      */
     public currentViewData: Object[];
+    /** @hidden */
+    public parentDetails: ParentDetails;
     /** @hidden */
     public currentAction: Action;
     /** @hidden */
@@ -514,6 +519,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * `printModule` is used to manipulate printing feature in the Grid.
      */
     public printModule: Print;
+
+    /**
+     * `detailsRowModule` is used to handle detail rows rendering in the Grid.
+     * @hidden
+     */
+    public detailsRowModule: DetailsRow;
+
 
     //Grid Options    
 
@@ -690,10 +702,28 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**    
      * Defines the row template as string or element selector which is used to render rows as template. <br>
-     * Note: The row template must be a table row.  
+     * > The row template must be a table row.  
      */
     @Property()
     public rowTemplate: string;
+
+    /**    
+     * Defines the detail template as string or element selector which is used to render details row as template.       
+     */
+    @Property()
+    public detailsTemplate: string;
+
+    /**    
+     * Defines Grid options to render child Grid. It requires the `queryString` for parent and child relationship.        
+     */
+    @Property()
+    public childGrid: GridModel;
+
+    /**    
+     * Defines the relation between parent and child Grid.       
+     */
+    @Property()
+    public queryString: string;
 
     /**   
      * Defines the print modes. The available print modes are   
@@ -878,6 +908,35 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Event()
     public beforePrint: EmitType<PrintEventArgs>;
 
+    /** 
+     * Triggers after details row expanded.
+     * > This event triggers at initial expand. 
+     * @event 
+     */
+    @Event()
+    public detailsDataBound: EmitType<DetailsDataBoundEventArgs>;
+
+    /**  
+     * Triggers when row elements is dragged. 
+     * @event  
+     */
+    @Event()
+    public rowDragStart: EmitType<RowDragEventArgs>;
+
+    /**  
+     * Triggers when row elements is dragged (moved) continuously. 
+     * @event  
+     */
+    @Event()
+    public rowDrag: EmitType<RowDragEventArgs>;
+
+    /**  
+     * Triggers when row elements is dropped on target row. 
+     * @event  
+     */
+    @Event()
+    public rowDrop: EmitType<RowDragEventArgs>;
+
     /**
      * Constructor for creating the widget
      * @hidden
@@ -894,8 +953,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public getPersistData(): string {
         let keyEntity: string[] = ['allowPaging', 'pageSettings', 'allowSorting', 'sortSettings', 'allowSelection',
             'selectionSettings', 'allowFiltering', 'filterSettings', 'gridLines',
-            'create', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
-            'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound'];
+            'created', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
+            'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound', 'groupSettings', 'columns', 'allowKeyboard',
+            'enableAltRow', 'enableHover', 'allowTextWrap', 'searchSettings', 'selectedRowIndex', 'allowReordering',
+            'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
+            'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
+            'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailsDataBound', 'detailsTemplate',
+            'childGrid', 'queryString'];
         return this.addOnPersist(keyEntity);
     }
 
@@ -948,13 +1012,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.groupSettings, this.sortedColumns, this.serviceLocator]
             });
         }
-
+        if (this.isDetail()) {
+            modules.push({
+                member: 'detailsRow',
+                args: [this]
+            });
+        }
 
         return modules;
     }
 
     /**
-     * For internal use only - Initialize the event handler.
+     * For internal use only - Initialize the event handler;
      * @private
      */
     protected preRender(): void {
@@ -984,7 +1053,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * For internal use only - Initialize the event handler.
+     * For internal use only - Initialize the event handler
      * @private
      */
     protected eventInitializer(): void {
@@ -1046,7 +1115,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     (<Function>action)([this.element], 'e-gridhover');
                     break;
                 case 'dataSource':
-                case 'query':
                     this.notify(events.dataSourceModified, {});
                     this.renderModule.refresh();
                     break;
@@ -1058,13 +1126,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
                     if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)) {
                         requireRefresh = true;
-                    }
-                    break;
-                case 'allowTextWrap':
-                    if (this.allowTextWrap) {
-                        this.applyTextWrap();
-                    } else {
-                        this.removeTextWrap();
                     }
                     break;
                 case 'locale':
@@ -1096,7 +1157,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
                     break;
                 case 'rowTemplate':
-                    this.updateRowTemplateFn();
+                    this.rowTemplateFn = this.templateComplier(this.rowTemplate);
+                    requireRefresh = true;
+                    break;
+                case 'detailsTemplate':
+                    this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
                     requireRefresh = true;
                     break;
                 case 'allowGrouping':
@@ -1104,6 +1169,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.headerModule.refreshUI();
                     requireRefresh = true;
                     checkCursor = true;
+                    break;
+                case 'childGrid':
+                    requireRefresh = true;
                     break;
             }
         }
@@ -1139,6 +1207,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'selectionSettings':
                 this.notify(events.inBoundModelChanged, { module: 'selection', properties: newProp.selectionSettings });
+                break;
+            case 'allowTextWrap':
+                if (this.allowTextWrap) {
+                    this.applyTextWrap();
+                } else {
+                    this.removeTextWrap();
+                }
                 break;
         }
     }
@@ -1279,7 +1354,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Element} 
      */
     public getRowByIndex(index: number): Element {
-        return this.getContentTable().querySelectorAll('.e-row')[index];
+        return this.getDataRows()[index];
     }
 
     /**
@@ -1291,13 +1366,28 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
+     * Gets all the Grid's data rows.
+     * @return {Element[]} 
+     */
+    public getDataRows(): Element[] {
+        let rows: NodeList = this.getContentTable().querySelector('tbody').children;
+        let dataRows: Element[] = [];
+        for (let i: number = 0, len: number = rows.length; i < len; i++) {
+            if ((rows[i] as Element).classList.contains('e-row')) {
+                dataRows.push(rows[i] as Element);
+            }
+        }
+        return dataRows;
+    }
+
+    /**
      * Gets a cell by row and column index.
      * @param  {number} rowIndex - Specifies the row index.
      * @param  {number} columnIndex - Specifies the column index.
      * @return {Element} 
      */
     public getCellFromIndex(rowIndex: number, columnIndex: number): Element {
-        return this.getContent().querySelectorAll('.e-row')[rowIndex].querySelectorAll('.e-rowcell')[columnIndex];
+        return this.getDataRows()[rowIndex].querySelectorAll('.e-rowcell')[columnIndex];
     }
 
     /**
@@ -1415,6 +1505,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.allowGrouping) {
             index += this.groupSettings.columns.length;
         }
+
+        if (this.isDetail()) {
+            index++;
+        }
         /**
          * TODO: index normalization based on the stacked header, grouping and detailstemplate 
          * and frozen should be handled here 
@@ -1441,9 +1535,34 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**
      * Gets a compiled row template.
      * @return {Function}
+     * @private
      */
     public getRowTemplate(): Function {
         return this.rowTemplateFn;
+    }
+
+    /**
+     * Gets a compiled detail row template.
+     * @private
+     * @return {Function}
+     */
+    public getDetailTemplate(): Function {
+        return this.detailsTemplateFn;
+    }
+
+    /**
+     * Gets the collection of primary keys.
+     * @private
+     * @return {Function}
+     */
+    public getPrimaryKeyFieldNames(): string[] {
+        let keys: string[] = [];
+        for (let key: number = 0, col: Column[] | string[] | ColumnModel[] = this.columns, cLen: number = col.length; key < cLen; key++) {
+            if ((col[key] as Column).isPrimaryKey) {
+                keys.push((col[key] as Column).field);
+            }
+        }
+        return keys;
     }
 
     /**
@@ -1466,7 +1585,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Element[]}
      */
     public getSelectedRows(): Element[] {
-        return this.selectionModule.selectedRecords;
+        return this.selectionModule ? this.selectionModule.selectedRecords : [];
     }
 
     /**
@@ -1660,6 +1779,36 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.printModule.print();
     }
 
+    /**    
+     * @hidden
+     */
+    public recalcIndentWidth(): void {
+        if ((!this.groupSettings.columns.length && !this.isDetail()) ||
+            this.getHeaderTable().querySelector('.e-emptycell').getAttribute('indentRefreshed') ||
+            !this.getContentTable()) {
+            return;
+        }
+        let indentWidth: number = (this.getHeaderTable().querySelector('.e-emptycell').parentElement as HTMLElement).offsetWidth;
+        let headerCol: HTMLElement[] = [].slice.call(this.getHeaderTable().querySelector('colgroup').childNodes);
+        let contentCol: HTMLElement[] = [].slice.call(this.getContentTable().querySelector('colgroup').childNodes);
+        let perPixel: number = indentWidth / 30;
+        let i: number = 0;
+        if (perPixel >= 1) {
+            indentWidth = (30 / perPixel);
+        }
+        while (i < this.groupSettings.columns.length) {
+            headerCol[i].style.width = indentWidth + 'px';
+            contentCol[i].style.width = indentWidth + 'px';
+            i++;
+        }
+        if (this.isDetail()) {
+            headerCol[i].style.width = indentWidth + 'px';
+            contentCol[i].style.width = indentWidth + 'px';
+        }
+        this.getHeaderTable().querySelector('.e-emptycell').setAttribute('indentRefreshed', 'true');
+    }
+
+
     /** 
      * Changes the Grid column positions by field names. 
      * @param  {string} fromFName - Defines the origin field name. 
@@ -1709,20 +1858,27 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 }
             }
         }
-        this.updateRowTemplateFn();
+        this.rowTemplateFn = this.templateComplier(this.rowTemplate);
+        this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
+        if (!isNullOrUndefined(this.parentDetails)) {
+            let value: string = isNullOrUndefined(this.parentDetails.parentKeyFieldValue) ? 'undefined' :
+                this.parentDetails.parentKeyFieldValue;
+            this.query.where(this.queryString, 'equal', value, true);
+        }
     }
 
-    private updateRowTemplateFn(): void {
-        if (this.rowTemplate) {
+    private templateComplier(template: string): Function {
+        if (template) {
             let e: Object;
             try {
-                if (document.querySelectorAll(this.rowTemplate).length) {
-                    this.rowTemplateFn = templateComplier(document.querySelector(this.rowTemplate).innerHTML.trim());
+                if (document.querySelectorAll(template).length) {
+                    return templateComplier(document.querySelector(template).innerHTML.trim());
                 }
             } catch (e) {
-                this.rowTemplateFn = templateComplier(this.rowTemplate);
+                return templateComplier(template);
             }
         }
+        return undefined;
     }
 
     private gridRender(): void {
@@ -1844,16 +2000,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public addListener(): void {
         if (this.isDestroyed) { return; }
         this.on(events.dataReady, this.dataReady, this);
+        this.on(events.contentReady, this.recalcIndentWidth, this);
+        this.on(events.headerRefreshed, this.recalcIndentWidth, this);
     }
     /**
      * @hidden
      */
     public removeListener(): void {
         this.off(events.dataReady, this.dataReady);
+        this.off(events.contentReady, this.recalcIndentWidth);
+        this.off(events.headerRefreshed, this.recalcIndentWidth);
     }
 
     private mouseClickHandler(e: MouseEvent & TouchEvent): void {
-        if ((parentsUntil(e.target as Element, 'e-gridpopup') && e.touches) || this.element.querySelectorAll('.e-cloneproperties').length) {
+        if (this.isChildGrid(e) || (parentsUntil(e.target as Element, 'e-gridpopup') && e.touches) ||
+            this.element.querySelectorAll('.e-cloneproperties').length) {
             return;
         }
         if (((!this.allowRowDragAndDrop && parentsUntil(e.target as Element, 'e-gridcontent')) ||
@@ -1867,6 +2028,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private focusOutHandler(e: MouseEvent): void {
+        if (this.isChildGrid(e)) {
+            return;
+        }
         if (!parentsUntil(e.target as Element, 'e-grid')) {
             (this.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
         }
@@ -1876,7 +2040,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         }
     }
 
+    private isChildGrid(e: MouseEvent | KeyboardEvent | TouchEvent): boolean {
+        let gridElement: Element = parentsUntil((e.target as HTMLElement), 'e-grid');
+        if (gridElement && gridElement.id !== this.element.id) {
+            return true;
+        }
+        return false;
+    }
+
+    private isDetail(): boolean {
+        return (this.detailsTemplate && this.detailsTemplate.length > 1) || !isNullOrUndefined(this.childGrid);
+    }
+
     private keyActionHandler(e: KeyboardEventArgs): void {
+        if (this.isChildGrid(e)) {
+            return;
+        }
         if (this.allowKeyboard) {
             this.notify(events.keyPressed, e);
         }

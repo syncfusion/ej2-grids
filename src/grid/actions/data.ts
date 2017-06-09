@@ -12,7 +12,6 @@ import * as events from '../base/constant';
 export class Data implements IDataProcessor {
     //Internal variables   
     private dataManager: DataManager;
-    private query: Query;
 
     //Module declarations    
     private parent: IGrid;
@@ -35,10 +34,10 @@ export class Data implements IDataProcessor {
      * @return {void}
      */
     private initDataManager(): void {
-        let gObj : IGrid = this.parent;
-        this.dataManager =  gObj.dataSource instanceof DataManager ? <DataManager>gObj.dataSource :
+        let gObj: IGrid = this.parent;
+        this.dataManager = gObj.dataSource instanceof DataManager ? <DataManager>gObj.dataSource :
             (isNullOrUndefined(gObj.dataSource) ? new DataManager() : new DataManager(gObj.dataSource));
-        this.query = gObj.query instanceof Query ? gObj.query : new Query();
+        gObj.query = gObj.query instanceof Query ? gObj.query : new Query();
     }
 
     /**
@@ -48,7 +47,7 @@ export class Data implements IDataProcessor {
      */
     public generateQuery(): Query {
         let gObj: IGrid = this.parent;
-        let query: Query = this.query.clone();
+        let query: Query = gObj.query.clone();
 
         if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
             let columns: PredicateModel[] = gObj.filterSettings.columns;

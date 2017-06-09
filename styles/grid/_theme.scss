@@ -54,8 +54,13 @@
       border-color: $grid-header-border-color;
     }
 
-    .e-headercell {
+    .e-headercell,
+    .e-detailheadercell {
       background-color: $grid-header-bg-color;
+      border-color: $grid-header-border-color;
+    }
+
+    [aria-selected] + tr .e-detailindentcell {
       border-color: $grid-header-border-color;
     }
 
@@ -68,7 +73,9 @@
       background-color: $grid-altrow-bg-color;
     }
 
-    .e-rowcell {
+    .e-rowcell,
+    .e-detailsrowcollapse,
+    .e-detailsrowexpand {
       color: $grid-content-font-color;
       opacity: $grid-conent-font-opacity;
     }
@@ -77,7 +84,11 @@
     .e-groupcaption,
     .e-indentcell,
     .e-recordplusexpand,
-    .e-recordpluscollapse {
+    .e-recordpluscollapse,
+    .e-detailsrowcollapse,
+    .e-detailsrowexpand,
+    .e-detailindentcell,
+    .e-detailcell {
       border-color: $grid-cell-border-color;
     }
 
@@ -85,7 +96,9 @@
       border-color: $grid-header-border-color;
   }
 
-    &.e-gridhover tr[role='row']:hover .e-rowcell {
+    &.e-gridhover tr[role='row']:hover .e-rowcell,
+    &.e-gridhover tr[role='row']:hover .e-detailsrowcollapse,
+    &.e-gridhover tr[role='row']:hover .e-detailsrowexpand {
       &:not(.e-cellselectionbackground):not(.e-active) {
         background-color: $grid-hover-bg-color;
       }

@@ -91,7 +91,6 @@ var Group = (function () {
             }
             this.contentRefresh = true;
         }
-        this.recalcIndentWidth();
     };
     Group.prototype.keyPressHandler = function (e) {
         var gObj = this.parent;
@@ -104,12 +103,11 @@ var Group = (function () {
             case 'altUpArrow':
                 var selected = gObj.allowSelection ? gObj.getSelectedRowIndexes() : [];
                 if (selected.length) {
-                    var selIndex = selected[selected.length - 1];
-                    var rows = gObj.getRows();
-                    var dataRow = gObj.getContent().querySelector('tr[aria-rowindex="' + selIndex + '"]');
+                    var rows = gObj.getContentTable().querySelector('tbody').children;
+                    var dataRow = gObj.getDataRows()[selected[selected.length - 1]];
                     var grpRow = void 0;
                     for (var i = dataRow.rowIndex; i >= 0; i--) {
-                        if (!rows[i].classList.contains('e-row')) {
+                        if (!rows[i].classList.contains('e-row') && !rows[i].classList.contains('e-detailrow')) {
                             grpRow = rows[i];
                             break;
                         }
@@ -174,7 +172,7 @@ var Group = (function () {
         if (trgt) {
             var cellIdx = trgt.cellIndex;
             var rowIdx = trgt.parentElement.rowIndex;
-            var rowNodes = this.parent.getContent().querySelectorAll('tr');
+            var rowNodes = this.parent.getContentTable().querySelector('tbody').children;
             var rows = [].slice.call(rowNodes).slice(rowIdx + 1, rowNodes.length);
             var isHide = void 0;
             var expandElem = void 0;
@@ -193,7 +191,8 @@ var Group = (function () {
             }
             this.aria.setExpand(trgt, expand);
             for (var i = 0, len = rows.length; i < len; i++) {
-                if (rows[i].querySelectorAll('td')[cellIdx] && rows[i].querySelectorAll('td')[cellIdx].classList.contains('e-indentcell')) {
+                if (rows[i].querySelectorAll('td')[cellIdx] &&
+                    rows[i].querySelectorAll('td')[cellIdx].classList.contains('e-indentcell') && rows) {
                     if (isHide) {
                         rows[i].style.display = 'none';
                     }
@@ -203,6 +202,11 @@ var Group = (function () {
                             expandElem = rows[i].querySelector('.e-recordplusexpand');
                             if (expandElem) {
                                 toExpand.push(expandElem);
+                            }
+                            if (rows[i].classList.contains('e-detailrow')) {
+                                if (rows[i - 1].querySelectorAll('.e-detailsrowcollapse').length) {
+                                    rows[i].style.display = 'none';
+                                }
                             }
                         }
                     }
@@ -219,7 +223,7 @@ var Group = (function () {
         }
     };
     Group.prototype.expandCollapse = function (isExpand) {
-        var rowNodes = this.parent.getContent().querySelectorAll('tr');
+        var rowNodes = this.parent.getContentTable().querySelector('tbody').children;
         var row;
         for (var i = 0, len = rowNodes.length; i < len; i++) {
             if (rowNodes[i].querySelectorAll('.e-recordplusexpand, .e-recordpluscollapse').length) {
@@ -423,25 +427,6 @@ var Group = (function () {
         } : { requestType: 'ungrouping', type: events.actionComplete };
         this.parent.trigger(events.actionComplete, extend(e, args));
     };
-    Group.prototype.recalcIndentWidth = function () {
-        var gObj = this.parent;
-        if (!gObj.groupSettings.columns.length || gObj.getHeaderTable().querySelector('.e-emptycell').getAttribute('indentRefreshed') ||
-            !gObj.getContentTable()) {
-            return;
-        }
-        var indentWidth = gObj.getHeaderTable().querySelector('.e-grouptopleftcell').offsetWidth;
-        var headerCol = [].slice.call(gObj.getHeaderTable().querySelector('colgroup').childNodes);
-        var contentCol = [].slice.call(gObj.getContentTable().querySelector('colgroup').childNodes);
-        var perPixel = indentWidth / 30;
-        if (perPixel >= 1) {
-            indentWidth = (30 / perPixel);
-        }
-        for (var i = 0; i < this.groupSettings.columns.length; i++) {
-            headerCol[i].style.width = indentWidth + 'px';
-            contentCol[i].style.width = indentWidth + 'px';
-        }
-        gObj.getHeaderTable().querySelector('.e-emptycell').setAttribute('indentRefreshed', 'true');
-    };
     Group.prototype.addColToGroupDrop = function (field) {
         var gObj = this.parent;
         var direction = 'ascending';
@@ -559,7 +544,6 @@ var Group = (function () {
         var header;
         var cols = gObj.sortSettings.columns;
         var gCols = gObj.groupSettings.columns;
-        this.recalcIndentWidth();
         this.refreshToggleBtn();
         for (var i = 0, len = cols.length; i < len; i++) {
             header = gObj.getColumnHeaderByField(cols[i].field);

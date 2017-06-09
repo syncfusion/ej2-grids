@@ -13,6 +13,8 @@ import { IndentCellRenderer } from '../renderer/indent-cell-renderer';
 import { GroupCaptionCellRenderer } from '../renderer/caption-cell-renderer';
 import { ExpandCellRenderer } from '../renderer/expand-cell-renderer';
 import { HeaderIndentCellRenderer } from '../renderer/header-indent-renderer';
+import { DetailHeaderIndentCellRenderer } from '../renderer/detail-header-indent-renderer';
+import { DetailExpandCellRenderer } from '../renderer/detail-expand-cell-renderer';
 var Render = (function () {
     function Render(parent, locator) {
         this.parent = parent;
@@ -136,6 +138,7 @@ var Render = (function () {
                 alert(this.l10n.getConstant('EmptyDataSourceError'));
                 return;
             }
+            this.contentRenderer.setRowElements([]);
             this.renderEmptyRow();
             if (args) {
                 var action = (args.requestType || '').toLowerCase() + '-complete';
@@ -176,6 +179,8 @@ var Render = (function () {
         cellrender.addCellRenderer(CellType.Expand, new ExpandCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.HeaderIndent, new HeaderIndentCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.locator));
+        cellrender.addCellRenderer(CellType.DetailHeader, new DetailHeaderIndentCellRenderer(this.locator));
+        cellrender.addCellRenderer(CellType.DetailExpand, new DetailExpandCellRenderer(this.locator));
     };
     Render.prototype.addEventListener = function () {
         this.parent.on(events.initialLoad, this.instantiateRenderer, this);

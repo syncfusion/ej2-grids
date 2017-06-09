@@ -23,6 +23,7 @@ export var rowDrag = 'rowDrag';
 export var rowDrop = 'rowDrop';
 export var beforePrint = 'beforePrint';
 export var printComplete = 'printComplete';
+export var detailsDataBound = 'detailsDataBound';
 export var initialLoad = 'initial-load';
 export var initialEnd = 'initial-end';
 export var dataReady = 'data-ready';

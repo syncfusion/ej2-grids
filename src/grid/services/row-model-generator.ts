@@ -30,12 +30,19 @@ export class RowModelGenerator implements IModelGenerator {
         return rows;
     }
 
-    protected ensureColumns(): Column[] {
+    protected ensureColumns(): Cell[] {
         //TODO: generate dummy column for group, detail here;
-        return this.parent.getColumns() as Column[];
+        let cols: Cell[] = [];
+
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            cols.push(this.generateCell({} as Column, null, CellType.DetailExpand));
+        }
+
+        return cols;
+
     }
 
-    protected generateRow(data: Object, index: number): Row {
+    protected generateRow(data: Object, index: number, cssClass?: string): Row {
         let options: IRow = {};
         let tmp: Cell[] = [];
 
@@ -43,16 +50,19 @@ export class RowModelGenerator implements IModelGenerator {
         options.data = data;
         options.index = index;
         options.isDataRow = true;
+        options.cssClass = cssClass;
         options.isAltRow = this.parent.enableAltRow ? index % 2 !== 0 : false;
 
-        let dummies: Column[] = this.ensureColumns();
+        let cells: Cell[] = this.ensureColumns();
+
+        let dummies: Column[] = this.parent.getColumns() as Column[];
 
         for (let dummy of dummies) {
             tmp.push(this.generateCell(dummy, <string>options.uid));
         }
 
         let row: Row = new Row(<{ [x: string]: Object }>options);
-        row.cells = tmp;
+        row.cells = cells.concat(tmp);
         return row;
     }
 

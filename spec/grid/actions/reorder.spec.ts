@@ -241,7 +241,8 @@ describe('Reorder module', () => {
             (<any>gridObj.reorderModule).enableAfterRender({ module: 'sort' });
             headers[3].classList.add('e-reorderindicate');
             gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
-            (<any>gridObj.getHeaderContent()).ej2_instances[0].trigger('drop', { target: createElement('div'), droppedElement: gridObj.element.querySelector('.e-cloneproperties') }); //droppable instance
+            (<any>gridObj.getHeaderContent()).ej2_instances[0].trigger('drop', { target: createElement('div'), 
+            droppedElement: gridObj.element.querySelector('.e-cloneproperties') }); //droppable instance
             gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
             gridObj.width = 300;
             gridObj.dataBind();
@@ -262,5 +263,71 @@ describe('Reorder module', () => {
             remove(elem);
         });
     });
+
+    //reOrder stacked header 
+    describe('Stacked header Reordering', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionComplete: (e?: Object) => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        {
+                            headerText: 'Order Details', toolTip: 'Order Details',
+                            columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                            { field: 'OrderDate', headerText: 'Order Date', format: { skeleton: 'yMd', type: 'date' }, type: 'date' }]
+                        },
+                        { field: 'CustomerID', headerText: 'Customer ID' },
+                        { field: 'EmployeeID', headerText: 'Employee ID' },
+                        {
+                            headerText: 'Ship Details',
+                            columns: [
+                                { field: 'ShipCity', headerText: 'Ship City' },
+                                { field: 'ShipCountry', headerText: 'Ship Country' },
+                                {
+                                    headerText: 'Ship Name Verified', columns: [{ field: 'ShipName', headerText: 'Ship Name' },
+                                    { field: 'Verified', headerText: 'Verified' }]
+                                },
+                            ],
+                        }
+                    ],
+                    allowGrouping: true,
+                    allowSorting: true,
+                    allowReordering: true,
+                    dataBound: dataBound,
+                    actionComplete: actionComplete
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('Reordering the stackedheadercolumn', (done: Function) => { // reorder stacked header with grouping enabled
+            let headers = gridObj.getHeaderContent().querySelectorAll('.e-stackedheadercell');
+            actionComplete = () => {
+                headers = gridObj.getHeaderContent().querySelectorAll('.e-stackedheadercell');
+                expect(headers[1].innerHTML).toEqual('Order Details');
+                expect(headers[0].innerHTML).toEqual('Ship Details');
+                expect(gridObj.element.querySelectorAll('.e-cloneproperties').length).toEqual(0);
+                done();
+            };
+            expect(headers[0].innerHTML).toEqual('Order Details');
+            expect(headers[1].innerHTML).toEqual('Ship Details');
+            let mousedown: any = getEventObject('MouseEvents', 'mousedown', headers[0], 50, 70);
+            EventHandler.trigger(gridObj.getHeaderContent().querySelector('.e-columnheader') as HTMLElement, 'mousedown', mousedown);
+
+            let mousemove: any = getEventObject('MouseEvents', 'mousemove', headers[0], 87, 74);
+            EventHandler.trigger(<any>(document), 'mousemove', mousemove);
+            let mouseup: any = getEventObject('MouseEvents', 'mouseup', headers[1], 198, 72);
+            EventHandler.trigger(<any>(document), 'mouseup', mouseup);
+            gridObj.actionComplete = actionComplete;
+        });
+        afterAll(() => {
+            elem.remove();
+        });
+    });
+
 
 });

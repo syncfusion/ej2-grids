@@ -96,7 +96,12 @@ export enum CellType {
     /**  Defines CellType as HeaderIndent */
     HeaderIndent,
     /**  Defines CellType as StackedHeader */
-    StackedHeader
+    StackedHeader,
+    /**  Defines CellType as DetailHeader */
+    DetailHeader,
+    /**  Defines CellType as DetailExpand */
+    DetailExpand
+
 }
 
 /** 

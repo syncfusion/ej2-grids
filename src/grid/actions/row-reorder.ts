@@ -54,6 +54,8 @@ export class RowDD implements IAction {
                 for (let i: number = 0, len: number = selectedRows.length; i < len; i++) {
                     let selectedRow: Element = selectedRows[i].cloneNode(true) as Element;
                     removeElement(selectedRow, '.e-indentcell');
+                    removeElement(selectedRow, '.e-detailsrowcollapse');
+                    removeElement(selectedRow, '.e-detailsrowexpand');
                     tbody.appendChild(selectedRow);
                 }
                 table.appendChild(tbody);
@@ -67,7 +69,7 @@ export class RowDD implements IAction {
                     return;
                 }
                 gObj.trigger(events.rowDragStart, {
-                    rows: gObj.getSelectedRecords(),
+                    rows: gObj.getSelectedRows(),
                     target: e.target, draggableType: 'rows', data: gObj.getSelectedRecords()
                 });
                 let dropElem: EJ2Intance = document.getElementById(gObj.rowDropSettings.targetID) as EJ2Intance;
@@ -81,7 +83,7 @@ export class RowDD implements IAction {
                 let target: Element = this.getElementFromPosition(cloneElement, e.event);
                 classList(cloneElement, ['e-defaultcur'], ['e-notallowedcur']);
                 gObj.trigger(events.rowDrag, {
-                    rows: gObj.getSelectedRecords(),
+                    rows: gObj.getSelectedRows(),
                     target: target, draggableType: 'rows', data: gObj.getSelectedRecords()
                 });
                 gObj.element.classList.add('e-rowdrag');
@@ -93,18 +95,20 @@ export class RowDD implements IAction {
             dragStop: (e: { target: HTMLElement, event: MouseEventArgs, helper: Element }) => {
                 let target: Element = this.getElementFromPosition(e.helper as HTMLElement, e.event);
                 gObj.element.classList.remove('e-rowdrag');
-                if (!parentsUntil(target, 'e-gridcontent')) {
-                    remove(e.helper);
-                    return;
-                }
                 let dropElem: EJ2Intance = document.getElementById(gObj.rowDropSettings.targetID) as EJ2Intance;
                 if (gObj.rowDropSettings.targetID && dropElem && dropElem.ej2_instances) {
                     dropElem.ej2_instances[0].getContent().classList.remove('e-allowRowDrop');
                 }
+
                 gObj.trigger(events.rowDrop, {
                     target: target, draggableType: 'rows',
                     rows: gObj.getSelectedRows(), data: gObj.getSelectedRecords()
                 });
+
+                if (!parentsUntil(target, 'e-gridcontent')) {
+                    remove(e.helper);
+                    return;
+                }
             }
         });
 

@@ -48,6 +48,8 @@ export const rowDrop: string = 'rowDrop';
 export const beforePrint: string = 'beforePrint';
 /** @hidden */
 export const printComplete: string = 'printComplete';
+/** @hidden */
+export const detailsDataBound: string = 'detailsDataBound';
 
 /**
  * Specifies grid internal events

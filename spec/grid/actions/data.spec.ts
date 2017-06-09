@@ -68,6 +68,7 @@ describe('Data module', () => {
 
         afterAll(() => {
             remove(elem);
+            jasmine.Ajax.uninstall();
         });
 
     });

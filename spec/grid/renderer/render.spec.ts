@@ -97,7 +97,7 @@ describe('Render module', () => {
                 {
                     dataSource: [], allowPaging: false, dataBound: dataBound,
                     columns: [
-                        { field: 'Column1', type: 'string'},
+                        { field: 'Column1', type: 'string' },
                         { field: 'Column2' }
                     ]
                 });
@@ -107,6 +107,10 @@ describe('Render module', () => {
         it('Column type testing', () => {
             expect((<Column>gridObj.columns[0]).type).toEqual('string');
             expect((<Column>gridObj.columns[1]).type).toBeNull();
+        });
+
+        afterAll(() => {
+            remove(elem);
         });
     });
 

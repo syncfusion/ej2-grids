@@ -46,13 +46,14 @@ var GroupModelGenerator = (function (_super) {
         }
     };
     GroupModelGenerator.prototype.getCaptionRowCells = function (field, indent) {
+        var gObj = this.parent;
         var cells = [];
         for (var i = 0; i < indent; i++) {
             cells.push(this.generateIndentCell());
         }
         cells.push(this.generateCell({}, null, CellType.Expand));
-        cells.push(this.generateCell(this.parent.getColumnByField(field), null, CellType.GroupCaption, this.parent.getVisibleColumns().length + this.parent.groupSettings.columns.length -
-            indent + (this.parent.getVisibleColumns().length ? -1 : 0)));
+        cells.push(this.generateCell(gObj.getColumnByField(field), null, CellType.GroupCaption, gObj.getVisibleColumns().length + gObj.groupSettings.columns.length + (gObj.detailsTemplate || gObj.childGrid ? 1 : 0) -
+            indent + (gObj.getVisibleColumns().length ? -1 : 0)));
         return cells;
     };
     GroupModelGenerator.prototype.generateCaptionRow = function (data, indent) {
@@ -68,7 +69,7 @@ var GroupModelGenerator = (function (_super) {
     GroupModelGenerator.prototype.generateDataRows = function (data, indent) {
         var rows = [];
         for (var i = 0, len = data.length; i < len; i++) {
-            rows[i] = this.generateRow(data[i], this.index);
+            rows[i] = this.generateRow(data[i], this.index, i ? undefined : 'e-firstchildrow');
             for (var j = 0; j < indent; j++) {
                 rows[i].cells.unshift(this.generateIndentCell());
             }

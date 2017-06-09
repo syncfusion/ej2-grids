@@ -64,7 +64,7 @@ this["ej"] = this["ej"] || {}; this["ej"]["gridModule"] =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 88);
+/******/ 	return __webpack_require__(__webpack_require__.s = 89);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -362,15 +362,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__animation__ = __webpack_require__(34);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Animation", function() { return __WEBPACK_IMPORTED_MODULE_1__animation__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ripple", function() { return __WEBPACK_IMPORTED_MODULE_1__animation__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(6);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Base", function() { return __WEBPACK_IMPORTED_MODULE_2__base__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__browser__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__browser__ = __webpack_require__(14);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Browser", function() { return __WEBPACK_IMPORTED_MODULE_3__browser__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__canvas_renderer__ = __webpack_require__(35);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "CanvasRenderer", function() { return __WEBPACK_IMPORTED_MODULE_4__canvas_renderer__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__component__ = __webpack_require__(36);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Component", function() { return __WEBPACK_IMPORTED_MODULE_5__component__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__child_property__ = __webpack_require__(15);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ChildProperty", function() { return __WEBPACK_IMPORTED_MODULE_6__child_property__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__draggable__ = __webpack_require__(37);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Position", function() { return __WEBPACK_IMPORTED_MODULE_7__draggable__["a"]; });
@@ -382,7 +382,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__form_validator__ = __webpack_require__(39);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ErrorOption", function() { return __WEBPACK_IMPORTED_MODULE_10__form_validator__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "FormValidator", function() { return __WEBPACK_IMPORTED_MODULE_10__form_validator__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__internationalization__ = __webpack_require__(16);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "onIntlChange", function() { return __WEBPACK_IMPORTED_MODULE_11__internationalization__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "rightToLeft", function() { return __WEBPACK_IMPORTED_MODULE_11__internationalization__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "cldrData", function() { return __WEBPACK_IMPORTED_MODULE_11__internationalization__["c"]; });
@@ -637,12 +637,106 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         return prefix + uid++;
     }
     exports.getUid = getUid;
+    function parents(elem, selector, isID) {
+        var parent = elem;
+        var parents = [];
+        while (parent) {
+            if (isID ? parent.id === selector : parent.classList.contains(selector)) {
+                parents.push(parent);
+            }
+            parent = parent.parentElement;
+        }
+        return parents;
+    }
+    exports.parents = parents;
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.created = 'create';
+    exports.destroyed = 'destroy';
+    exports.load = 'load';
+    exports.rowDataBound = 'rowDataBound';
+    exports.queryCellInfo = 'queryCellInfo';
+    exports.actionBegin = 'actionBegin';
+    exports.actionComplete = 'actionComplete';
+    exports.actionFailure = 'actionFailure';
+    exports.dataBound = 'dataBound';
+    exports.rowSelecting = 'rowSelecting';
+    exports.rowSelected = 'rowSelected';
+    exports.rowDeselecting = 'rowDeselecting';
+    exports.rowDeselected = 'rowDeselected';
+    exports.cellSelecting = 'cellSelecting';
+    exports.cellSelected = 'cellSelected';
+    exports.cellDeselecting = 'cellDeselecting';
+    exports.cellDeselected = 'cellDeselected';
+    exports.columnDragStart = 'columnDragStart';
+    exports.columnDrag = 'columnDrag';
+    exports.columnDrop = 'columnDrop';
+    exports.rowDragStart = 'rowDragStart';
+    exports.rowDrag = 'rowDrag';
+    exports.rowDrop = 'rowDrop';
+    exports.beforePrint = 'beforePrint';
+    exports.printComplete = 'printComplete';
+    exports.detailsDataBound = 'detailsDataBound';
+    exports.initialLoad = 'initial-load';
+    exports.initialEnd = 'initial-end';
+    exports.dataReady = 'data-ready';
+    exports.contentReady = 'content-ready';
+    exports.uiUpdate = 'ui-update';
+    exports.inBoundModelChanged = 'inbound-model-changed';
+    exports.modelChanged = 'model-changed';
+    exports.colGroupRefresh = 'colgroup-refresh';
+    exports.headerRefreshed = 'header-refreshed';
+    exports.pageBegin = 'paging-begin';
+    exports.pageComplete = 'paging-complete';
+    exports.sortBegin = 'sorting-begin';
+    exports.sortComplete = 'sorting-complete';
+    exports.filterBegin = 'filtering-begin';
+    exports.filterComplete = 'filtering-complete';
+    exports.searchBegin = 'searching-begin';
+    exports.searchComplete = 'searching-complete';
+    exports.reorderBegin = 'reorder-begin';
+    exports.reorderComplete = 'reorder-complete';
+    exports.rowDragAndDropBegin = 'rowdraganddrop-begin';
+    exports.rowDragAndDropComplete = 'rowdraganddrop-complete';
+    exports.groupBegin = 'grouping-begin';
+    exports.groupComplete = 'grouping-complete';
+    exports.ungroupBegin = 'ungrouping-begin';
+    exports.ungroupComplete = 'ungrouping-complete';
+    exports.rowSelectionBegin = 'rowselecting';
+    exports.rowSelectionComplete = 'rowselected';
+    exports.columnSelectionBegin = 'columnselecting';
+    exports.columnSelectionComplete = 'columnselected';
+    exports.cellSelectionBegin = 'cellselecting';
+    exports.cellSelectionComplete = 'cellselected';
+    exports.keyPressed = 'key-pressed';
+    exports.click = 'click';
+    exports.destroy = 'destroy';
+    exports.columnVisibilityChanged = 'column-visible-changed';
+    exports.scroll = 'scroll';
+    exports.columnWidthChanged = 'column-width-changed';
+    exports.columnPositionChanged = 'column-position-changed';
+    exports.rowDragAndDrop = 'row-drag-and-drop';
+    exports.rowsAdded = 'rows-added';
+    exports.rowsRemoved = 'rows-removed';
+    exports.columnDragStop = 'column-drag-stop';
+    exports.headerDrop = 'header-drop';
+    exports.dataSourceModified = 'datasource-modified';
+    exports.refreshComplete = 'refresh-complete';
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -778,87 +872,6 @@ var Base = (function () {
     return Base;
 }());
 
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.created = 'create';
-    exports.destroyed = 'destroy';
-    exports.load = 'load';
-    exports.rowDataBound = 'rowDataBound';
-    exports.queryCellInfo = 'queryCellInfo';
-    exports.actionBegin = 'actionBegin';
-    exports.actionComplete = 'actionComplete';
-    exports.actionFailure = 'actionFailure';
-    exports.dataBound = 'dataBound';
-    exports.rowSelecting = 'rowSelecting';
-    exports.rowSelected = 'rowSelected';
-    exports.rowDeselecting = 'rowDeselecting';
-    exports.rowDeselected = 'rowDeselected';
-    exports.cellSelecting = 'cellSelecting';
-    exports.cellSelected = 'cellSelected';
-    exports.cellDeselecting = 'cellDeselecting';
-    exports.cellDeselected = 'cellDeselected';
-    exports.columnDragStart = 'columnDragStart';
-    exports.columnDrag = 'columnDrag';
-    exports.columnDrop = 'columnDrop';
-    exports.rowDragStart = 'rowDragStart';
-    exports.rowDrag = 'rowDrag';
-    exports.rowDrop = 'rowDrop';
-    exports.beforePrint = 'beforePrint';
-    exports.printComplete = 'printComplete';
-    exports.initialLoad = 'initial-load';
-    exports.initialEnd = 'initial-end';
-    exports.dataReady = 'data-ready';
-    exports.contentReady = 'content-ready';
-    exports.uiUpdate = 'ui-update';
-    exports.inBoundModelChanged = 'inbound-model-changed';
-    exports.modelChanged = 'model-changed';
-    exports.colGroupRefresh = 'colgroup-refresh';
-    exports.headerRefreshed = 'header-refreshed';
-    exports.pageBegin = 'paging-begin';
-    exports.pageComplete = 'paging-complete';
-    exports.sortBegin = 'sorting-begin';
-    exports.sortComplete = 'sorting-complete';
-    exports.filterBegin = 'filtering-begin';
-    exports.filterComplete = 'filtering-complete';
-    exports.searchBegin = 'searching-begin';
-    exports.searchComplete = 'searching-complete';
-    exports.reorderBegin = 'reorder-begin';
-    exports.reorderComplete = 'reorder-complete';
-    exports.rowDragAndDropBegin = 'rowdraganddrop-begin';
-    exports.rowDragAndDropComplete = 'rowdraganddrop-complete';
-    exports.groupBegin = 'grouping-begin';
-    exports.groupComplete = 'grouping-complete';
-    exports.ungroupBegin = 'ungrouping-begin';
-    exports.ungroupComplete = 'ungrouping-complete';
-    exports.rowSelectionBegin = 'rowselecting';
-    exports.rowSelectionComplete = 'rowselected';
-    exports.columnSelectionBegin = 'columnselecting';
-    exports.columnSelectionComplete = 'columnselected';
-    exports.cellSelectionBegin = 'cellselecting';
-    exports.cellSelectionComplete = 'cellselected';
-    exports.keyPressed = 'key-pressed';
-    exports.click = 'click';
-    exports.destroy = 'destroy';
-    exports.columnVisibilityChanged = 'column-visible-changed';
-    exports.scroll = 'scroll';
-    exports.columnWidthChanged = 'column-width-changed';
-    exports.columnPositionChanged = 'column-position-changed';
-    exports.rowDragAndDrop = 'row-drag-and-drop';
-    exports.rowsAdded = 'rows-added';
-    exports.rowsRemoved = 'rows-removed';
-    exports.columnDragStop = 'column-drag-stop';
-    exports.headerDrop = 'header-drop';
-    exports.dataSourceModified = 'datasource-modified';
-    exports.refreshComplete = 'refresh-complete';
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
@@ -1950,6 +1963,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         CellType[CellType["Expand"] = 6] = "Expand";
         CellType[CellType["HeaderIndent"] = 7] = "HeaderIndent";
         CellType[CellType["StackedHeader"] = 8] = "StackedHeader";
+        CellType[CellType["DetailHeader"] = 9] = "DetailHeader";
+        CellType[CellType["DetailExpand"] = 10] = "DetailExpand";
     })(CellType = exports.CellType || (exports.CellType = {}));
     var RenderType;
     (function (RenderType) {
@@ -1963,6 +1978,114 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 /* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, util_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var CellRenderer = (function () {
+        function CellRenderer(locator) {
+            this.element = dom_1.createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell' } });
+            this.localizer = locator.getService('localization');
+            this.formatter = locator.getService('valueFormatter');
+        }
+        CellRenderer.prototype.getGui = function () {
+            return '';
+        };
+        CellRenderer.prototype.format = function (column, value, data) {
+            if (!util_1.isNullOrUndefined(column.format)) {
+                value = this.formatter.toView(value, column.getFormatter());
+            }
+            return util_1.isNullOrUndefined(value) ? '' : value.toString();
+        };
+        CellRenderer.prototype.invokeFormatter = function (column, value, data) {
+            if (!util_1.isNullOrUndefined(column.formatter)) {
+                if (util_2.doesImplementInterface(column.formatter, 'getValue')) {
+                    var formatter = column.formatter;
+                    value = new formatter().getValue(column, data);
+                }
+                else if (typeof column.formatter === 'function') {
+                    value = column.formatter(column, data);
+                }
+                else {
+                    value = column.formatter.getValue(column, data);
+                }
+            }
+            return value;
+        };
+        CellRenderer.prototype.render = function (cell, data, attributes) {
+            var node = this.element.cloneNode();
+            var column = cell.column;
+            var literals = ['index'];
+            var innerHtml = this.getGui();
+            var value = column.valueAccessor(column.field, data, column);
+            value = this.format(column, value, data);
+            innerHtml = value.toString();
+            if (column.type === 'boolean') {
+                var isNull = (value !== 'true' && value !== 'false');
+                if (column.displayAsCheckBox) {
+                    node.classList.add('e-checkbox');
+                    innerHtml = isNull ? null : '<input type="checkbox" disabled ' + (value === 'true' ? 'checked' : '') + '/>';
+                }
+                else {
+                    var localeStr = isNull ? null : value === 'true' ? 'True' : 'False';
+                    innerHtml = localeStr ? this.localizer.getConstant(localeStr) : innerHtml;
+                }
+            }
+            var fromFormatter = this.invokeFormatter(column, value, data);
+            if (!column.template) {
+                innerHtml = !util_1.isNullOrUndefined(column.formatter) ? util_1.isNullOrUndefined(fromFormatter) ? '' : fromFormatter.toString() : innerHtml;
+                this.appendHtml(node, innerHtml, column.getDomSetter());
+            }
+            else {
+                this.appendHtml(node, column.getColumnTemplate()(util_1.extend({ 'index': attributes[literals[0]] }, data)));
+            }
+            this.buildAttributeFromCell(node, cell);
+            util_2.setStyleAndAttributes(node, attributes);
+            if (column.customAttributes) {
+                util_2.setStyleAndAttributes(node, column.customAttributes);
+            }
+            if (!util_1.isNullOrUndefined(column.textAlign)) {
+                node.style.textAlign = column.textAlign;
+            }
+            return node;
+        };
+        CellRenderer.prototype.appendHtml = function (node, innerHtml, property) {
+            if (property === void 0) { property = 'innerHTML'; }
+            node[property] = innerHtml;
+            return node;
+        };
+        CellRenderer.prototype.buildAttributeFromCell = function (node, cell) {
+            var attr = {};
+            var prop = { 'colindex': 'aria-colindex' };
+            var classes = [];
+            if (cell.colSpan) {
+                attr.colSpan = cell.colSpan;
+            }
+            if (cell.rowSpan) {
+                attr.rowSpan = cell.rowSpan;
+            }
+            if (cell.isTemplate) {
+                classes.push('e-templatecell');
+            }
+            if (!util_1.isNullOrUndefined(cell.index)) {
+                attr[prop.colindex] = cell.index;
+            }
+            if (!cell.visible) {
+                classes.push('e-hide');
+            }
+            attr.class = classes;
+            util_2.setStyleAndAttributes(node, attr);
+        };
+        return CellRenderer;
+    }());
+    exports.CellRenderer = CellRenderer;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2006,8 +2129,9 @@ var Browser = (function () {
                     browserInfo.name = 'msie';
                     break;
                 }
-                if (browserInfo.name === 'safari') {
-                    browserInfo.version = Browser.userAgent.match(REGX_VERSION)[2];
+                var version = Browser.userAgent.match(REGX_VERSION);
+                if (browserInfo.name === 'safari' && version) {
+                    browserInfo.version = version[2];
                 }
                 break;
             }
@@ -2188,13 +2312,13 @@ Browser.uA = navigator.userAgent;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ChildProperty; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 
 
 var ChildProperty = (function () {
@@ -2278,7 +2402,7 @@ var ChildProperty = (function () {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2386,114 +2510,6 @@ function getNumericObject(locale, type) {
 function getDefaultDateObject() {
     return __WEBPACK_IMPORTED_MODULE_4__Internationalization_intl_base__["a" /* IntlBase */].getDependables(cldrData, '', false)[mapper[1]];
 }
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, util_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var CellRenderer = (function () {
-        function CellRenderer(locator) {
-            this.element = dom_1.createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell' } });
-            this.localizer = locator.getService('localization');
-            this.formatter = locator.getService('valueFormatter');
-        }
-        CellRenderer.prototype.getGui = function () {
-            return '';
-        };
-        CellRenderer.prototype.format = function (column, value, data) {
-            if (!util_1.isNullOrUndefined(column.format)) {
-                value = this.formatter.toView(value, column.getFormatter());
-            }
-            return util_1.isNullOrUndefined(value) ? '' : value.toString();
-        };
-        CellRenderer.prototype.invokeFormatter = function (column, value, data) {
-            if (!util_1.isNullOrUndefined(column.formatter)) {
-                if (util_2.doesImplementInterface(column.formatter, 'getValue')) {
-                    var formatter = column.formatter;
-                    value = new formatter().getValue(column, data);
-                }
-                else if (typeof column.formatter === 'function') {
-                    value = column.formatter(column, data);
-                }
-                else {
-                    value = column.formatter.getValue(column, data);
-                }
-            }
-            return value;
-        };
-        CellRenderer.prototype.render = function (cell, data, attributes) {
-            var node = this.element.cloneNode();
-            var column = cell.column;
-            var literals = ['index'];
-            var innerHtml = this.getGui();
-            var value = column.valueAccessor(column.field, data, column);
-            value = this.format(column, value, data);
-            innerHtml = value.toString();
-            if (column.type === 'boolean') {
-                var isNull = (value !== 'true' && value !== 'false');
-                if (column.displayAsCheckBox) {
-                    node.classList.add('e-checkbox');
-                    innerHtml = isNull ? null : '<input type="checkbox" disabled ' + (value === 'true' ? 'checked' : '') + '/>';
-                }
-                else {
-                    var localeStr = isNull ? null : value === 'true' ? 'True' : 'False';
-                    innerHtml = localeStr ? this.localizer.getConstant(localeStr) : innerHtml;
-                }
-            }
-            var fromFormatter = this.invokeFormatter(column, value, data);
-            if (!column.template) {
-                innerHtml = !util_1.isNullOrUndefined(column.formatter) ? util_1.isNullOrUndefined(fromFormatter) ? '' : fromFormatter.toString() : innerHtml;
-                this.appendHtml(node, innerHtml, column.getDomSetter());
-            }
-            else {
-                this.appendHtml(node, column.getColumnTemplate()(util_1.extend({ 'index': attributes[literals[0]] }, data)));
-            }
-            this.buildAttributeFromCell(node, cell);
-            util_2.setStyleAndAttributes(node, attributes);
-            if (column.customAttributes) {
-                util_2.setStyleAndAttributes(node, column.customAttributes);
-            }
-            if (!util_1.isNullOrUndefined(column.textAlign)) {
-                node.style.textAlign = column.textAlign;
-            }
-            return node;
-        };
-        CellRenderer.prototype.appendHtml = function (node, innerHtml, property) {
-            if (property === void 0) { property = 'innerHTML'; }
-            node[property] = innerHtml;
-            return node;
-        };
-        CellRenderer.prototype.buildAttributeFromCell = function (node, cell) {
-            var attr = {};
-            var prop = { 'colindex': 'aria-colindex' };
-            var classes = [];
-            if (cell.colSpan) {
-                attr.colSpan = cell.colSpan;
-            }
-            if (cell.rowSpan) {
-                attr.rowSpan = cell.rowSpan;
-            }
-            if (cell.isTemplate) {
-                classes.push('e-templatecell');
-            }
-            if (!util_1.isNullOrUndefined(cell.index)) {
-                attr[prop.colindex] = cell.index;
-            }
-            if (!cell.visible) {
-                classes.push('e-hide');
-            }
-            attr.class = classes;
-            util_2.setStyleAndAttributes(node, attr);
-        };
-        return CellRenderer;
-    }());
-    exports.CellRenderer = CellRenderer;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
@@ -2842,7 +2858,7 @@ var Observer = (function () {
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return NumberFormat; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__intl_base__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__parser_base__ = __webpack_require__(11);
 
@@ -3172,6 +3188,66 @@ var ModuleLoader = (function () {
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var AriaService = (function () {
+        function AriaService() {
+        }
+        AriaService.prototype.setOptions = function (target, options) {
+            var props = Object.keys(options);
+            props.forEach(function (name) { return setStateAndProperties(target, config[name], options[name]); });
+        };
+        AriaService.prototype.setExpand = function (target, expand) {
+            setStateAndProperties(target, config.expand, expand);
+        };
+        AriaService.prototype.setSort = function (target, direction) {
+            setStateAndProperties(target, config.sort, direction, typeof direction === 'boolean');
+        };
+        AriaService.prototype.setBusy = function (target, isBusy) {
+            setStateAndProperties(target, config.busy, isBusy);
+            setStateAndProperties(target, config.invalid, null, true);
+        };
+        AriaService.prototype.setGrabbed = function (target, isGrabbed, remove) {
+            setStateAndProperties(target, config.grabbed, isGrabbed, remove);
+        };
+        AriaService.prototype.setDropTarget = function (target, isTarget) {
+            setStateAndProperties(target, config.dropeffect, 'copy', !isTarget);
+        };
+        return AriaService;
+    }());
+    exports.AriaService = AriaService;
+    function setStateAndProperties(target, attribute, value, remove) {
+        if (remove) {
+            target.removeAttribute(attribute);
+            return;
+        }
+        if (target) {
+            target.setAttribute(attribute, value);
+        }
+    }
+    var config = {
+        expand: 'aria-expanded',
+        role: 'role',
+        selected: 'aria-selected',
+        multiselectable: 'aria-multiselectable',
+        sort: 'aria-sort',
+        busy: 'aria-busy',
+        invalid: 'aria-invalid',
+        grabbed: 'aria-grabbed',
+        dropeffect: 'aria-dropeffect',
+        haspopup: 'aria-haspopup',
+        level: 'aria-level',
+        colcount: 'aria-colcount'
+    };
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(3), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, ej2_base_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -3405,7 +3481,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1) {
@@ -3463,13 +3539,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Query; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Predicate; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(25);
 
 var Query = (function () {
     function Query(from) {
@@ -3864,7 +3940,7 @@ var Predicate = (function () {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3872,7 +3948,7 @@ var Predicate = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__syncfusion_ej2_base_util__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__syncfusion_ej2_base_util___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__syncfusion_ej2_base_util__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__manager__ = __webpack_require__(58);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__query__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__query__ = __webpack_require__(24);
 
 
 
@@ -4467,7 +4543,7 @@ DataUtil.parse = {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1) {
@@ -4485,10 +4561,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(6), __webpack_require__(4), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, constant_1, util_2, enum_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(5), __webpack_require__(4), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, constant_1, util_2, enum_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var RowRenderer = (function () {
@@ -4518,6 +4594,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             if (row.isDataRow) {
                 this.parent.trigger(constant_1.rowDataBound, util_1.extend(rowArgs, { row: tr }));
             }
+            if (row.cssClass) {
+                tr.classList.add(row.cssClass);
+            }
             return tr;
         };
         RowRenderer.prototype.buildAttributeFromRow = function (tr, row) {
@@ -4545,66 +4624,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         return RowRenderer;
     }());
     exports.RowRenderer = RowRenderer;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var AriaService = (function () {
-        function AriaService() {
-        }
-        AriaService.prototype.setOptions = function (target, options) {
-            var props = Object.keys(options);
-            props.forEach(function (name) { return setStateAndProperties(target, config[name], options[name]); });
-        };
-        AriaService.prototype.setExpand = function (target, expand) {
-            setStateAndProperties(target, config.expand, expand);
-        };
-        AriaService.prototype.setSort = function (target, direction) {
-            setStateAndProperties(target, config.sort, direction, typeof direction === 'boolean');
-        };
-        AriaService.prototype.setBusy = function (target, isBusy) {
-            setStateAndProperties(target, config.busy, isBusy);
-            setStateAndProperties(target, config.invalid, null, true);
-        };
-        AriaService.prototype.setGrabbed = function (target, isGrabbed, remove) {
-            setStateAndProperties(target, config.grabbed, isGrabbed, remove);
-        };
-        AriaService.prototype.setDropTarget = function (target, isTarget) {
-            setStateAndProperties(target, config.dropeffect, 'copy', !isTarget);
-        };
-        return AriaService;
-    }());
-    exports.AriaService = AriaService;
-    function setStateAndProperties(target, attribute, value, remove) {
-        if (remove) {
-            target.removeAttribute(attribute);
-            return;
-        }
-        if (target) {
-            target.setAttribute(attribute, value);
-        }
-    }
-    var config = {
-        expand: 'aria-expanded',
-        role: 'role',
-        selected: 'aria-selected',
-        multiselectable: 'aria-multiselectable',
-        sort: 'aria-sort',
-        busy: 'aria-busy',
-        invalid: 'aria-invalid',
-        grabbed: 'aria-grabbed',
-        dropeffect: 'aria-dropeffect',
-        haspopup: 'aria-haspopup',
-        level: 'aria-level',
-        colcount: 'aria-colcount'
-    };
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -4673,7 +4692,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(3), __webpack_require__(21), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, ej2_base_2, numeric_container_1, pager_message_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(3), __webpack_require__(22), __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, ej2_base_2, numeric_container_1, pager_message_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Pager = (function (_super) {
@@ -4723,7 +4742,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
             this.trigger('created', { 'currentPage': this.currentPage, 'totalRecordsCount': this.totalRecordsCount });
         };
         Pager.prototype.getPersistData = function () {
-            var keyEntity = ['enableExternalMessage', 'enablePagerMessage', 'currentPage',
+            var keyEntity = ['enableExternalMessage', 'enablePagerMessage', 'currentPage', 'enableQueryString',
                 'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created'];
             return this.addOnPersist(keyEntity);
         };
@@ -5608,7 +5627,7 @@ var Ajax = (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Animation; });
 /* harmony export (immutable) */ __webpack_exports__["b"] = ripple;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dom__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__event_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__notify_property_change__ = __webpack_require__(7);
 var __extends = (this && this.__extends) || (function () {
@@ -6187,11 +6206,11 @@ var CanvasRenderer = (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Component; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__module_loader__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__observer__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__notify_property_change__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__internationalization__ = __webpack_require__(16);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -6420,12 +6439,12 @@ Component = __decorate([
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Position; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Draggable; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dom__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__notify_property_change__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__event_handler__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__child_property__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__util__ = __webpack_require__(0);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -6902,8 +6921,8 @@ var Draggable_1;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Droppable; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dom__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__notify_property_change__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__event_handler__ = __webpack_require__(8);
@@ -7035,7 +7054,7 @@ Droppable = __decorate([
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ErrorOption; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FormValidator; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dom__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__util__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__event_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__notify_property_change__ = __webpack_require__(7);
@@ -7485,7 +7504,7 @@ var FormValidator_1;
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return KeyboardEvents; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__notify_property_change__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -7642,7 +7661,7 @@ var KeyboardEvents_1;
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return L10n; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(16);
 
 
 var L10n = (function () {
@@ -8011,9 +8030,9 @@ function addNameSpace(str, addNS, nameSpace, ignoreList) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Touch; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__notify_property_change__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__browser__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__browser__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__event_handler__ = __webpack_require__(8);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -9023,7 +9042,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(3), __webpack_require__(72), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, ej2_base_1, value_formatter_1, util_2) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(3), __webpack_require__(73), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, ej2_base_1, value_formatter_1, util_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Column = (function () {
@@ -9094,7 +9113,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(16)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, cell_renderer_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, cell_renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var FilterCellRenderer = (function (_super) {
@@ -9200,7 +9219,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(16)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var IndentCellRenderer = (function (_super) {
@@ -9224,7 +9243,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 /* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(25), __webpack_require__(12), __webpack_require__(51), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, row_1, enum_1, cell_1, util_2) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(26), __webpack_require__(12), __webpack_require__(51), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, row_1, enum_1, cell_1, util_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var RowModelGenerator = (function () {
@@ -9239,23 +9258,29 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return rows;
         };
         RowModelGenerator.prototype.ensureColumns = function () {
-            return this.parent.getColumns();
+            var cols = [];
+            if (this.parent.detailsTemplate || this.parent.childGrid) {
+                cols.push(this.generateCell({}, null, enum_1.CellType.DetailExpand));
+            }
+            return cols;
         };
-        RowModelGenerator.prototype.generateRow = function (data, index) {
+        RowModelGenerator.prototype.generateRow = function (data, index, cssClass) {
             var options = {};
             var tmp = [];
             options.uid = util_2.getUid('grid-row');
             options.data = data;
             options.index = index;
             options.isDataRow = true;
+            options.cssClass = cssClass;
             options.isAltRow = this.parent.enableAltRow ? index % 2 !== 0 : false;
-            var dummies = this.ensureColumns();
+            var cells = this.ensureColumns();
+            var dummies = this.parent.getColumns();
             for (var _i = 0, dummies_1 = dummies; _i < dummies_1.length; _i++) {
                 var dummy = dummies_1[_i];
                 tmp.push(this.generateCell(dummy, options.uid));
             }
             var row = new row_1.Row(options);
-            row.cells = tmp;
+            row.cells = cells.concat(tmp);
             return row;
         };
         RowModelGenerator.prototype.generateCell = function (column, rowId, cellType, colSpan) {
@@ -9296,8 +9321,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return CacheAdaptor; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__syncfusion_ej2_base_util__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__syncfusion_ej2_base_util___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__syncfusion_ej2_base_util__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__query__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__util__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__query__ = __webpack_require__(24);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -10487,7 +10512,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager__ = __webpack_require__(58);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "DataManager", function() { return __WEBPACK_IMPORTED_MODULE_0__manager__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Deferred", function() { return __WEBPACK_IMPORTED_MODULE_0__manager__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__query__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__query__ = __webpack_require__(24);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Query", function() { return __WEBPACK_IMPORTED_MODULE_1__query__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Predicate", function() { return __WEBPACK_IMPORTED_MODULE_1__query__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__adaptors__ = __webpack_require__(56);
@@ -10500,7 +10525,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "WebMethodAdaptor", function() { return __WEBPACK_IMPORTED_MODULE_2__adaptors__["g"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "RemoteSaveAdaptor", function() { return __WEBPACK_IMPORTED_MODULE_2__adaptors__["h"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "CacheAdaptor", function() { return __WEBPACK_IMPORTED_MODULE_2__adaptors__["i"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__util__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__util__ = __webpack_require__(25);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "DataUtil", function() { return __WEBPACK_IMPORTED_MODULE_3__util__["a"]; });
 
 
@@ -10518,8 +10543,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__syncfusion_ej2_base__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__syncfusion_ej2_base_util__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__syncfusion_ej2_base_util___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__syncfusion_ej2_base_util__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__util__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__query__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__util__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__query__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__adaptors__ = __webpack_require__(56);
 
 
@@ -10915,7 +10940,7 @@ var Deferred = (function () {
 /* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(57), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, ej2_data_1, util_2, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(57), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, ej2_data_1, util_2, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Data = (function () {
@@ -10931,11 +10956,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var gObj = this.parent;
             this.dataManager = gObj.dataSource instanceof ej2_data_1.DataManager ? gObj.dataSource :
                 (util_1.isNullOrUndefined(gObj.dataSource) ? new ej2_data_1.DataManager() : new ej2_data_1.DataManager(gObj.dataSource));
-            this.query = gObj.query instanceof ej2_data_1.Query ? gObj.query : new ej2_data_1.Query();
+            gObj.query = gObj.query instanceof ej2_data_1.Query ? gObj.query : new ej2_data_1.Query();
         };
         Data.prototype.generateQuery = function () {
             var gObj = this.parent;
-            var query = this.query.clone();
+            var query = gObj.query.clone();
             if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
                 var columns = gObj.filterSettings.columns;
                 for (var _i = 0, columns_1 = columns; _i < columns_1.length; _i++) {
@@ -11031,7 +11056,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(1), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, util_1, util_2, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(1), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, util_1, util_2, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Print = (function () {
@@ -11138,7 +11163,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(6), __webpack_require__(73)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, constant_1, width_controller_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(5), __webpack_require__(74)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, constant_1, width_controller_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Scroll = (function () {
@@ -11284,7 +11309,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Search = (function () {
@@ -11357,7 +11382,1115 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(16)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(3), __webpack_require__(3), __webpack_require__(4), __webpack_require__(5), __webpack_require__(68), __webpack_require__(12), __webpack_require__(70), __webpack_require__(72), __webpack_require__(73), __webpack_require__(95), __webpack_require__(74), __webpack_require__(21), __webpack_require__(90), __webpack_require__(62), __webpack_require__(87), __webpack_require__(61), __webpack_require__(60)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, ej2_base_2, ej2_base_3, util_2, events, render_1, enum_1, cell_render_factory_1, service_locator_1, value_formatter_1, renderer_factory_1, width_controller_1, aria_service_1, page_settings_1, search_1, show_hide_1, scroll_1, print_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var SortDescriptor = (function (_super) {
+        __extends(SortDescriptor, _super);
+        function SortDescriptor() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return SortDescriptor;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Property()
+    ], SortDescriptor.prototype, "field", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], SortDescriptor.prototype, "direction", void 0);
+    exports.SortDescriptor = SortDescriptor;
+    var SortSettings = (function (_super) {
+        __extends(SortSettings, _super);
+        function SortSettings() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return SortSettings;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Collection([], SortDescriptor)
+    ], SortSettings.prototype, "columns", void 0);
+    exports.SortSettings = SortSettings;
+    var Predicate = (function (_super) {
+        __extends(Predicate, _super);
+        function Predicate() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return Predicate;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Property()
+    ], Predicate.prototype, "field", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Predicate.prototype, "operator", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Predicate.prototype, "value", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Predicate.prototype, "matchCase", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Predicate.prototype, "predicate", void 0);
+    __decorate([
+        ej2_base_2.Property({})
+    ], Predicate.prototype, "actualFilterValue", void 0);
+    __decorate([
+        ej2_base_2.Property({})
+    ], Predicate.prototype, "actualOperator", void 0);
+    exports.Predicate = Predicate;
+    var FilterSettings = (function (_super) {
+        __extends(FilterSettings, _super);
+        function FilterSettings() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return FilterSettings;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Collection([], Predicate)
+    ], FilterSettings.prototype, "columns", void 0);
+    __decorate([
+        ej2_base_2.Property('filterbar')
+    ], FilterSettings.prototype, "type", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], FilterSettings.prototype, "mode", void 0);
+    __decorate([
+        ej2_base_2.Property(true)
+    ], FilterSettings.prototype, "showFilterBarStatus", void 0);
+    __decorate([
+        ej2_base_2.Property(1500)
+    ], FilterSettings.prototype, "immediateModeDelay", void 0);
+    exports.FilterSettings = FilterSettings;
+    var SelectionSettings = (function (_super) {
+        __extends(SelectionSettings, _super);
+        function SelectionSettings() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return SelectionSettings;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Property('row')
+    ], SelectionSettings.prototype, "mode", void 0);
+    __decorate([
+        ej2_base_2.Property('flow')
+    ], SelectionSettings.prototype, "cellSelectionMode", void 0);
+    __decorate([
+        ej2_base_2.Property('single')
+    ], SelectionSettings.prototype, "type", void 0);
+    exports.SelectionSettings = SelectionSettings;
+    var SearchSettings = (function (_super) {
+        __extends(SearchSettings, _super);
+        function SearchSettings() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return SearchSettings;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Property([])
+    ], SearchSettings.prototype, "fields", void 0);
+    __decorate([
+        ej2_base_2.Property('')
+    ], SearchSettings.prototype, "key", void 0);
+    __decorate([
+        ej2_base_2.Property('contains')
+    ], SearchSettings.prototype, "operator", void 0);
+    __decorate([
+        ej2_base_2.Property(true)
+    ], SearchSettings.prototype, "ignoreCase", void 0);
+    exports.SearchSettings = SearchSettings;
+    var RowDropSettings = (function (_super) {
+        __extends(RowDropSettings, _super);
+        function RowDropSettings() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return RowDropSettings;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Property()
+    ], RowDropSettings.prototype, "targetID", void 0);
+    exports.RowDropSettings = RowDropSettings;
+    var GroupSettings = (function (_super) {
+        __extends(GroupSettings, _super);
+        function GroupSettings() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return GroupSettings;
+    }(ej2_base_1.ChildProperty));
+    __decorate([
+        ej2_base_2.Property(true)
+    ], GroupSettings.prototype, "showDropArea", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], GroupSettings.prototype, "showToggleButton", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], GroupSettings.prototype, "showGroupedColumn", void 0);
+    __decorate([
+        ej2_base_2.Property(true)
+    ], GroupSettings.prototype, "showUngroupButton", void 0);
+    __decorate([
+        ej2_base_2.Property([])
+    ], GroupSettings.prototype, "columns", void 0);
+    exports.GroupSettings = GroupSettings;
+    var Grid = (function (_super) {
+        __extends(Grid, _super);
+        function Grid(options, element) {
+            var _this = _super.call(this, options, element) || this;
+            _this.isInitial = true;
+            _this.sortedColumns = [];
+            _this.filterOperators = {
+                contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
+                lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
+            };
+            _this.defaultLocale = {
+                EmptyRecord: 'No records to display',
+                True: 'true',
+                False: 'false',
+                InvalidFilterMessage: 'Invalid Filter Data',
+                GroupDropArea: 'Drag a column header here to group its column',
+                UnGroup: 'Click here to ungroup',
+                GroupDisable: 'Grouping is disabled for this column',
+                FilterbarTitle: '\'s filter bar cell',
+                EmptyDataSourceError: 'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid'
+            };
+            _this.keyConfigs = {
+                downArrow: 'downarrow',
+                upArrow: 'uparrow',
+                rightArrow: 'rightarrow',
+                leftArrow: 'leftarrow',
+                shiftDown: 'shift+downarrow',
+                shiftUp: 'shift+uparrow',
+                shiftRight: 'shift+rightarrow',
+                shiftLeft: 'shift+leftarrow',
+                home: 'home',
+                end: 'end',
+                escape: 'escape',
+                ctrlHome: 'ctrl+home',
+                ctrlEnd: 'ctrl+end',
+                pageUp: 'pageup',
+                pageDown: 'pagedown',
+                ctrlAltPageUp: 'ctrl+alt+pageup',
+                ctrlAltPageDown: 'ctrl+alt+pagedown',
+                altPageUp: 'alt+pageup',
+                altPageDown: 'alt+pagedown',
+                altDownArrow: 'alt+downarrow',
+                altUpArrow: 'alt+uparrow',
+                ctrlDownArrow: 'ctrl+downarrow',
+                ctrlUpArrow: 'ctrl+uparrow',
+                ctrlPlusA: 'ctrl+A'
+            };
+            return _this;
+        }
+        Grid.prototype.getPersistData = function () {
+            var keyEntity = ['allowPaging', 'pageSettings', 'allowSorting', 'sortSettings', 'allowSelection',
+                'selectionSettings', 'allowFiltering', 'filterSettings', 'gridLines',
+                'created', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
+                'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound', 'groupSettings', 'columns', 'allowKeyboard',
+                'enableAltRow', 'enableHover', 'allowTextWrap', 'searchSettings', 'selectedRowIndex', 'allowReordering',
+                'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
+                'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
+                'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailsDataBound', 'detailsTemplate',
+                'childGrid', 'queryString'];
+            return this.addOnPersist(keyEntity);
+        };
+        Grid.prototype.requiredModules = function () {
+            var modules = [];
+            if (this.allowFiltering) {
+                modules.push({
+                    member: 'filter',
+                    args: [this, this.filterSettings, this.serviceLocator]
+                });
+            }
+            if (this.allowSorting) {
+                modules.push({
+                    member: 'sort',
+                    args: [this, this.sortSettings, this.sortedColumns]
+                });
+            }
+            if (this.allowPaging) {
+                modules.push({
+                    member: 'pager',
+                    args: [this, this.pageSettings]
+                });
+            }
+            if (this.allowSelection) {
+                modules.push({
+                    member: 'selection',
+                    args: [this, this.selectionSettings]
+                });
+            }
+            if (this.allowReordering) {
+                modules.push({
+                    member: 'reorder',
+                    args: [this]
+                });
+            }
+            if (this.allowRowDragAndDrop) {
+                modules.push({
+                    member: 'rowDragAndDrop',
+                    args: [this]
+                });
+            }
+            if (this.allowGrouping) {
+                modules.push({
+                    member: 'group',
+                    args: [this, this.groupSettings, this.sortedColumns, this.serviceLocator]
+                });
+            }
+            if (this.isDetail()) {
+                modules.push({
+                    member: 'detailsRow',
+                    args: [this]
+                });
+            }
+            return modules;
+        };
+        Grid.prototype.preRender = function () {
+            this.serviceLocator = new service_locator_1.ServiceLocator;
+        };
+        Grid.prototype.render = function () {
+            this.initializeServices();
+            this.ariaService.setOptions(this.element, { role: 'grid' });
+            this.renderModule = new render_1.Render(this, this.serviceLocator);
+            this.searchModule = new search_1.Search(this);
+            this.scrollModule = new scroll_1.Scroll(this);
+            this.notify(events.initialLoad, {});
+            this.trigger(events.load);
+            util_2.prepareColumns(this.columns);
+            this.getColumns();
+            this.processModel();
+            this.gridRender();
+            this.wireEvents();
+            this.addListener();
+            this.updateDefaultCursor();
+            this.notify(events.initialEnd, {});
+        };
+        Grid.prototype.eventInitializer = function () {
+        };
+        Grid.prototype.destroy = function () {
+            this.unwireEvents();
+            this.removeListener();
+            this.notify(events.destroy, {});
+            this.destroyDependentModules();
+            _super.prototype.destroy.call(this);
+            this.element.innerHTML = '';
+            dom_1.classList(this.element, [], ['e-rtl', 'e-gridhover', 'e-responsive', 'e-default', 'e-device']);
+        };
+        Grid.prototype.destroyDependentModules = function () {
+            this.scrollModule.destroy();
+            this.keyBoardModule.destroy();
+        };
+        Grid.prototype.getModuleName = function () {
+            return 'grid';
+        };
+        Grid.prototype.onPropertyChanged = function (newProp, oldProp) {
+            var requireRefresh = false;
+            var checkCursor;
+            var args = { requestType: 'refresh' };
+            if (this.isDestroyed) {
+                return;
+            }
+            for (var _i = 0, _a = Object.keys(newProp); _i < _a.length; _i++) {
+                var prop = _a[_i];
+                this.extendedPropertyChange(prop, newProp);
+                switch (prop) {
+                    case 'enableRtl':
+                        this.updateRTL();
+                        if (this.allowPaging) {
+                            this.element.querySelector('.e-gridpager').ej2_instances[0].enableRtl = newProp.enableRtl;
+                        }
+                        if (this.height !== 'auto') {
+                            this.scrollModule.removePadding(!newProp.enableRtl);
+                            this.scrollModule.setPadding();
+                        }
+                        break;
+                    case 'enableHover':
+                        var action = newProp.enableHover ? dom_1.addClass : dom_1.removeClass;
+                        action([this.element], 'e-gridhover');
+                        break;
+                    case 'dataSource':
+                        this.notify(events.dataSourceModified, {});
+                        this.renderModule.refresh();
+                        break;
+                    case 'allowPaging':
+                        this.notify(events.uiUpdate, { module: 'pager', enable: this.allowPaging });
+                        requireRefresh = true;
+                        break;
+                    case 'pageSettings':
+                        this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
+                        if (util_1.isNullOrUndefined(newProp.pageSettings.currentPage) && util_1.isNullOrUndefined(newProp.pageSettings.totalRecordsCount)) {
+                            requireRefresh = true;
+                        }
+                        break;
+                    case 'locale':
+                        this.localeObj.setLocale(newProp.locale);
+                        this.valueFormatterService.setCulture(newProp.locale);
+                        requireRefresh = true;
+                        break;
+                    case 'allowSorting':
+                        this.notify(events.uiUpdate, { module: 'sort', enable: this.allowSorting });
+                        requireRefresh = true;
+                        checkCursor = true;
+                        break;
+                    case 'allowFiltering':
+                        this.notify(events.uiUpdate, { module: 'filter', enable: this.allowFiltering });
+                        requireRefresh = true;
+                        break;
+                    case 'height':
+                    case 'width':
+                        this.notify(events.uiUpdate, {
+                            module: 'scroll',
+                            properties: { width: newProp.width, height: newProp.height }
+                        });
+                        break;
+                    case 'allowReordering':
+                        this.notify(events.uiUpdate, { module: 'reorder', enable: this.allowReordering });
+                        checkCursor = true;
+                        break;
+                    case 'allowRowDragAndDrop':
+                        this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
+                        break;
+                    case 'rowTemplate':
+                        this.rowTemplateFn = this.templateComplier(this.rowTemplate);
+                        requireRefresh = true;
+                        break;
+                    case 'detailsTemplate':
+                        this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
+                        requireRefresh = true;
+                        break;
+                    case 'allowGrouping':
+                        this.notify(events.uiUpdate, { module: 'group', enable: this.allowGrouping });
+                        this.headerModule.refreshUI();
+                        requireRefresh = true;
+                        checkCursor = true;
+                        break;
+                    case 'childGrid':
+                        requireRefresh = true;
+                        break;
+                }
+            }
+            if (checkCursor) {
+                this.updateDefaultCursor();
+            }
+            if (requireRefresh) {
+                this.notify(events.modelChanged, args);
+                requireRefresh = false;
+            }
+        };
+        Grid.prototype.extendedPropertyChange = function (prop, newProp) {
+            switch (prop) {
+                case 'enableAltRow':
+                    this.renderModule.refresh();
+                    break;
+                case 'gridLines':
+                    this.updateGridLines();
+                    break;
+                case 'groupSettings':
+                    this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings });
+                    break;
+                case 'filterSettings':
+                    this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
+                    break;
+                case 'searchSettings':
+                    this.notify(events.inBoundModelChanged, { module: 'search', properties: newProp.searchSettings });
+                    break;
+                case 'sortSettings':
+                    this.notify(events.inBoundModelChanged, { module: 'sort' });
+                    break;
+                case 'selectionSettings':
+                    this.notify(events.inBoundModelChanged, { module: 'selection', properties: newProp.selectionSettings });
+                    break;
+                case 'allowTextWrap':
+                    if (this.allowTextWrap) {
+                        this.applyTextWrap();
+                    }
+                    else {
+                        this.removeTextWrap();
+                    }
+                    break;
+            }
+        };
+        Grid.prototype.updateDefaultCursor = function () {
+            var headerRows = [].slice.call(this.element.querySelectorAll('.e-columnheader'));
+            for (var _i = 0, headerRows_1 = headerRows; _i < headerRows_1.length; _i++) {
+                var row = headerRows_1[_i];
+                if (this.allowSorting || this.allowGrouping || this.allowReordering) {
+                    row.classList.remove('e-defaultcursor');
+                }
+                else {
+                    row.classList.add('e-defaultcursor');
+                }
+            }
+        };
+        Grid.prototype.updateColumnModel = function (columns) {
+            for (var i = 0, len = columns.length; i < len; i++) {
+                if (columns[i].columns) {
+                    this.updateColumnModel(columns[i].columns);
+                }
+                else {
+                    this.columnModel.push(columns[i]);
+                }
+            }
+        };
+        Grid.prototype.getColumns = function () {
+            this.columnModel = [];
+            this.updateColumnModel(this.columns);
+            return this.columnModel;
+        };
+        Grid.prototype.getVisibleColumns = function () {
+            var cols = [];
+            for (var _i = 0, _a = this.columnModel; _i < _a.length; _i++) {
+                var col = _a[_i];
+                if (col.visible) {
+                    cols.push(col);
+                }
+            }
+            return cols;
+        };
+        Grid.prototype.getHeaderContent = function () {
+            return this.headerModule.getPanel();
+        };
+        Grid.prototype.setGridHeaderContent = function (element) {
+            this.headerModule.setPanel(element);
+        };
+        Grid.prototype.getContentTable = function () {
+            return this.contentModule.getTable();
+        };
+        Grid.prototype.setGridContentTable = function (element) {
+            this.contentModule.setTable(element);
+        };
+        Grid.prototype.getContent = function () {
+            return this.contentModule.getPanel();
+        };
+        Grid.prototype.setGridContent = function (element) {
+            this.contentModule.setPanel(element);
+        };
+        Grid.prototype.getHeaderTable = function () {
+            return this.headerModule.getTable();
+        };
+        Grid.prototype.setGridHeaderTable = function (element) {
+            this.headerModule.setTable(element);
+        };
+        Grid.prototype.getPager = function () {
+            return this.gridPager;
+        };
+        Grid.prototype.setGridPager = function (element) {
+            this.gridPager = element;
+        };
+        Grid.prototype.getRowByIndex = function (index) {
+            return this.getDataRows()[index];
+        };
+        Grid.prototype.getRows = function () {
+            return this.contentModule.getRowElements();
+        };
+        Grid.prototype.getDataRows = function () {
+            var rows = this.getContentTable().querySelector('tbody').children;
+            var dataRows = [];
+            for (var i = 0, len = rows.length; i < len; i++) {
+                if (rows[i].classList.contains('e-row')) {
+                    dataRows.push(rows[i]);
+                }
+            }
+            return dataRows;
+        };
+        Grid.prototype.getCellFromIndex = function (rowIndex, columnIndex) {
+            return this.getDataRows()[rowIndex].querySelectorAll('.e-rowcell')[columnIndex];
+        };
+        Grid.prototype.getColumnHeaderByIndex = function (index) {
+            return this.getHeaderTable().querySelectorAll('.e-headercell')[index];
+        };
+        Grid.prototype.getColumnHeaderByField = function (field) {
+            return this.getColumnHeaderByUid(this.getColumnByField(field).uid);
+        };
+        Grid.prototype.getColumnHeaderByUid = function (uid) {
+            return this.getHeaderContent().querySelector('[e-mappinguid=' + uid + ']').parentElement;
+        };
+        Grid.prototype.getColumnByField = function (field) {
+            return util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
+                if (item.field === field) {
+                    return item;
+                }
+                return undefined;
+            })[0];
+        };
+        Grid.prototype.getColumnIndexByField = function (field) {
+            var index = util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
+                if (item.field === field) {
+                    return index;
+                }
+                return undefined;
+            })[0];
+            return !util_1.isNullOrUndefined(index) ? index : -1;
+        };
+        Grid.prototype.getColumnByUid = function (uid) {
+            return util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
+                if (item.uid === uid) {
+                    return item;
+                }
+                return undefined;
+            })[0];
+        };
+        Grid.prototype.getColumnIndexByUid = function (uid) {
+            var index = util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
+                if (item.uid === uid) {
+                    return index;
+                }
+                return undefined;
+            })[0];
+            return !util_1.isNullOrUndefined(index) ? index : -1;
+        };
+        Grid.prototype.getUidByColumnField = function (field) {
+            return util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
+                if (item.field === field) {
+                    return item.uid;
+                }
+                return undefined;
+            })[0];
+        };
+        Grid.prototype.getNormalizedColumnIndex = function (uid) {
+            var index = this.getColumnIndexByUid(uid);
+            if (this.allowGrouping) {
+                index += this.groupSettings.columns.length;
+            }
+            if (this.isDetail()) {
+                index++;
+            }
+            return index;
+        };
+        Grid.prototype.getColumnFieldNames = function () {
+            var columnNames = [];
+            var column;
+            for (var i = 0, len = this.getColumns().length; i < len; i++) {
+                column = this.getColumns()[i];
+                if (column.visible) {
+                    columnNames.push(column.field);
+                }
+            }
+            return columnNames;
+        };
+        Grid.prototype.getRowTemplate = function () {
+            return this.rowTemplateFn;
+        };
+        Grid.prototype.getDetailTemplate = function () {
+            return this.detailsTemplateFn;
+        };
+        Grid.prototype.getPrimaryKeyFieldNames = function () {
+            var keys = [];
+            for (var key = 0, col = this.columns, cLen = col.length; key < cLen; key++) {
+                if (col[key].isPrimaryKey) {
+                    keys.push(col[key].field);
+                }
+            }
+            return keys;
+        };
+        Grid.prototype.refresh = function () {
+            this.headerModule.refreshUI();
+            this.renderModule.refresh();
+        };
+        Grid.prototype.refreshHeader = function () {
+            this.headerModule.refreshUI();
+        };
+        Grid.prototype.getSelectedRows = function () {
+            return this.selectionModule ? this.selectionModule.selectedRecords : [];
+        };
+        Grid.prototype.getSelectedRowIndexes = function () {
+            return this.selectionModule.selectedRowIndexes;
+        };
+        Grid.prototype.getSelectedRowCellIndexes = function () {
+            return this.selectionModule.selectedRowCellIndexes;
+        };
+        Grid.prototype.getSelectedRecords = function () {
+            var records = [];
+            var key = 'records';
+            var currentViewData = this.allowGrouping && this.groupSettings.columns.length ?
+                this.currentViewData[key] : this.currentViewData;
+            for (var i = 0, len = this.selectionModule.selectedRowIndexes.length; i < len; i++) {
+                records.push(currentViewData[this.selectionModule.selectedRowIndexes[i]]);
+            }
+            return records;
+        };
+        Grid.prototype.showColumns = function (keys, showBy) {
+            showBy = showBy ? showBy : 'headerText';
+            this.showHider.show(keys, showBy);
+        };
+        Grid.prototype.hideColumns = function (keys, hideBy) {
+            hideBy = hideBy ? hideBy : 'headerText';
+            this.showHider.hide(keys, hideBy);
+        };
+        Grid.prototype.goToPage = function (pageNo) {
+            this.pagerModule.goToPage(pageNo);
+        };
+        Grid.prototype.updateExternalMessage = function (message) {
+            this.pagerModule.updateExternalMessage(message);
+        };
+        Grid.prototype.sortColumn = function (columnName, direction, isMultiSort) {
+            this.sortModule.sortColumn(columnName, direction, isMultiSort);
+        };
+        Grid.prototype.clearSorting = function () {
+            this.sortModule.clearSorting();
+        };
+        Grid.prototype.removeSortColumn = function (field) {
+            this.sortModule.removeSortColumn(field);
+        };
+        Grid.prototype.filterByColumn = function (fieldName, filterOperator, filterValue, predicate, matchCase, actualFilterValue, actualOperator) {
+            this.filterModule.filterByColumn(fieldName, filterOperator, filterValue, predicate, matchCase, actualFilterValue, actualOperator);
+        };
+        Grid.prototype.clearFiltering = function () {
+            this.filterModule.clearFiltering();
+        };
+        Grid.prototype.removeFilteredColsByField = function (field, isClearFilterBar) {
+            this.filterModule.removeFilteredColsByField(field, isClearFilterBar);
+        };
+        Grid.prototype.selectRow = function (index) {
+            this.selectionModule.selectRow(index);
+        };
+        Grid.prototype.selectRows = function (rowIndexes) {
+            this.selectionModule.selectRows(rowIndexes);
+        };
+        Grid.prototype.clearSelection = function () {
+            this.selectionModule.clearSelection();
+        };
+        Grid.prototype.selectCell = function (cellIndex) {
+            this.selectionModule.selectCell(cellIndex);
+        };
+        Grid.prototype.search = function (searchString) {
+            this.searchModule.search(searchString);
+        };
+        Grid.prototype.print = function () {
+            this.printModule.print();
+        };
+        Grid.prototype.recalcIndentWidth = function () {
+            if ((!this.groupSettings.columns.length && !this.isDetail()) ||
+                this.getHeaderTable().querySelector('.e-emptycell').getAttribute('indentRefreshed') ||
+                !this.getContentTable()) {
+                return;
+            }
+            var indentWidth = this.getHeaderTable().querySelector('.e-emptycell').parentElement.offsetWidth;
+            var headerCol = [].slice.call(this.getHeaderTable().querySelector('colgroup').childNodes);
+            var contentCol = [].slice.call(this.getContentTable().querySelector('colgroup').childNodes);
+            var perPixel = indentWidth / 30;
+            var i = 0;
+            if (perPixel >= 1) {
+                indentWidth = (30 / perPixel);
+            }
+            while (i < this.groupSettings.columns.length) {
+                headerCol[i].style.width = indentWidth + 'px';
+                contentCol[i].style.width = indentWidth + 'px';
+                i++;
+            }
+            if (this.isDetail()) {
+                headerCol[i].style.width = indentWidth + 'px';
+                contentCol[i].style.width = indentWidth + 'px';
+            }
+            this.getHeaderTable().querySelector('.e-emptycell').setAttribute('indentRefreshed', 'true');
+        };
+        Grid.prototype.reorderColumns = function (fromFName, toFName) {
+            this.reorderModule.reorderColumns(fromFName, toFName);
+        };
+        Grid.prototype.initializeServices = function () {
+            this.serviceLocator.register('widthService', this.widthService = new width_controller_1.ColumnWidthService(this));
+            this.serviceLocator.register('cellRendererFactory', new cell_render_factory_1.CellRendererFactory);
+            this.serviceLocator.register('rendererFactory', new renderer_factory_1.RendererFactory);
+            this.serviceLocator.register('localization', this.localeObj = new ej2_base_2.L10n(this.getModuleName(), this.defaultLocale, this.locale));
+            this.serviceLocator.register('valueFormatter', this.valueFormatterService = new value_formatter_1.ValueFormatter(this.locale));
+            this.serviceLocator.register('showHideService', this.showHider = new show_hide_1.ShowHide(this));
+            this.serviceLocator.register('ariaService', this.ariaService = new aria_service_1.AriaService());
+        };
+        Grid.prototype.processModel = function () {
+            var gCols = this.groupSettings.columns;
+            var sCols = this.sortSettings.columns;
+            var flag;
+            var j;
+            if (this.allowGrouping) {
+                for (var i = 0, len = gCols.length; i < len; i++) {
+                    j = 0;
+                    for (var sLen = sCols.length; j < sLen; j++) {
+                        if (sCols[j].field === gCols[i]) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        sCols.push({ field: gCols[i], direction: 'ascending' });
+                    }
+                    else {
+                        if (this.allowSorting) {
+                            this.sortedColumns.push(sCols[j].field);
+                        }
+                        else {
+                            sCols[j].direction = 'ascending';
+                        }
+                    }
+                    if (!this.groupSettings.showGroupedColumn) {
+                        this.getColumnByField(gCols[i]).visible = false;
+                    }
+                }
+            }
+            this.rowTemplateFn = this.templateComplier(this.rowTemplate);
+            this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
+            if (!util_1.isNullOrUndefined(this.parentDetails)) {
+                var value = util_1.isNullOrUndefined(this.parentDetails.parentKeyFieldValue) ? 'undefined' :
+                    this.parentDetails.parentKeyFieldValue;
+                this.query.where(this.queryString, 'equal', value, true);
+            }
+        };
+        Grid.prototype.templateComplier = function (template) {
+            if (template) {
+                var e = void 0;
+                try {
+                    if (document.querySelectorAll(template).length) {
+                        return ej2_base_1.compile(document.querySelector(template).innerHTML.trim());
+                    }
+                }
+                catch (e) {
+                    return ej2_base_1.compile(template);
+                }
+            }
+            return undefined;
+        };
+        Grid.prototype.gridRender = function () {
+            this.updateRTL();
+            if (this.enableHover) {
+                this.element.classList.add('e-gridhover');
+            }
+            if (ej2_base_1.Browser.isDevice) {
+                this.element.classList.add('e-device');
+            }
+            dom_1.classList(this.element, ['e-responsive', 'e-default'], []);
+            var rendererFactory = this.serviceLocator.getService('rendererFactory');
+            this.headerModule = rendererFactory.getRenderer(enum_1.RenderType.Header);
+            this.contentModule = rendererFactory.getRenderer(enum_1.RenderType.Content);
+            this.printModule = new print_1.Print(this, this.scrollModule);
+            this.renderModule.render();
+            this.eventInitializer();
+            this.createGridPopUpElement();
+            this.widthService.setWidthToColumns();
+            this.updateGridLines();
+            this.applyTextWrap();
+        };
+        Grid.prototype.dataReady = function () {
+            this.scrollModule.setWidth();
+            this.scrollModule.setHeight();
+            if (this.height !== 'auto') {
+                this.scrollModule.setPadding();
+            }
+        };
+        Grid.prototype.updateRTL = function () {
+            if (this.enableRtl) {
+                this.element.classList.add('e-rtl');
+            }
+            else {
+                this.element.classList.remove('e-rtl');
+            }
+        };
+        Grid.prototype.createGridPopUpElement = function () {
+            var popup = dom_1.createElement('div', { className: 'e-gridpopup', styles: 'display:none;' });
+            var content = dom_1.createElement('div', { className: 'e-content' });
+            dom_1.append([content, dom_1.createElement('div', { className: 'e-uptail e-tail' })], popup);
+            content.appendChild(dom_1.createElement('span'));
+            dom_1.append([content, dom_1.createElement('div', { className: 'e-downtail e-tail' })], popup);
+            this.element.appendChild(popup);
+        };
+        Grid.prototype.updateGridLines = function () {
+            dom_1.classList(this.element, [], ['e-verticallines', 'e-horizontallines', 'e-hidelines', 'e-bothlines']);
+            switch (this.gridLines) {
+                case 'horizontal':
+                    this.element.classList.add('e-horizontallines');
+                    break;
+                case 'vertical':
+                    this.element.classList.add('e-verticallines');
+                    break;
+                case 'none':
+                    this.element.classList.add('e-hidelines');
+                    break;
+                case 'both':
+                    this.element.classList.add('e-bothlines');
+                    break;
+            }
+        };
+        Grid.prototype.applyTextWrap = function () {
+            if (this.allowTextWrap) {
+                this.element.classList.add('e-wrap');
+            }
+        };
+        Grid.prototype.removeTextWrap = function () {
+            this.element.classList.remove('e-wrap');
+        };
+        Grid.prototype.wireEvents = function () {
+            ej2_base_3.EventHandler.add(this.element, 'click', this.mouseClickHandler, this);
+            ej2_base_3.EventHandler.add(this.element, 'touchend', this.mouseClickHandler, this);
+            ej2_base_3.EventHandler.add(this.element, 'focusout', this.focusOutHandler, this);
+            if (this.allowKeyboard) {
+                this.element.tabIndex = this.element.tabIndex === -1 ? 0 : this.element.tabIndex;
+            }
+            this.keyBoardModule = new ej2_base_3.KeyboardEvents(this.element, {
+                keyAction: this.keyActionHandler.bind(this),
+                keyConfigs: this.keyConfigs,
+                eventName: 'keydown'
+            });
+        };
+        Grid.prototype.unwireEvents = function () {
+            ej2_base_3.EventHandler.remove(this.element, 'click', this.mouseClickHandler);
+            ej2_base_3.EventHandler.remove(this.element, 'touchend', this.mouseClickHandler);
+            ej2_base_3.EventHandler.remove(this.element, 'focusout', this.focusOutHandler);
+        };
+        Grid.prototype.addListener = function () {
+            if (this.isDestroyed) {
+                return;
+            }
+            this.on(events.dataReady, this.dataReady, this);
+            this.on(events.contentReady, this.recalcIndentWidth, this);
+            this.on(events.headerRefreshed, this.recalcIndentWidth, this);
+        };
+        Grid.prototype.removeListener = function () {
+            this.off(events.dataReady, this.dataReady);
+            this.off(events.contentReady, this.recalcIndentWidth);
+            this.off(events.headerRefreshed, this.recalcIndentWidth);
+        };
+        Grid.prototype.mouseClickHandler = function (e) {
+            if (this.isChildGrid(e) || (util_2.parentsUntil(e.target, 'e-gridpopup') && e.touches) ||
+                this.element.querySelectorAll('.e-cloneproperties').length) {
+                return;
+            }
+            if (((!this.allowRowDragAndDrop && util_2.parentsUntil(e.target, 'e-gridcontent')) ||
+                (!(this.allowGrouping || this.allowReordering) && util_2.parentsUntil(e.target, 'e-gridheader'))) && e.touches) {
+                return;
+            }
+            if (util_2.parentsUntil(e.target, 'e-gridheader') && this.allowRowDragAndDrop) {
+                e.preventDefault();
+            }
+            this.notify(events.click, e);
+        };
+        Grid.prototype.focusOutHandler = function (e) {
+            if (this.isChildGrid(e)) {
+                return;
+            }
+            if (!util_2.parentsUntil(e.target, 'e-grid')) {
+                this.element.querySelector('.e-gridpopup').style.display = 'none';
+            }
+            var filterClear = this.element.querySelector('.e-cancel:not(.e-hide)');
+            if (filterClear) {
+                filterClear.classList.add('e-hide');
+            }
+        };
+        Grid.prototype.isChildGrid = function (e) {
+            var gridElement = util_2.parentsUntil(e.target, 'e-grid');
+            if (gridElement && gridElement.id !== this.element.id) {
+                return true;
+            }
+            return false;
+        };
+        Grid.prototype.isDetail = function () {
+            return (this.detailsTemplate && this.detailsTemplate.length > 1) || !util_1.isNullOrUndefined(this.childGrid);
+        };
+        Grid.prototype.keyActionHandler = function (e) {
+            if (this.isChildGrid(e)) {
+                return;
+            }
+            if (this.allowKeyboard) {
+                this.notify(events.keyPressed, e);
+            }
+        };
+        return Grid;
+    }(ej2_base_1.Component));
+    __decorate([
+        ej2_base_2.Property([])
+    ], Grid.prototype, "columns", void 0);
+    __decorate([
+        ej2_base_2.Property(true)
+    ], Grid.prototype, "enableAltRow", void 0);
+    __decorate([
+        ej2_base_2.Property(true)
+    ], Grid.prototype, "enableHover", void 0);
+    __decorate([
+        ej2_base_2.Property(true)
+    ], Grid.prototype, "allowKeyboard", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], Grid.prototype, "allowTextWrap", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], Grid.prototype, "allowPaging", void 0);
+    __decorate([
+        ej2_base_2.Complex({}, page_settings_1.PageSettings)
+    ], Grid.prototype, "pageSettings", void 0);
+    __decorate([
+        ej2_base_2.Complex({}, SearchSettings)
+    ], Grid.prototype, "searchSettings", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], Grid.prototype, "allowSorting", void 0);
+    __decorate([
+        ej2_base_2.Complex({}, SortSettings)
+    ], Grid.prototype, "sortSettings", void 0);
+    __decorate([
+        ej2_base_2.Property(true)
+    ], Grid.prototype, "allowSelection", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Grid.prototype, "selectedRowIndex", void 0);
+    __decorate([
+        ej2_base_2.Complex({}, SelectionSettings)
+    ], Grid.prototype, "selectionSettings", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], Grid.prototype, "allowFiltering", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], Grid.prototype, "allowReordering", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], Grid.prototype, "allowRowDragAndDrop", void 0);
+    __decorate([
+        ej2_base_2.Complex({}, RowDropSettings)
+    ], Grid.prototype, "rowDropSettings", void 0);
+    __decorate([
+        ej2_base_2.Complex({}, FilterSettings)
+    ], Grid.prototype, "filterSettings", void 0);
+    __decorate([
+        ej2_base_2.Property(false)
+    ], Grid.prototype, "allowGrouping", void 0);
+    __decorate([
+        ej2_base_2.Complex({}, GroupSettings)
+    ], Grid.prototype, "groupSettings", void 0);
+    __decorate([
+        ej2_base_2.Property('auto')
+    ], Grid.prototype, "height", void 0);
+    __decorate([
+        ej2_base_2.Property('auto')
+    ], Grid.prototype, "width", void 0);
+    __decorate([
+        ej2_base_2.Property('default')
+    ], Grid.prototype, "gridLines", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Grid.prototype, "rowTemplate", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Grid.prototype, "detailsTemplate", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Grid.prototype, "childGrid", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Grid.prototype, "queryString", void 0);
+    __decorate([
+        ej2_base_2.Property('allpages')
+    ], Grid.prototype, "printMode", void 0);
+    __decorate([
+        ej2_base_2.Property([])
+    ], Grid.prototype, "dataSource", void 0);
+    __decorate([
+        ej2_base_2.Property()
+    ], Grid.prototype, "query", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "created", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "destroyed", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "load", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowDataBound", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "queryCellInfo", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "actionBegin", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "actionComplete", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "actionFailure", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "dataBound", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowSelecting", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowSelected", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowDeselecting", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowDeselected", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "cellSelecting", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "cellSelected", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "cellDeselecting", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "cellDeselected", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "columnDragStart", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "columnDrag", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "columnDrop", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "printComplete", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "beforePrint", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "detailsDataBound", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowDragStart", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowDrag", void 0);
+    __decorate([
+        ej2_base_2.Event()
+    ], Grid.prototype, "rowDrop", void 0);
+    Grid = __decorate([
+        ej2_base_2.NotifyPropertyChanges
+    ], Grid);
+    exports.Grid = Grid;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var GroupCaptionCellRenderer = (function (_super) {
@@ -11382,10 +12515,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(6), __webpack_require__(26), __webpack_require__(55), __webpack_require__(70)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events, row_renderer_1, row_model_generator_1, group_model_generator_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(5), __webpack_require__(27), __webpack_require__(55), __webpack_require__(71)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events, row_renderer_1, row_model_generator_1, group_model_generator_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ContentRender = (function () {
@@ -11454,7 +12587,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 }
                 frag.appendChild(tr);
                 this.rows.push(modelData[i]);
-                this.rowElements.push(tr);
+                if (modelData[i].isDataRow) {
+                    var td = tr.querySelectorAll('.e-rowcell:not(.e-hide)')[0];
+                    if (td) {
+                        td.classList.add('e-detailrowvisible');
+                    }
+                    this.rowElements.push(tr);
+                }
                 this.ariaService.setOptions(this.getTable(), { colcount: gObj.getColumns().length.toString() });
             }
             util_2.getUpdateUsingRaf(function () {
@@ -11495,6 +12634,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         ContentRender.prototype.getColGroup = function () {
             return this.colgroup;
+        };
+        ContentRender.prototype.setRowElements = function (elements) {
+            this.rowElements = elements;
         };
         ContentRender.prototype.setColGroup = function (colGroup) {
             return this.colgroup = colGroup;
@@ -11548,7 +12690,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -11561,7 +12703,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(16), __webpack_require__(27)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, util_2, cell_renderer_1, aria_service_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(13), __webpack_require__(21)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, util_2, cell_renderer_1, aria_service_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var HeaderCellRenderer = (function (_super) {
@@ -11637,10 +12779,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(2), __webpack_require__(12), __webpack_require__(26), __webpack_require__(51), __webpack_require__(25), __webpack_require__(6), __webpack_require__(3), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, dom_2, enum_1, row_renderer_1, cell_1, row_1, events, ej2_base_1, util_2) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(2), __webpack_require__(12), __webpack_require__(27), __webpack_require__(51), __webpack_require__(26), __webpack_require__(5), __webpack_require__(3), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, dom_2, enum_1, row_renderer_1, cell_1, row_1, events, ej2_base_1, util_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var HeaderRender = (function () {
@@ -11743,6 +12885,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     colGroup.appendChild(col);
                 }
             }
+            if (this.parent.detailsTemplate || this.parent.childGrid) {
+                col = dom_1.createElement('col');
+                colGroup.appendChild(col);
+            }
             for (var i = 0, len = cols.length; i < len; i++) {
                 col = dom_1.createElement('col');
                 if (cols[i].visible === false) {
@@ -11755,10 +12901,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         HeaderRender.prototype.ensureColumns = function (rows) {
             var gObj = this.parent;
             for (var i = 0, len = rows.length; i < len; i++) {
-                if (this.parent.allowGrouping) {
+                if (gObj.allowGrouping) {
                     for (var c = 0, len_2 = gObj.groupSettings.columns.length; c < len_2; c++) {
                         rows[i].cells.push(this.generateCell({}, enum_1.CellType.HeaderIndent));
                     }
+                }
+                if (gObj.detailsTemplate || gObj.childGrid) {
+                    rows[i].cells.push(this.generateCell({}, enum_1.CellType.DetailHeader));
                 }
             }
             return rows;
@@ -11963,10 +13112,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(1), __webpack_require__(12), __webpack_require__(59), __webpack_require__(6), __webpack_require__(4), __webpack_require__(64), __webpack_require__(66), __webpack_require__(16), __webpack_require__(65), __webpack_require__(68), __webpack_require__(54), __webpack_require__(63), __webpack_require__(90), __webpack_require__(91)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, util_1, enum_1, data_1, events, util_2, content_renderer_1, header_renderer_1, cell_renderer_1, header_cell_renderer_1, stacked_cell_renderer_1, indent_cell_renderer_1, caption_cell_renderer_1, expand_cell_renderer_1, header_indent_renderer_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(1), __webpack_require__(12), __webpack_require__(59), __webpack_require__(5), __webpack_require__(4), __webpack_require__(65), __webpack_require__(67), __webpack_require__(13), __webpack_require__(66), __webpack_require__(69), __webpack_require__(54), __webpack_require__(64), __webpack_require__(93), __webpack_require__(94), __webpack_require__(92), __webpack_require__(91)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, util_1, enum_1, data_1, events, util_2, content_renderer_1, header_renderer_1, cell_renderer_1, header_cell_renderer_1, stacked_cell_renderer_1, indent_cell_renderer_1, caption_cell_renderer_1, expand_cell_renderer_1, header_indent_renderer_1, detail_header_indent_renderer_1, detail_expand_cell_renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Render = (function () {
@@ -12092,6 +13241,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     alert(this.l10n.getConstant('EmptyDataSourceError'));
                     return;
                 }
+                this.contentRenderer.setRowElements([]);
                 this.renderEmptyRow();
                 if (args) {
                     var action = (args.requestType || '').toLowerCase() + '-complete';
@@ -12132,6 +13282,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             cellrender.addCellRenderer(enum_1.CellType.Expand, new expand_cell_renderer_1.ExpandCellRenderer(this.locator));
             cellrender.addCellRenderer(enum_1.CellType.HeaderIndent, new header_indent_renderer_1.HeaderIndentCellRenderer(this.locator));
             cellrender.addCellRenderer(enum_1.CellType.StackedHeader, new stacked_cell_renderer_1.StackedHeaderCellRenderer(this.locator));
+            cellrender.addCellRenderer(enum_1.CellType.DetailHeader, new detail_header_indent_renderer_1.DetailHeaderIndentCellRenderer(this.locator));
+            cellrender.addCellRenderer(enum_1.CellType.DetailExpand, new detail_expand_cell_renderer_1.DetailExpandCellRenderer(this.locator));
         };
         Render.prototype.addEventListener = function () {
             this.parent.on(events.initialLoad, this.instantiateRenderer, this);
@@ -12146,7 +13298,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -12159,7 +13311,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(1), __webpack_require__(16)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, util_1, cell_renderer_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(1), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, util_1, cell_renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var StackedHeaderCellRenderer = (function (_super) {
@@ -12191,7 +13343,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, enum_1) {
@@ -12224,7 +13376,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -12237,7 +13389,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(25), __webpack_require__(1), __webpack_require__(12), __webpack_require__(55)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, row_1, util_1, enum_1, row_model_generator_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(26), __webpack_require__(1), __webpack_require__(12), __webpack_require__(55)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, row_1, util_1, enum_1, row_model_generator_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var GroupModelGenerator = (function (_super) {
@@ -12274,13 +13426,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
             }
         };
         GroupModelGenerator.prototype.getCaptionRowCells = function (field, indent) {
+            var gObj = this.parent;
             var cells = [];
             for (var i = 0; i < indent; i++) {
                 cells.push(this.generateIndentCell());
             }
             cells.push(this.generateCell({}, null, enum_1.CellType.Expand));
-            cells.push(this.generateCell(this.parent.getColumnByField(field), null, enum_1.CellType.GroupCaption, this.parent.getVisibleColumns().length + this.parent.groupSettings.columns.length -
-                indent + (this.parent.getVisibleColumns().length ? -1 : 0)));
+            cells.push(this.generateCell(gObj.getColumnByField(field), null, enum_1.CellType.GroupCaption, gObj.getVisibleColumns().length + gObj.groupSettings.columns.length + (gObj.detailsTemplate || gObj.childGrid ? 1 : 0) -
+                indent + (gObj.getVisibleColumns().length ? -1 : 0)));
             return cells;
         };
         GroupModelGenerator.prototype.generateCaptionRow = function (data, indent) {
@@ -12296,7 +13449,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         GroupModelGenerator.prototype.generateDataRows = function (data, indent) {
             var rows = [];
             for (var i = 0, len = data.length; i < len; i++) {
-                rows[i] = this.generateRow(data[i], this.index);
+                rows[i] = this.generateRow(data[i], this.index, i ? undefined : 'e-firstchildrow');
                 for (var j = 0; j < indent; j++) {
                     rows[i].cells.unshift(this.generateIndentCell());
                 }
@@ -12315,7 +13468,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1) {
@@ -12344,7 +13497,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, ej2_base_1) {
@@ -12401,10 +13554,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(1), __webpack_require__(6), __webpack_require__(52)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, util_2, constant_1, column_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(1), __webpack_require__(5), __webpack_require__(52)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, util_2, constant_1, column_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ColumnWidthService = (function () {
@@ -12413,10 +13566,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         ColumnWidthService.prototype.setWidthToColumns = function () {
             var _this = this;
+            var i = 0;
             if (this.parent.allowGrouping) {
-                for (var i = 0, len = this.parent.groupSettings.columns.length; i < len; i++) {
+                for (var len = this.parent.groupSettings.columns.length; i < len; i++) {
                     this.setColumnWidth(new column_1.Column({ width: '30px' }), i);
                 }
+            }
+            if (this.parent.detailsTemplate || this.parent.childGrid) {
+                this.setColumnWidth(new column_1.Column({ width: '30px' }), i);
             }
             this.parent.getColumns().forEach(function (column) {
                 _this.setColumnWidth(column);
@@ -12459,10 +13616,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(59), __webpack_require__(86), __webpack_require__(81), __webpack_require__(84), __webpack_require__(79), __webpack_require__(62), __webpack_require__(61), __webpack_require__(82), __webpack_require__(83), __webpack_require__(80), __webpack_require__(60)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, data_1, sort_1, page_1, selection_1, filter_1, search_1, scroll_1, reorder_1, row_reorder_1, group_1, print_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(59), __webpack_require__(88), __webpack_require__(83), __webpack_require__(86), __webpack_require__(81), __webpack_require__(62), __webpack_require__(61), __webpack_require__(84), __webpack_require__(85), __webpack_require__(82), __webpack_require__(60), __webpack_require__(80)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, data_1, sort_1, page_1, selection_1, filter_1, search_1, scroll_1, reorder_1, row_reorder_1, group_1, print_1, details_row_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -12479,15 +13636,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     __export(row_reorder_1);
     __export(group_1);
     __export(print_1);
+    __export(details_row_1);
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(87), __webpack_require__(12), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, grid_1, enum_1, util_1, constant_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(63), __webpack_require__(12), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, grid_1, enum_1, util_1, constant_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -12502,7 +13660,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(52)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, column_1) {
@@ -12517,10 +13675,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(66), __webpack_require__(64), __webpack_require__(26), __webpack_require__(16), __webpack_require__(65), __webpack_require__(53), __webpack_require__(68), __webpack_require__(67), __webpack_require__(53), __webpack_require__(54), __webpack_require__(63)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, header_renderer_1, content_renderer_1, row_renderer_1, cell_renderer_1, header_cell_renderer_1, filter_cell_renderer_1, stacked_cell_renderer_1, render_1, filter_cell_renderer_2, indent_cell_renderer_1, caption_cell_renderer_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(67), __webpack_require__(65), __webpack_require__(27), __webpack_require__(13), __webpack_require__(66), __webpack_require__(53), __webpack_require__(69), __webpack_require__(68), __webpack_require__(53), __webpack_require__(54), __webpack_require__(64)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, header_renderer_1, content_renderer_1, row_renderer_1, cell_renderer_1, header_cell_renderer_1, filter_cell_renderer_1, stacked_cell_renderer_1, render_1, filter_cell_renderer_2, indent_cell_renderer_1, caption_cell_renderer_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -12542,10 +13700,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(69), __webpack_require__(71), __webpack_require__(55), __webpack_require__(70)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, cell_render_factory_1, service_locator_1, row_model_generator_1, group_model_generator_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(70), __webpack_require__(72), __webpack_require__(55), __webpack_require__(71)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, cell_render_factory_1, service_locator_1, row_model_generator_1, group_model_generator_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -12560,10 +13718,163 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(4), __webpack_require__(2), __webpack_require__(57), __webpack_require__(6), __webpack_require__(12), __webpack_require__(26), __webpack_require__(51), __webpack_require__(25), __webpack_require__(53)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, util_2, dom_1, ej2_data_1, events, enum_1, row_renderer_1, cell_1, row_1, filter_cell_renderer_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(63), __webpack_require__(4), __webpack_require__(5), __webpack_require__(21)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, grid_1, util_1, events, aria_service_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var DetailsRow = (function () {
+        function DetailsRow(parent) {
+            this.aria = new aria_service_1.AriaService();
+            this.parent = parent;
+            this.parent.on(events.click, this.clickHandler, this);
+            this.parent.on(events.destroy, this.destroy, this);
+            this.parent.on(events.keyPressed, this.keyPressHandler, this);
+        }
+        DetailsRow.prototype.clickHandler = function (e) {
+            this.toogleExpandcollapse(dom_1.closest(e.target, 'td'));
+        };
+        DetailsRow.prototype.toogleExpandcollapse = function (target) {
+            var gObj = this.parent;
+            var parent = 'parentDetails';
+            if (target && (target.classList.contains('e-detailsrowcollapse') || target.classList.contains('e-detailsrowexpand'))) {
+                var tr = target.parentElement;
+                var nextRow = this.parent.getContentTable().querySelector('tbody').children[tr.rowIndex + 1];
+                if (target.classList.contains('e-detailsrowcollapse')) {
+                    var key = 'records';
+                    var currentViewData = gObj.allowGrouping && gObj.groupSettings.columns.length ?
+                        gObj.currentViewData[key] : gObj.currentViewData;
+                    var data = currentViewData[tr.getAttribute('aria-rowindex')];
+                    if (this.isDetailRow(nextRow)) {
+                        nextRow.style.display = '';
+                    }
+                    else if (gObj.getDetailTemplate() || gObj.childGrid) {
+                        var detailRow = dom_1.createElement('tr', { className: 'e-detailrow' });
+                        var detailCell = dom_1.createElement('td', { className: 'e-detailcell' });
+                        detailCell.setAttribute('colspan', this.parent.getVisibleColumns().length.toString());
+                        for (var i = 0, len = gObj.groupSettings.columns.length; i < len; i++) {
+                            detailRow.appendChild(dom_1.createElement('td', { className: 'e-indentcell' }));
+                        }
+                        detailRow.appendChild(dom_1.createElement('td', { className: 'e-detailindentcell' }));
+                        if (gObj.detailsTemplate) {
+                            detailCell.innerHTML = gObj.getDetailTemplate()(data);
+                        }
+                        else {
+                            gObj.childGrid[parent] = {
+                                parentID: gObj.element.id,
+                                parentPrimaryKeys: gObj.getPrimaryKeyFieldNames(),
+                                parentKeyField: gObj.childGrid.queryString,
+                                parentKeyFieldValue: data[gObj.childGrid.queryString],
+                                parentRowData: data
+                            };
+                            var grid = new grid_1.Grid(gObj.childGrid);
+                            var gridElem = dom_1.createElement('div', {
+                                id: 'child' + util_1.parents(tr, 'e-grid').length +
+                                    '_grid' + tr.rowIndex + util_1.getUid('')
+                            });
+                            grid.appendTo(gridElem);
+                            detailCell.appendChild(gridElem);
+                        }
+                        detailRow.appendChild(detailCell);
+                        tr.parentNode.insertBefore(detailRow, tr.nextSibling);
+                        gObj.getRows().splice(tr.rowIndex + 1, 0, detailRow);
+                        gObj.trigger(events.detailsDataBound, { detailsElement: detailCell, data: data });
+                    }
+                    dom_1.classList(target, ['e-detailsrowexpand'], ['e-detailsrowcollapse']);
+                    dom_1.classList(target.firstElementChild, ['e-dtdiagonaldown', 'e-icon-gdownarrow'], ['e-dtdiagonalright', 'e-icon-grightarrow']);
+                    this.aria.setExpand(target, true);
+                }
+                else {
+                    if (this.isDetailRow(nextRow)) {
+                        nextRow.style.display = 'none';
+                    }
+                    dom_1.classList(target, ['e-detailsrowcollapse'], ['e-detailsrowexpand']);
+                    dom_1.classList(target.firstElementChild, ['e-dtdiagonalright', 'e-icon-grightarrow'], ['e-dtdiagonaldown', 'e-icon-gdownarrow']);
+                    this.aria.setExpand(target, false);
+                }
+            }
+        };
+        DetailsRow.prototype.isDetailRow = function (row) {
+            return row && row.classList.contains('e-detailrow');
+        };
+        DetailsRow.prototype.destroy = function () {
+            this.parent.off(events.click, this.clickHandler);
+            this.parent.off(events.destroy, this.destroy);
+            this.parent.off(events.keyPressed, this.keyPressHandler);
+        };
+        DetailsRow.prototype.getTDfromIndex = function (index, className) {
+            var tr = this.parent.getDataRows()[index];
+            if (tr && tr.querySelector(className)) {
+                return tr.querySelector(className);
+            }
+            return null;
+        };
+        DetailsRow.prototype.expand = function (target) {
+            if (!isNaN(target)) {
+                target = this.getTDfromIndex(target, '.e-detailsrowcollapse');
+            }
+            if (target && target.classList.contains('e-detailsrowcollapse')) {
+                this.toogleExpandcollapse(target);
+            }
+        };
+        DetailsRow.prototype.collapse = function (target) {
+            if (!isNaN(target)) {
+                target = this.getTDfromIndex(target, '.e-detailsrowexpand');
+            }
+            if (target && target.classList.contains('e-detailsrowexpand')) {
+                this.toogleExpandcollapse(target);
+            }
+        };
+        DetailsRow.prototype.expandAll = function () {
+            this.expandCollapse(true);
+        };
+        DetailsRow.prototype.collapseAll = function () {
+            this.expandCollapse(false);
+        };
+        DetailsRow.prototype.expandCollapse = function (isExpand) {
+            var td;
+            var rows = this.parent.getDataRows();
+            for (var i = 0, len = rows.length; i < len; i++) {
+                td = rows[i].querySelector('.e-detailsrowcollapse, .e-detailsrowexpand');
+                isExpand ? this.expand(td) : this.collapse(td);
+            }
+        };
+        DetailsRow.prototype.keyPressHandler = function (e) {
+            var gObj = this.parent;
+            switch (e.action) {
+                case 'ctrlDownArrow':
+                    this.expandAll();
+                    break;
+                case 'ctrlUpArrow':
+                    this.collapseAll();
+                    break;
+                case 'altUpArrow':
+                case 'altDownArrow':
+                    var selected = gObj.allowSelection ? gObj.getSelectedRowIndexes() : [];
+                    if (selected.length) {
+                        var dataRow = gObj.getDataRows()[selected[selected.length - 1]];
+                        var td = dataRow.querySelector('.e-detailsrowcollapse, .e-detailsrowexpand');
+                        e.action === 'altDownArrow' ? this.expand(td) : this.collapse(td);
+                    }
+                    break;
+            }
+        };
+        DetailsRow.prototype.getModuleName = function () {
+            return 'detailsRow';
+        };
+        return DetailsRow;
+    }());
+    exports.DetailsRow = DetailsRow;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 81 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(4), __webpack_require__(2), __webpack_require__(57), __webpack_require__(5), __webpack_require__(12), __webpack_require__(27), __webpack_require__(51), __webpack_require__(26), __webpack_require__(53)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, util_2, dom_1, ej2_data_1, events, enum_1, row_renderer_1, cell_1, row_1, filter_cell_renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Filter = (function () {
@@ -12594,6 +13905,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 row.data = this.values;
                 this.element = rowRenderer.render(row, gObj.getColumns());
                 this.parent.getHeaderContent().querySelector('thead').appendChild(this.element);
+                var detail = this.element.querySelector('.e-detailheadercell');
+                if (detail) {
+                    detail.className = 'e-filterbarcell e-mastercell';
+                }
                 this.wireEvents();
             }
         };
@@ -12616,6 +13931,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 for (var c = 0, len = this.parent.groupSettings.columns.length; c < len; c++) {
                     cells.push(this.generateCell({}, enum_1.CellType.HeaderIndent));
                 }
+            }
+            if (this.parent.detailsTemplate || this.parent.childGrid) {
+                cells.push(this.generateCell({}, enum_1.CellType.DetailHeader));
             }
             for (var _i = 0, _a = this.parent.getColumns(); _i < _a.length; _i++) {
                 var dummy = _a[_i];
@@ -13029,10 +14347,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 80 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(4), __webpack_require__(6), __webpack_require__(27)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, util_2, events, aria_service_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(4), __webpack_require__(5), __webpack_require__(21)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, util_2, events, aria_service_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Group = (function () {
@@ -13122,7 +14440,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 }
                 this.contentRefresh = true;
             }
-            this.recalcIndentWidth();
         };
         Group.prototype.keyPressHandler = function (e) {
             var gObj = this.parent;
@@ -13135,12 +14452,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 case 'altUpArrow':
                     var selected = gObj.allowSelection ? gObj.getSelectedRowIndexes() : [];
                     if (selected.length) {
-                        var selIndex = selected[selected.length - 1];
-                        var rows = gObj.getRows();
-                        var dataRow = gObj.getContent().querySelector('tr[aria-rowindex="' + selIndex + '"]');
+                        var rows = gObj.getContentTable().querySelector('tbody').children;
+                        var dataRow = gObj.getDataRows()[selected[selected.length - 1]];
                         var grpRow = void 0;
                         for (var i = dataRow.rowIndex; i >= 0; i--) {
-                            if (!rows[i].classList.contains('e-row')) {
+                            if (!rows[i].classList.contains('e-row') && !rows[i].classList.contains('e-detailrow')) {
                                 grpRow = rows[i];
                                 break;
                             }
@@ -13205,7 +14521,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             if (trgt) {
                 var cellIdx = trgt.cellIndex;
                 var rowIdx = trgt.parentElement.rowIndex;
-                var rowNodes = this.parent.getContent().querySelectorAll('tr');
+                var rowNodes = this.parent.getContentTable().querySelector('tbody').children;
                 var rows = [].slice.call(rowNodes).slice(rowIdx + 1, rowNodes.length);
                 var isHide = void 0;
                 var expandElem = void 0;
@@ -13224,7 +14540,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 }
                 this.aria.setExpand(trgt, expand);
                 for (var i = 0, len = rows.length; i < len; i++) {
-                    if (rows[i].querySelectorAll('td')[cellIdx] && rows[i].querySelectorAll('td')[cellIdx].classList.contains('e-indentcell')) {
+                    if (rows[i].querySelectorAll('td')[cellIdx] &&
+                        rows[i].querySelectorAll('td')[cellIdx].classList.contains('e-indentcell') && rows) {
                         if (isHide) {
                             rows[i].style.display = 'none';
                         }
@@ -13234,6 +14551,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                                 expandElem = rows[i].querySelector('.e-recordplusexpand');
                                 if (expandElem) {
                                     toExpand.push(expandElem);
+                                }
+                                if (rows[i].classList.contains('e-detailrow')) {
+                                    if (rows[i - 1].querySelectorAll('.e-detailsrowcollapse').length) {
+                                        rows[i].style.display = 'none';
+                                    }
                                 }
                             }
                         }
@@ -13250,7 +14572,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
         };
         Group.prototype.expandCollapse = function (isExpand) {
-            var rowNodes = this.parent.getContent().querySelectorAll('tr');
+            var rowNodes = this.parent.getContentTable().querySelector('tbody').children;
             var row;
             for (var i = 0, len = rowNodes.length; i < len; i++) {
                 if (rowNodes[i].querySelectorAll('.e-recordplusexpand, .e-recordpluscollapse').length) {
@@ -13454,25 +14776,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             } : { requestType: 'ungrouping', type: events.actionComplete };
             this.parent.trigger(events.actionComplete, util_1.extend(e, args));
         };
-        Group.prototype.recalcIndentWidth = function () {
-            var gObj = this.parent;
-            if (!gObj.groupSettings.columns.length || gObj.getHeaderTable().querySelector('.e-emptycell').getAttribute('indentRefreshed') ||
-                !gObj.getContentTable()) {
-                return;
-            }
-            var indentWidth = gObj.getHeaderTable().querySelector('.e-grouptopleftcell').offsetWidth;
-            var headerCol = [].slice.call(gObj.getHeaderTable().querySelector('colgroup').childNodes);
-            var contentCol = [].slice.call(gObj.getContentTable().querySelector('colgroup').childNodes);
-            var perPixel = indentWidth / 30;
-            if (perPixel >= 1) {
-                indentWidth = (30 / perPixel);
-            }
-            for (var i = 0; i < this.groupSettings.columns.length; i++) {
-                headerCol[i].style.width = indentWidth + 'px';
-                contentCol[i].style.width = indentWidth + 'px';
-            }
-            gObj.getHeaderTable().querySelector('.e-emptycell').setAttribute('indentRefreshed', 'true');
-        };
         Group.prototype.addColToGroupDrop = function (field) {
             var gObj = this.parent;
             var direction = 'ascending';
@@ -13590,7 +14893,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var header;
             var cols = gObj.sortSettings.columns;
             var gCols = gObj.groupSettings.columns;
-            this.recalcIndentWidth();
             this.refreshToggleBtn();
             for (var i = 0, len = cols.length; i < len; i++) {
                 header = gObj.getColumnHeaderByField(cols[i].field);
@@ -13628,10 +14930,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 81 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(29), __webpack_require__(28), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, pager_1, external_message_1, util_2, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(29), __webpack_require__(28), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, pager_1, external_message_1, util_2, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     pager_1.Pager.Inject(external_message_1.ExternalMessage);
@@ -13786,10 +15088,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 82 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, util_2, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, dom_1, util_2, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Reorder = (function () {
@@ -14027,10 +15329,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 83 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var RowDD = (function () {
@@ -14068,6 +15370,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     for (var i = 0, len = selectedRows.length; i < len; i++) {
                         var selectedRow = selectedRows[i].cloneNode(true);
                         util_2.removeElement(selectedRow, '.e-indentcell');
+                        util_2.removeElement(selectedRow, '.e-detailsrowcollapse');
+                        util_2.removeElement(selectedRow, '.e-detailsrowexpand');
                         tbody.appendChild(selectedRow);
                     }
                     table.appendChild(tbody);
@@ -14080,7 +15384,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         return;
                     }
                     gObj.trigger(events.rowDragStart, {
-                        rows: gObj.getSelectedRecords(),
+                        rows: gObj.getSelectedRows(),
                         target: e.target, draggableType: 'rows', data: gObj.getSelectedRecords()
                     });
                     var dropElem = document.getElementById(gObj.rowDropSettings.targetID);
@@ -14094,7 +15398,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     var target = _this.getElementFromPosition(cloneElement, e.event);
                     dom_1.classList(cloneElement, ['e-defaultcur'], ['e-notallowedcur']);
                     gObj.trigger(events.rowDrag, {
-                        rows: gObj.getSelectedRecords(),
+                        rows: gObj.getSelectedRows(),
                         target: target, draggableType: 'rows', data: gObj.getSelectedRecords()
                     });
                     gObj.element.classList.add('e-rowdrag');
@@ -14106,10 +15410,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 dragStop: function (e) {
                     var target = _this.getElementFromPosition(e.helper, e.event);
                     gObj.element.classList.remove('e-rowdrag');
-                    if (!util_2.parentsUntil(target, 'e-gridcontent')) {
-                        dom_1.remove(e.helper);
-                        return;
-                    }
                     var dropElem = document.getElementById(gObj.rowDropSettings.targetID);
                     if (gObj.rowDropSettings.targetID && dropElem && dropElem.ej2_instances) {
                         dropElem.ej2_instances[0].getContent().classList.remove('e-allowRowDrop');
@@ -14118,6 +15418,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         target: target, draggableType: 'rows',
                         rows: gObj.getSelectedRows(), data: gObj.getSelectedRecords()
                     });
+                    if (!util_2.parentsUntil(target, 'e-gridcontent')) {
+                        dom_1.remove(e.helper);
+                        return;
+                    }
                 }
             });
         };
@@ -14195,10 +15499,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 84 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Selection = (function () {
@@ -14324,9 +15628,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return indexes;
         };
         Selection.prototype.clearRow = function () {
+            this.clearRowSelection();
             this.selectedRowIndexes = [];
             this.selectedRecords = [];
-            this.clearRowSelection();
         };
         Selection.prototype.updateRowProps = function (startIndex) {
             this.prevRowIndex = startIndex;
@@ -14352,7 +15656,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Selection.prototype.clearRowSelection = function () {
             if (this.isRowSelected) {
-                var selectedRows = this.parent.getContentTable().querySelectorAll('tr[aria-selected="true"]');
+                var rows = this.parent.getDataRows();
                 var data = [];
                 var row = [];
                 var rowIndex = [];
@@ -14366,9 +15670,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         rowIndex: rowIndex, data: data, row: row
                     });
                 }
-                for (var i = 0, len = selectedRows.length; i < len; i++) {
-                    selectedRows[i].removeAttribute('aria-selected');
-                    this.addRemoveClassesForRow(selectedRows[i], false, 'e-selectionbackground', 'e-active');
+                for (var i = 0, len = this.selectedRowIndexes.length; i < len; i++) {
+                    rows[this.selectedRowIndexes[i]].removeAttribute('aria-selected');
+                    this.addRemoveClassesForRow(rows[this.selectedRowIndexes[i]], false, 'e-selectionbackground', 'e-active');
                 }
                 if (this.isTrigger) {
                     this.parent.trigger(events.rowDeselected, {
@@ -14564,7 +15868,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Selection.prototype.clearCellSelection = function () {
             if (this.isCellSelected) {
                 var gObj = this.parent;
-                var selectedCells = gObj.getContentTable().querySelectorAll('.e-cellselectionbackground');
+                var selectedCells = this.getSelectedCellsElement();
                 var rowCell = this.selectedRowCellIndexes;
                 var data = [];
                 var cells = [];
@@ -14590,6 +15894,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     });
                 }
             }
+        };
+        Selection.prototype.getSelectedCellsElement = function () {
+            var rows = this.parent.getDataRows();
+            var cells = [];
+            for (var i = 0, len = rows.length; i < len; i++) {
+                cells = cells.concat([].slice.call(rows[i].querySelectorAll('.e-cellselectionbackground')));
+            }
+            return cells;
         };
         Selection.prototype.mouseMoveHandler = function (e) {
             e.preventDefault();
@@ -14633,6 +15945,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Selection.prototype.mouseDownHandler = function (e) {
             var target = e.target;
+            var gridElement = util_2.parentsUntil(target, 'e-grid');
+            if (gridElement && gridElement.id !== this.parent.element.id) {
+                return;
+            }
             if (e.shiftKey || e.ctrlKey) {
                 e.preventDefault();
             }
@@ -14830,7 +16146,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     var height = row.offsetHeight;
                     var rowIndex = row.rowIndex;
                     scrollElem.scrollTop = scrollElem.scrollTop + (e.action === 'downArrow' ? height : height * -1);
-                    if (this.checkVisible(row) && rowIndex !== 0 && this.parent.getContent().querySelectorAll('tr').length !== rowIndex + 1) {
+                    if (this.checkVisible(row) &&
+                        rowIndex !== 0 && this.parent.getContentTable().querySelector('tbody').children.length !== rowIndex + 1) {
                         e.preventDefault();
                     }
                 }
@@ -14849,10 +16166,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return element.getBoundingClientRect().height;
         };
         Selection.prototype.ctrlPlusA = function () {
-            if (this.isRowType()) {
+            if (this.isRowType() && !this.isSingleSel()) {
                 this.selectRowsByRange(0, this.parent.getRows().length - 1);
             }
-            if (this.isCellType()) {
+            if (this.isCellType() && !this.isSingleSel()) {
                 this.selectCellsByRange({ rowIndex: 0, cellIndex: 0 }, { rowIndex: this.parent.getRows().length - 1, cellIndex: this.parent.getColumns().length - 1 });
             }
         };
@@ -14908,7 +16225,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Selection.prototype.shiftDownKey = function () {
             var gObj = this.parent;
             this.isMultiShiftRequest = true;
-            if (this.isRowType()) {
+            if (this.isRowType() && !this.isSingleSel()) {
                 if (!util_1.isUndefined(this.prevRowIndex)) {
                     var endIndex = util_1.isUndefined(gObj.selectedRowIndex) ? this.prevRowIndex + 1 :
                         (gObj.selectedRowIndex + 1 < this.parent.getRows().length ?
@@ -14921,7 +16238,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     this.selectRow(0);
                 }
             }
-            if (this.isCellType()) {
+            if (this.isCellType() && !this.isSingleSel()) {
                 if (!util_1.isUndefined(this.prevCIdxs)) {
                     if (this.prevECIdxs.rowIndex + 1 < this.parent.getRows().length) {
                         this.selectCellsByRange(this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex + 1, cellIndex: this.prevECIdxs.cellIndex });
@@ -14936,12 +16253,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Selection.prototype.shiftUpKey = function () {
             var gObj = this.parent;
             this.isMultiShiftRequest = true;
-            if (this.isRowType() && !util_1.isUndefined(this.prevRowIndex)) {
+            if (this.isRowType() && !util_1.isUndefined(this.prevRowIndex) && !this.isSingleSel()) {
                 var endIndex = util_1.isUndefined(gObj.selectedRowIndex) ? (this.prevRowIndex - 1 > -1 ? (this.prevRowIndex - 1) : 0) :
                     ((gObj.selectedRowIndex - 1) > -1 ? gObj.selectedRowIndex - 1 : gObj.selectedRowIndex);
                 this.selectRowsByRange(this.prevRowIndex, endIndex);
             }
-            if (this.isCellType() && !util_1.isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1) {
+            if (this.isCellType() && !util_1.isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1 && !this.isSingleSel()) {
                 this.selectCellsByRange(this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex - 1, cellIndex: this.prevECIdxs.cellIndex });
             }
             this.isMultiShiftRequest = false;
@@ -14955,13 +16272,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Selection.prototype.applyShiftLeftRightKey = function (key, cond) {
             var gObj = this.parent;
             this.isMultiShiftRequest = true;
-            if (this.isCellType()) {
+            if (this.isCellType() && !this.isSingleSel()) {
                 if (cond) {
                     this.selectCellsByRange(this.prevCIdxs, {
                         rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key
                     });
                 }
-                else {
+                else if (!this.isSingleSel()) {
                     if (this.selectionSettings.cellSelectionMode === 'flow' &&
                         (key > 0 ? this.prevECIdxs.rowIndex + 1 < this.parent.pageSettings.pageSize : this.prevECIdxs.rowIndex - 1 > -1)) {
                         this.selectCellsByRange(this.prevCIdxs, {
@@ -14991,7 +16308,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             for (var _i = 2; _i < arguments.length; _i++) {
                 args[_i - 2] = arguments[_i];
             }
-            var cells = row.querySelectorAll('.e-rowcell');
+            var cells = [].slice.call(row.querySelectorAll('.e-rowcell'));
+            var cell = row.querySelector('.e-detailsrowcollapse') || row.querySelector('.e-detailsrowexpand');
+            if (cell) {
+                cells.push(cell);
+            }
             for (var i = 0, len = cells.length; i < len; i++) {
                 if (isAdd) {
                     dom_1.classList(cells[i], args.slice(), []);
@@ -15018,10 +16339,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 85 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, util_2, events) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, util_2, events) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ShowHide = (function () {
@@ -15078,10 +16399,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 86 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(6), __webpack_require__(27)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events, aria_service_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(4), __webpack_require__(5), __webpack_require__(21)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, util_2, events, aria_service_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Sort = (function () {
@@ -15380,1002 +16701,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 87 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(2), __webpack_require__(3), __webpack_require__(3), __webpack_require__(4), __webpack_require__(6), __webpack_require__(67), __webpack_require__(12), __webpack_require__(69), __webpack_require__(71), __webpack_require__(72), __webpack_require__(92), __webpack_require__(73), __webpack_require__(27), __webpack_require__(89), __webpack_require__(62), __webpack_require__(85), __webpack_require__(61), __webpack_require__(60)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, util_1, dom_1, ej2_base_2, ej2_base_3, util_2, events, render_1, enum_1, cell_render_factory_1, service_locator_1, value_formatter_1, renderer_factory_1, width_controller_1, aria_service_1, page_settings_1, search_1, show_hide_1, scroll_1, print_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var SortDescriptor = (function (_super) {
-        __extends(SortDescriptor, _super);
-        function SortDescriptor() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return SortDescriptor;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Property()
-    ], SortDescriptor.prototype, "field", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], SortDescriptor.prototype, "direction", void 0);
-    exports.SortDescriptor = SortDescriptor;
-    var SortSettings = (function (_super) {
-        __extends(SortSettings, _super);
-        function SortSettings() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return SortSettings;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Collection([], SortDescriptor)
-    ], SortSettings.prototype, "columns", void 0);
-    exports.SortSettings = SortSettings;
-    var Predicate = (function (_super) {
-        __extends(Predicate, _super);
-        function Predicate() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return Predicate;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Property()
-    ], Predicate.prototype, "field", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], Predicate.prototype, "operator", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], Predicate.prototype, "value", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], Predicate.prototype, "matchCase", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], Predicate.prototype, "predicate", void 0);
-    __decorate([
-        ej2_base_2.Property({})
-    ], Predicate.prototype, "actualFilterValue", void 0);
-    __decorate([
-        ej2_base_2.Property({})
-    ], Predicate.prototype, "actualOperator", void 0);
-    exports.Predicate = Predicate;
-    var FilterSettings = (function (_super) {
-        __extends(FilterSettings, _super);
-        function FilterSettings() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return FilterSettings;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Collection([], Predicate)
-    ], FilterSettings.prototype, "columns", void 0);
-    __decorate([
-        ej2_base_2.Property('filterbar')
-    ], FilterSettings.prototype, "type", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], FilterSettings.prototype, "mode", void 0);
-    __decorate([
-        ej2_base_2.Property(true)
-    ], FilterSettings.prototype, "showFilterBarStatus", void 0);
-    __decorate([
-        ej2_base_2.Property(1500)
-    ], FilterSettings.prototype, "immediateModeDelay", void 0);
-    exports.FilterSettings = FilterSettings;
-    var SelectionSettings = (function (_super) {
-        __extends(SelectionSettings, _super);
-        function SelectionSettings() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return SelectionSettings;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Property('row')
-    ], SelectionSettings.prototype, "mode", void 0);
-    __decorate([
-        ej2_base_2.Property('flow')
-    ], SelectionSettings.prototype, "cellSelectionMode", void 0);
-    __decorate([
-        ej2_base_2.Property('single')
-    ], SelectionSettings.prototype, "type", void 0);
-    exports.SelectionSettings = SelectionSettings;
-    var SearchSettings = (function (_super) {
-        __extends(SearchSettings, _super);
-        function SearchSettings() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return SearchSettings;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Property([])
-    ], SearchSettings.prototype, "fields", void 0);
-    __decorate([
-        ej2_base_2.Property('')
-    ], SearchSettings.prototype, "key", void 0);
-    __decorate([
-        ej2_base_2.Property('contains')
-    ], SearchSettings.prototype, "operator", void 0);
-    __decorate([
-        ej2_base_2.Property(true)
-    ], SearchSettings.prototype, "ignoreCase", void 0);
-    exports.SearchSettings = SearchSettings;
-    var RowDropSettings = (function (_super) {
-        __extends(RowDropSettings, _super);
-        function RowDropSettings() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return RowDropSettings;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Property()
-    ], RowDropSettings.prototype, "targetID", void 0);
-    exports.RowDropSettings = RowDropSettings;
-    var GroupSettings = (function (_super) {
-        __extends(GroupSettings, _super);
-        function GroupSettings() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return GroupSettings;
-    }(ej2_base_1.ChildProperty));
-    __decorate([
-        ej2_base_2.Property(true)
-    ], GroupSettings.prototype, "showDropArea", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], GroupSettings.prototype, "showToggleButton", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], GroupSettings.prototype, "showGroupedColumn", void 0);
-    __decorate([
-        ej2_base_2.Property(true)
-    ], GroupSettings.prototype, "showUngroupButton", void 0);
-    __decorate([
-        ej2_base_2.Property([])
-    ], GroupSettings.prototype, "columns", void 0);
-    exports.GroupSettings = GroupSettings;
-    var Grid = (function (_super) {
-        __extends(Grid, _super);
-        function Grid(options, element) {
-            var _this = _super.call(this, options, element) || this;
-            _this.isInitial = true;
-            _this.sortedColumns = [];
-            _this.filterOperators = {
-                contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
-                lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
-            };
-            _this.defaultLocale = {
-                EmptyRecord: 'No records to display',
-                True: 'true',
-                False: 'false',
-                InvalidFilterMessage: 'Invalid Filter Data',
-                GroupDropArea: 'Drag a column header here to group its column',
-                UnGroup: 'Click here to ungroup',
-                GroupDisable: 'Grouping is disabled for this column',
-                FilterbarTitle: '\'s filter bar cell',
-                EmptyDataSourceError: 'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid'
-            };
-            _this.keyConfigs = {
-                downArrow: 'downarrow',
-                upArrow: 'uparrow',
-                rightArrow: 'rightarrow',
-                leftArrow: 'leftarrow',
-                shiftDown: 'shift+downarrow',
-                shiftUp: 'shift+uparrow',
-                shiftRight: 'shift+rightarrow',
-                shiftLeft: 'shift+leftarrow',
-                home: 'home',
-                end: 'end',
-                escape: 'escape',
-                ctrlHome: 'ctrl+home',
-                ctrlEnd: 'ctrl+end',
-                pageUp: 'pageup',
-                pageDown: 'pagedown',
-                ctrlAltPageUp: 'ctrl+alt+pageup',
-                ctrlAltPageDown: 'ctrl+alt+pagedown',
-                altPageUp: 'alt+pageup',
-                altPageDown: 'alt+pagedown',
-                altDownArrow: 'alt+downarrow',
-                altUpArrow: 'alt+uparrow',
-                ctrlDownArrow: 'ctrl+downarrow',
-                ctrlUpArrow: 'ctrl+uparrow',
-                ctrlPlusA: 'ctrl+A'
-            };
-            return _this;
-        }
-        Grid.prototype.getPersistData = function () {
-            var keyEntity = ['allowPaging', 'pageSettings', 'allowSorting', 'sortSettings', 'allowSelection',
-                'selectionSettings', 'allowFiltering', 'filterSettings', 'gridLines',
-                'create', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
-                'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound'];
-            return this.addOnPersist(keyEntity);
-        };
-        Grid.prototype.requiredModules = function () {
-            var modules = [];
-            if (this.allowFiltering) {
-                modules.push({
-                    member: 'filter',
-                    args: [this, this.filterSettings, this.serviceLocator]
-                });
-            }
-            if (this.allowSorting) {
-                modules.push({
-                    member: 'sort',
-                    args: [this, this.sortSettings, this.sortedColumns]
-                });
-            }
-            if (this.allowPaging) {
-                modules.push({
-                    member: 'pager',
-                    args: [this, this.pageSettings]
-                });
-            }
-            if (this.allowSelection) {
-                modules.push({
-                    member: 'selection',
-                    args: [this, this.selectionSettings]
-                });
-            }
-            if (this.allowReordering) {
-                modules.push({
-                    member: 'reorder',
-                    args: [this]
-                });
-            }
-            if (this.allowRowDragAndDrop) {
-                modules.push({
-                    member: 'rowDragAndDrop',
-                    args: [this]
-                });
-            }
-            if (this.allowGrouping) {
-                modules.push({
-                    member: 'group',
-                    args: [this, this.groupSettings, this.sortedColumns, this.serviceLocator]
-                });
-            }
-            return modules;
-        };
-        Grid.prototype.preRender = function () {
-            this.serviceLocator = new service_locator_1.ServiceLocator;
-        };
-        Grid.prototype.render = function () {
-            this.initializeServices();
-            this.ariaService.setOptions(this.element, { role: 'grid' });
-            this.renderModule = new render_1.Render(this, this.serviceLocator);
-            this.searchModule = new search_1.Search(this);
-            this.scrollModule = new scroll_1.Scroll(this);
-            this.notify(events.initialLoad, {});
-            this.trigger(events.load);
-            util_2.prepareColumns(this.columns);
-            this.getColumns();
-            this.processModel();
-            this.gridRender();
-            this.wireEvents();
-            this.addListener();
-            this.updateDefaultCursor();
-            this.notify(events.initialEnd, {});
-        };
-        Grid.prototype.eventInitializer = function () {
-        };
-        Grid.prototype.destroy = function () {
-            this.unwireEvents();
-            this.removeListener();
-            this.notify(events.destroy, {});
-            this.destroyDependentModules();
-            _super.prototype.destroy.call(this);
-            this.element.innerHTML = '';
-            dom_1.classList(this.element, [], ['e-rtl', 'e-gridhover', 'e-responsive', 'e-default', 'e-device']);
-        };
-        Grid.prototype.destroyDependentModules = function () {
-            this.scrollModule.destroy();
-            this.keyBoardModule.destroy();
-        };
-        Grid.prototype.getModuleName = function () {
-            return 'grid';
-        };
-        Grid.prototype.onPropertyChanged = function (newProp, oldProp) {
-            var requireRefresh = false;
-            var checkCursor;
-            var args = { requestType: 'refresh' };
-            if (this.isDestroyed) {
-                return;
-            }
-            for (var _i = 0, _a = Object.keys(newProp); _i < _a.length; _i++) {
-                var prop = _a[_i];
-                this.extendedPropertyChange(prop, newProp);
-                switch (prop) {
-                    case 'enableRtl':
-                        this.updateRTL();
-                        if (this.allowPaging) {
-                            this.element.querySelector('.e-gridpager').ej2_instances[0].enableRtl = newProp.enableRtl;
-                        }
-                        if (this.height !== 'auto') {
-                            this.scrollModule.removePadding(!newProp.enableRtl);
-                            this.scrollModule.setPadding();
-                        }
-                        break;
-                    case 'enableHover':
-                        var action = newProp.enableHover ? dom_1.addClass : dom_1.removeClass;
-                        action([this.element], 'e-gridhover');
-                        break;
-                    case 'dataSource':
-                    case 'query':
-                        this.notify(events.dataSourceModified, {});
-                        this.renderModule.refresh();
-                        break;
-                    case 'allowPaging':
-                        this.notify(events.uiUpdate, { module: 'pager', enable: this.allowPaging });
-                        requireRefresh = true;
-                        break;
-                    case 'pageSettings':
-                        this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
-                        if (util_1.isNullOrUndefined(newProp.pageSettings.currentPage) && util_1.isNullOrUndefined(newProp.pageSettings.totalRecordsCount)) {
-                            requireRefresh = true;
-                        }
-                        break;
-                    case 'allowTextWrap':
-                        if (this.allowTextWrap) {
-                            this.applyTextWrap();
-                        }
-                        else {
-                            this.removeTextWrap();
-                        }
-                        break;
-                    case 'locale':
-                        this.localeObj.setLocale(newProp.locale);
-                        this.valueFormatterService.setCulture(newProp.locale);
-                        requireRefresh = true;
-                        break;
-                    case 'allowSorting':
-                        this.notify(events.uiUpdate, { module: 'sort', enable: this.allowSorting });
-                        requireRefresh = true;
-                        checkCursor = true;
-                        break;
-                    case 'allowFiltering':
-                        this.notify(events.uiUpdate, { module: 'filter', enable: this.allowFiltering });
-                        requireRefresh = true;
-                        break;
-                    case 'height':
-                    case 'width':
-                        this.notify(events.uiUpdate, {
-                            module: 'scroll',
-                            properties: { width: newProp.width, height: newProp.height }
-                        });
-                        break;
-                    case 'allowReordering':
-                        this.notify(events.uiUpdate, { module: 'reorder', enable: this.allowReordering });
-                        checkCursor = true;
-                        break;
-                    case 'allowRowDragAndDrop':
-                        this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
-                        break;
-                    case 'rowTemplate':
-                        this.updateRowTemplateFn();
-                        requireRefresh = true;
-                        break;
-                    case 'allowGrouping':
-                        this.notify(events.uiUpdate, { module: 'group', enable: this.allowGrouping });
-                        this.headerModule.refreshUI();
-                        requireRefresh = true;
-                        checkCursor = true;
-                        break;
-                }
-            }
-            if (checkCursor) {
-                this.updateDefaultCursor();
-            }
-            if (requireRefresh) {
-                this.notify(events.modelChanged, args);
-                requireRefresh = false;
-            }
-        };
-        Grid.prototype.extendedPropertyChange = function (prop, newProp) {
-            switch (prop) {
-                case 'enableAltRow':
-                    this.renderModule.refresh();
-                    break;
-                case 'gridLines':
-                    this.updateGridLines();
-                    break;
-                case 'groupSettings':
-                    this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings });
-                    break;
-                case 'filterSettings':
-                    this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
-                    break;
-                case 'searchSettings':
-                    this.notify(events.inBoundModelChanged, { module: 'search', properties: newProp.searchSettings });
-                    break;
-                case 'sortSettings':
-                    this.notify(events.inBoundModelChanged, { module: 'sort' });
-                    break;
-                case 'selectionSettings':
-                    this.notify(events.inBoundModelChanged, { module: 'selection', properties: newProp.selectionSettings });
-                    break;
-            }
-        };
-        Grid.prototype.updateDefaultCursor = function () {
-            var headerRows = [].slice.call(this.element.querySelectorAll('.e-columnheader'));
-            for (var _i = 0, headerRows_1 = headerRows; _i < headerRows_1.length; _i++) {
-                var row = headerRows_1[_i];
-                if (this.allowSorting || this.allowGrouping || this.allowReordering) {
-                    row.classList.remove('e-defaultcursor');
-                }
-                else {
-                    row.classList.add('e-defaultcursor');
-                }
-            }
-        };
-        Grid.prototype.updateColumnModel = function (columns) {
-            for (var i = 0, len = columns.length; i < len; i++) {
-                if (columns[i].columns) {
-                    this.updateColumnModel(columns[i].columns);
-                }
-                else {
-                    this.columnModel.push(columns[i]);
-                }
-            }
-        };
-        Grid.prototype.getColumns = function () {
-            this.columnModel = [];
-            this.updateColumnModel(this.columns);
-            return this.columnModel;
-        };
-        Grid.prototype.getVisibleColumns = function () {
-            var cols = [];
-            for (var _i = 0, _a = this.columnModel; _i < _a.length; _i++) {
-                var col = _a[_i];
-                if (col.visible) {
-                    cols.push(col);
-                }
-            }
-            return cols;
-        };
-        Grid.prototype.getHeaderContent = function () {
-            return this.headerModule.getPanel();
-        };
-        Grid.prototype.setGridHeaderContent = function (element) {
-            this.headerModule.setPanel(element);
-        };
-        Grid.prototype.getContentTable = function () {
-            return this.contentModule.getTable();
-        };
-        Grid.prototype.setGridContentTable = function (element) {
-            this.contentModule.setTable(element);
-        };
-        Grid.prototype.getContent = function () {
-            return this.contentModule.getPanel();
-        };
-        Grid.prototype.setGridContent = function (element) {
-            this.contentModule.setPanel(element);
-        };
-        Grid.prototype.getHeaderTable = function () {
-            return this.headerModule.getTable();
-        };
-        Grid.prototype.setGridHeaderTable = function (element) {
-            this.headerModule.setTable(element);
-        };
-        Grid.prototype.getPager = function () {
-            return this.gridPager;
-        };
-        Grid.prototype.setGridPager = function (element) {
-            this.gridPager = element;
-        };
-        Grid.prototype.getRowByIndex = function (index) {
-            return this.getContentTable().querySelectorAll('.e-row')[index];
-        };
-        Grid.prototype.getRows = function () {
-            return this.contentModule.getRowElements();
-        };
-        Grid.prototype.getCellFromIndex = function (rowIndex, columnIndex) {
-            return this.getContent().querySelectorAll('.e-row')[rowIndex].querySelectorAll('.e-rowcell')[columnIndex];
-        };
-        Grid.prototype.getColumnHeaderByIndex = function (index) {
-            return this.getHeaderTable().querySelectorAll('.e-headercell')[index];
-        };
-        Grid.prototype.getColumnHeaderByField = function (field) {
-            return this.getColumnHeaderByUid(this.getColumnByField(field).uid);
-        };
-        Grid.prototype.getColumnHeaderByUid = function (uid) {
-            return this.getHeaderContent().querySelector('[e-mappinguid=' + uid + ']').parentElement;
-        };
-        Grid.prototype.getColumnByField = function (field) {
-            return util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
-                if (item.field === field) {
-                    return item;
-                }
-                return undefined;
-            })[0];
-        };
-        Grid.prototype.getColumnIndexByField = function (field) {
-            var index = util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
-                if (item.field === field) {
-                    return index;
-                }
-                return undefined;
-            })[0];
-            return !util_1.isNullOrUndefined(index) ? index : -1;
-        };
-        Grid.prototype.getColumnByUid = function (uid) {
-            return util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
-                if (item.uid === uid) {
-                    return item;
-                }
-                return undefined;
-            })[0];
-        };
-        Grid.prototype.getColumnIndexByUid = function (uid) {
-            var index = util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
-                if (item.uid === uid) {
-                    return index;
-                }
-                return undefined;
-            })[0];
-            return !util_1.isNullOrUndefined(index) ? index : -1;
-        };
-        Grid.prototype.getUidByColumnField = function (field) {
-            return util_2.iterateArrayOrObject(this.getColumns(), function (item, index) {
-                if (item.field === field) {
-                    return item.uid;
-                }
-                return undefined;
-            })[0];
-        };
-        Grid.prototype.getNormalizedColumnIndex = function (uid) {
-            var index = this.getColumnIndexByUid(uid);
-            if (this.allowGrouping) {
-                index += this.groupSettings.columns.length;
-            }
-            return index;
-        };
-        Grid.prototype.getColumnFieldNames = function () {
-            var columnNames = [];
-            var column;
-            for (var i = 0, len = this.getColumns().length; i < len; i++) {
-                column = this.getColumns()[i];
-                if (column.visible) {
-                    columnNames.push(column.field);
-                }
-            }
-            return columnNames;
-        };
-        Grid.prototype.getRowTemplate = function () {
-            return this.rowTemplateFn;
-        };
-        Grid.prototype.refresh = function () {
-            this.headerModule.refreshUI();
-            this.renderModule.refresh();
-        };
-        Grid.prototype.refreshHeader = function () {
-            this.headerModule.refreshUI();
-        };
-        Grid.prototype.getSelectedRows = function () {
-            return this.selectionModule.selectedRecords;
-        };
-        Grid.prototype.getSelectedRowIndexes = function () {
-            return this.selectionModule.selectedRowIndexes;
-        };
-        Grid.prototype.getSelectedRowCellIndexes = function () {
-            return this.selectionModule.selectedRowCellIndexes;
-        };
-        Grid.prototype.getSelectedRecords = function () {
-            var records = [];
-            var key = 'records';
-            var currentViewData = this.allowGrouping && this.groupSettings.columns.length ?
-                this.currentViewData[key] : this.currentViewData;
-            for (var i = 0, len = this.selectionModule.selectedRowIndexes.length; i < len; i++) {
-                records.push(currentViewData[this.selectionModule.selectedRowIndexes[i]]);
-            }
-            return records;
-        };
-        Grid.prototype.showColumns = function (keys, showBy) {
-            showBy = showBy ? showBy : 'headerText';
-            this.showHider.show(keys, showBy);
-        };
-        Grid.prototype.hideColumns = function (keys, hideBy) {
-            hideBy = hideBy ? hideBy : 'headerText';
-            this.showHider.hide(keys, hideBy);
-        };
-        Grid.prototype.goToPage = function (pageNo) {
-            this.pagerModule.goToPage(pageNo);
-        };
-        Grid.prototype.updateExternalMessage = function (message) {
-            this.pagerModule.updateExternalMessage(message);
-        };
-        Grid.prototype.sortColumn = function (columnName, direction, isMultiSort) {
-            this.sortModule.sortColumn(columnName, direction, isMultiSort);
-        };
-        Grid.prototype.clearSorting = function () {
-            this.sortModule.clearSorting();
-        };
-        Grid.prototype.removeSortColumn = function (field) {
-            this.sortModule.removeSortColumn(field);
-        };
-        Grid.prototype.filterByColumn = function (fieldName, filterOperator, filterValue, predicate, matchCase, actualFilterValue, actualOperator) {
-            this.filterModule.filterByColumn(fieldName, filterOperator, filterValue, predicate, matchCase, actualFilterValue, actualOperator);
-        };
-        Grid.prototype.clearFiltering = function () {
-            this.filterModule.clearFiltering();
-        };
-        Grid.prototype.removeFilteredColsByField = function (field, isClearFilterBar) {
-            this.filterModule.removeFilteredColsByField(field, isClearFilterBar);
-        };
-        Grid.prototype.selectRow = function (index) {
-            this.selectionModule.selectRow(index);
-        };
-        Grid.prototype.selectRows = function (rowIndexes) {
-            this.selectionModule.selectRows(rowIndexes);
-        };
-        Grid.prototype.clearSelection = function () {
-            this.selectionModule.clearSelection();
-        };
-        Grid.prototype.selectCell = function (cellIndex) {
-            this.selectionModule.selectCell(cellIndex);
-        };
-        Grid.prototype.search = function (searchString) {
-            this.searchModule.search(searchString);
-        };
-        Grid.prototype.print = function () {
-            this.printModule.print();
-        };
-        Grid.prototype.reorderColumns = function (fromFName, toFName) {
-            this.reorderModule.reorderColumns(fromFName, toFName);
-        };
-        Grid.prototype.initializeServices = function () {
-            this.serviceLocator.register('widthService', this.widthService = new width_controller_1.ColumnWidthService(this));
-            this.serviceLocator.register('cellRendererFactory', new cell_render_factory_1.CellRendererFactory);
-            this.serviceLocator.register('rendererFactory', new renderer_factory_1.RendererFactory);
-            this.serviceLocator.register('localization', this.localeObj = new ej2_base_2.L10n(this.getModuleName(), this.defaultLocale, this.locale));
-            this.serviceLocator.register('valueFormatter', this.valueFormatterService = new value_formatter_1.ValueFormatter(this.locale));
-            this.serviceLocator.register('showHideService', this.showHider = new show_hide_1.ShowHide(this));
-            this.serviceLocator.register('ariaService', this.ariaService = new aria_service_1.AriaService());
-        };
-        Grid.prototype.processModel = function () {
-            var gCols = this.groupSettings.columns;
-            var sCols = this.sortSettings.columns;
-            var flag;
-            var j;
-            if (this.allowGrouping) {
-                for (var i = 0, len = gCols.length; i < len; i++) {
-                    j = 0;
-                    for (var sLen = sCols.length; j < sLen; j++) {
-                        if (sCols[j].field === gCols[i]) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (!flag) {
-                        sCols.push({ field: gCols[i], direction: 'ascending' });
-                    }
-                    else {
-                        if (this.allowSorting) {
-                            this.sortedColumns.push(sCols[j].field);
-                        }
-                        else {
-                            sCols[j].direction = 'ascending';
-                        }
-                    }
-                    if (!this.groupSettings.showGroupedColumn) {
-                        this.getColumnByField(gCols[i]).visible = false;
-                    }
-                }
-            }
-            this.updateRowTemplateFn();
-        };
-        Grid.prototype.updateRowTemplateFn = function () {
-            if (this.rowTemplate) {
-                var e = void 0;
-                try {
-                    if (document.querySelectorAll(this.rowTemplate).length) {
-                        this.rowTemplateFn = ej2_base_1.compile(document.querySelector(this.rowTemplate).innerHTML.trim());
-                    }
-                }
-                catch (e) {
-                    this.rowTemplateFn = ej2_base_1.compile(this.rowTemplate);
-                }
-            }
-        };
-        Grid.prototype.gridRender = function () {
-            this.updateRTL();
-            if (this.enableHover) {
-                this.element.classList.add('e-gridhover');
-            }
-            if (ej2_base_1.Browser.isDevice) {
-                this.element.classList.add('e-device');
-            }
-            dom_1.classList(this.element, ['e-responsive', 'e-default'], []);
-            var rendererFactory = this.serviceLocator.getService('rendererFactory');
-            this.headerModule = rendererFactory.getRenderer(enum_1.RenderType.Header);
-            this.contentModule = rendererFactory.getRenderer(enum_1.RenderType.Content);
-            this.printModule = new print_1.Print(this, this.scrollModule);
-            this.renderModule.render();
-            this.eventInitializer();
-            this.createGridPopUpElement();
-            this.widthService.setWidthToColumns();
-            this.updateGridLines();
-            this.applyTextWrap();
-        };
-        Grid.prototype.dataReady = function () {
-            this.scrollModule.setWidth();
-            this.scrollModule.setHeight();
-            if (this.height !== 'auto') {
-                this.scrollModule.setPadding();
-            }
-        };
-        Grid.prototype.updateRTL = function () {
-            if (this.enableRtl) {
-                this.element.classList.add('e-rtl');
-            }
-            else {
-                this.element.classList.remove('e-rtl');
-            }
-        };
-        Grid.prototype.createGridPopUpElement = function () {
-            var popup = dom_1.createElement('div', { className: 'e-gridpopup', styles: 'display:none;' });
-            var content = dom_1.createElement('div', { className: 'e-content' });
-            dom_1.append([content, dom_1.createElement('div', { className: 'e-uptail e-tail' })], popup);
-            content.appendChild(dom_1.createElement('span'));
-            dom_1.append([content, dom_1.createElement('div', { className: 'e-downtail e-tail' })], popup);
-            this.element.appendChild(popup);
-        };
-        Grid.prototype.updateGridLines = function () {
-            dom_1.classList(this.element, [], ['e-verticallines', 'e-horizontallines', 'e-hidelines', 'e-bothlines']);
-            switch (this.gridLines) {
-                case 'horizontal':
-                    this.element.classList.add('e-horizontallines');
-                    break;
-                case 'vertical':
-                    this.element.classList.add('e-verticallines');
-                    break;
-                case 'none':
-                    this.element.classList.add('e-hidelines');
-                    break;
-                case 'both':
-                    this.element.classList.add('e-bothlines');
-                    break;
-            }
-        };
-        Grid.prototype.applyTextWrap = function () {
-            if (this.allowTextWrap) {
-                this.element.classList.add('e-wrap');
-            }
-        };
-        Grid.prototype.removeTextWrap = function () {
-            this.element.classList.remove('e-wrap');
-        };
-        Grid.prototype.wireEvents = function () {
-            ej2_base_3.EventHandler.add(this.element, 'click', this.mouseClickHandler, this);
-            ej2_base_3.EventHandler.add(this.element, 'touchend', this.mouseClickHandler, this);
-            ej2_base_3.EventHandler.add(this.element, 'focusout', this.focusOutHandler, this);
-            if (this.allowKeyboard) {
-                this.element.tabIndex = this.element.tabIndex === -1 ? 0 : this.element.tabIndex;
-            }
-            this.keyBoardModule = new ej2_base_3.KeyboardEvents(this.element, {
-                keyAction: this.keyActionHandler.bind(this),
-                keyConfigs: this.keyConfigs,
-                eventName: 'keydown'
-            });
-        };
-        Grid.prototype.unwireEvents = function () {
-            ej2_base_3.EventHandler.remove(this.element, 'click', this.mouseClickHandler);
-            ej2_base_3.EventHandler.remove(this.element, 'touchend', this.mouseClickHandler);
-            ej2_base_3.EventHandler.remove(this.element, 'focusout', this.focusOutHandler);
-        };
-        Grid.prototype.addListener = function () {
-            if (this.isDestroyed) {
-                return;
-            }
-            this.on(events.dataReady, this.dataReady, this);
-        };
-        Grid.prototype.removeListener = function () {
-            this.off(events.dataReady, this.dataReady);
-        };
-        Grid.prototype.mouseClickHandler = function (e) {
-            if ((util_2.parentsUntil(e.target, 'e-gridpopup') && e.touches) || this.element.querySelectorAll('.e-cloneproperties').length) {
-                return;
-            }
-            if (((!this.allowRowDragAndDrop && util_2.parentsUntil(e.target, 'e-gridcontent')) ||
-                (!(this.allowGrouping || this.allowReordering) && util_2.parentsUntil(e.target, 'e-gridheader'))) && e.touches) {
-                return;
-            }
-            if (util_2.parentsUntil(e.target, 'e-gridheader') && this.allowRowDragAndDrop) {
-                e.preventDefault();
-            }
-            this.notify(events.click, e);
-        };
-        Grid.prototype.focusOutHandler = function (e) {
-            if (!util_2.parentsUntil(e.target, 'e-grid')) {
-                this.element.querySelector('.e-gridpopup').style.display = 'none';
-            }
-            var filterClear = this.element.querySelector('.e-cancel:not(.e-hide)');
-            if (filterClear) {
-                filterClear.classList.add('e-hide');
-            }
-        };
-        Grid.prototype.keyActionHandler = function (e) {
-            if (this.allowKeyboard) {
-                this.notify(events.keyPressed, e);
-            }
-        };
-        return Grid;
-    }(ej2_base_1.Component));
-    __decorate([
-        ej2_base_2.Property([])
-    ], Grid.prototype, "columns", void 0);
-    __decorate([
-        ej2_base_2.Property(true)
-    ], Grid.prototype, "enableAltRow", void 0);
-    __decorate([
-        ej2_base_2.Property(true)
-    ], Grid.prototype, "enableHover", void 0);
-    __decorate([
-        ej2_base_2.Property(true)
-    ], Grid.prototype, "allowKeyboard", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], Grid.prototype, "allowTextWrap", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], Grid.prototype, "allowPaging", void 0);
-    __decorate([
-        ej2_base_2.Complex({}, page_settings_1.PageSettings)
-    ], Grid.prototype, "pageSettings", void 0);
-    __decorate([
-        ej2_base_2.Complex({}, SearchSettings)
-    ], Grid.prototype, "searchSettings", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], Grid.prototype, "allowSorting", void 0);
-    __decorate([
-        ej2_base_2.Complex({}, SortSettings)
-    ], Grid.prototype, "sortSettings", void 0);
-    __decorate([
-        ej2_base_2.Property(true)
-    ], Grid.prototype, "allowSelection", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], Grid.prototype, "selectedRowIndex", void 0);
-    __decorate([
-        ej2_base_2.Complex({}, SelectionSettings)
-    ], Grid.prototype, "selectionSettings", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], Grid.prototype, "allowFiltering", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], Grid.prototype, "allowReordering", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], Grid.prototype, "allowRowDragAndDrop", void 0);
-    __decorate([
-        ej2_base_2.Complex({}, RowDropSettings)
-    ], Grid.prototype, "rowDropSettings", void 0);
-    __decorate([
-        ej2_base_2.Complex({}, FilterSettings)
-    ], Grid.prototype, "filterSettings", void 0);
-    __decorate([
-        ej2_base_2.Property(false)
-    ], Grid.prototype, "allowGrouping", void 0);
-    __decorate([
-        ej2_base_2.Complex({}, GroupSettings)
-    ], Grid.prototype, "groupSettings", void 0);
-    __decorate([
-        ej2_base_2.Property('auto')
-    ], Grid.prototype, "height", void 0);
-    __decorate([
-        ej2_base_2.Property('auto')
-    ], Grid.prototype, "width", void 0);
-    __decorate([
-        ej2_base_2.Property('default')
-    ], Grid.prototype, "gridLines", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], Grid.prototype, "rowTemplate", void 0);
-    __decorate([
-        ej2_base_2.Property('allpages')
-    ], Grid.prototype, "printMode", void 0);
-    __decorate([
-        ej2_base_2.Property([])
-    ], Grid.prototype, "dataSource", void 0);
-    __decorate([
-        ej2_base_2.Property()
-    ], Grid.prototype, "query", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "created", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "destroyed", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "load", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "rowDataBound", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "queryCellInfo", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "actionBegin", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "actionComplete", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "actionFailure", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "dataBound", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "rowSelecting", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "rowSelected", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "rowDeselecting", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "rowDeselected", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "cellSelecting", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "cellSelected", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "cellDeselecting", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "cellDeselected", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "columnDragStart", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "columnDrag", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "columnDrop", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "printComplete", void 0);
-    __decorate([
-        ej2_base_2.Event()
-    ], Grid.prototype, "beforePrint", void 0);
-    Grid = __decorate([
-        ej2_base_2.NotifyPropertyChanges
-    ], Grid);
-    exports.Grid = Grid;
-}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 88 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(75), __webpack_require__(74), __webpack_require__(76), __webpack_require__(77), __webpack_require__(78)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, common_1, actions_1, models_1, renderer_1, services_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(76), __webpack_require__(75), __webpack_require__(77), __webpack_require__(78), __webpack_require__(79)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, common_1, actions_1, models_1, renderer_1, services_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -16391,7 +16720,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 89 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -16441,7 +16770,79 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 
 
 /***/ }),
-/* 90 */
+/* 91 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var DetailExpandCellRenderer = (function (_super) {
+        __extends(DetailExpandCellRenderer, _super);
+        function DetailExpandCellRenderer() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.element = dom_1.createElement('TD', { className: 'e-detailsrowcollapse', attrs: { 'aria-expanded': 'false' } });
+            return _this;
+        }
+        DetailExpandCellRenderer.prototype.render = function () {
+            var node = this.element.cloneNode();
+            node.appendChild(dom_1.createElement('div', { className: 'e-icons e-dtdiagonalright e-icon-grightarrow' }));
+            return node;
+        };
+        return DetailExpandCellRenderer;
+    }(cell_renderer_1.CellRenderer));
+    exports.DetailExpandCellRenderer = DetailExpandCellRenderer;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 92 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var DetailHeaderIndentCellRenderer = (function (_super) {
+        __extends(DetailHeaderIndentCellRenderer, _super);
+        function DetailHeaderIndentCellRenderer() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.element = dom_1.createElement('TH', { className: 'e-detailheadercell' });
+            return _this;
+        }
+        DetailHeaderIndentCellRenderer.prototype.render = function (cell, data) {
+            var node = this.element.cloneNode();
+            node.appendChild(dom_1.createElement('div', { className: 'e-emptycell' }));
+            return node;
+        };
+        return DetailHeaderIndentCellRenderer;
+    }(cell_renderer_1.CellRenderer));
+    exports.DetailHeaderIndentCellRenderer = DetailHeaderIndentCellRenderer;
+}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -16479,7 +16880,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 91 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -16492,7 +16893,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(16)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1, cell_renderer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var HeaderIndentCellRenderer = (function (_super) {
@@ -16515,7 +16916,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 92 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, enum_1) {
@@ -16615,7 +17016,7 @@ this["ej"] = this["ej"] || {}; this["ej"]["pagerModule"] =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 93);
+/******/ 	return __webpack_require__(__webpack_require__.s = 96);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -16913,15 +17314,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__animation__ = __webpack_require__(34);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Animation", function() { return __WEBPACK_IMPORTED_MODULE_1__animation__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ripple", function() { return __WEBPACK_IMPORTED_MODULE_1__animation__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(6);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Base", function() { return __WEBPACK_IMPORTED_MODULE_2__base__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__browser__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__browser__ = __webpack_require__(14);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Browser", function() { return __WEBPACK_IMPORTED_MODULE_3__browser__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__canvas_renderer__ = __webpack_require__(35);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "CanvasRenderer", function() { return __WEBPACK_IMPORTED_MODULE_4__canvas_renderer__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__component__ = __webpack_require__(36);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Component", function() { return __WEBPACK_IMPORTED_MODULE_5__component__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__child_property__ = __webpack_require__(15);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ChildProperty", function() { return __WEBPACK_IMPORTED_MODULE_6__child_property__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__draggable__ = __webpack_require__(37);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "Position", function() { return __WEBPACK_IMPORTED_MODULE_7__draggable__["a"]; });
@@ -16933,7 +17334,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__form_validator__ = __webpack_require__(39);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ErrorOption", function() { return __WEBPACK_IMPORTED_MODULE_10__form_validator__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "FormValidator", function() { return __WEBPACK_IMPORTED_MODULE_10__form_validator__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__internationalization__ = __webpack_require__(16);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "onIntlChange", function() { return __WEBPACK_IMPORTED_MODULE_11__internationalization__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "rightToLeft", function() { return __WEBPACK_IMPORTED_MODULE_11__internationalization__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "cldrData", function() { return __WEBPACK_IMPORTED_MODULE_11__internationalization__["c"]; });
@@ -16990,7 +17391,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 /* 4 */,
-/* 5 */
+/* 5 */,
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -17129,7 +17531,6 @@ var Base = (function () {
 
 
 /***/ }),
-/* 6 */,
 /* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -18202,7 +18603,8 @@ ParserBase.numberingSystems = defaultNumberingSystem;
 
 /***/ }),
 /* 12 */,
-/* 13 */
+/* 13 */,
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -18246,8 +18648,9 @@ var Browser = (function () {
                     browserInfo.name = 'msie';
                     break;
                 }
-                if (browserInfo.name === 'safari') {
-                    browserInfo.version = Browser.userAgent.match(REGX_VERSION)[2];
+                var version = Browser.userAgent.match(REGX_VERSION);
+                if (browserInfo.name === 'safari' && version) {
+                    browserInfo.version = version[2];
                 }
                 break;
             }
@@ -18428,13 +18831,13 @@ Browser.uA = navigator.userAgent;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ChildProperty; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 
 
 var ChildProperty = (function () {
@@ -18518,7 +18921,7 @@ var ChildProperty = (function () {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -18629,7 +19032,6 @@ function getDefaultDateObject() {
 
 
 /***/ }),
-/* 16 */,
 /* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -18975,7 +19377,7 @@ var Observer = (function () {
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return NumberFormat; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__intl_base__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__parser_base__ = __webpack_require__(11);
 
@@ -19302,7 +19704,8 @@ var ModuleLoader = (function () {
 
 
 /***/ }),
-/* 21 */
+/* 21 */,
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(3), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, util_1, ej2_base_1, dom_1) {
@@ -19538,7 +19941,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, dom_1) {
@@ -19596,7 +19999,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 23 */,
 /* 24 */,
 /* 25 */,
 /* 26 */,
@@ -19664,7 +20066,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(3), __webpack_require__(21), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, ej2_base_2, numeric_container_1, pager_message_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(2), __webpack_require__(1), __webpack_require__(3), __webpack_require__(22), __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, ej2_base_1, dom_1, util_1, ej2_base_2, numeric_container_1, pager_message_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Pager = (function (_super) {
@@ -19714,7 +20116,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
             this.trigger('created', { 'currentPage': this.currentPage, 'totalRecordsCount': this.totalRecordsCount });
         };
         Pager.prototype.getPersistData = function () {
-            var keyEntity = ['enableExternalMessage', 'enablePagerMessage', 'currentPage',
+            var keyEntity = ['enableExternalMessage', 'enablePagerMessage', 'currentPage', 'enableQueryString',
                 'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created'];
             return this.addOnPersist(keyEntity);
         };
@@ -20599,7 +21001,7 @@ var Ajax = (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Animation; });
 /* harmony export (immutable) */ __webpack_exports__["b"] = ripple;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dom__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__event_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__notify_property_change__ = __webpack_require__(7);
 var __extends = (this && this.__extends) || (function () {
@@ -21178,11 +21580,11 @@ var CanvasRenderer = (function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Component; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__module_loader__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__observer__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__notify_property_change__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__internationalization__ = __webpack_require__(16);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -21411,12 +21813,12 @@ Component = __decorate([
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Position; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Draggable; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dom__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__notify_property_change__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__event_handler__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__child_property__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__util__ = __webpack_require__(0);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -21893,8 +22295,8 @@ var Draggable_1;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Droppable; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__browser__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dom__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__notify_property_change__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__event_handler__ = __webpack_require__(8);
@@ -22026,7 +22428,7 @@ Droppable = __decorate([
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ErrorOption; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return FormValidator; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dom__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__util__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__event_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__notify_property_change__ = __webpack_require__(7);
@@ -22476,7 +22878,7 @@ var FormValidator_1;
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return KeyboardEvents; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__notify_property_change__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(6);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -22633,7 +23035,7 @@ var KeyboardEvents_1;
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return L10n; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__internationalization__ = __webpack_require__(16);
 
 
 var L10n = (function () {
@@ -23002,9 +23404,9 @@ function addNameSpace(str, addNS, nameSpace, ignoreList) {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Touch; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__notify_property_change__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__browser__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__browser__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__child_property__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__event_handler__ = __webpack_require__(8);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24035,10 +24437,13 @@ module.exports = g;
 /* 90 */,
 /* 91 */,
 /* 92 */,
-/* 93 */
+/* 93 */,
+/* 94 */,
+/* 95 */,
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(29), __webpack_require__(28), __webpack_require__(21), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, pager_1, external_message_1, numeric_container_1, pager_message_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(29), __webpack_require__(28), __webpack_require__(22), __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, pager_1, external_message_1, numeric_container_1, pager_message_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];

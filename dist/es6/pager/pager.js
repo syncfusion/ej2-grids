@@ -67,7 +67,7 @@ var Pager = (function (_super) {
         this.trigger('created', { 'currentPage': this.currentPage, 'totalRecordsCount': this.totalRecordsCount });
     };
     Pager.prototype.getPersistData = function () {
-        var keyEntity = ['enableExternalMessage', 'enablePagerMessage', 'currentPage',
+        var keyEntity = ['enableExternalMessage', 'enablePagerMessage', 'currentPage', 'enableQueryString',
             'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created'];
         return this.addOnPersist(keyEntity);
     };

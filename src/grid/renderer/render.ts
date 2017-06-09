@@ -19,6 +19,8 @@ import { IndentCellRenderer } from '../renderer/indent-cell-renderer';
 import { GroupCaptionCellRenderer } from '../renderer/caption-cell-renderer';
 import { ExpandCellRenderer } from '../renderer/expand-cell-renderer';
 import { HeaderIndentCellRenderer } from '../renderer/header-indent-renderer';
+import { DetailHeaderIndentCellRenderer } from '../renderer/detail-header-indent-renderer';
+import { DetailExpandCellRenderer } from '../renderer/detail-expand-cell-renderer';
 import { AriaService } from '../services/aria-service';
 
 /**
@@ -186,6 +188,7 @@ export class Render {
                 alert(this.l10n.getConstant('EmptyDataSourceError')); //ToDO: change this alert as dialog
                 return;
             }
+            this.contentRenderer.setRowElements([]);
             this.renderEmptyRow();
             if (args) {
                 let action: string = (args.requestType || '').toLowerCase() + '-complete';
@@ -231,6 +234,8 @@ export class Render {
         cellrender.addCellRenderer(CellType.Expand, new ExpandCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.HeaderIndent, new HeaderIndentCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.locator));
+        cellrender.addCellRenderer(CellType.DetailHeader, new DetailHeaderIndentCellRenderer(this.locator));
+        cellrender.addCellRenderer(CellType.DetailExpand, new DetailExpandCellRenderer(this.locator));
 
     }
 

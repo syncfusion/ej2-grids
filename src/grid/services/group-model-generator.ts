@@ -1,4 +1,4 @@
-import { IModelGenerator, IRow } from '../base/interface';
+import { IModelGenerator, IRow, IGrid } from '../base/interface';
 import { Row } from '../models/row';
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
 import { Column } from '../models/column';
@@ -43,6 +43,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
     }
 
     private getCaptionRowCells(field: string, indent: number): Cell[] {
+        let gObj: IGrid = this.parent;
         let cells: Cell[] = [];
         for (let i: number = 0; i < indent; i++) {
             cells.push(this.generateIndentCell());
@@ -50,9 +51,9 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         cells.push(this.generateCell({} as Column, null, CellType.Expand));
         cells.push(
             this.generateCell(
-                this.parent.getColumnByField(field), null, CellType.GroupCaption,
-                this.parent.getVisibleColumns().length + this.parent.groupSettings.columns.length -
-                indent + (this.parent.getVisibleColumns().length ? -1 : 0))
+                gObj.getColumnByField(field), null, CellType.GroupCaption,
+                gObj.getVisibleColumns().length + gObj.groupSettings.columns.length + (gObj.detailsTemplate || gObj.childGrid ? 1 : 0) -
+                indent + (gObj.getVisibleColumns().length ? -1 : 0))
         );
         return cells;
     }
@@ -73,7 +74,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
     private generateDataRows(data: Object[], indent: number): Row[] {
         let rows: Row[] = [];
         for (let i: number = 0, len: number = data.length; i < len; i++) {
-            rows[i] = this.generateRow(data[i], this.index);
+            rows[i] = this.generateRow(data[i], this.index, i ? undefined : 'e-firstchildrow');
             for (let j: number = 0; j < indent; j++) {
                 rows[i].cells.unshift(this.generateIndentCell());
             }

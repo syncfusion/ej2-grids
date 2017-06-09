@@ -182,6 +182,10 @@ export class HeaderRender implements IRenderer {
                 colGroup.appendChild(col);
             }
         }
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            col = createElement('col');
+            colGroup.appendChild(col);
+        }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             col = createElement('col');
             if (cols[i].visible === false) {
@@ -197,10 +201,13 @@ export class HeaderRender implements IRenderer {
         //TODO: generate dummy column for group, detail, stacked row here; ensureColumns here
         let gObj: IGrid = this.parent;
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
-            if (this.parent.allowGrouping) {
+            if (gObj.allowGrouping) {
                 for (let c: number = 0, len: number = gObj.groupSettings.columns.length; c < len; c++) {
                     rows[i].cells.push(this.generateCell({} as Column, CellType.HeaderIndent));
                 }
+            }
+            if (gObj.detailsTemplate || gObj.childGrid) {
+                rows[i].cells.push(this.generateCell({} as Column, CellType.DetailHeader));
             }
         }
         return rows;

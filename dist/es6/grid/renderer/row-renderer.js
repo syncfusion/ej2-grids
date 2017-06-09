@@ -30,6 +30,9 @@ var RowRenderer = (function () {
         if (row.isDataRow) {
             this.parent.trigger(rowDataBound, extend(rowArgs, { row: tr }));
         }
+        if (row.cssClass) {
+            tr.classList.add(row.cssClass);
+        }
         return tr;
     };
     RowRenderer.prototype.buildAttributeFromRow = function (tr, row) {

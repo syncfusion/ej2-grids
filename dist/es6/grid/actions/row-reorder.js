@@ -38,6 +38,8 @@ var RowDD = (function () {
                 for (var i = 0, len = selectedRows.length; i < len; i++) {
                     var selectedRow = selectedRows[i].cloneNode(true);
                     removeElement(selectedRow, '.e-indentcell');
+                    removeElement(selectedRow, '.e-detailsrowcollapse');
+                    removeElement(selectedRow, '.e-detailsrowexpand');
                     tbody.appendChild(selectedRow);
                 }
                 table.appendChild(tbody);
@@ -50,7 +52,7 @@ var RowDD = (function () {
                     return;
                 }
                 gObj.trigger(events.rowDragStart, {
-                    rows: gObj.getSelectedRecords(),
+                    rows: gObj.getSelectedRows(),
                     target: e.target, draggableType: 'rows', data: gObj.getSelectedRecords()
                 });
                 var dropElem = document.getElementById(gObj.rowDropSettings.targetID);
@@ -64,7 +66,7 @@ var RowDD = (function () {
                 var target = _this.getElementFromPosition(cloneElement, e.event);
                 classList(cloneElement, ['e-defaultcur'], ['e-notallowedcur']);
                 gObj.trigger(events.rowDrag, {
-                    rows: gObj.getSelectedRecords(),
+                    rows: gObj.getSelectedRows(),
                     target: target, draggableType: 'rows', data: gObj.getSelectedRecords()
                 });
                 gObj.element.classList.add('e-rowdrag');
@@ -76,10 +78,6 @@ var RowDD = (function () {
             dragStop: function (e) {
                 var target = _this.getElementFromPosition(e.helper, e.event);
                 gObj.element.classList.remove('e-rowdrag');
-                if (!parentsUntil(target, 'e-gridcontent')) {
-                    remove(e.helper);
-                    return;
-                }
                 var dropElem = document.getElementById(gObj.rowDropSettings.targetID);
                 if (gObj.rowDropSettings.targetID && dropElem && dropElem.ej2_instances) {
                     dropElem.ej2_instances[0].getContent().classList.remove('e-allowRowDrop');
@@ -88,6 +86,10 @@ var RowDD = (function () {
                     target: target, draggableType: 'rows',
                     rows: gObj.getSelectedRows(), data: gObj.getSelectedRecords()
                 });
+                if (!parentsUntil(target, 'e-gridcontent')) {
+                    remove(e.helper);
+                    return;
+                }
             }
         });
     };

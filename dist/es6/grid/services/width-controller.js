@@ -8,10 +8,14 @@ var ColumnWidthService = (function () {
     }
     ColumnWidthService.prototype.setWidthToColumns = function () {
         var _this = this;
+        var i = 0;
         if (this.parent.allowGrouping) {
-            for (var i = 0, len = this.parent.groupSettings.columns.length; i < len; i++) {
+            for (var len = this.parent.groupSettings.columns.length; i < len; i++) {
                 this.setColumnWidth(new Column({ width: '30px' }), i);
             }
+        }
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            this.setColumnWidth(new Column({ width: '30px' }), i);
         }
         this.parent.getColumns().forEach(function (column) {
             _this.setColumnWidth(column);

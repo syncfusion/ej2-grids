@@ -9,10 +9,11 @@ import { Sort } from '../../../src/grid/actions/sort';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Page } from '../../../src/grid/actions/page';
 import { Print } from '../../../src/grid/actions/print';
+import { Group } from '../../../src/grid/actions/group';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
-Grid.Inject(Sort, Page, Filter, Print);
+Grid.Inject(Sort, Page, Filter, Print, Group);
 
 describe('Print module', () => {
     describe('Print without paging, filterbar testing', () => {
@@ -103,7 +104,6 @@ describe('Print module', () => {
             };
             gridObj.printModule.destroy(); //for coverage
             gridObj.printMode = 'currentpage';
-            gridObj.dataBind();
             gridObj.beforePrint = beforePrint;
             gridObj.dataBind();
             gridObj.print();
@@ -113,5 +113,95 @@ describe('Print module', () => {
             elem.remove();
         });
     });
+
+    describe('Print two column grouping', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let beforePrint: () => void;
+        let actionComplete: EmitType<Object>;
+
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }],
+                    allowFiltering: true,
+                    allowPaging: true,
+                    allowGrouping: true,
+                    pageSettings: { pageSize: 8 },
+                    groupSettings: { columns: ['OrderID', 'EmployeeID'] },
+                    beforePrint: beforePrint,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('Print with two grouped column', (done: Function) => { // print with more than one grouped columns 
+            let flag: boolean = false;
+            beforePrint = (args?: { element: Element }): void => {
+                expect(args.element.querySelectorAll('.e-groupcaption').length).toBeGreaterThan(1);
+                expect((args.element.querySelectorAll('.e-groupcaption')[0] as HTMLTableCellElement).colSpan).toEqual(3);
+                expect(args.element.querySelectorAll('.e-grouptopleftcell').length).toEqual(0);
+                expect(args.element.querySelectorAll('.e-recordpluscollapse').length).toEqual(0);
+                expect(args.element.querySelectorAll('.e-indentcell').length).toEqual(0);
+                expect(args.element.querySelectorAll('.e-recordplusexpand').length).toEqual(0);
+                expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toEqual('');
+            };
+            //data bound hit twice 
+            //one for disable paging for print allpages
+            //another for enable paging after printing allpages 
+            let dataBound: EmitType<Object> = () => {
+                if (flag) {
+                    done();
+                }
+                flag = true;
+            };
+            gridObj.dataBound = dataBound;
+            gridObj.beforePrint = beforePrint;
+            gridObj.dataBind();
+            gridObj.print();
+        });
+
+        it('Print current page testing', (done: Function) => { //print current page with grouped columns
+            beforePrint = (args?: { element: Element }): void => {
+                expect((args.element.querySelector('.e-gridpager') as HTMLElement).style.display).toEqual('none');
+                expect(args.element.querySelectorAll('.e-row').length).toEqual(8);
+                done();
+            };
+            gridObj.dataBound = undefined;
+            gridObj.printMode = 'currentpage';
+            gridObj.beforePrint = beforePrint;
+            gridObj.dataBind();
+            gridObj.print();
+
+        });
+        // it('UnGroup the columns', (done: Function) => {
+        //     actionComplete = () => {
+        //         expect(gridObj.groupSettings.columns.length).toEqual(0);
+        //         done();
+        //     };
+        //     gridObj.actionComplete = actionComplete;
+        //     gridObj.groupModule.clearGrouping();//need to fix
+        //     gridObj.dataBind();
+        // });
+
+        // it('Print no grouped column', (done: Function) => {
+        //     beforePrint = (args?: { element: Element }): void => {
+        //         expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toEqual('none');
+        //         done();
+        //     };
+        //     gridObj.beforePrint = beforePrint;
+        //     gridObj.dataBind();
+        //     gridObj.print();
+        // });
+
+
+        afterAll(() => {
+            elem.remove();
+        });
+    });
+
 
 });

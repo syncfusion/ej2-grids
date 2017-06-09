@@ -266,6 +266,11 @@ export class Column {
      */
     public toolTip: string;
 
+    /**    
+     * If `isPrimaryKey` set to true, then consider this column as primary key constraint.   
+     * @default false         
+     */
+    public isPrimaryKey: boolean;
 
     constructor(options: ColumnModel) {
         merge(this, options);
@@ -564,5 +569,11 @@ export interface ColumnModel {
      * @hidden   
      */
     toolTip?: string;
+
+    /**    
+     * If `isPrimaryKey` set to true, then consider this column as primary key constraint.   
+     * @default false         
+     */
+    isPrimaryKey?: boolean;
 
 }

@@ -15,23 +15,29 @@ var RowModelGenerator = (function () {
         return rows;
     };
     RowModelGenerator.prototype.ensureColumns = function () {
-        return this.parent.getColumns();
+        var cols = [];
+        if (this.parent.detailsTemplate || this.parent.childGrid) {
+            cols.push(this.generateCell({}, null, CellType.DetailExpand));
+        }
+        return cols;
     };
-    RowModelGenerator.prototype.generateRow = function (data, index) {
+    RowModelGenerator.prototype.generateRow = function (data, index, cssClass) {
         var options = {};
         var tmp = [];
         options.uid = getUid('grid-row');
         options.data = data;
         options.index = index;
         options.isDataRow = true;
+        options.cssClass = cssClass;
         options.isAltRow = this.parent.enableAltRow ? index % 2 !== 0 : false;
-        var dummies = this.ensureColumns();
+        var cells = this.ensureColumns();
+        var dummies = this.parent.getColumns();
         for (var _i = 0, dummies_1 = dummies; _i < dummies_1.length; _i++) {
             var dummy = dummies_1[_i];
             tmp.push(this.generateCell(dummy, options.uid));
         }
         var row = new Row(options);
-        row.cells = tmp;
+        row.cells = cells.concat(tmp);
         return row;
     };
     RowModelGenerator.prototype.generateCell = function (column, rowId, cellType, colSpan) {
