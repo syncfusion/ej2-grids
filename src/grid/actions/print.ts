@@ -1,6 +1,6 @@
 import { removeClass } from '@syncfusion/ej2-base/dom';
 import { print as printWindow } from '@syncfusion/ej2-base/util';
-import { IGrid, IAction } from '../base/interface';
+import { IGrid } from '../base/interface';
 import { removeElement } from '../base/util';
 import { Scroll, ScrollCss } from '../actions/scroll';
 import * as events from '../base/constant';
@@ -9,7 +9,7 @@ import * as events from '../base/constant';
  * 
  * `Print` module is used to handle the print action.
  */
-export class Print implements IAction {
+export class Print {
 
     //Internal variables
     private element: Element; //grid cloned element

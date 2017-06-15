@@ -108,7 +108,6 @@ describe('Data module', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
             remove(gridObj.element);
             jasmine.Ajax.uninstall();
         });

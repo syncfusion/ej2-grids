@@ -1,6 +1,6 @@
 import { KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { createElement, closest, classList } from '@syncfusion/ej2-base/dom';
-import { IGrid, IAction } from '../base/interface';
+import { IGrid } from '../base/interface';
 import { Grid } from '../base/grid';
 import { parents, getUid } from '../base/util';
 import * as events from '../base/constant';
@@ -10,7 +10,7 @@ import { AriaService } from '../services/aria-service';
  * Detail template module is used to handle the rendering detail rows.
  * @hidden
  */
-export class DetailsRow implements IAction {
+export class DetailsRow {
 
     //Internal variables
     private aria: AriaService = new AriaService();
