@@ -9,11 +9,11 @@ import { Group } from '../../../src/grid/actions/group';
 import { Selection } from '../../../src/grid/actions/selection';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Page } from '../../../src/grid/actions/page';
-import { DetailsRow } from '../../../src/grid/actions/details-row';
+import { DetailRow } from '../../../src/grid/actions/detail-row';
 import { filterData, employeeData, customerData } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
-Grid.Inject(Sort, Page, Filter, DetailsRow, Group, Selection);
+Grid.Inject(Sort, Page, Filter, DetailRow, Group, Selection);
 
 describe('Detail template module', () => {
 
@@ -42,7 +42,7 @@ describe('Detail template module', () => {
                     { field: 'ShipCity', headerText: 'Ship City', width: 150 }
                 ],
             });
-        grid1.appendTo((e.detailsElement as Element).querySelector('#detailgrid') as HTMLElement);
+        grid1.appendTo((e.detailElement as Element).querySelector('#detailgrid') as HTMLElement);
     }
 
     describe('Render with invalid id testing', () => {
@@ -57,8 +57,8 @@ describe('Detail template module', () => {
                 {
                     dataSource: filterData,
                     allowPaging: true,
-                    detailsTemplate: '#detailtemplate1',
-                    detailsDataBound: detail,
+                    detailTemplate: '#detailtemplate1',
+                    detailDataBound: detail,
                     allowGrouping: true,
                     selectionSettings: { type: 'multiple', mode: 'row' },
                     allowFiltering: true,
@@ -76,22 +76,22 @@ describe('Detail template module', () => {
         });
 
         it('Detail row render testing', () => {
-            expect(gridObj.getContentTable().querySelectorAll('.e-detailsrowcollapse').length).toEqual(12);
+            expect(gridObj.getContentTable().querySelectorAll('.e-detailrowcollapse').length).toEqual(12);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-detailheadercell').length).toEqual(1);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-mastercell').length).toEqual(1);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-mastercell')[0].classList.contains('e-filterbarcell')).toEqual(true);
         });
 
         it('Detail row expand testing', () => {
-            (gridObj.getDataRows()[0].querySelector('.e-detailsrowcollapse') as HTMLElement).click();
+            (gridObj.getDataRows()[0].querySelector('.e-detailrowcollapse') as HTMLElement).click();
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(0);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
         });
 
         it('Detail collapse testing', () => {
-            (gridObj.getDataRows()[0].querySelector('.e-detailsrowexpand') as HTMLElement).click();
+            (gridObj.getDataRows()[0].querySelector('.e-detailrowexpand') as HTMLElement).click();
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(0);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
         });
 
         afterAll(() => {
@@ -114,8 +114,8 @@ describe('Detail template module', () => {
                 {
                     dataSource: filterData,
                     allowPaging: true,
-                    detailsTemplate: '#detailtemplate',
-                    detailsDataBound: detail,
+                    detailTemplate: '#detailtemplate',
+                    detailDataBound: detail,
                     allowGrouping: true,
                     selectionSettings: { type: 'multiple', mode: 'row' },
                     allowFiltering: true,
@@ -134,91 +134,91 @@ describe('Detail template module', () => {
         });
 
         it('Detail row render testing', () => {
-            expect(gridObj.getContentTable().querySelectorAll('.e-detailsrowcollapse').length).toEqual(12);
+            expect(gridObj.getContentTable().querySelectorAll('.e-detailrowcollapse').length).toEqual(12);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-detailheadercell').length).toEqual(1);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-mastercell').length).toEqual(1);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-mastercell')[0].classList.contains('e-filterbarcell')).toEqual(true);
         });
 
         it('Detail row expand testing', () => {
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse')[0].getAttribute('aria-expanded')).toEqual("false");
-            (gridObj.getDataRows()[0].querySelector('.e-detailsrowcollapse') as HTMLElement).click();
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse')[0].getAttribute('aria-expanded')).toEqual("false");
+            (gridObj.getDataRows()[0].querySelector('.e-detailrowcollapse') as HTMLElement).click();
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('');
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse').length).toEqual(0);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand')[0].getAttribute('aria-expanded')).toEqual("true");
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse').length).toEqual(0);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand')[0].getAttribute('aria-expanded')).toEqual("true");
         });
 
         it('Detail collapse testing', () => {
-            (gridObj.getDataRows()[0].querySelector('.e-detailsrowexpand') as HTMLElement).click();
+            (gridObj.getDataRows()[0].querySelector('.e-detailrowexpand') as HTMLElement).click();
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(1);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('none');
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand').length).toEqual(0);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse')[0].getAttribute('aria-expanded')).toEqual("false");
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand').length).toEqual(0);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse')[0].getAttribute('aria-expanded')).toEqual("false");
         });
 
         it('Expand method testing', () => {
-            gridObj.detailsRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailsrowcollapse'));
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailrowcollapse'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('');
 
-            gridObj.detailsRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailsrowexpand'));
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailrowexpand'));
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
         });
 
         it('Collapse method testing', () => {
-            gridObj.detailsRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailsrowexpand'));
+            gridObj.detailRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailrowexpand'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('none');
 
-            gridObj.detailsRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailsrowcollapse'));
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            gridObj.detailRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailrowcollapse'));
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
         });
 
         it('Alt Down shortcut testing', () => {
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.selectRow(2);
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(3);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toEqual('');
 
-            gridObj.keyBoardModule.keyAction(args);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
         });
 
         it('Alt Up shortcut testing', () => {
             let args: any = { action: 'altUpArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(3);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toEqual('none');
 
-            gridObj.keyBoardModule.keyAction(args);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
         });
 
         it('ctrlDownArrow shortcut testing', () => {
             let args: any = { action: 'ctrlDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.selectRow(3);
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(12);
-            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
-            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[3] as HTMLElement).style.display).toEqual('');
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[4] as HTMLElement).style.display).toEqual('');
         });
 
         it('ctrlUpArrow shortcut testing', () => {
             let args: any = { action: 'ctrlUpArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(12);
-            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
-            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[3] as HTMLElement).style.display).toEqual('none');
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[4] as HTMLElement).style.display).toEqual('none');
         });
@@ -227,11 +227,11 @@ describe('Detail template module', () => {
             gridObj.allowSelection = false;
             gridObj.dataBind();
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toEqual('none');
 
-            gridObj.keyBoardModule.keyAction(args);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowexpand').length).toEqual(0);
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toEqual(0);
         });
 
 
@@ -256,14 +256,14 @@ describe('Detail template module', () => {
             gridObj.dataBind();
             gridObj.selectRow(1);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('');
         });
 
         it('Expand method with grouping testing', () => {
-            gridObj.detailsRowModule.expand(gridObj.getDataRows()[0].querySelector('.e-detailsrowcollapse'));
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[0].querySelector('.e-detailrowcollapse'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('');
         });
 
@@ -273,9 +273,9 @@ describe('Detail template module', () => {
         });
 
         it('toogleExpandcollapse with invalid element testing', () => {
-            (gridObj.detailsRowModule as any).toogleExpandcollapse(gridObj.getDataRows()[1].querySelector('.e-rowcell'));
+            (gridObj.detailRowModule as any).toogleExpandcollapse(gridObj.getDataRows()[1].querySelector('.e-rowcell'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('');
         });
 
@@ -355,109 +355,109 @@ describe('Detail template module', () => {
         });
 
         it('Hierarchy row render testing', () => {
-            expect(gridObj.getContentTable().querySelectorAll('.e-detailsrowcollapse').length).toEqual(9);
+            expect(gridObj.getContentTable().querySelectorAll('.e-detailrowcollapse').length).toEqual(9);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-detailheadercell').length).toEqual(1);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-mastercell').length).toEqual(1);
             expect(gridObj.getHeaderTable().querySelectorAll('.e-mastercell')[0].classList.contains('e-filterbarcell')).toEqual(true);
         });
 
         it('Hierarchy row expand testing', () => {
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse')[0].getAttribute('aria-expanded')).toEqual('false');
-            (gridObj.getDataRows()[0].querySelector('.e-detailsrowcollapse') as HTMLElement).click();
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse')[0].getAttribute('aria-expanded')).toEqual('false');
+            (gridObj.getDataRows()[0].querySelector('.e-detailrowcollapse') as HTMLElement).click();
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[0].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('');
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse').length).toEqual(0);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand')[0].getAttribute('aria-expanded')).toEqual('true');
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse').length).toEqual(0);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand')[0].getAttribute('aria-expanded')).toEqual('true');
         });
 
         it('Hierarchy collapse testing', () => {
-            (gridObj.getDataRows()[0].querySelector('.e-detailsrowexpand') as HTMLElement).click();
+            (gridObj.getDataRows()[0].querySelector('.e-detailrowexpand') as HTMLElement).click();
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(1);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[0].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('none');
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand').length).toEqual(0);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowcollapse')[0].getAttribute('aria-expanded')).toEqual('false');
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand').length).toEqual(0);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowcollapse')[0].getAttribute('aria-expanded')).toEqual('false');
         });
 
         it('Expand method testing', () => {
-            gridObj.detailsRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailsrowcollapse'));
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailrowcollapse'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[1].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('');
 
-            gridObj.detailsRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailsrowexpand'));
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailrowexpand'));
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
         });
 
         it('Collapse method testing', () => {
-            gridObj.detailsRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailsrowexpand'));
+            gridObj.detailRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailrowexpand'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[1].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('none');
 
-            gridObj.detailsRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailsrowcollapse'));
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            gridObj.detailRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailrowcollapse'));
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
         });
 
         it('Expand method with number args testing', () => {
-            gridObj.detailsRowModule.expand(1);
+            gridObj.detailRowModule.expand(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[1].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('');
 
-            gridObj.detailsRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailsrowexpand'));
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailrowexpand'));
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
         });
 
         it('Collapse method with number args testing', () => {
-            gridObj.detailsRowModule.collapse(1);
+            gridObj.detailRowModule.collapse(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[1].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('none');
 
-            gridObj.detailsRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailsrowcollapse'));
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            gridObj.detailRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailrowcollapse'));
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
         });
 
         it('Alt Down shortcut testing', () => {
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.selectRow(2);
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(3);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[2].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toEqual('');
 
-            gridObj.keyBoardModule.keyAction(args);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
         });
 
         it('Alt Up shortcut testing', () => {
             let args: any = { action: 'altUpArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(3);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow')[2].querySelectorAll('.e-grid').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toEqual('none');
 
-            gridObj.keyBoardModule.keyAction(args);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
         });
 
         it('ctrlDownArrow shortcut testing', () => {
             let args: any = { action: 'ctrlDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.selectRow(3);
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(9);
-            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
-            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-grid').length).toEqual(9);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[3] as HTMLElement).style.display).toEqual('');
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[4] as HTMLElement).style.display).toEqual('');
@@ -465,10 +465,10 @@ describe('Detail template module', () => {
 
         it('ctrlUpArrow shortcut testing', () => {
             let args: any = { action: 'ctrlUpArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(9);
-            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
-            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailsrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
+            expect(gridObj.getDataRows()[4].querySelectorAll('.e-detailrowcollapse').length).toEqual(1);
             expect(gridObj.getContentTable().querySelectorAll('.e-grid').length).toEqual(9);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[3] as HTMLElement).style.display).toEqual('none');
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[4] as HTMLElement).style.display).toEqual('none');
@@ -478,11 +478,11 @@ describe('Detail template module', () => {
             gridObj.allowSelection = false;
             gridObj.dataBind();
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toEqual('none');
 
-            gridObj.keyBoardModule.keyAction(args);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailsrowexpand').length).toEqual(0);
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toEqual(0);
         });
 
 
@@ -507,14 +507,14 @@ describe('Detail template module', () => {
             gridObj.dataBind();
             gridObj.selectRow(1);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('');
         });
 
         it('Expand method with grouping testing', () => {
-            gridObj.detailsRowModule.expand(gridObj.getDataRows()[0].querySelector('.e-detailsrowcollapse'));
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[0].querySelector('.e-detailrowcollapse'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[0].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toEqual('');
         });
 
@@ -524,15 +524,15 @@ describe('Detail template module', () => {
         });
 
         it('toogleExpandcollapse with invalid element testing', () => {
-            (gridObj.detailsRowModule as any).toogleExpandcollapse(gridObj.getDataRows()[1].querySelector('.e-rowcell'));
+            (gridObj.detailRowModule as any).toogleExpandcollapse(gridObj.getDataRows()[1].querySelector('.e-rowcell'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toEqual(2);
-            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailsrowexpand').length).toEqual(1);
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toEqual(1);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[1] as HTMLElement).style.display).toEqual('');
         });
 
 
         afterAll(() => {
-            (gridObj.detailsRowModule as any).destroy();
+            (gridObj.detailRowModule as any).destroy();
             elem.remove();
         });
     });

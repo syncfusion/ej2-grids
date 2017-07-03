@@ -85,7 +85,7 @@ describe('Template render module', () => {
             gridObj = new Grid(
                 {
                     dataSource: data, allowPaging: false,
-                    rowTemplate: '<td>${OrderID}</td><td>${EmployeeID}</td>',
+                    rowTemplate: '<tr><td>${OrderID}</td><td>${EmployeeID}</td></tr>',
                     columns: [
                         { field: 'EmployeeID', headerText: 'Employee ID' },
                         { field: 'CustomerID', headerText: 'Customer ID' },

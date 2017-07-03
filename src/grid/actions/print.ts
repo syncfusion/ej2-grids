@@ -31,7 +31,8 @@ export class Print {
     }
 
     /**
-     * By default, it prints all the pages of Grid and hides pager.  
+     * By default, it prints all the pages of Grid and hides pager. 
+     * > Customize print options using [`printMode`](http://ej2.syncfusion.com/documentation/grid/api-grid.html#printmode-string).   
      * @return {void}
      */
     public print(): void {

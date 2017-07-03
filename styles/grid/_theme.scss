@@ -74,8 +74,8 @@
     }
 
     .e-rowcell,
-    .e-detailsrowcollapse,
-    .e-detailsrowexpand {
+    .e-detailrowcollapse,
+    .e-detailrowexpand {
       color: $grid-content-font-color;
       opacity: $grid-conent-font-opacity;
     }
@@ -85,8 +85,8 @@
     .e-indentcell,
     .e-recordplusexpand,
     .e-recordpluscollapse,
-    .e-detailsrowcollapse,
-    .e-detailsrowexpand,
+    .e-detailrowcollapse,
+    .e-detailrowexpand,
     .e-detailindentcell,
     .e-detailcell {
       border-color: $grid-cell-border-color;
@@ -97,8 +97,8 @@
   }
 
     &.e-gridhover tr[role='row']:hover .e-rowcell,
-    &.e-gridhover tr[role='row']:hover .e-detailsrowcollapse,
-    &.e-gridhover tr[role='row']:hover .e-detailsrowexpand {
+    &.e-gridhover tr[role='row']:hover .e-detailrowcollapse,
+    &.e-gridhover tr[role='row']:hover .e-detailrowexpand {
       &:not(.e-cellselectionbackground):not(.e-active) {
         background-color: $grid-hover-bg-color;
       }

@@ -52,7 +52,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         cells.push(
             this.generateCell(
                 gObj.getColumnByField(field), null, CellType.GroupCaption,
-                gObj.getVisibleColumns().length + gObj.groupSettings.columns.length + (gObj.detailsTemplate || gObj.childGrid ? 1 : 0) -
+                gObj.getVisibleColumns().length + gObj.groupSettings.columns.length + (gObj.detailTemplate || gObj.childGrid ? 1 : 0) -
                 indent + (gObj.getVisibleColumns().length ? -1 : 0))
         );
         return cells;

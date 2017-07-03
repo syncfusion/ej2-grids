@@ -2,15 +2,15 @@ import { KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { createElement, closest, classList } from '@syncfusion/ej2-base/dom';
 import { IGrid } from '../base/interface';
 import { Grid } from '../base/grid';
-import { parents, getUid } from '../base/util';
+import { parents, getUid, appendChildren } from '../base/util';
 import * as events from '../base/constant';
 import { AriaService } from '../services/aria-service';
 
 /**
- * Detail template module is used to handle the rendering detail rows.
+ * `DetailRow` module is used to handle Detail Template and Hierarchy Grid operations.
  * @hidden
  */
-export class DetailsRow {
+export class DetailRow {
 
     //Internal variables
     private aria: AriaService = new AriaService();
@@ -24,6 +24,7 @@ export class DetailsRow {
      */
     constructor(parent?: IGrid) {
         this.parent = parent;
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.destroy, this.destroy, this);
         this.parent.on(events.keyPressed, this.keyPressHandler, this);
@@ -36,11 +37,11 @@ export class DetailsRow {
     private toogleExpandcollapse(target: Element): void {
         let gObj: IGrid = this.parent;
         let parent: string = 'parentDetails';
-        if (target && (target.classList.contains('e-detailsrowcollapse') || target.classList.contains('e-detailsrowexpand'))) {
+        if (target && (target.classList.contains('e-detailrowcollapse') || target.classList.contains('e-detailrowexpand'))) {
             let tr: HTMLTableRowElement = target.parentElement as HTMLTableRowElement;
             let nextRow: HTMLElement =
                 this.parent.getContentTable().querySelector('tbody').children[tr.rowIndex + 1] as HTMLElement;
-            if (target.classList.contains('e-detailsrowcollapse')) {
+            if (target.classList.contains('e-detailrowcollapse')) {
                 let key: string = 'records';
                 let currentViewData: Object[] = gObj.allowGrouping && gObj.groupSettings.columns.length ?
                     gObj.currentViewData[key] : gObj.currentViewData;
@@ -55,8 +56,8 @@ export class DetailsRow {
                         detailRow.appendChild(createElement('td', { className: 'e-indentcell' }));
                     }
                     detailRow.appendChild(createElement('td', { className: 'e-detailindentcell' }));
-                    if (gObj.detailsTemplate) {
-                        detailCell.innerHTML = gObj.getDetailTemplate()(data);
+                    if (gObj.detailTemplate) {
+                        appendChildren(detailCell, gObj.getDetailTemplate()(data));
                     } else {
                         gObj.childGrid[parent] = {
                             parentID: gObj.element.id,
@@ -76,16 +77,16 @@ export class DetailsRow {
                     detailRow.appendChild(detailCell);
                     tr.parentNode.insertBefore(detailRow, tr.nextSibling);
                     gObj.getRows().splice(tr.rowIndex + 1, 0, detailRow);
-                    gObj.trigger(events.detailsDataBound, { detailsElement: detailCell, data: data });
+                    gObj.trigger(events.detailDataBound, { detailElement: detailCell, data: data });
                 }
-                classList(target, ['e-detailsrowexpand'], ['e-detailsrowcollapse']);
+                classList(target, ['e-detailrowexpand'], ['e-detailrowcollapse']);
                 classList(target.firstElementChild, ['e-dtdiagonaldown', 'e-icon-gdownarrow'], ['e-dtdiagonalright', 'e-icon-grightarrow']);
                 this.aria.setExpand(target as HTMLElement, true);
             } else {
                 if (this.isDetailRow(nextRow)) {
                     nextRow.style.display = 'none';
                 }
-                classList(target, ['e-detailsrowcollapse'], ['e-detailsrowexpand']);
+                classList(target, ['e-detailrowcollapse'], ['e-detailrowexpand']);
                 classList(target.firstElementChild, ['e-dtdiagonalright', 'e-icon-grightarrow'], ['e-dtdiagonaldown', 'e-icon-gdownarrow']);
                 this.aria.setExpand(target as HTMLElement, false);
             }
@@ -97,6 +98,7 @@ export class DetailsRow {
     }
 
     private destroy(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.destroy, this.destroy);
         this.parent.off(events.keyPressed, this.keyPressHandler);
@@ -111,27 +113,29 @@ export class DetailsRow {
     }
 
     /** 
-     * Expands a detail row with the given target.          
+     * Expands a detail row with the given target.  
+     * @param  {Element} target - Defines the collapsed element to expand.
      * @return {void} 
      */
     public expand(target: number | Element): void {
         if (!isNaN(target as number)) {
-            target = this.getTDfromIndex(target as number, '.e-detailsrowcollapse');
+            target = this.getTDfromIndex(target as number, '.e-detailrowcollapse');
         }
-        if (target && (target as Element).classList.contains('e-detailsrowcollapse')) {
+        if (target && (target as Element).classList.contains('e-detailrowcollapse')) {
             this.toogleExpandcollapse(target as Element);
         }
     }
 
     /** 
      * Collapses a detail row with the given target.     
+     * @param  {Element} target - Defines the expanded element to collapse.
      * @return {void} 
      */
     public collapse(target: number | Element): void {
         if (!isNaN(target as number)) {
-            target = this.getTDfromIndex(target as number, '.e-detailsrowexpand');
+            target = this.getTDfromIndex(target as number, '.e-detailrowexpand');
         }
-        if (target && (target as Element).classList.contains('e-detailsrowexpand')) {
+        if (target && (target as Element).classList.contains('e-detailrowexpand')) {
             this.toogleExpandcollapse(target as Element);
         }
     }
@@ -156,7 +160,7 @@ export class DetailsRow {
         let td: Element;
         let rows: Element[] = this.parent.getDataRows();
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
-            td = rows[i].querySelector('.e-detailsrowcollapse, .e-detailsrowexpand');
+            td = rows[i].querySelector('.e-detailrowcollapse, .e-detailrowexpand');
             isExpand ? this.expand(td) : this.collapse(td);
         }
     }
@@ -175,7 +179,7 @@ export class DetailsRow {
                 let selected: number[] = gObj.allowSelection ? gObj.getSelectedRowIndexes() : [];
                 if (selected.length) {
                     let dataRow: HTMLTableRowElement = gObj.getDataRows()[selected[selected.length - 1]] as HTMLTableRowElement;
-                    let td: Element = dataRow.querySelector('.e-detailsrowcollapse, .e-detailsrowexpand');
+                    let td: Element = dataRow.querySelector('.e-detailrowcollapse, .e-detailrowexpand');
                     e.action === 'altDownArrow' ? this.expand(td) : this.collapse(td);
                 }
                 break;
@@ -187,7 +191,7 @@ export class DetailsRow {
      * @private
      */
     protected getModuleName(): string {
-        return 'detailsRow';
+        return 'detailRow';
     }
 
 }

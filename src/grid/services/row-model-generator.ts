@@ -34,7 +34,7 @@ export class RowModelGenerator implements IModelGenerator {
         //TODO: generate dummy column for group, detail here;
         let cols: Cell[] = [];
 
-        if (this.parent.detailsTemplate || this.parent.childGrid) {
+        if (this.parent.detailTemplate || this.parent.childGrid) {
             cols.push(this.generateCell({} as Column, null, CellType.DetailExpand));
         }
 

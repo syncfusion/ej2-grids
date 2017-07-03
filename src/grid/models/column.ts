@@ -42,7 +42,7 @@ export class Column {
     public width: string | number;
 
     /**    
-     * Defines to change alignment of column in both header and content cells.    
+     * Define the alignment of column in both header and content cells.        
      * @default left  
      */
 
@@ -80,20 +80,20 @@ export class Column {
     public format: string | NumberFormatOptions | DateFormatOptions;
 
     /**    
-     * If `visible` set to false, then hide the particular column.  
+     * If `visible` set to false, then hide the particular column. By default all columns are displayed.  
      * @default true    
      */
     public visible: boolean;
 
     /**    
-     * Defines the column template as string or element selector which is used to add html element in each cells of the column.    
+     * Defines the column template as string or HTML element ID which is used to add customized element in each cells of the column.       
      * @default null    
      */
 
     public template: string;
 
     /**        
-     * Defines the column template as string or element selector which is used to add html element in the column header.    
+     * Defines the column template as string or HTML element ID which is used to add customized element in the column header.     
      * @default null    
      * @hidden  
      */
@@ -101,21 +101,25 @@ export class Column {
     public headerTemplate: string;
 
     /**    
-     * If `allowSorting` set to false, then it disables sorting of a particular column.  
+     * If `allowSorting` set to true the user can click the column header and sort the grid by the column field when sorting is enabled.
+     * If set to false, then it disables sorting of a particular column.  
+     * By default all columns are sortable. 
      * @default true    
      */
 
     public allowSorting: boolean = true;
 
     /**    
-     *  If `allowFiltering` set to false, then it disables filtering of a particular column.  
+     * If `allowFiltering` set to false, then it disables filtering option and filter bar element of a particular column. 
+     * By default all columns are filterable.      
      * @default true    
      */
 
     public allowFiltering: boolean = true;
 
     /**    
-     *  If `allowGrouping` set to false, then it disables grouping of a particular column.  
+     * If `allowGrouping` set to false, then it disables grouping of a particular column. 
+     * By default all columns are groupable.   
      * @default true   
      */
 
@@ -148,7 +152,7 @@ export class Column {
     public customAttributes: { [x: string]: Object };
 
     /**    
-     * If `displayAsCheckBox` set as true then it displays column value as check box instead of boolean values.    
+     * If `displayAsCheckBox` set as true, then it displays column value as check box instead of boolean values.    
      * @default true    
      */
 
@@ -253,7 +257,7 @@ export class Column {
     public filterBarTemplate: IFilterUI;
 
     /**    
-     * It is used to render multiple rows(stacked headers) on the Grid header.     
+     * It is used to render multiple header rows(stacked headers) on the Grid header.      
      * @default null    
      */
 
@@ -277,8 +281,8 @@ export class Column {
         this.uid = getUid('grid-column');
         let valueFormatter: ValueFormatter = new ValueFormatter();
         if (options.format && ((<DateFormatOptions>options.format).skeleton || (<DateFormatOptions>options.format).format)) {
-            this.setFormatter(valueFormatter.getFormatFunction(options.format));
-            this.setParser(valueFormatter.getParserFunction(options.format));
+            this.setFormatter(valueFormatter.getFormatFunction(options.format as DateFormatOptions));
+            this.setParser(valueFormatter.getParserFunction(options.format as DateFormatOptions));
         }
         if (!this.field) {
             this.allowFiltering = false;
@@ -335,6 +339,8 @@ export interface ColumnModel {
      * Defines the field name of column which is mapped with mapping name of DataSource.  
      * The bounded columns can be sort, filter and group etc., 
      * If the `field` name contains “dot”, then it is considered as complex binding. 
+     * The field name should be a valid JavaScript identifier and 
+     * should contain no spaces, no special characters, and the first character should be a letter. 
      * @default undefined    
      */
     field?: string;
@@ -359,7 +365,7 @@ export interface ColumnModel {
     width?: string | number;
 
     /**   
-     * Defines to change alignment of column in both header and content cells.   
+     * Define the alignment of column in both header and content cells.      
      * @default left 
      */
     textAlign?: string | TextAlign; //Should be enum
@@ -393,19 +399,19 @@ export interface ColumnModel {
     format?: string | NumberFormatOptions | DateFormatOptions;
 
     /**    
-     * If `visible` set to false, then hide the particular column.  
+     * If `visible` set to false, then hide the particular column. By default all columns are displayed.   
      * @default true    
      */
     visible?: boolean;
 
     /**    
-     * Defines the column template as string or element selector which is used to add html element in each cells of the column.    
+     * Defines the column template as string or HTML element ID which is used to add customized element in each cells of the column.     
      * @default null    
      */
     template?: string;
 
     /**        
-     * Defines the column template as string or element selector which is used to add html element in the column header.    
+     * Defines the column template as string or HTML element ID which is used to add customized element in the column header.      
      * @default null    
      * @hidden  
      */
@@ -413,19 +419,23 @@ export interface ColumnModel {
     headerTemplate?: string;
 
     /**    
-     * If `allowSorting` set to false, then it disables sorting of a particular column.  
+     * If `allowSorting` set to true the user can click the column header and sort the grid by the column field when sorting is enabled.
+     * If set to false, then it disables sorting of a particular column.  
+     * By default all columns are sortable. 
      * @default true    
      */
     allowSorting?: boolean;
 
     /**    
-     *  If `allowFiltering` set to false, then it disables filtering of a particular column.  
+     * If `allowFiltering` set to false, then it disables filtering option and filter bar element of a particular column. 
+     * By default all columns are filterable.  
      * @default true    
      */
     allowFiltering?: boolean;
 
     /**    
-     *  If `allowGrouping` set to false, then it disables grouping of a particular column.  
+     * If `allowGrouping` set to false, then it disables grouping of a particular column. 
+     * By default all columns are groupable. 
      * @default true   
      */
     allowGrouping?: boolean;
@@ -457,7 +467,7 @@ export interface ColumnModel {
     customAttributes?: { [x: string]: Object };
 
     /**    
-     * To display column value as check box instead of boolean values.    
+     * If `displayAsCheckBox` set as true, then it displays column value as check box instead of boolean values.      
      * @default true    
      */
     displayAsCheckBox?: boolean;
@@ -558,7 +568,7 @@ export interface ColumnModel {
     filterBarTemplate?: IFilterUI;
 
     /**    
-     * It is used to render multiple rows(stacked headers) on the Grid header.     
+     * It is used to render multiple header rows(stacked headers) on the Grid header.      
      * @default null    
      */
     columns?: Column[] | string[] | ColumnModel[];

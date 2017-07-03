@@ -141,6 +141,7 @@ export class Data implements IDataProcessor {
     }
 
     private destroy(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(events.rowsAdded, this.addRows);
         this.parent.off(events.rowsRemoved, this.removeRows);
         this.parent.off(events.dataSourceModified, this.initDataManager);

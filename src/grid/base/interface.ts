@@ -163,7 +163,7 @@ export interface IGrid extends Component<HTMLElement> {
     /**
      * Specifies detailTemplate     
      */
-    detailsTemplate?: string;
+    detailTemplate?: string;
 
     /**    
      * Defines the child Grid to add inside the data rows of the parent Grid with expand/collapse options.       
@@ -445,7 +445,7 @@ export interface FailureEventArgs {
 }
 
 export interface FilterEventArgs extends ActionEventArgs {
-    /** Defines the current filter object. */
+    /** Defines the current filtered object. */
     currentFilterObject?: PredicateModel;
     /** Defines the current filtered column name. */
     currentFilteringColumn?: string;
@@ -484,9 +484,9 @@ export interface PrintEventArgs extends ActionEventArgs {
     selectedRows?: NodeListOf<Element>;
 }
 
-export interface DetailsDataBoundEventArgs extends ActionEventArgs {
+export interface DetailDataBoundEventArgs extends ActionEventArgs {
     /** Defines the Details row element. */
-    detailsElement?: Element;
+    detailElement?: Element;
     /** Defines the selected row data. */
     data?: Object;
 }

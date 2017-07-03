@@ -22,7 +22,7 @@ export class ColumnWidthService {
                 this.setColumnWidth(new Column({ width: '30px' }), i);
             }
         }
-        if (this.parent.detailsTemplate || this.parent.childGrid) {
+        if (this.parent.detailTemplate || this.parent.childGrid) {
             this.setColumnWidth(new Column({ width: '30px' }), i);
         }
         (<Column[]>this.parent.getColumns()).forEach((column: Column) => {

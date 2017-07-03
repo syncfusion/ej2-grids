@@ -12,7 +12,7 @@ export class Scroll implements IAction {
     private parent: IGrid;
     private lastScrollTop: number = 0;
     //To maintain scroll state on grid actions.
-    private previousValues: { top: number, left: number } = { top: 0, left: 0};
+    private previousValues: { top: number, left: number } = { top: 0, left: 0 };
     private oneTimeReady: boolean = true;
     private content: HTMLDivElement;
     private header: HTMLDivElement;
@@ -71,7 +71,7 @@ export class Scroll implements IAction {
     }
     /**
      * Refresh makes the Grid to adopt with height of parent container. 
-     * The `height` must be set to 100%. 
+     * > The `height` must be set to 100%. 
      * @return
      */
     public refresh(): void {
@@ -106,6 +106,7 @@ export class Scroll implements IAction {
      * @hidden
      */
     public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(contentReady, this.wireEvents);
         this.parent.off(uiUpdate, this.onPropertyChanged);
     }

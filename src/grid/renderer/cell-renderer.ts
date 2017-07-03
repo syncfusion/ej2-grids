@@ -4,7 +4,7 @@ import { createElement } from '@syncfusion/ej2-base/dom';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer, IValueFormatter, ICellFormatter, ICell } from '../base/interface';
-import { doesImplementInterface, setStyleAndAttributes } from '../base/util';
+import { doesImplementInterface, setStyleAndAttributes, appendChildren } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 
 /**
@@ -103,7 +103,7 @@ export class CellRenderer implements ICellRenderer {
             innerHtml = !isNullOrUndefined(column.formatter) ? isNullOrUndefined(fromFormatter) ? '' : fromFormatter.toString() : innerHtml;
             this.appendHtml(node, innerHtml, column.getDomSetter());
         } else {
-            this.appendHtml(node, column.getColumnTemplate()(extend({ 'index': attributes[literals[0]] }, data)));
+            appendChildren(node, column.getColumnTemplate()(extend({ 'index': attributes[literals[0]] }, data)));
         }
 
         this.buildAttributeFromCell(<HTMLElement>node, cell);
@@ -134,7 +134,7 @@ export class CellRenderer implements ICellRenderer {
 
     public buildAttributeFromCell(node: HTMLElement, cell: Cell): void {
         let attr: ICell & { 'class'?: string[] } = {};
-        let prop: { 'colindex'?: string  } = { 'colindex': 'aria-colindex' };
+        let prop: { 'colindex'?: string } = { 'colindex': 'aria-colindex' };
         let classes: string[] = [];
 
         if (cell.colSpan) {

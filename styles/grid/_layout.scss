@@ -37,8 +37,8 @@
 
     &.e-default.e-verticallines,
     &.e-default.e-hidelines {
-      & .e-detailsrowcollapse,
-      & .e-detailsrowexpand {
+      & .e-detailrowcollapse,
+      & .e-detailrowexpand {
         border-top-width: 0;
       }
     }
@@ -287,8 +287,8 @@
       box-sizing: border-box;
     }
 
-    .e-detailsrowcollapse,
-    .e-detailsrowexpand {
+    .e-detailrowcollapse,
+    .e-detailrowexpand {
       border-style: $grid-border-type;
       border-width: $grid-rowcell-broder-width;
       cursor: pointer;
@@ -349,8 +349,8 @@
     &.e-verticallines,
     &.e-hidelines {
       & .e-firstchildrow .e-rowcell,
-      & .e-firstchildrow .e-detailsrowcollapse,
-      & .e-firstchildrow .e-detailsrowexpand {
+      & .e-firstchildrow .e-detailrowcollapse,
+      & .e-firstchildrow .e-detailrowexpand {
         border-top-width: 1px;
       }
     }

@@ -180,6 +180,7 @@ export class Reorder implements IAction {
      * @hidden
      */
     public destroy(): void {
+        if (this.parent.isDestroyed) { return; }
         remove(this.upArrow);
         remove(this.downArrow);
         this.parent.off(events.headerDrop, this.headerDrop);

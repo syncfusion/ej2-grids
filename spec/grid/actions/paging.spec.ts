@@ -77,7 +77,7 @@ describe('Paging module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.element.focus();
             let args: any = { action: 'pageDown', preventDefault: preventDefault };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
         });
         it('pageUp shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
@@ -86,7 +86,7 @@ describe('Paging module', () => {
             };
             gridObj.actionComplete = actionComplete;
             let args: any = { action: 'pageUp', preventDefault: preventDefault };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
         });
         it('ctrlAltPageDown shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
@@ -95,7 +95,7 @@ describe('Paging module', () => {
             };
             gridObj.actionComplete = actionComplete;
             let args: any = { action: 'ctrlAltPageDown', preventDefault: preventDefault };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
         });
         it('ctrlAltPageUp shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
@@ -104,7 +104,7 @@ describe('Paging module', () => {
             };
             gridObj.actionComplete = actionComplete;
             let args: any = { action: 'ctrlAltPageUp', preventDefault: preventDefault };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
         });
         it('altPageDown shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
@@ -113,7 +113,7 @@ describe('Paging module', () => {
             };
             gridObj.actionComplete = actionComplete;
             let args: any = { action: 'altPageDown', preventDefault: preventDefault };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
         });
         it('altPageUp shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
@@ -122,7 +122,7 @@ describe('Paging module', () => {
             };
             gridObj.actionComplete = actionComplete;
             let args: any = { action: 'altPageUp', preventDefault: preventDefault };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
         });
         it('updateExternalmessage method false testing', () => {
             gridObj.updateExternalMessage('extmsg');
@@ -243,7 +243,7 @@ describe('Paging module', () => {
             //for coverage
             gridObj.getContent().firstElementChild.scrollTop = 10;
             let args: any = { action: 'pageDown', preventDefault: () => { } };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
         });
         //set model and default properties model check
 
@@ -262,7 +262,7 @@ describe('Paging module', () => {
         let content: HTMLElement;
         let raiseEvt: Function = (code: number) => {
             let p: Object = { '34': 'pageDown', '33': 'pageUp' };
-            (<any>grid.keyBoardModule).keyAction({ action: p[code + ''], preventDefault: () => 0 });
+            (<any>grid.keyboardModule).keyAction({ action: p[code + ''], preventDefault: () => 0 });
         };
 
 

@@ -34,7 +34,7 @@ describe('ShowHide module testing', () => {
 
     let destroy: EmitType<Object> = (grid: Grid) => {
         if (grid) {
-            grid.destroy();
+            //  grid.destroy();
             document.getElementById('Grid').remove();
         }
     };

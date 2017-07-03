@@ -41,7 +41,7 @@ describe('Selection Shortcuts testing', () => {
         gridObj.element.focus();
         selectionModule = gridObj.selectionModule;
         rows = gridObj.getRows();
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         for (let i: number = 0; i <= 1; i++) {
             if (i === 1) {
                 len = 1;
@@ -57,7 +57,7 @@ describe('Selection Shortcuts testing', () => {
     it('downarrow shortcut testing', () => {
         let args: any = { action: 'downArrow', preventDefault: preventDefault };
         (gridObj.getRows()[1].querySelector('.e-rowcell') as HTMLElement).click();
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('2');
         expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect(gridObj.getSelectedRecords().length).toEqual(1);
@@ -68,7 +68,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('upArrow shortcut testing', () => {
         let args: any = { action: 'upArrow', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('1');
         expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect(selectionModule.selectedRecords.length).toEqual(1);
@@ -79,7 +79,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('rightArrow shortcut testing', () => {
         let args: any = { action: 'rightArrow', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(1);
     });
@@ -87,27 +87,27 @@ describe('Selection Shortcuts testing', () => {
     it('rightArrow shortcut next row testing', () => {
         let args: any = { action: 'rightArrow', preventDefault: preventDefault };
         selectionModule.selectCell({ rowIndex: 0, cellIndex: 4 });
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(0);
     });
 
     it('leftarrow shortcut prev row testing', () => {
         let args: any = { action: 'leftArrow', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(4);
     });
 
     it('leftarrow shortcut testing', () => {
         let args: any = { action: 'leftArrow', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(3);
     });
 
     it('home shortcut testing', () => {
         let args: any = { action: 'home', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('1');
         expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(0);
@@ -115,7 +115,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('end shortcut testing', () => {
         let args: any = { action: 'end', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('1');
         expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect((rows[7].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(4);
@@ -123,7 +123,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('ctrlHome shortcut testing', () => {
         let args: any = { action: 'ctrlHome', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('0');
         expect(rows[0].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(0);
@@ -131,7 +131,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('ctrlEnd shortcut testing', () => {
         let args: any = { action: 'ctrlEnd', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('7');
         expect(rows[7].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect((rows[7].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toEqual(4);
@@ -140,7 +140,7 @@ describe('Selection Shortcuts testing', () => {
     it('shiftUp row shortcut testing', () => {
         let args: any = { action: 'shiftUp', preventDefault: preventDefault };
         gridObj.selectRow(3);
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('2');
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[1].getAttribute('aria-rowindex')).toEqual('3');
         expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
@@ -150,8 +150,8 @@ describe('Selection Shortcuts testing', () => {
 
     it('shiftDown row shortcut testing', () => {
         let args: any = { action: 'shiftDown', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('3');
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[1].getAttribute('aria-rowindex')).toEqual('4');
         expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toEqual(false);
@@ -162,7 +162,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('shiftUp row shortcut reverse testing', () => {
         let args: any = { action: 'shiftUp', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toEqual('3');
         expect(rows[3].firstElementChild.classList.contains('e-selectionbackground')).toEqual(true);
         expect(rows[4].firstElementChild.classList.contains('e-selectionbackground')).toEqual(false);
@@ -173,15 +173,15 @@ describe('Selection Shortcuts testing', () => {
     it('shiftLeft cell shortcut testing', () => {
         let args: any = { action: 'shiftLeft', preventDefault: preventDefault };
         selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 });
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(rows[1].querySelectorAll('.e-rowcell')[1].classList.contains('e-cellselectionbackground')).toEqual(true);
         expect(rows[1].querySelectorAll('.e-rowcell')[0].classList.contains('e-cellselectionbackground')).toEqual(true);
     });
 
     it('shiftRight cell shortcut testing', () => {
         let args: any = { action: 'shiftRight', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(rows[1].querySelectorAll('.e-rowcell')[1].classList.contains('e-cellselectionbackground')).toEqual(true);
         expect(rows[1].querySelectorAll('.e-rowcell')[2].classList.contains('e-cellselectionbackground')).toEqual(true);
         expect(rows[1].querySelectorAll('.e-rowcell')[0].classList.contains('e-cellselectionbackground')).toEqual(false);
@@ -192,7 +192,7 @@ describe('Selection Shortcuts testing', () => {
         let args: any = { action: 'shiftUp', preventDefault: preventDefault };
         let st: number = 2;
         let len: number = 2;
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         for (let i: number = 0; i <= 1; i++) {
             if (i === 1) {
                 st = 0;
@@ -208,8 +208,8 @@ describe('Selection Shortcuts testing', () => {
         let args: any = { action: 'shiftDown', preventDefault: preventDefault };
         let st: number = 1;
         let len: number = 3;
-        gridObj.keyBoardModule.keyAction(args);
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         for (let i: number = 1; i <= 2; i++) {
             if (i === 2) {
                 st = 0;
@@ -224,24 +224,24 @@ describe('Selection Shortcuts testing', () => {
     it('escape shortcut testing', () => {
         let args: any = { action: 'escape', preventDefault: preventDefault };
         gridObj.selectRows([0, 1, 2]);
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.getSelectedRecords().length).toEqual(0);
         expect(gridObj.getSelectedRowIndexes().length).toEqual(0);
     });
 
     it('ctrl + A shortcut testing', () => {
         let args: any = { action: 'ctrlPlusA', preventDefault: preventDefault };
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toEqual(gridObj.element.querySelectorAll('.e-rowcell').length);
         expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toEqual(gridObj.element.querySelectorAll('.e-rowcell').length);
         //for coverage
         gridObj.selectionSettings.mode = 'cell';
         gridObj.dataBind();
         (<any>gridObj.selectionModule).applyShiftLeftRightKey(1, false);
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         gridObj.selectionSettings.mode = 'row';
         gridObj.dataBind();
-        gridObj.keyBoardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(args);
         (<any>gridObj.selectionModule).applyShiftLeftRightKey(1, false);
         gridObj.selectionSettings.mode = 'both';
         gridObj.dataBind();
@@ -857,7 +857,7 @@ describe('Grid Selection module', () => {
         it('keydown selection false testing', () => {
             let preventDefault: Function = new Function();
             let args: any = { action: 'downArrow', preventDefault: preventDefault };
-            gridObj.keyBoardModule.keyAction(args);
+            gridObj.keyboardModule.keyAction(args);
             expect(gridObj.element.querySelectorAll('.e-row')[0].hasAttribute('aria-selected')).toEqual(false);
 
             //for coverage

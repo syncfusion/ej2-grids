@@ -241,6 +241,7 @@ export class Sort implements IAction {
      * @hidden
      */
     public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(events.sortComplete, this.onActionComplete);
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
         this.parent.off(events.click, this.clickHandler);
@@ -357,7 +358,7 @@ export class Sort implements IAction {
                 return this.sortSettings.columns[i];
             }
         }
-        return false;
+        return false as SortDescriptorModel;
     }
 
     private updateAriaAttr(): void {

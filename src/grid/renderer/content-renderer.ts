@@ -24,6 +24,21 @@ export class ContentRender implements IRenderer {
     private rows: Row[] = [];
     private rowElements: Element[];
     private colgroup: Element;
+    private drop: Function = (e: DropEventArgs) => {
+        this.parent.notify(events.columnDrop, { target: e.target, droppedElement: e.droppedElement });
+        remove(e.droppedElement);
+    }
+    private args: NotifyArgs;
+    private rafCallback: Function = () => {
+        this.ariaService.setBusy(<HTMLElement>this.getPanel().firstChild, false);
+        if (this.parent.isDestroyed) { return; }
+        this.parent.notify(events.contentReady, {});
+        this.parent.trigger(events.dataBound, {});
+        if (this.args) {
+            let action: string = (this.args.requestType || '').toLowerCase() + '-complete';
+            this.parent.notify(action, this.args);
+        }
+    }
     //Module declarations
     private parent: IGrid;
     private serviceLocator: ServiceLocator;
@@ -107,10 +122,7 @@ export class ContentRender implements IRenderer {
             if (!gObj.rowTemplate) {
                 tr = row.render(modelData[i], columns);
             } else {
-                let elem: Element = createElement('div', {
-                    innerHTML: '<table><tbody>' + gObj.getRowTemplate()(extend({ index: i }, dataSource[i])) + '</tbody></table>'
-                });
-                tr = elem.querySelector('tbody').firstElementChild;
+                tr = gObj.getRowTemplate()(extend({ index: i }, dataSource[i]))[0].children[0];
             }
             frag.appendChild(tr);
             this.rows.push(modelData[i]);
@@ -124,6 +136,7 @@ export class ContentRender implements IRenderer {
             }
             this.ariaService.setOptions(this.getTable() as HTMLElement, { colcount: gObj.getColumns().length.toString() });
         }
+        this.args = args;
         getUpdateUsingRaf<HTMLElement>(
             () => {
                 remove(tbody);
@@ -131,17 +144,9 @@ export class ContentRender implements IRenderer {
                 tbody.appendChild(frag);
                 this.getTable().appendChild(tbody);
             },
-            () => {
-                this.ariaService.setBusy(<HTMLElement>this.getPanel().firstChild, false);
-                if (this.parent.isDestroyed) { return; }
-                this.parent.notify(events.contentReady, {});
-                this.parent.trigger(events.dataBound, {});
-                if (args) {
-                    let action: string = (args.requestType || '').toLowerCase() + '-complete';
-                    this.parent.notify(action, args);
-                }
-            });
+            this.rafCallback);
     }
+
 
     /**
      * Get the content div element of grid
@@ -257,10 +262,7 @@ export class ContentRender implements IRenderer {
         let gObj: IGrid = this.parent;
         let drop: Droppable = new Droppable(gObj.getContent() as HTMLElement, {
             accept: '.e-dragclone',
-            drop: (e: DropEventArgs) => {
-                gObj.notify(events.columnDrop, { target: e.target, droppedElement: e.droppedElement });
-                remove(e.droppedElement);
-            }
+            drop: this.drop as (e: DropEventArgs) => void
         });
     }
 

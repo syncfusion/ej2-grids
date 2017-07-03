@@ -99,9 +99,9 @@ export function prepareColumns(columns: Column[] | string[] | ColumnModel[]): Co
             column = new Column({ field: <string>columns[c] });
         } else if (!(columns[c] instanceof Column)) {
             if (!(columns[c] as Column).columns) {
-                column = new Column(columns[c]);
+                column = new Column(columns[c] as Column);
             } else {
-                column = new Column(columns[c]);
+                column = new Column(columns[c] as Column);
                 (columns[c] as Column).columns = prepareColumns((columns[c] as Column).columns);
             }
         } else {
@@ -232,6 +232,14 @@ let uid: number = 0;
 /** @hidden */
 export function getUid(prefix: string): string {
     return prefix + uid++;
+}
+
+/** @hidden */
+export function appendChildren(elem: Element, children: Element[]): Element {
+    for (let i: number = 0, len: number = children.length; i < len; i++) {
+        elem.appendChild(children[0]);
+    }
+    return elem;
 }
 
 /** @hidden */

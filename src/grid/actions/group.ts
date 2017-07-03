@@ -19,6 +19,60 @@ export class Group implements IAction {
     private groupSettings: GroupSettingsModel;
     private element: HTMLElement;
     private colName: string;
+    private column: Column;
+    private visualElement: HTMLElement = createElement('div', {
+        className: 'e-cloneproperties e-dragclone e-gdclone',
+        styles: 'line-height:23px', attrs: { action: 'grouping' }
+    });
+    private helper: Function = (e: { sender: MouseEvent }) => {
+        let gObj: IGrid = this.parent;
+        let target: Element = (e.sender.target as Element);
+        let element: HTMLElement = target.classList.contains('e-groupheadercell') ? target as HTMLElement :
+            parentsUntil(target, 'e-groupheadercell') as HTMLElement;
+        if (!element) {
+            return false;
+        }
+        this.column = gObj.getColumnByField(element.firstElementChild.getAttribute('ej-mappingname'));
+        this.visualElement.textContent = element.textContent;
+        this.visualElement.style.width = element.offsetWidth + 2 + 'px';
+        this.visualElement.style.height = element.offsetHeight + 2 + 'px';
+        this.visualElement.setAttribute('e-mappinguid', this.column.uid);
+        gObj.element.appendChild(this.visualElement);
+        return this.visualElement;
+    }
+    private dragStart: Function = (): void => {
+        this.parent.element.classList.add('e-ungroupdrag');
+    }
+    private drag: Function = (e: { target: HTMLElement, event: MouseEventArgs }): void => {
+        let target: Element = e.target;
+        let cloneElement: HTMLElement = this.parent.element.querySelector('.e-cloneproperties') as HTMLElement;
+        this.parent.trigger(events.columnDrag, { target: target, draggableType: 'headercell', column: this.column });
+        classList(cloneElement, ['e-defaultcur'], ['e-notallowedcur']);
+        if (!(parentsUntil(target as Element, 'e-gridcontent') || parentsUntil(target as Element, 'e-headercell'))) {
+            classList(cloneElement, ['e-notallowedcur'], ['e-defaultcur']);
+        }
+    }
+    private dragStop: Function = (e: { target: HTMLElement, event: MouseEventArgs, helper: Element }) => {
+        this.parent.element.classList.remove('e-ungroupdrag');
+        if (!(parentsUntil(e.target, 'e-gridcontent') || parentsUntil(e.target, 'e-gridheader'))) {
+            remove(e.helper);
+            return;
+        }
+    }
+    private drop: Function = (e: DropEventArgs) => {
+        let gObj: IGrid = this.parent;
+        let column: Column = gObj.getColumnByUid(e.droppedElement.getAttribute('e-mappinguid'));
+        this.element.classList.remove('e-hover');
+        remove(e.droppedElement);
+        this.aria.setDropTarget(<HTMLElement>this.parent.element.querySelector('.e-groupdroparea'), false);
+        this.aria.setGrabbed(<HTMLElement>this.parent.getHeaderTable().querySelector('[aria-grabbed=true]'), false);
+        if (isNullOrUndefined(column) || column.allowGrouping === false ||
+            parentsUntil(gObj.getColumnHeaderByUid(column.uid), 'e-grid').getAttribute('id') !==
+            gObj.element.getAttribute('id')) {
+            return;
+        }
+        this.groupColumn(column.field);
+    }
     //Module declarations
     private parent: IGrid;
     private serviceLocator: ServiceLocator;
@@ -39,7 +93,7 @@ export class Group implements IAction {
         this.addEventListener();
     }
 
-    private drag(e: { target: Element }): void {
+    private columnDrag(e: { target: Element }): void {
         let gObj: IGrid = this.parent;
         let cloneElement: HTMLElement = this.parent.element.querySelector('.e-cloneproperties') as HTMLElement;
         classList(cloneElement, ['e-defaultcur'], ['e-notallowedcur']);
@@ -50,7 +104,7 @@ export class Group implements IAction {
         e.target.classList.contains('e-groupdroparea') ? this.element.classList.add('e-hover') : this.element.classList.remove('e-hover');
     }
 
-    private dragStart(e: { target: Element, column: Column }): void {
+    private columnDragStart(e: { target: Element, column: Column }): void {
         if (e.target.classList.contains('e-stackedheadercell')) {
             return;
         }
@@ -84,8 +138,8 @@ export class Group implements IAction {
         this.parent.on(events.ungroupComplete, this.onActionComplete, this);
         this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
         this.parent.on(events.click, this.clickHandler, this);
-        this.parent.on(events.columnDrag, this.drag, this);
-        this.parent.on(events.columnDragStart, this.dragStart, this);
+        this.parent.on(events.columnDrag, this.columnDrag, this);
+        this.parent.on(events.columnDragStart, this.columnDragStart, this);
         this.parent.on(events.columnDrop, this.columnDrop, this);
         this.parent.on(events.headerRefreshed, this.refreshSortIcons, this);
         this.parent.on(events.sortComplete, this.refreshSortIcons, this);
@@ -98,14 +152,15 @@ export class Group implements IAction {
      * @hidden
      */
     public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(events.initialEnd, this.render);
         this.parent.off(events.uiUpdate, this.enableAfterRender);
         this.parent.off(events.groupComplete, this.onActionComplete);
         this.parent.off(events.ungroupComplete, this.onActionComplete);
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
         this.parent.off(events.click, this.clickHandler);
-        this.parent.off(events.columnDrag, this.drag);
-        this.parent.off(events.columnDragStart, this.dragStart);
+        this.parent.off(events.columnDrag, this.columnDrag);
+        this.parent.off(events.columnDragStart, this.columnDragStart);
         this.parent.off(events.columnDrop, this.columnDrop);
         this.parent.off(events.headerRefreshed, this.refreshSortIcons);
         this.parent.off(events.sortComplete, this.refreshSortIcons);
@@ -243,7 +298,7 @@ export class Group implements IAction {
                                 toExpand.push(expandElem);
                             }
                             if (rows[i].classList.contains('e-detailrow')) {
-                                if (rows[i - 1].querySelectorAll('.e-detailsrowcollapse').length) {
+                                if (rows[i - 1].querySelectorAll('.e-detailrowcollapse').length) {
                                     rows[i].style.display = 'none';
                                 }
                             }
@@ -338,49 +393,13 @@ export class Group implements IAction {
     }
 
     private initializeGHeaderDrag(): void {
-        let gObj: IGrid = this.parent;
-        let column: Column;
-        let visualElement: HTMLElement = createElement('div', {
-            className: 'e-cloneproperties e-dragclone e-gdclone',
-            styles: 'line-height:23px', attrs: { action: 'grouping' }
-        });
         let drag: Draggable = new Draggable(this.element as HTMLElement, {
             dragTarget: '.e-groupheadercell',
             distance: 5,
-            helper: (e: { sender: MouseEvent }) => {
-                let target: Element = (e.sender.target as Element);
-                let element: HTMLElement = target.classList.contains('e-groupheadercell') ? target as HTMLElement :
-                    parentsUntil(target, 'e-groupheadercell') as HTMLElement;
-                if (!element) {
-                    return false;
-                }
-                column = gObj.getColumnByField(element.firstElementChild.getAttribute('ej-mappingname'));
-                visualElement.textContent = element.textContent;
-                visualElement.style.width = element.offsetWidth + 2 + 'px';
-                visualElement.style.height = element.offsetHeight + 2 + 'px';
-                visualElement.setAttribute('e-mappinguid', column.uid);
-                gObj.element.appendChild(visualElement);
-                return visualElement;
-            },
-            dragStart: (): void => {
-                gObj.element.classList.add('e-ungroupdrag');
-            },
-            drag: (e: { target: HTMLElement, event: MouseEventArgs }): void => {
-                let target: Element = e.target;
-                let cloneElement: HTMLElement = this.parent.element.querySelector('.e-cloneproperties') as HTMLElement;
-                gObj.trigger(events.columnDrag, { target: target, draggableType: 'headercell', column: column });
-                classList(cloneElement, ['e-defaultcur'], ['e-notallowedcur']);
-                if (!(parentsUntil(target as Element, 'e-gridcontent') || parentsUntil(target as Element, 'e-headercell'))) {
-                    classList(cloneElement, ['e-notallowedcur'], ['e-defaultcur']);
-                }
-            },
-            dragStop: (e: { target: HTMLElement, event: MouseEventArgs, helper: Element }) => {
-                gObj.element.classList.remove('e-ungroupdrag');
-                if (!(parentsUntil(e.target, 'e-gridcontent') || parentsUntil(e.target, 'e-gridheader'))) {
-                    remove(e.helper);
-                    return;
-                }
-            }
+            helper: this.helper,
+            dragStart: this.dragStart,
+            drag: this.drag,
+            dragStop: this.dragStop
         });
     }
 
@@ -396,19 +415,7 @@ export class Group implements IAction {
         let gObj: IGrid = this.parent;
         let drop: Droppable = new Droppable(this.element, {
             accept: '.e-dragclone',
-            drop: (e: DropEventArgs) => {
-                let column: Column = gObj.getColumnByUid(e.droppedElement.getAttribute('e-mappinguid'));
-                this.element.classList.remove('e-hover');
-                remove(e.droppedElement);
-                this.aria.setDropTarget(<HTMLElement>this.parent.element.querySelector('.e-groupdroparea'), false);
-                this.aria.setGrabbed(<HTMLElement>this.parent.getHeaderTable().querySelector('[aria-grabbed=true]'), false);
-                if (isNullOrUndefined(column) || column.allowGrouping === false ||
-                    parentsUntil(gObj.getColumnHeaderByUid(column.uid), 'e-grid').getAttribute('id') !==
-                    gObj.element.getAttribute('id')) {
-                    return;
-                }
-                this.groupColumn(column.field);
-            }
+            drop: this.drop as (e: DropEventArgs) => void
         });
     }
 

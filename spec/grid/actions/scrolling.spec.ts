@@ -41,7 +41,7 @@ describe('Scrolling module', () => {
 
     let destroy: Function = (grid: Grid) => {
         if (grid) {
-            grid.destroy();
+            // grid.destroy();
             remove(grid.element);
         }
     };

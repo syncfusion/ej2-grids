@@ -24,6 +24,79 @@ export class HeaderRender implements IRenderer {
     private headerPanel: Element;
     private colgroup: Element;
     private colDepth: number;
+    private column: Column;
+    private helper: Function = (e: { sender: MouseEvent }) => {
+        let gObj: IGrid = this.parent;
+        if (!(gObj.allowReordering || gObj.allowGrouping)) {
+            return false;
+        }
+        let visualElement: HTMLElement = createElement('div', { className: 'e-cloneproperties e-dragclone e-headerclone' });
+        let target: Element = (e.sender.target as Element);
+        let element: HTMLElement = target.classList.contains('e-headercell') ? target as HTMLElement :
+            parentsUntil(target, 'e-headercell') as HTMLElement;
+        if (!element) {
+            return false;
+        }
+        let height: number = element.offsetHeight;
+        let headercelldiv: Element = element.querySelector('.e-headercelldiv');
+        visualElement.textContent = headercelldiv ?
+            gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid')).headerText : element.innerHTML;
+        visualElement.style.width = element.offsetWidth + 'px';
+        visualElement.style.height = element.offsetHeight + 'px';
+        visualElement.style.lineHeight = (height - 6).toString() + 'px';
+        if (element.querySelector('.e-headercelldiv')) {
+            this.column = gObj.getColumnByUid(element.querySelector('.e-headercelldiv').getAttribute('e-mappinguid'));
+            visualElement.setAttribute('e-mappinguid', this.column.uid);
+        }
+        gObj.element.appendChild(visualElement);
+        return visualElement;
+    }
+    private dragStart: Function = (e: { target: HTMLElement, event: MouseEventArgs }) => {
+        let gObj: IGrid = this.parent;
+        (gObj.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
+        gObj.notify(events.columnDragStart, { target: e.target, column: this.column, event: e.event });
+    }
+    private drag: Function = (e: { target: HTMLElement, event: MouseEventArgs }): void => {
+        let gObj: IGrid = this.parent;
+        let target: Element = e.target;
+        if (target) {
+            let closest: Element = getClosest(target, '.e-grid');
+            let cloneElement: HTMLElement = this.parent.element.querySelector('.e-cloneproperties') as HTMLElement;
+            if (!closest || closest.getAttribute('id') !== gObj.element.getAttribute('id')) {
+                classList(cloneElement, ['e-notallowedcur'], ['e-defaultcur']);
+                if (gObj.allowReordering) {
+                    (gObj.element.querySelector('.e-reorderuparrow') as HTMLElement).style.display = 'none';
+                    (gObj.element.querySelector('.e-reorderdownarrow') as HTMLElement).style.display = 'none';
+                }
+                return;
+            }
+            gObj.notify(events.columnDrag, { target: e.target, column: this.column, event: e.event });
+        }
+    }
+    private dragStop: Function = (e: { target: HTMLElement, event: MouseEventArgs, helper: Element }) => {
+        let gObj: IGrid = this.parent;
+        let cancel: boolean;
+        (gObj.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
+        if ((!parentsUntil(e.target, 'e-headercell') && !parentsUntil(e.target, 'e-groupdroparea')) ||
+            (!gObj.allowReordering && parentsUntil(e.target, 'e-headercell')) ||
+            (!e.helper.getAttribute('e-mappinguid') && parentsUntil(e.target, 'e-groupdroparea'))) {
+            remove(e.helper);
+            cancel = true;
+        }
+        gObj.notify(events.columnDragStop, { target: e.target, event: e.event, column: this.column, cancel: cancel });
+    }
+    private drop: Function = (e: DropEventArgs) => {
+        let gObj: IGrid = this.parent;
+        let uid: string = e.droppedElement.getAttribute('e-mappinguid');
+        let closest: Element = getClosest(e.target, '.e-grid');
+        remove(e.droppedElement);
+        if (closest && closest.getAttribute('id') !== gObj.element.getAttribute('id') ||
+            !(gObj.allowReordering || gObj.allowGrouping)) {
+            return;
+        }
+        gObj.notify(events.headerDrop, { target: e.target, uid: uid });
+
+    }
 
     //Module declarations
     private parent: IGrid;
@@ -182,7 +255,7 @@ export class HeaderRender implements IRenderer {
                 colGroup.appendChild(col);
             }
         }
-        if (this.parent.detailsTemplate || this.parent.childGrid) {
+        if (this.parent.detailTemplate || this.parent.childGrid) {
             col = createElement('col');
             colGroup.appendChild(col);
         }
@@ -206,7 +279,7 @@ export class HeaderRender implements IRenderer {
                     rows[i].cells.push(this.generateCell({} as Column, CellType.HeaderIndent));
                 }
             }
-            if (gObj.detailsTemplate || gObj.childGrid) {
+            if (gObj.detailTemplate || gObj.childGrid) {
                 rows[i].cells.push(this.generateCell({} as Column, CellType.DetailHeader));
             }
         }
@@ -347,7 +420,6 @@ export class HeaderRender implements IRenderer {
 
     private initializeHeaderDrag(): void {
         let gObj: IGrid = this.parent;
-        let column: Column;
         if (!(this.parent.allowReordering || this.parent.allowGrouping)) {
             return;
         }
@@ -356,62 +428,10 @@ export class HeaderRender implements IRenderer {
             let drag: Draggable = new Draggable(headerRows[i] as HTMLElement, {
                 dragTarget: '.e-headercell',
                 distance: 5,
-                helper: (e: { sender: MouseEvent }) => {
-                    if (!(gObj.allowReordering || gObj.allowGrouping)) {
-                        return false;
-                    }
-                    let visualElement: HTMLElement = createElement('div', { className: 'e-cloneproperties e-dragclone e-headerclone' });
-                    let target: Element = (e.sender.target as Element);
-                    let element: HTMLElement = target.classList.contains('e-headercell') ? target as HTMLElement :
-                        parentsUntil(target, 'e-headercell') as HTMLElement;
-                    if (!element) {
-                        return false;
-                    }
-                    let height: number = element.offsetHeight;
-                    let headercelldiv: Element = element.querySelector('.e-headercelldiv');
-                    visualElement.textContent = headercelldiv ?
-                        gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid')).headerText : element.innerHTML;
-                    visualElement.style.width = element.offsetWidth + 'px';
-                    visualElement.style.height = element.offsetHeight + 'px';
-                    visualElement.style.lineHeight = (height - 6).toString() + 'px';
-                    if (element.querySelector('.e-headercelldiv')) {
-                        column = gObj.getColumnByUid(element.querySelector('.e-headercelldiv').getAttribute('e-mappinguid'));
-                        visualElement.setAttribute('e-mappinguid', column.uid);
-                    }
-                    gObj.element.appendChild(visualElement);
-                    return visualElement;
-                },
-                dragStart: (e: { target: HTMLElement, event: MouseEventArgs }) => {
-                    (gObj.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
-                    gObj.notify(events.columnDragStart, { target: e.target, column: column, event: e.event });
-                },
-                drag: (e: { target: HTMLElement, event: MouseEventArgs }): void => {
-                    let target: Element = e.target;
-                    if (target) {
-                        let closest: Element = getClosest(target, '.e-grid');
-                        let cloneElement: HTMLElement = this.parent.element.querySelector('.e-cloneproperties') as HTMLElement;
-                        if (!closest || closest.getAttribute('id') !== gObj.element.getAttribute('id')) {
-                            classList(cloneElement, ['e-notallowedcur'], ['e-defaultcur']);
-                            if (gObj.allowReordering) {
-                                (gObj.element.querySelector('.e-reorderuparrow') as HTMLElement).style.display = 'none';
-                                (gObj.element.querySelector('.e-reorderdownarrow') as HTMLElement).style.display = 'none';
-                            }
-                            return;
-                        }
-                        gObj.notify(events.columnDrag, { target: e.target, column: column, event: e.event });
-                    }
-                },
-                dragStop: (e: { target: HTMLElement, event: MouseEventArgs, helper: Element }) => {
-                    let cancel: boolean;
-                    (gObj.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
-                    if ((!parentsUntil(e.target, 'e-headercell') && !parentsUntil(e.target, 'e-groupdroparea')) ||
-                        (!gObj.allowReordering && parentsUntil(e.target, 'e-headercell')) ||
-                        (!e.helper.getAttribute('e-mappinguid') && parentsUntil(e.target, 'e-groupdroparea'))) {
-                        remove(e.helper);
-                        cancel = true;
-                    }
-                    gObj.notify(events.columnDragStop, { target: e.target, event: e.event, column: column, cancel: cancel });
-                }
+                helper: this.helper,
+                dragStart: this.dragStart,
+                drag: this.drag,
+                dragStop: this.dragStop
             });
         }
     }
@@ -420,16 +440,7 @@ export class HeaderRender implements IRenderer {
         let gObj: IGrid = this.parent;
         let drop: Droppable = new Droppable(gObj.getHeaderContent() as HTMLElement, {
             accept: '.e-dragclone',
-            drop: (e: DropEventArgs) => {
-                let uid: string = e.droppedElement.getAttribute('e-mappinguid');
-                let closest: Element = getClosest(e.target, '.e-grid');
-                remove(e.droppedElement);
-                if (closest && closest.getAttribute('id') !== gObj.element.getAttribute('id') ||
-                    !(gObj.allowReordering || gObj.allowGrouping)) {
-                    return;
-                }
-                gObj.notify(events.headerDrop, { target: e.target, uid: uid });
-            }
+            drop: this.drop as (e: DropEventArgs) => void
         });
     }
 

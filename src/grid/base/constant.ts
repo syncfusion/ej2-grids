@@ -49,7 +49,7 @@ export const beforePrint: string = 'beforePrint';
 /** @hidden */
 export const printComplete: string = 'printComplete';
 /** @hidden */
-export const detailsDataBound: string = 'detailsDataBound';
+export const detailDataBound: string = 'detailDataBound';
 
 /**
  * Specifies grid internal events

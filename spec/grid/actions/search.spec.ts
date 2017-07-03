@@ -93,6 +93,10 @@ describe('Search module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
+            gridObj.isDestroyed = true;
+            (<any>gridObj.searchModule).addEventListener();
+            (<any>gridObj.searchModule).removeEventListener();
+            gridObj.isDestroyed = false;
             gridObj.searchModule.search('TOMSP');
             (<any>gridObj.searchModule).onPropertyChanged({ module: 'search', properties: {} });
         });

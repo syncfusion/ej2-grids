@@ -114,7 +114,7 @@ export class Filter implements IAction {
                 cells.push(this.generateCell({} as Column, CellType.HeaderIndent));
             }
         }
-        if (this.parent.detailsTemplate || this.parent.childGrid) {
+        if (this.parent.detailTemplate || this.parent.childGrid) {
             cells.push(this.generateCell({} as Column, CellType.DetailHeader));
         }
         for (let dummy of this.parent.getColumns() as Column[]) {
@@ -231,6 +231,7 @@ export class Filter implements IAction {
      * @hidden
      */
     public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(events.uiUpdate, this.enableAfterRender);
         this.parent.off(events.filterComplete, this.onActionComplete);
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);

@@ -8,7 +8,7 @@ import { CellRenderer } from './cell-renderer';
  */
 export class DetailExpandCellRenderer extends CellRenderer implements ICellRenderer {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-detailsrowcollapse', attrs: { 'aria-expanded': 'false' } });
+    public element: HTMLElement = createElement('TD', { className: 'e-detailrowcollapse', attrs: { 'aria-expanded': 'false' } });
 
     /**
      * Function to render the detail expand cell           

@@ -11,7 +11,7 @@ import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventA
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
-import { DetailsDataBoundEventArgs } from './interface';
+import { DetailDataBoundEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
@@ -38,7 +38,7 @@ import { ShowHide } from '../actions/show-hide';
 import { Scroll } from '../actions/scroll';
 import { Group } from '../actions/group';
 import { Print } from '../actions/print';
-import { DetailsRow } from '../actions/details-row';
+import { DetailRow } from '../actions/detail-row';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -186,8 +186,7 @@ export class FilterSettings extends ChildProperty<FilterSettings> {
 
     /**  
      * @hidden 
-     * Defines options for filtering type. The available options are 
-     * * menu - Specifies the filter type as menu. 
+     * Defines options for filtering type. The available options are      
      * * excel - Specifies the filter type as excel. 
      * * filterbar - Specifies the filter type as filterbar.  
      * @default filterbar 
@@ -243,7 +242,7 @@ export class SelectionSettings extends ChildProperty<SelectionSettings> {
 
     /**  
      * Defines options for selection type. They are 
-     * * single - Allows user to select a row or cell. 
+     * * single - Allows user to select only a row or cell. 
      * * multiple - Allows user to select multiple rows or cells. 
      * @default single 
      */
@@ -262,7 +261,7 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
     public fields: string[];
 
     /**    
-     * Specifies the key value to search Grid records. 
+     * Specifies the key value to search Grid records at initial rendering.  
      * Also user can get current search key.
      */
     @Property('')
@@ -333,7 +332,7 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
     public showDropArea: boolean;
 
     /**   
-     * If `showToggleButton` set to true, then the group toggle button will be showed which can be used to group
+     * If `showToggleButton` set to true, then the toggle button will be showed in the column headers which can be used to group
      * or ungroup columns by clicking them.
      * @default false   
      */
@@ -382,7 +381,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private isInitial: boolean = true;
     private columnModel: Column[];
     private rowTemplateFn: Function;
-    private detailsTemplateFn: Function;
+    private detailTemplateFn: Function;
     private sortedColumns: string[] = [];
     /** @hidden */
     public recordsCount: number;
@@ -467,9 +466,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public ariaService: AriaService;
     /**
-     * `keyBoardModule` is used to manipulate keyboard interactions in the Grid.
+     * `keyboardModule` is used to manipulate keyboard interactions in the Grid.
      */
-    public keyBoardModule: KeyboardEvents;
+    public keyboardModule: KeyboardEvents;
     /**
      * @hidden
      */
@@ -521,10 +520,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public printModule: Print;
 
     /**
-     * `detailsRowModule` is used to handle detail rows rendering in the Grid.
+     * `detailRowModule` is used to handle detail rows rendering in the Grid.
      * @hidden
      */
-    public detailsRowModule: DetailsRow;
+    public detailRowModule: DetailRow;
 
 
     //Grid Options    
@@ -610,7 +609,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public allowSelection: boolean;
 
     /**    
-     * Sets a row selection by Index.
+     * `selectedRowIndex` allows the user to select a row at initial rendering. 
+     * Also, user can get the current selected row index.
      * @default -1        
      */
     @Property()
@@ -624,7 +624,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public selectionSettings: SelectionSettingsModel;
 
     /**    
-     * If `allowFiltering` set to true, then it will allow the user to filter grid records with required criteria.    
+     * If `allowFiltering` set to true the filter bar will be displayed. 
+     * If set to false the filter bar will not be displayed. 
+     * Filter bar allows the user to filter grid records with required criteria.        
      * @default false    
      */
     @Property(false)
@@ -632,7 +634,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**    
      * If `allowReordering` set to true, then the Grid columns can be reordered. 
-     * Reordering can be done by drag and drop the particular column from one index to another index.  
+     * Reordering can be done by drag and drop the particular column from one index to another index.
+     * > If Grid rendered with Multi-level headers, then reordering allows only in same level.  
      * @default false    
      */
     @Property(false)
@@ -701,17 +704,61 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public gridLines: GridLine;
 
     /**    
-     * Defines the row template as string or element selector which is used to render rows as template. <br>
+     * The Row template which renders customized rows from given template. 
+     * By default, Grid renders a table row for every data source item.
+     * > It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.   
      * > The row template must be a table row.  
      */
     @Property()
     public rowTemplate: string;
 
     /**    
-     * Defines the detail template as string or element selector which is used to render details row as template.       
+     * The Detail Template allows user to show or hide additional information about a particular row. 
+     * > It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.
+     * ```html 
+     * <script id='detailTemplate'>
+     *    <table width="100%" >
+     *        <tbody>
+     *            <tr>
+     *                <td>
+     *                    <span style="font-weight: 500;">First Name: </span> ${FirstName}
+     *                </td>
+     *                <td>
+     *                    <span style="font-weight: 500;">Postal Code: </span> ${PostalCode}
+     *                </td>
+     *            </tr>
+     *            <tr>                  
+     *                <td>
+     *                    <span style="font-weight: 500;">Last Name: </span> ${LastName}
+     *                </td>
+     *                <td>
+     *                    <span style="font-weight: 500;">City: </span> ${City}
+     *                </td>
+     *            </tr>
+     *        </tbody>
+     *    </table>
+     *  </script>  
+     * 
+     * <div id="Grid"></div>  
+     * ``` 
+     * 
+     * ```typescript   
+     * let grid: Grid = new Grid({
+     *  dataSource: employeeData,
+     *  detailTemplate: '#detailTemplate',
+     *  columns: [
+     *   { field: 'FirstName', headerText: 'First Name', width: 110 },
+     *   { field: 'LastName', headerText: 'Last Name', width: 110 },
+     *   { field: 'Title', headerText: 'Title', width: 150 },
+     *   { field: 'Country', headerText: 'Country', width: 110 }
+     *  ],
+     *  height: 315
+     * });
+     * grid.appendTo('#Grid');
+     * ```               
      */
     @Property()
-    public detailsTemplate: string;
+    public detailTemplate: string;
 
     /**    
      * Defines Grid options to render child Grid. It requires the `queryString` for parent and child relationship.        
@@ -755,14 +802,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public query: Query;
 
     /** 
-     * Triggers when Grid is created.
+     * Triggers when the widget is created.
      * @event 
      */
     @Event()
     public created: EmitType<Object>;
 
     /** 
-     * Triggers when Grid is destroyed. 
+     * Triggers when the widget is destroyed. 
      * @event 
      */
     @Event()
@@ -776,7 +823,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public load: EmitType<Object>;
     /** 
      * Triggered every time a request is made to access row information, element and data. 
-     * This will be triggered before the row element is appended to the document.
+     * This will be triggered before the row element is appended to the Grid element.
      * @event 
      */
     @Event()
@@ -784,7 +831,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /** 
      * Triggered every time a request is made to access cell information, element and data.
-     * This will be triggered before the cell element is appended to the document.
+     * This will be triggered before the cell element is appended to the Grid element.
      * @event 
      */
     @Event()
@@ -832,7 +879,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public rowSelected: EmitType<RowSelectEventArgs>;
 
     /** 
-     * Trigger before any particular selected row is deselecting.
+     * Triggers before any particular selected row is deselecting.
      * @event 
      */
     @Event()
@@ -860,7 +907,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public cellSelected: EmitType<CellSelectEventArgs>;
 
     /** 
-     * Trigger before any particular selected cell is deselecting.
+     * Triggers before any particular selected cell is deselecting.
      * @event 
      */
     @Event()
@@ -874,7 +921,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public cellDeselected: EmitType<CellDeselectEventArgs>;
 
     /**  
-     * Triggers when a column header element is dragged. 
+     * Triggers when a column header element is drag(move) started. 
      * @event  
      */
     @Event()
@@ -909,15 +956,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforePrint: EmitType<PrintEventArgs>;
 
     /** 
-     * Triggers after details row expanded.
+     * Triggers after detail row expanded.
      * > This event triggers at initial expand. 
      * @event 
      */
     @Event()
-    public detailsDataBound: EmitType<DetailsDataBoundEventArgs>;
+    public detailDataBound: EmitType<DetailDataBoundEventArgs>;
 
     /**  
-     * Triggers when row elements is dragged. 
+     * Triggers when row elements is drag(move) started. 
      * @event  
      */
     @Event()
@@ -958,7 +1005,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'enableAltRow', 'enableHover', 'allowTextWrap', 'searchSettings', 'selectedRowIndex', 'allowReordering',
             'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
             'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
-            'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailsDataBound', 'detailsTemplate',
+            'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound', 'detailTemplate',
             'childGrid', 'queryString'];
         return this.addOnPersist(keyEntity);
     }
@@ -1014,7 +1061,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         }
         if (this.isDetail()) {
             modules.push({
-                member: 'detailsRow',
+                member: 'detailRow',
                 args: [this]
             });
         }
@@ -1061,7 +1108,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * To destroy the Grid widget.
+     * Prepares the widget for safe removal from DOM. 
+     * Detaches all event handlers, attributes, and classes to avoid memory leaks. 
+     * > This method does not remove the widget element from DOM.
      * @method destroy
      * @return {void}
      */
@@ -1077,7 +1126,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private destroyDependentModules(): void {
         this.scrollModule.destroy();
-        this.keyBoardModule.destroy();
+        this.keyboardModule.destroy();
     }
 
     /**
@@ -1160,8 +1209,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.rowTemplateFn = this.templateComplier(this.rowTemplate);
                     requireRefresh = true;
                     break;
-                case 'detailsTemplate':
-                    this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
+                case 'detailTemplate':
+                    this.detailTemplateFn = this.templateComplier(this.detailTemplate);
                     requireRefresh = true;
                     break;
                 case 'allowGrouping':
@@ -1510,7 +1559,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             index++;
         }
         /**
-         * TODO: index normalization based on the stacked header, grouping and detailstemplate 
+         * TODO: index normalization based on the stacked header, grouping and detailTemplate 
          * and frozen should be handled here 
          */
         return index;
@@ -1547,7 +1596,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Function}
      */
     public getDetailTemplate(): Function {
-        return this.detailsTemplateFn;
+        return this.detailTemplateFn;
     }
 
     /**
@@ -1773,6 +1822,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**
      * By default, it prints all the pages of Grid and hides pager.  
+     * > Customize print options using [`printMode`](http://ej2.syncfusion.com/documentation/grid/api-grid.html#printmode-string).
      * @return {void}
      */
     public print(): void {
@@ -1859,7 +1909,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             }
         }
         this.rowTemplateFn = this.templateComplier(this.rowTemplate);
-        this.detailsTemplateFn = this.templateComplier(this.detailsTemplate);
+        this.detailTemplateFn = this.templateComplier(this.detailTemplate);
         if (!isNullOrUndefined(this.parentDetails)) {
             let value: string = isNullOrUndefined(this.parentDetails.parentKeyFieldValue) ? 'undefined' :
                 this.parentDetails.parentKeyFieldValue;
@@ -1976,7 +2026,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.allowKeyboard) {
             this.element.tabIndex = this.element.tabIndex === -1 ? 0 : this.element.tabIndex;
         }
-        this.keyBoardModule = new KeyboardEvents(
+        this.keyboardModule = new KeyboardEvents(
             this.element,
             {
                 keyAction: this.keyActionHandler.bind(this),
@@ -2049,7 +2099,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private isDetail(): boolean {
-        return (this.detailsTemplate && this.detailsTemplate.length > 1) || !isNullOrUndefined(this.childGrid);
+        return (this.detailTemplate && this.detailTemplate.length > 1) || !isNullOrUndefined(this.childGrid);
     }
 
     private keyActionHandler(e: KeyboardEventArgs): void {

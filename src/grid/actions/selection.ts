@@ -662,6 +662,7 @@ export class Selection implements IAction {
      * @hidden
      */
     public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(events.initialEnd, this.initializeSelection);
         this.parent.off(events.rowSelectionComplete, this.onActionComplete);
         this.parent.off(events.cellSelectionComplete, this.onActionComplete);
@@ -1094,7 +1095,7 @@ export class Selection implements IAction {
 
     private addRemoveClassesForRow(row: Element, isAdd: boolean, ...args: string[]): void {
         let cells: Element[] = [].slice.call(row.querySelectorAll('.e-rowcell'));
-        let cell: Element = row.querySelector('.e-detailsrowcollapse') || row.querySelector('.e-detailsrowexpand');
+        let cell: Element = row.querySelector('.e-detailrowcollapse') || row.querySelector('.e-detailrowexpand');
         if (cell) {
             cells.push(cell);
         }

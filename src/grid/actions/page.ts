@@ -215,6 +215,7 @@ export class Page implements IAction {
      * @hidden
      */
     public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.off(events.initialLoad, this.handlers.load);
         this.parent.off(events.initialEnd, this.handlers.end); //For initial rendering
         this.parent.off(events.dataReady, this.handlers.ready);
