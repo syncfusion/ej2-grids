@@ -693,11 +693,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**   
      * Defines the grid lines mode. The available modes are   
-     * * both - Displays both the horizontal and vertical grid lines. 
-     * * none - No grid lines are displayed.
-     * * horizontal - Displays the horizontal grid lines only. 
-     * * vertical - Displays the vertical grid lines only.
-     * * default - Displays grid lines based on the theme.
+     * * `both` - Displays both the horizontal and vertical grid lines. 
+     * * `none` - No grid lines are displayed.
+     * * `horizontal` - Displays the horizontal grid lines only. 
+     * * `vertical` - Displays the vertical grid lines only.
+     * * `default` - Displays grid lines based on the theme.
      * @default default
      */
     @Property('default')
@@ -714,8 +714,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**    
      * The Detail Template allows user to show or hide additional information about a particular row. 
-     * 
-     * > It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.
+     * > * It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.
+     * > * The Detail Template content cannot be wider than the total width of parent Grid, unless the Detail Template is scrollable.
      * 
      * ```html 
      * <script id='detailTemplate'>
@@ -763,21 +763,23 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public detailTemplate: string;
 
     /**    
-     * Defines Grid options to render child Grid. It requires the `queryString` for parent and child relationship.        
+     * Defines Grid options to render child Grid. 
+     * It requires the [`queryString`](http://ej2.syncfusion.com/documentation/grid/api-grid.html#querystring-string) for parent 
+     * and child relationship.
      */
     @Property()
     public childGrid: GridModel;
 
-    /**    
-     * Defines the relation between parent and child Grid.       
+    /**
+     * Defines the relationship between parent and child datasource. It acts as a foreign key for parent datasource.     
      */
     @Property()
     public queryString: string;
 
     /**   
      * Defines the print modes. The available print modes are   
-     * * allpages - Print all pages records of the Grid. 
-     * * currentpage - Print current page records of the Grid.
+     * * `allpages` - Print all pages records of the Grid. 
+     * * `currentpage` - Print current page records of the Grid.
      * @default allpages
      */
     @Property('allpages')
