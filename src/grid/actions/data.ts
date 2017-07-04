@@ -23,6 +23,7 @@ export class Data implements IDataProcessor {
     constructor(parent?: IGrid) {
         this.parent = parent;
         this.initDataManager();
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.rowsAdded, this.addRows, this);
         this.parent.on(events.rowsRemoved, this.removeRows, this);
         this.parent.on(events.dataSourceModified, this.initDataManager, this);

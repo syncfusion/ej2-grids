@@ -152,6 +152,12 @@ describe('Scrolling module', () => {
 
         it('check element height', () => {
             expect((<HTMLElement>grid.getContent().firstChild).style.height).toBe('50%');
+            //for coverage
+            grid.isDestroyed = true;
+            grid.scrollModule.addEventListener();
+            grid.scrollModule.removeEventListener();
+            grid.isDestroyed = false;
+
         });
 
         // it('check padding and border', () => {

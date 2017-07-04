@@ -40,6 +40,7 @@ export class Search implements IAction {
      * @hidden
      */
     public addEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
         this.parent.on(events.searchComplete, this.onActionComplete, this);
         this.parent.on(events.destroy, this.destroy, this);

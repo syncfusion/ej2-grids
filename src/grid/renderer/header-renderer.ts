@@ -111,6 +111,7 @@ export class HeaderRender implements IRenderer {
         this.serviceLocator = serviceLocator;
         this.ariaService = this.serviceLocator.getService<AriaService>('ariaService');
         this.widthService = this.serviceLocator.getService<ColumnWidthService>('widthService');
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.columnVisibilityChanged, this.setVisible, this);
         this.parent.on(events.columnPositionChanged, this.refreshUI, this);
     }

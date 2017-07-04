@@ -8,7 +8,6 @@ import { AriaService } from '../services/aria-service';
 
 /**
  * `DetailRow` module is used to handle Detail Template and Hierarchy Grid operations.
- * @hidden
  */
 export class DetailRow {
 

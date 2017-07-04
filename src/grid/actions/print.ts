@@ -26,6 +26,7 @@ export class Print {
      */
     constructor(parent?: IGrid, scrollModule?: Scroll) {
         this.parent = parent;
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.contentReady, this.contentReady.bind(this));
         this.scrollModule = scrollModule;
     }

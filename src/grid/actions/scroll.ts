@@ -99,6 +99,7 @@ export class Scroll implements IAction {
      * @hidden
      */
     public addEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(contentReady, this.wireEvents, this);
         this.parent.on(uiUpdate, this.onPropertyChanged, this);
     }

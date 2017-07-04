@@ -178,6 +178,10 @@ describe('Data module', () => {
 
         it('Row count testing', () => {
             expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(0);
+            //for coverage
+            gridObj.isDestroyed = true;
+            (gridObj.renderModule as any).data.destroy();
+            gridObj.isDestroyed = false;
         });
 
         afterAll(() => {

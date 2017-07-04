@@ -240,6 +240,7 @@ export class Render {
     }
 
     private addEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.initialLoad, this.instantiateRenderer, this);
         this.parent.on(events.modelChanged, this.refresh, this);
         this.parent.on(events.refreshComplete, this.refreshComplete, this);

@@ -51,6 +51,7 @@ export class ContentRender implements IRenderer {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.ariaService = this.serviceLocator.getService<AriaService>('ariaService');
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.columnVisibilityChanged, this.setVisible, this);
         this.parent.on(events.colGroupRefresh, this.colGroupRefresh, this);
     }

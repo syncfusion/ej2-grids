@@ -706,15 +706,17 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * The Row template which renders customized rows from given template. 
      * By default, Grid renders a table row for every data source item.
-     * > It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.   
-     * > The row template must be a table row.  
+     * > * It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.   
+     * > * The row template must be a table row.  
      */
     @Property()
     public rowTemplate: string;
 
     /**    
      * The Detail Template allows user to show or hide additional information about a particular row. 
+     * 
      * > It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.
+     * 
      * ```html 
      * <script id='detailTemplate'>
      *    <table width="100%" >
@@ -2057,6 +2059,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public removeListener(): void {
+        if (this.isDestroyed) { return; }
         this.off(events.dataReady, this.dataReady);
         this.off(events.contentReady, this.recalcIndentWidth);
         this.off(events.headerRefreshed, this.recalcIndentWidth);
