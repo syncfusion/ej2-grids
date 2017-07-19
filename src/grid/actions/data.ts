@@ -71,7 +71,8 @@ export class Data implements IDataProcessor {
 
         gObj.aggregates.forEach((row: AggregateRowModel) => {
             row.columns.forEach((column: AggregateColumnModel) => {
-                query.aggregate(<string>column.type, column.field);
+                let types: string[] = column.type instanceof Array ? column.type : [column.type];
+                types.forEach((type: string) => query.aggregate(type, column.field));
             });
         });
 
