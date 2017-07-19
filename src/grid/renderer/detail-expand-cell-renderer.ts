@@ -1,12 +1,13 @@
 import { createElement } from '@syncfusion/ej2-base/dom';
 import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
+import { Column } from '../models/column';
 
 /**
  * ExpandCellRenderer class which responsible for building group expand cell. 
  * @hidden
  */
-export class DetailExpandCellRenderer extends CellRenderer implements ICellRenderer {
+export class DetailExpandCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TD', { className: 'e-detailrowcollapse', attrs: { 'aria-expanded': 'false' } });
 

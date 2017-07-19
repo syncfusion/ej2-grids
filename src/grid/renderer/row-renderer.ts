@@ -14,11 +14,11 @@ import { ServiceLocator } from '../services/service-locator';
  * RowRenderer class which responsible for building row content. 
  * @hidden
  */
-export class RowRenderer implements IRowRenderer {
+export class RowRenderer<T> implements IRowRenderer<T> {
 
     public element: Element = createElement('tr', { attrs: { role: 'row' } });
 
-    private cellRenderer: ICellRenderer;
+    private cellRenderer: ICellRenderer<T>;
 
     private serviceLocator: ServiceLocator;
 
@@ -39,7 +39,7 @@ export class RowRenderer implements IRowRenderer {
      * @param  {{[x:string]:Object}} attributes?
      * @param  {string} rowTemplate?
      */
-    public render(row: Row, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string): Element {
+    public render(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string): Element {
         let tr: Element = this.element.cloneNode() as Element;
         let rowArgs: RowDataBoundEventArgs = { data: row.data };
         let cellArgs: QueryCellInfoEventArgs = { data: row.data };
@@ -49,16 +49,18 @@ export class RowRenderer implements IRowRenderer {
 
         addAttributes(tr, attrCopy as { [x: string]: string });
 
+        setStyleAndAttributes(tr, row.attributes);
+
         let cellRendererFact: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
         for (let i: number = 0, len: number = row.cells.length; i < len; i++) {
-            let cell: Cell = row.cells[i];
-            let cellRenderer: ICellRenderer = cellRendererFact.getCellRenderer(row.cells[i].cellType || CellType.Data);
+            let cell: Cell<T> = row.cells[i];
+            let cellRenderer: ICellRenderer<T> = cellRendererFact.getCellRenderer(row.cells[i].cellType || CellType.Data);
             let td: Element = cellRenderer.render(
                 row.cells[i], row.data,
                 { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' });
             tr.appendChild(td);
             if (row.cells[i].cellType === CellType.Data) {
-                this.parent.trigger(queryCellInfo, extend(cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: cell.column }));
+                this.parent.trigger(queryCellInfo, extend(cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: <{}>cell.column }));
             }
         }
         if (row.isDataRow) {
@@ -75,8 +77,8 @@ export class RowRenderer implements IRowRenderer {
      * @param  {Element} tr
      * @param  {{[x:string]:Object}} attr
      */
-    public buildAttributeFromRow(tr: Element, row: Row): void {
-        let attr: IRow & { 'class'?: string[] } = {};
+    public buildAttributeFromRow(tr: Element, row: Row<T>): void {
+        let attr: IRow<T> & { 'class'?: string[] } = {};
         let prop: { 'rowindex'?: string; 'dataUID'?: string } = { 'rowindex': 'aria-rowindex', 'dataUID': 'data-uid' };
         let classes: string[] = [];
 
@@ -86,6 +88,10 @@ export class RowRenderer implements IRowRenderer {
 
         if (row.isAltRow) {
             classes.push('e-altrow');
+        }
+
+        if (row.visible === false) {
+            classes.push('e-hide');
         }
 
         if (!isNullOrUndefined(row.index)) {

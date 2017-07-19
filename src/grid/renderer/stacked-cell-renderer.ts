@@ -9,7 +9,7 @@ import { CellRenderer } from './cell-renderer';
  * StackedHeaderCellRenderer class which responsible for building stacked header cell content.
  * @hidden 
  */
-export class StackedHeaderCellRenderer extends CellRenderer implements ICellRenderer {
+export class StackedHeaderCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TH', { className: 'e-headercell e-stackedheadercell', attrs: { role: 'columnheader' } });
 
@@ -19,7 +19,7 @@ export class StackedHeaderCellRenderer extends CellRenderer implements ICellRend
      * @param  {Object} data     
      * @param  {Element}
      */
-    public render(cell: Cell, data: Object, attributes?: { [x: string]: Object }): Element {
+    public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
 
         let node: Element = this.element.cloneNode() as Element;
         node.innerHTML = cell.column.headerText;

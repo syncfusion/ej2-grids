@@ -10,7 +10,7 @@ import { AriaService, IAriaOptions } from '../services/aria-service';
  * HeaderCellRenderer class which responsible for building header cell content. 
  * @hidden
  */
-export class HeaderCellRenderer extends CellRenderer implements ICellRenderer {
+export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TH', { className: 'e-headercell', attrs: { role: 'columnheader' } });
     private ariaService: AriaService = new AriaService();
@@ -28,7 +28,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer {
      * @param  {Object} data     
      * @param  {Element}
      */
-    public render(cell: Cell, data: Object, attributes?: { [x: string]: Object }): Element {
+    public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
         let node: Element = this.element.cloneNode() as Element;
 
         return this.prepareHeader(cell, node);
@@ -39,7 +39,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer {
      * @param  {Cell} cell
      * @param  {Element} node          
      */
-    public refresh(cell: Cell, node: Element): Element {
+    public refresh(cell: Cell<Column>, node: Element): Element {
         this.clean(node);
         return this.prepareHeader(cell, node);
     }
@@ -48,7 +48,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer {
         node.innerHTML = '';
     }
 
-    private prepareHeader(cell: Cell, node: Element): Element {
+    private prepareHeader(cell: Cell<Column>, node: Element): Element {
         let column: Column = cell.column; let ariaAttr: IAriaOptions<boolean> = {};
         //Prepare innerHtml
         let innerDIV: HTMLDivElement = <HTMLDivElement>this.getGui();

@@ -21,7 +21,7 @@ export class ContentRender implements IRenderer {
     //Internal variables             
     private contentTable: Element;
     private contentPanel: Element;
-    private rows: Row[] = [];
+    private rows: Row<Column>[] = [];
     private rowElements: Element[];
     private colgroup: Element;
     private drop: Function = (e: DropEventArgs) => {
@@ -40,7 +40,7 @@ export class ContentRender implements IRenderer {
         }
     }
     //Module declarations
-    private parent: IGrid;
+    protected parent: IGrid;
     private serviceLocator: ServiceLocator;
     private ariaService: AriaService;
 
@@ -112,11 +112,11 @@ export class ContentRender implements IRenderer {
         let frag: DocumentFragment = document.createDocumentFragment();
         let columns: Column[] = <Column[]>gObj.getColumns();
         let tr: Element;
-        let row: RowRenderer = new RowRenderer(this.serviceLocator, null, this.parent);
+        let row: RowRenderer<Column> = new RowRenderer(this.serviceLocator, null, this.parent);
         this.rowElements = [];
-        let model: IModelGenerator = gObj.allowGrouping && gObj.groupSettings.columns.length ?
+        let model: IModelGenerator<Column> = gObj.allowGrouping && gObj.groupSettings.columns.length ?
             new GroupModelGenerator(this.parent) : new RowModelGenerator(this.parent);
-        let modelData: Row[] = model.generateRows(dataSource);
+        let modelData: Row<Column>[] = model.generateRows(dataSource);
         let tbody: Element = this.getTable().querySelector('tbody');
 
         for (let i: number = 0, len: number = modelData.length; i < len; i++) {
@@ -185,7 +185,7 @@ export class ContentRender implements IRenderer {
      * Get the Row collection in the Grid.
      * @returns {Row[] | HTMLCollectionOf<HTMLTableRowElement>}
      */
-    public getRows(): Row[] | HTMLCollectionOf<HTMLTableRowElement> {
+    public getRows(): Row<Column>[] | HTMLCollectionOf<HTMLTableRowElement> {
         return this.rows;
     }
 
@@ -227,10 +227,10 @@ export class ContentRender implements IRenderer {
      * @param  {Column[]} columns?
      */
     public setVisible(columns?: Column[]): void {
-        let rows: Row[] = <Row[]>this.getRows();
-        let element: Row;
-        let testRow: Row;
-        rows.some((r: Row) => { if (r.isDataRow) { testRow = r; } return r.isDataRow; });
+        let rows: Row<Column>[] = <Row<Column>[]>this.getRows();
+        let element: Row<Column>;
+        let testRow: Row<Column>;
+        rows.some((r: Row<Column>) => { if (r.isDataRow) { testRow = r; } return r.isDataRow; });
         let tasks: Function[] = [];
 
         for (let c: number = 0, clen: number = columns.length; c < clen; c++) {
@@ -268,7 +268,7 @@ export class ContentRender implements IRenderer {
     }
 
 
-    private canSkip(column: Column, row: Row, index: number): boolean {
+    private canSkip(column: Column, row: Row<Column>, index: number): boolean {
         /**
          * Skip the toggle visiblity operation when one of the following success
          * 1. Grid has empty records

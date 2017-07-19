@@ -38,8 +38,8 @@ describe('CellRendererFactory module', () => {
         });
 
         it('Check string register', () => {
-            class CellMock implements ICellRenderer {
-                public render(cell: Cell, data: Object, attributes?: { [x: string]: string }): Element {
+            class CellMock implements ICellRenderer<{}> {
+                public render(cell: Cell<{}>, data: Object, attributes?: { [x: string]: string }): Element {
                     return createElement('td');
                 }
             }

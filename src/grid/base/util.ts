@@ -1,8 +1,11 @@
 import { ChildProperty } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base/util';
 import { setStyleAttribute, addClass, attributes } from '@syncfusion/ej2-base/dom';
-import { ColumnModel, Column } from '../models/column';
 import { IPosition } from './interface';
+import { DataUtil } from '@syncfusion/ej2-data';
+import { Column } from '../models/column';
+import { ColumnModel, AggregateColumnModel } from '../models/models';
+import { AggregateType } from './enum';
 
 
 //https://typescript.codeplex.com/discussions/401501
@@ -254,3 +257,12 @@ export function parents(elem: Element, selector: string, isID?: boolean): Elemen
     }
     return parents;
 }
+
+/** @hidden */
+export function calculateAggregate(type: AggregateType | string, data: Object, column?: AggregateColumnModel, context?: Object): Object {
+    if (type === 'custom') {
+        return column.customAggregate ? column.customAggregate.call(context, data, column) : '';
+    }
+    return DataUtil.aggregates[type](data, column.field);
+}
+

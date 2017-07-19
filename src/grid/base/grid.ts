@@ -25,7 +25,7 @@ import { ColumnWidthService } from '../services/width-controller';
 import { AriaService } from '../services/aria-service';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
 import { SortDescriptorModel, PredicateModel, RowDropSettingsModel, GroupSettingsModel } from './grid-model';
-import { PageSettingsModel } from '../models/models';
+import { PageSettingsModel, AggregateRowModel  } from '../models/models';
 import { PageSettings } from '../models/page-settings';
 import { Sort } from '../actions/sort';
 import { Page } from '../actions/page';
@@ -39,6 +39,7 @@ import { Scroll } from '../actions/scroll';
 import { Group } from '../actions/group';
 import { Print } from '../actions/print';
 import { DetailRow } from '../actions/detail-row';
+import { AggregateRow } from '../models/aggregate';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -383,6 +384,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private rowTemplateFn: Function;
     private detailTemplateFn: Function;
     private sortedColumns: string[] = [];
+    private footerElement: Element;
+
     /** @hidden */
     public recordsCount: number;
     /**
@@ -676,6 +679,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Complex<GroupSettingsModel>({}, GroupSettings)
     public groupSettings: GroupSettingsModel;
+
+    /**
+     * Configures the Grid aggregate rows.
+     * @default []
+     */
+    @Collection<AggregateRowModel>([], AggregateRow)
+    public aggregates: AggregateRowModel[];
 
     /**    
      * Defines the scrollable height of the grid content.    
@@ -1063,6 +1073,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.groupSettings, this.sortedColumns, this.serviceLocator]
             });
         }
+        if (this.aggregates.length) {
+            modules.push({ member: 'aggregate', args: [this, this.serviceLocator] });
+        }
         if (this.isDetail()) {
             modules.push({
                 member: 'detailRow',
@@ -1226,6 +1239,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'childGrid':
                     requireRefresh = true;
                     break;
+                case 'aggregates':
+                    this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
             }
         }
         if (checkCursor) {
@@ -1383,6 +1398,31 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public setGridHeaderTable(element: Element): void {
         this.headerModule.setTable(element);
     }
+
+    /**
+     * Gets the footer div of Grid.
+     * @return {Element} 
+     */
+    public getFooterContent(): Element {
+        if (isNullOrUndefined(this.footerElement)) {
+            this.footerElement = this.element.getElementsByClassName('e-gridfooter')[0];
+        }
+
+        return this.footerElement;
+    }
+
+    /**
+     * Gets the footer table element of Grid.
+     * @return {Element} 
+     */
+    public getFooterContentTable(): Element {
+        if (isNullOrUndefined(this.footerElement)) {
+            this.footerElement = this.element.getElementsByClassName('e-gridfooter')[0];
+        }
+
+        return <Element>this.footerElement.firstChild.firstChild;
+    }
+
 
     /**
      * Gets the pager of Grid.
@@ -1853,11 +1893,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         while (i < this.groupSettings.columns.length) {
             headerCol[i].style.width = indentWidth + 'px';
             contentCol[i].style.width = indentWidth + 'px';
+            this.notify(events.columnWidthChanged, { index: i, width: indentWidth });
             i++;
         }
         if (this.isDetail()) {
             headerCol[i].style.width = indentWidth + 'px';
             contentCol[i].style.width = indentWidth + 'px';
+            this.notify(events.columnWidthChanged, { index: i, width: indentWidth });
         }
         this.getHeaderTable().querySelector('.e-emptycell').setAttribute('indentRefreshed', 'true');
     }

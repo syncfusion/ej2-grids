@@ -140,6 +140,23 @@
       width: auto;
     }
 
+    .e-summarycell {
+      border-style: solid;
+      border-width: $border-size 0 0;
+      font-size: $grid-content-font-size;
+      font-weight:  $grid-header-font-weight;
+      height: auto;
+      line-height: 18px;
+      opacity: $grid-headerconent-font-opacity;
+      padding: $grid-content-padding $grid-content-right-padding;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .e-summarycontent .e-indentcell {
+      border-width: 0;
+    }
+
     &.e-device .e-rowcell {
       padding: $grid-content-padding 12px;
     }
@@ -240,7 +257,9 @@
     .e-gridcontent,
     .e-gridheader,
     .e-headercontent,
-    .e-groupdroparea {
+    .e-groupdroparea,
+    .e-summarycontent,
+    .e-gridfooter {
       overflow: hidden;
       vertical-align: middle;
     }
@@ -698,6 +717,10 @@
     .e-indentcell {
       border-style: $grid-border-type;
       border-width: 0 $grid-border-size 0 0;
+
+      &.e-indentcelltop {
+        border-width: $grid-border-size 0 0;
+      }
     }
 
     .e-recordplusexpand,
@@ -1011,7 +1034,8 @@
       font-size: 11px;
     }
 
-    .e-rowcell {
+    .e-rowcell,
+    .e-summarycell {
       padding: round($grid-content-padding/.75) round($grid-content-right-padding/.75);
     }
 

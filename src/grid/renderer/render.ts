@@ -120,9 +120,10 @@ export class Render {
     private updateColumnType(record: Object): void {
         let columns: Column[] = this.parent.getColumns() as Column[];
         let value: Date;
+        let data: Object = record && (<{ items: Object[] }>record).items ? (<{ items: Object[] }>record).items[0] : record;
         let fmtr: IValueFormatter = this.locator.getService<IValueFormatter>('valueFormatter');
         for (let i: number = 0, len: number = columns.length; i < len; i++) {
-            value = getValue(columns[i].field || '', record);
+            value = getValue(columns[i].field || '', data);
             if (!isNullOrUndefined(value)) {
                 this.isColTypeDef = true;
                 if (!columns[i].type) {
@@ -160,7 +161,7 @@ export class Render {
         }
     }
 
-    private dataManagerSuccess(e: { result: Object, count: number }, args?: NotifyArgs): void {
+    private dataManagerSuccess(e: { result: Object, count: number, aggregates?: Object }, args?: NotifyArgs): void {
         let gObj: IGrid = this.parent;
         let len: number = Object.keys(e.result).length;
         if (this.parent.isDestroyed) { return; }
@@ -176,7 +177,7 @@ export class Render {
         if (!this.isColTypeDef) {
             this.updateColumnType(e.result[0]);
         }
-        this.parent.notify(events.dataReady, { count: e.count, result: e.result });
+        this.parent.notify(events.dataReady, { count: e.count, result: e.result, aggregates: e.aggregates });
         if (gObj.groupSettings.columns.length || (args && args.requestType === 'ungrouping')) {
             this.headerRenderer.refreshUI();
         }

@@ -9,7 +9,7 @@ import { CellRenderer } from './cell-renderer';
  * FilterCellRenderer class which responsible for building filter cell.
  * @hidden 
  */
-export class FilterCellRenderer extends CellRenderer implements ICellRenderer {
+export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TH', { className: 'e-filterbarcell' });
     /**
@@ -25,7 +25,7 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer {
      * @param  {Cell} cell
      * @param  {Object} data         
      */
-    public render(cell: Cell, data: Object): Element {
+    public render(cell: Cell<Column>, data: Object): Element {
         let node: Element = this.element.cloneNode() as Element;
         let innerDIV: HTMLDivElement = <HTMLDivElement>this.getGui();
         let input: Element;

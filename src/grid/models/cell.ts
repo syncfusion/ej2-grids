@@ -1,11 +1,10 @@
 import { merge } from '@syncfusion/ej2-base/util';
 import { CellType } from '../base/enum';
-import { Column } from './column';
 /**
  * Cell
  * @hidden
  */
-export class Cell {
+export class Cell<T> {
 
     public colSpan: number;
 
@@ -19,7 +18,7 @@ export class Cell {
 
     public isDataCell: boolean;
 
-    public column: Column;
+    public column: T;
 
     public rowID: string;
 

@@ -9,9 +9,9 @@ import { CellType } from '../base/enum';
  */
 export class CellRendererFactory {
 
-    public cellRenderMap: { [c: string]: ICellRenderer } = {};
+    public cellRenderMap: { [c: string]: ICellRenderer<{}> } = {};
 
-    public addCellRenderer(name: string | CellType, type: ICellRenderer): void {
+    public addCellRenderer(name: string | CellType, type: ICellRenderer<{}>): void {
         name = typeof name === 'string' ? name : <string>getEnumValue(CellType, <CellType>name);
 
         if (isNullOrUndefined(this.cellRenderMap[name])) {
@@ -19,7 +19,7 @@ export class CellRendererFactory {
         }
     }
 
-    public getCellRenderer(name: string | CellType): ICellRenderer {
+    public getCellRenderer(name: string | CellType): ICellRenderer<{}> {
         name = typeof name === 'string' ? name : <string>getEnumValue(CellType, <CellType>name);
 
         if (isNullOrUndefined(this.cellRenderMap[name])) {

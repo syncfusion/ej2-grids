@@ -11,12 +11,12 @@ import { ServiceLocator } from '../services/service-locator';
  * CellRenderer class which responsible for building cell content. 
  * @hidden
  */
-export class CellRenderer implements ICellRenderer {
+export class CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell' } });
 
     private localizer: L10n;
-    private formatter: IValueFormatter;
+    protected formatter: IValueFormatter;
 
     constructor(locator?: ServiceLocator) {
         this.localizer = locator.getService<L10n>('localization');
@@ -42,6 +42,17 @@ export class CellRenderer implements ICellRenderer {
         }
 
         return isNullOrUndefined(value) ? '' : value.toString();
+    }
+
+    public evaluate(node: Element, cell: Cell<Column>, data: Object, attributes?: Object): boolean {
+        let result: Element[];
+        if (cell.column.template) {
+            let literals: string[] = ['index'];
+            result = cell.column.getColumnTemplate()(extend({ 'index': attributes[literals[0]] }, data));
+            appendChildren(node, result);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -72,15 +83,14 @@ export class CellRenderer implements ICellRenderer {
      * @param  {{[x:string]:Object}} attributes?
      * @param  {Element}
      */
-    public render(cell: Cell, data: Object, attributes?: { [x: string]: Object }): Element {
+    public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
         let node: Element = this.element.cloneNode() as Element;
         let column: Column = cell.column;
-        let literals: string[] = ['index'];
 
         //Prepare innerHtml
         let innerHtml: string = <string>this.getGui();
 
-        let value: Object = column.valueAccessor(column.field, data, column);
+        let value: Object = this.getValue(column.field, data, column);
 
         value = this.format(column, value, data);
 
@@ -99,24 +109,13 @@ export class CellRenderer implements ICellRenderer {
 
         let fromFormatter: Object = this.invokeFormatter(column, value, data);
 
-        if (!column.template) {
-            innerHtml = !isNullOrUndefined(column.formatter) ? isNullOrUndefined(fromFormatter) ? '' : fromFormatter.toString() : innerHtml;
-            this.appendHtml(node, innerHtml, column.getDomSetter());
-        } else {
-            appendChildren(node, column.getColumnTemplate()(extend({ 'index': attributes[literals[0]] }, data)));
+        innerHtml = !isNullOrUndefined(column.formatter) ? isNullOrUndefined(fromFormatter) ? '' : fromFormatter.toString() : innerHtml;
+
+        if (this.evaluate(node, cell, data, attributes)) {
+            this.appendHtml(node, innerHtml, column.getDomSetter ? column.getDomSetter() : 'innerHTML');
         }
 
-        this.buildAttributeFromCell(<HTMLElement>node, cell);
-
-        setStyleAndAttributes(node as HTMLElement, attributes);
-
-        if (column.customAttributes) {
-            setStyleAndAttributes(node as HTMLElement, column.customAttributes);
-        }
-
-        if (!isNullOrUndefined(column.textAlign)) {
-            (node as HTMLElement).style.textAlign = column.textAlign;
-        }
+        this.setAttributes(<HTMLElement>node, cell, attributes);
 
         return node;
     }
@@ -131,9 +130,27 @@ export class CellRenderer implements ICellRenderer {
         node[property] = innerHtml as string;
         return node;
     }
+    /**
+     * @hidden
+     */
+    public setAttributes(node: HTMLElement, cell: Cell<Column>, attributes?: { [x: string]: Object }): void {
+        let column: Column = cell.column;
+        this.buildAttributeFromCell(node, cell);
 
-    public buildAttributeFromCell(node: HTMLElement, cell: Cell): void {
-        let attr: ICell & { 'class'?: string[] } = {};
+        setStyleAndAttributes(node, attributes);
+        setStyleAndAttributes(node, cell.attributes);
+
+        if (column.customAttributes) {
+            setStyleAndAttributes(node, column.customAttributes);
+        }
+
+        if (column.textAlign) {
+            node.style.textAlign = column.textAlign;
+        }
+    }
+
+    public buildAttributeFromCell<Column>(node: HTMLElement, cell: Cell<Column>): void {
+        let attr: ICell<Column> & { 'class'?: string[] } = {};
         let prop: { 'colindex'?: string } = { 'colindex': 'aria-colindex' };
         let classes: string[] = [];
 
@@ -160,5 +177,9 @@ export class CellRenderer implements ICellRenderer {
         attr.class = classes;
 
         setStyleAndAttributes(node, attr);
+    }
+
+    public getValue(field: string, data: Object, column: Column): Object {
+        return column.valueAccessor(column.field, data, column);
     }
 }

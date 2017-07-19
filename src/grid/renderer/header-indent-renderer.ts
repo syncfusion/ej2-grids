@@ -2,12 +2,13 @@ import { createElement } from '@syncfusion/ej2-base/dom';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
+import { Column } from '../models/column';
 
 /**
  * HeaderIndentCellRenderer class which responsible for building header indent cell. 
  * @hidden
  */
-export class HeaderIndentCellRenderer extends CellRenderer implements ICellRenderer {
+export class HeaderIndentCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TH', { className: 'e-grouptopleftcell' });
 
@@ -16,7 +17,7 @@ export class HeaderIndentCellRenderer extends CellRenderer implements ICellRende
      * @param  {Cell} cell
      * @param  {Object} data        
      */
-    public render(cell: Cell, data: Object): Element {
+    public render(cell: Cell<Column>, data: Object): Element {
         let node: Element = this.element.cloneNode() as Element;
         node.appendChild(createElement('div', { className: 'e-headercelldiv e-emptycell', innerHTML: '&nbsp;' }));
         return node;

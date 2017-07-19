@@ -2,18 +2,19 @@ import { createElement } from '@syncfusion/ej2-base/dom';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
 import { IndentCellRenderer } from './indent-cell-renderer';
+import { Column } from '../models/column';
 
 /**
  * ExpandCellRenderer class which responsible for building group expand cell. 
  * @hidden
  */
-export class ExpandCellRenderer extends IndentCellRenderer implements ICellRenderer {
+export class ExpandCellRenderer extends IndentCellRenderer implements ICellRenderer<Column> {
     /**
      * Function to render the expand cell
      * @param  {Cell} cell
      * @param  {Object} data      
      */
-    public render(cell: Cell, data: { field: string, key: string }): Element {
+    public render(cell: Cell<Column>, data: { field: string, key: string }): Element {
         let node: Element = this.element.cloneNode() as Element;
         node.className = 'e-recordplusexpand';
         node.setAttribute('ej-mappingname', data.field);

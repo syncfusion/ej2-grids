@@ -191,7 +191,7 @@ export class HeaderRender implements IRenderer {
      * Get the header row element collection.
      * @return {Element[]}
      */
-    public getRows(): Row[] | HTMLCollectionOf<HTMLTableRowElement> {
+    public getRows(): Row<Column>[] | HTMLCollectionOf<HTMLTableRowElement> {
         let table: HTMLTableElement = <HTMLTableElement>this.getTable();
         return <HTMLCollectionOf<HTMLTableRowElement>>table.tHead.rows;
     }
@@ -212,9 +212,9 @@ export class HeaderRender implements IRenderer {
         let colGroup: Element = createElement('colgroup');
         let rowBody: Element = createElement('tr');
         let bodyCell: Element;
-        let rowRenderer: RowRenderer = new RowRenderer(this.serviceLocator, CellType.Header);
+        let rowRenderer: RowRenderer<Column> = new RowRenderer(this.serviceLocator, CellType.Header);
         rowRenderer.element = colHeader;
-        let rows: Row[] = [];
+        let rows: Row<Column>[] = [];
         let headerRow: Element;
         this.colDepth = this.getObjDepth();
         for (let i: number = 0, len: number = this.colDepth; i < len; i++) {
@@ -229,7 +229,7 @@ export class HeaderRender implements IRenderer {
         }
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
             for (let j: number = 0, len: number = rows[i].cells.length; j < len; j++) {
-                let cell: Cell = rows[i].cells[j];
+                let cell: Cell<Column> = rows[i].cells[j];
                 bodyCell = createElement('td');
                 rowBody.appendChild(bodyCell);
             }
@@ -271,7 +271,7 @@ export class HeaderRender implements IRenderer {
         return colGroup;
     }
 
-    private ensureColumns(rows: Row[]): Row[] {
+    private ensureColumns(rows: Row<Column>[]): Row<Column>[] {
         //TODO: generate dummy column for group, detail, stacked row here; ensureColumns here
         let gObj: IGrid = this.parent;
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
@@ -287,7 +287,7 @@ export class HeaderRender implements IRenderer {
         return rows;
     }
 
-    private getHeaderCells(rows: Row[]): Row[] {
+    private getHeaderCells(rows: Row<Column>[]): Row<Column>[] {
         let cols: Column[] = this.parent.columns as Column[];
 
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
@@ -296,7 +296,7 @@ export class HeaderRender implements IRenderer {
         return rows;
     }
 
-    private appendCells(cols: Column, rows: Row[], index: number, isFirstObj: boolean, isFirstCol: boolean): Row[] {
+    private appendCells(cols: Column, rows: Row<Column>[], index: number, isFirstObj: boolean, isFirstCol: boolean): Row<Column>[] {
         if (!cols.columns) {
             let col: Column = this.parent.getColumnByField(cols.field);
             rows[index].cells.push(this.generateCell(
@@ -305,7 +305,7 @@ export class HeaderRender implements IRenderer {
         } else {
             let colSpan: number = this.getCellCnt(cols, 0);
             if (colSpan) {
-                rows[index].cells.push(new Cell(<{ [x: string]: Object }>{
+                rows[index].cells.push(new Cell<Column>(<{ [x: string]: Object }>{
                     cellType: CellType.StackedHeader, column: cols, colSpan: colSpan
                 }));
             }
@@ -316,14 +316,14 @@ export class HeaderRender implements IRenderer {
         return rows;
     }
 
-    private generateRow(index: number): Row {
-        return new Row({});
+    private generateRow(index: number): Row<Column> {
+        return new Row<Column>({});
     }
 
     private generateCell(
         column: Column, cellType?: CellType, rowSpan?: number, className?: string,
-        rowIndex?: number, colIndex?: number): Cell {
-        let opt: ICell = {
+        rowIndex?: number, colIndex?: number): Cell<Column> {
+        let opt: ICell<Column> = {
             'visible': column.visible,
             'isDataCell': false,
             'isTemplate': !isNullOrUndefined(column.headerTemplate),
@@ -340,7 +340,7 @@ export class HeaderRender implements IRenderer {
             delete opt.rowSpan;
         }
 
-        return new Cell(<{ [x: string]: Object }>opt);
+        return new Cell<Column>(<{ [x: string]: Object }>opt);
     }
 
     /**

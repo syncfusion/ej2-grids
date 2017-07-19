@@ -131,6 +131,7 @@ export class Scroll implements IAction {
 
             element.scrollLeft = left;
             this.previousValues.left = left;
+            this.parent.notify(scroll, { left: left });
         };
     }
 

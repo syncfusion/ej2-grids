@@ -85,6 +85,10 @@ export enum CellType {
     Header,
     /**  Defines CellType as Summary */
     Summary,
+    /**  Defines CellType as GroupSummary */
+    GroupSummary,
+    /**  Defines CellType as CaptionSummary */
+    CaptionSummary,
     /**  Defines CellType as Filter */
     Filter,
     /**  Defines CellType as Indent */
@@ -186,3 +190,25 @@ export type FilterBarMode =
     'onenter' |
     /**  Defines FilterBarMode  as immediate */
     'immediate';
+
+/**
+ * Defines the aggregate types. 
+ */
+export type AggregateType =
+    /** Defines sum aggregate type */
+    'sum' |
+    /** Specifies average aggregate type */
+    'average' |
+    /** Specifies maximum aggregate type */
+    'max' |
+    /** Specifies minimum aggregate type */
+    'min' |
+    /** Specifies count aggregate type */
+    'count' |
+    /** Specifies true count aggregate type */
+    'truecount' |
+    /** Specifies false count aggregate type */
+    'falsecount' |
+    /** Specifies custom aggregate type */
+    'custom';
+    

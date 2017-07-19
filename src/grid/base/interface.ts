@@ -2,7 +2,7 @@ import { Component, NumberFormatOptions, DateFormatOptions } from '@syncfusion/e
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Column, ColumnModel } from '../models/column';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
-import { PageSettingsModel } from '../models/models';
+import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { RowDropSettingsModel, GroupSettingsModel, GridModel } from './grid-model';
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
@@ -119,6 +119,13 @@ export interface IGrid extends Component<HTMLElement> {
      * @default []
      */
     groupSettings?: GroupSettingsModel;
+
+    /**
+     * Specifies the summaryRows for Grid.
+     * @default []
+     */
+    aggregates?: AggregateRowModel[];
+
 
     /**
      * Specifies scrollable height of the grid content.
@@ -247,7 +254,7 @@ export interface IRenderer {
     setTable(table: Element): void;
     getPanel(): Element;
     getTable(): Element;
-    getRows?(): Row[] | HTMLCollectionOf<HTMLTableRowElement>;
+    getRows?(): Row<{}>[] | HTMLCollectionOf<HTMLTableRowElement>;
     refreshUI?(): void;
     setVisible?(column?: Column[]): void;
     addEventListener?(): void;
@@ -311,21 +318,22 @@ export interface IFilterUI {
 /**
  * @hidden
  */
-export interface ICellRenderer {
+export interface ICellRenderer<T> {
     element?: Element;
     getGui?(): string | Element;
-    format?(column: Column, value: Object, data: Object): string;
+    format?(column: T, value: Object, data: Object): string;
+    evaluate?(node: Element, column: Cell<T>, data: Object, attributes?: Object): boolean;
     setStyleAndAttributes?(node: Element, attributes: { [key: string]: Object }): void;
-    render(cell: Cell, data: Object, attributes?: { [x: string]: string }): Element;
+    render(cell: Cell<T>, data: Object, attributes?: { [x: string]: string }): Element;
     appendHtml?(node: Element, innerHtml: string | Element): Element;
-    refresh?(cell: Cell, node: Element): Element;
+    refresh?(cell: Cell<T>, node: Element): Element;
 }
 /**
  * @hidden
  */
-export interface IRowRenderer {
+export interface IRowRenderer<T> {
     element?: Element;
-    render(row: Row, column: Column[], attributes?: { [x: string]: string }, rowTemplate?: string): Element;
+    render(row: Row<T>, column: Column[], attributes?: { [x: string]: string }, rowTemplate?: string): Element;
 }
 
 export interface ICellFormatter {
@@ -373,7 +381,7 @@ export interface NotifyArgs {
 /**
  * @hidden
  */
-export interface ICell {
+export interface ICell<T> {
     colSpan?: number;
 
     rowSpan?: number;
@@ -386,7 +394,7 @@ export interface ICell {
 
     isDataCell?: boolean;
 
-    column?: Column;
+    column?: T;
 
     rowID?: string;
 
@@ -400,7 +408,7 @@ export interface ICell {
 /**
  * @hidden
  */
-export interface IRow {
+export interface IRow<T> {
     uid?: string;
 
     data?: Object;
@@ -415,7 +423,7 @@ export interface IRow {
 
     rowSpan?: number;
 
-    cells?: Cell[];
+    cells?: Cell<T>[];
 
     index?: number;
 
@@ -428,8 +436,8 @@ export interface IRow {
 /**
  * @hidden
  */
-export interface IModelGenerator {
-    generateRows(data: Object): Row[];
+export interface IModelGenerator<T> {
+    generateRows(data: Object, args?: Object): Row<T>[];
 }
 
 export interface ActionEventArgs {

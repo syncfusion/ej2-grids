@@ -5,7 +5,7 @@ import { Cell } from './cell';
  * Row
  * @hidden
  */
-export class Row {
+export class Row<T> {
 
     public uid: string;
 
@@ -21,13 +21,17 @@ export class Row {
 
     public rowSpan: number;
 
-    public cells: Cell[];
+    public cells: Cell<T>[];
 
     public index: number;
 
     public subRowDetails: Object;
 
     public height: string;
+
+    public visible: boolean;
+
+    public attributes: { [x: string]: Object };
 
     public cssClass: string;
 

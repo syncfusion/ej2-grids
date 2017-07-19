@@ -10,7 +10,7 @@ import { getUid } from '../base/util';
  * RowModelGenerator is used to generate grid data rows.
  * @hidden
  */
-export class RowModelGenerator implements IModelGenerator {
+export class RowModelGenerator implements IModelGenerator<Column> {
 
     //Module declarations
     protected parent: IGrid;
@@ -22,17 +22,17 @@ export class RowModelGenerator implements IModelGenerator {
         this.parent = parent;
     }
 
-    public generateRows(data: Object): Row[] {
-        let rows: Row[] = [];
+    public generateRows(data: Object): Row<Column>[] {
+        let rows: Row<Column>[] = [];
         for (let i: number = 0, len: number = Object.keys(data).length; i < len; i++) {
             rows[i] = this.generateRow(data[i], i);
         }
         return rows;
     }
 
-    protected ensureColumns(): Cell[] {
+    protected ensureColumns(): Cell<Column>[] {
         //TODO: generate dummy column for group, detail here;
-        let cols: Cell[] = [];
+        let cols: Cell<Column>[] = [];
 
         if (this.parent.detailTemplate || this.parent.childGrid) {
             cols.push(this.generateCell({} as Column, null, CellType.DetailExpand));
@@ -42,9 +42,9 @@ export class RowModelGenerator implements IModelGenerator {
 
     }
 
-    protected generateRow(data: Object, index: number, cssClass?: string): Row {
-        let options: IRow = {};
-        let tmp: Cell[] = [];
+    protected generateRow(data: Object, index: number, cssClass?: string): Row<Column> {
+        let options: IRow<Column> = {};
+        let tmp: Cell<Column>[] = [];
 
         options.uid = getUid('grid-row');
         options.data = data;
@@ -53,7 +53,7 @@ export class RowModelGenerator implements IModelGenerator {
         options.cssClass = cssClass;
         options.isAltRow = this.parent.enableAltRow ? index % 2 !== 0 : false;
 
-        let cells: Cell[] = this.ensureColumns();
+        let cells: Cell<Column>[] = this.ensureColumns();
 
         let dummies: Column[] = this.parent.getColumns() as Column[];
 
@@ -61,13 +61,13 @@ export class RowModelGenerator implements IModelGenerator {
             tmp.push(this.generateCell(dummy, <string>options.uid));
         }
 
-        let row: Row = new Row(<{ [x: string]: Object }>options);
+        let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);
         row.cells = cells.concat(tmp);
         return row;
     }
 
-    protected generateCell(column: Column, rowId?: string, cellType?: CellType, colSpan?: number): Cell {
-        let opt: ICell = {
+    protected generateCell(column: Column, rowId?: string, cellType?: CellType, colSpan?: number): Cell<Column> {
+        let opt: ICell<Column> = {
             'visible': column.visible,
             'isDataCell': !isNullOrUndefined(column.field || column.template),
             'isTemplate': !isNullOrUndefined(column.template),
@@ -81,6 +81,6 @@ export class RowModelGenerator implements IModelGenerator {
             opt.index = this.parent.getColumnIndexByField(column.field);
         }
 
-        return new Cell(<{ [x: string]: Object }>opt);
+        return new Cell<Column>(<{ [x: string]: Object }>opt);
     }
 }

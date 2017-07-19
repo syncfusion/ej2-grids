@@ -50,6 +50,10 @@
       background-color: $grid-content-bg-color;
     }
 
+    .e-gridfooter {
+      background-color: $grid-content-bg-color;
+    }
+
     .e-headercontent {
       border-color: $grid-header-border-color;
     }
@@ -78,6 +82,10 @@
     .e-detailrowexpand {
       color: $grid-content-font-color;
       opacity: $grid-conent-font-opacity;
+    }
+
+    .e-summarycell {
+      border-color: $grid-header-border-color;
     }
 
     .e-rowcell,
@@ -212,7 +220,8 @@
     .e-groupcaption,
     .e-indentcell,
     .e-recordplusexpand,
-    .e-recordpluscollapse {
+    .e-recordpluscollapse,
+    .e-summarycell {
       background-color: $group-row-bg-color;
     }
 

@@ -1,5 +1,7 @@
 import { createElement } from '@syncfusion/ej2-base/dom';
+import { setStyleAndAttributes } from '../base/util';
 import { Cell } from '../models/cell';
+import { Column } from '../models/column';
 import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
 
@@ -7,7 +9,7 @@ import { CellRenderer } from './cell-renderer';
  * IndentCellRenderer class which responsible for building group indent cell. 
  * @hidden
  */
-export class IndentCellRenderer extends CellRenderer implements ICellRenderer {
+export class IndentCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TD', { className: 'e-indentcell' });
 
@@ -16,8 +18,12 @@ export class IndentCellRenderer extends CellRenderer implements ICellRenderer {
      * @param  {Cell} cell
      * @param  {Object} data        
      */
-    public render(cell: Cell, data: Object): Element {
-        return this.element.cloneNode() as Element;
+    public render(cell: Cell<Column>, data: Object): Element {
+        let node: Element = this.element.cloneNode() as Element;
+
+        setStyleAndAttributes(node, cell.attributes);
+
+        return node;
     }
 
 }

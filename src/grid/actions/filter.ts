@@ -67,8 +67,8 @@ export class Filter implements IAction {
     public render(): void {
         let gObj: IGrid = this.parent;
         if (gObj.columns.length) {
-            let rowRenderer: RowRenderer = new RowRenderer(this.serviceLocator, CellType.Filter);
-            let row: Row;
+            let rowRenderer: RowRenderer<Column> = new RowRenderer(this.serviceLocator, CellType.Filter);
+            let row: Row<Column>;
             let cellrender: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
             cellrender.addCellRenderer(CellType.Filter, new FilterCellRenderer(this.serviceLocator));
             this.l10n = this.serviceLocator.getService<L10n>('localization');
@@ -99,16 +99,16 @@ export class Filter implements IAction {
         remove(this.element);
     }
 
-    private generateRow(index?: number): Row {
+    private generateRow(index?: number): Row<Column> {
         let options: { [o: string]: Object } = {};
-        let row: Row = new Row(options);
+        let row: Row<Column> = new Row<Column>(options);
         row.cells = this.generateCells();
         return row;
     }
 
-    private generateCells(): Cell[] {
+    private generateCells(): Cell<Column>[] {
         //TODO: generate dummy column for group, detail, stacked row here for filtering;
-        let cells: Cell[] = [];
+        let cells: Cell<Column>[] = [];
         if (this.parent.allowGrouping) {
             for (let c: number = 0, len: number = this.parent.groupSettings.columns.length; c < len; c++) {
                 cells.push(this.generateCell({} as Column, CellType.HeaderIndent));
@@ -124,7 +124,7 @@ export class Filter implements IAction {
     }
 
 
-    private generateCell(column: Column, cellType?: CellType): Cell {
+    private generateCell(column: Column, cellType?: CellType): Cell<Column> {
         let opt: { [o: string]: Object } = {
             'visible': column.visible,
             'isDataCell': false,
@@ -133,7 +133,7 @@ export class Filter implements IAction {
             'cellType': cellType ? cellType : CellType.Filter,
             'attributes': { title: this.l10n.getConstant('FilterbarTitle') }
         };
-        return new Cell(opt);
+        return new Cell<Column>(opt);
     }
 
     /** 

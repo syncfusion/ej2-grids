@@ -3,6 +3,7 @@ import { Query, DataManager, Predicate } from '@syncfusion/ej2-data';
 import { IDataProcessor, IGrid } from '../base/interface';
 import { SearchSettingsModel, PredicateModel, SortDescriptorModel } from '../base/grid-model';
 import { getActualProperties } from '../base/util';
+import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
 
 /**
@@ -67,6 +68,12 @@ export class Data implements IDataProcessor {
             sSettings.fields = sSettings.fields.length ? sSettings.fields : gObj.getColumnFieldNames();
             query.search(sSettings.key, sSettings.fields, sSettings.operator, sSettings.ignoreCase);
         }
+
+        gObj.aggregates.forEach((row: AggregateRowModel) => {
+            row.columns.forEach((column: AggregateColumnModel) => {
+                query.aggregate(<string>column.type, column.field);
+            });
+        });
 
         if ((gObj.allowSorting || gObj.allowGrouping) && gObj.sortSettings.columns.length) {
             let columns: SortDescriptorModel[] = gObj.sortSettings.columns;
