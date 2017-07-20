@@ -76,7 +76,7 @@ export class NumericContainer implements IRender {
     }
 
     /**
-     * Binding events to the element while widget creation
+     * Binding events to the element while Component creation
      * @hidden
      */
     public wireEvents(): void {
@@ -84,7 +84,7 @@ export class NumericContainer implements IRender {
     }
 
     /**
-     * Unbinding events from the element while widget destroy
+     * Unbinding events from the element while Component destroy
      * @hidden
      */
     public unwireEvents(): void {

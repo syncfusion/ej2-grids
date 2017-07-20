@@ -115,7 +115,7 @@ export interface SearchSettingsModel {
 export interface RowDropSettingsModel {
 
     /**
-     * Defines the ID of droppable control on which row drop should occur.        */    targetID?: string;
+     * Defines the ID of droppable component on which row drop should occur.        */    targetID?: string;
 
 }
 
@@ -189,7 +189,7 @@ export interface GridModel extends ComponentModel{
      * If `allowFiltering` set to true the filter bar will be displayed.      * If set to false the filter bar will not be displayed.      * Filter bar allows the user to filter grid records with required criteria.             * @default false         */    allowFiltering?: boolean;
 
     /**
-     * If `allowReordering` set to true, then the Grid columns can be reordered.      * Reordering can be done by drag and drop the particular column from one index to another index.     * > If Grid rendered with Multi-level headers, then reordering allows only in same level.       * @default false         */    allowReordering?: boolean;
+     * If `allowReordering` set to true, then the Grid columns can be reordered.      * Reordering can be done by drag and drop the particular column from one index to another index.     * > If Grid rendered with stacked headers, then reordering allows only in same level of column headers.       * @default false         */    allowReordering?: boolean;
 
     /**
      * If `allowRowDragAndDrop` set to true, then it will allow the user to drag grid rows and drop to another grid.         * @default false         */    allowRowDragAndDrop?: boolean;
@@ -240,10 +240,10 @@ export interface GridModel extends ComponentModel{
      * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html)      * which will execute along with data processing.         * @default null         */    query?: Query;
 
     /**
-     * Triggers when the widget is created.     * @event      */    created?: EmitType<Object>;
+     * Triggers when the component is created.     * @event      */    created?: EmitType<Object>;
 
     /**
-     * Triggers when the widget is destroyed.      * @event      */    destroyed?: EmitType<Object>;
+     * Triggers when the component is destroyed.      * @event      */    destroyed?: EmitType<Object>;
 
     /**
      * This allows any customization of Grid properties before rendering.      * @event      */    load?: EmitType<Object>;

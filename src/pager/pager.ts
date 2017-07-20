@@ -14,7 +14,7 @@ export interface IRender {
 }
 
 /**
- * Represents the `Pager` control. 
+ * Represents the `Pager` component. 
  * ```html
  * <div id="pager"/>
  * ```
@@ -147,7 +147,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     }
 
     /**
-     * To provide the array of modules needed for control rendering
+     * To provide the array of modules needed for component rendering
      * @hidden
      */
     protected requiredModules(): ModuleDeclaration[] {
@@ -171,7 +171,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     }
 
     /**
-     * To Initialize the control rendering
+     * To Initialize the component rendering
      */
     protected render(): void {
         this.initLocalization();

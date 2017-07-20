@@ -315,7 +315,7 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
  */
 export class RowDropSettings extends ChildProperty<RowDropSettings> {
     /**   
-     * Defines the ID of droppable control on which row drop should occur.   
+     * Defines the ID of droppable component on which row drop should occur.   
      */
     @Property()
     public targetID: string;
@@ -366,7 +366,7 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
 
 
 /**
- * Represents the Grid control. 
+ * Represents the Grid component. 
  * ```html
  * <div id="grid"></div>
  * <script>
@@ -638,7 +638,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * If `allowReordering` set to true, then the Grid columns can be reordered. 
      * Reordering can be done by drag and drop the particular column from one index to another index.
-     * > If Grid rendered with Multi-level headers, then reordering allows only in same level.  
+     * > If Grid rendered with stacked headers, then reordering allows only in same level of column headers.  
      * @default false    
      */
     @Property(false)
@@ -816,14 +816,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public query: Query;
 
     /** 
-     * Triggers when the widget is created.
+     * Triggers when the component is created.
      * @event 
      */
     @Event()
     public created: EmitType<Object>;
 
     /** 
-     * Triggers when the widget is destroyed. 
+     * Triggers when the component is destroyed. 
      * @event 
      */
     @Event()
@@ -999,7 +999,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public rowDrop: EmitType<RowDragEventArgs>;
 
     /**
-     * Constructor for creating the widget
+     * Constructor for creating the component
      * @hidden
      */
     constructor(options?: GridModel, element?: string | HTMLElement) {
@@ -1025,7 +1025,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * To provide the array of modules needed for control rendering
+     * To provide the array of modules needed for component rendering
      * @return {ModuleDeclaration[]}
      * @hidden
      */
@@ -1095,7 +1095,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * For internal use only - To Initialize the control rendering.
+     * For internal use only - To Initialize the component rendering.
      * @private
      */
     protected render(): void {
@@ -1125,9 +1125,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Prepares the widget for safe removal from DOM. 
-     * Detaches all event handlers, attributes, and classes to avoid memory leaks. 
-     * > This method does not remove the widget element from DOM.
+     * To destroy the component(Detaches/removes all event handlers, attributes, classes and empty the component element).
      * @method destroy
      * @return {void}
      */
@@ -2062,7 +2060,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Binding events to the element while widget creation.
+     * Binding events to the element while component creation.
      * @hidden
      */
     public wireEvents(): void {
@@ -2082,7 +2080,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Unbinding events from the element while widget destroy.
+     * Unbinding events from the element while component destroy.
      * @hidden
      */
     public unwireEvents(): void {
