@@ -1,6 +1,7 @@
 import { createElement } from '@syncfusion/ej2-base/dom';
 import { formatUnit } from '@syncfusion/ej2-base/util';
 import { IRenderer, IGrid } from '../base/interface';
+import { getScrollBarWidth } from '../base/util';
 import { colGroupRefresh, columnWidthChanged, scroll, columnVisibilityChanged } from '../base/constant';
 import { Column } from '../models/column';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
@@ -34,6 +35,7 @@ export class FooterRenderer extends ContentRender implements IRenderer {
     public renderPanel(): void {
         let div: Element = createElement('div', { className: 'e-gridfooter' });
         let innerDiv: Element = createElement('div', { className: 'e-summarycontent' });
+        (<HTMLElement>innerDiv).style.height = 'calc(100% + ' + getScrollBarWidth() + 'px)';
         div.appendChild(innerDiv);
         this.setPanel(div);
         if (this.parent.getPager() != null) {
@@ -72,6 +74,7 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         }
 
         (<HTMLTableElement>this.getTable()).tFoot.appendChild(fragment);
+        (<HTMLElement>this.parent.getFooterContent()).style.height = (<HTMLTableElement>this.getTable()).tFoot.offsetHeight + 'px';
         this.aggregates = e;
     }
 

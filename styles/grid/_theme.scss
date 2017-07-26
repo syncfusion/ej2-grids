@@ -51,7 +51,7 @@
     }
 
     .e-gridfooter {
-      background-color: $grid-content-bg-color;
+      background-color: $group-row-bg-color;
     }
 
     .e-headercontent {
@@ -85,8 +85,9 @@
     }
 
     .e-summarycell {
+      background-color: $group-row-bg-color;
       border-color: $grid-header-border-color;
-      color: $grid-drag-clone-color;
+      color: $grid-header-color;
     }
 
     .e-rowcell,
@@ -221,8 +222,7 @@
     .e-groupcaption,
     .e-indentcell,
     .e-recordplusexpand,
-    .e-recordpluscollapse,
-    .e-summarycell {
+    .e-recordpluscollapse {
       background-color: $group-row-bg-color;
     }
 

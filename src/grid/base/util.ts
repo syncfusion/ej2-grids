@@ -1,6 +1,6 @@
 import { ChildProperty } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base/util';
-import { setStyleAttribute, addClass, attributes } from '@syncfusion/ej2-base/dom';
+import { setStyleAttribute, addClass, attributes, createElement } from '@syncfusion/ej2-base/dom';
 import { IPosition } from './interface';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
@@ -265,4 +265,17 @@ export function calculateAggregate(type: AggregateType | string, data: Object, c
     }
     return DataUtil.aggregates[type](data, column.field);
 }
+/** @hidden */
+let scrollWidth: number = null;
 
+/** @hidden */
+export function getScrollBarWidth(): number {
+    if (scrollWidth !== null) { return scrollWidth; }
+    let divNode: HTMLDivElement = document.createElement('div');
+    let value: number = 0;
+    divNode.style.cssText = 'width:100px;height: 100px;overflow: scroll;position: absolute;top: -9999px;';
+    document.body.appendChild(divNode);
+    value = (divNode.offsetWidth - divNode.clientWidth) | 0;
+    document.body.removeChild(divNode);
+    return scrollWidth = value;
+}

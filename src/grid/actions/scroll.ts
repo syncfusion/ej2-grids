@@ -1,7 +1,8 @@
 import { Browser, EventHandler } from '@syncfusion/ej2-base';
-import { remove, createElement, addClass, removeClass } from '@syncfusion/ej2-base/dom';
+import { remove, addClass, removeClass } from '@syncfusion/ej2-base/dom';
 import { formatUnit, isNullOrUndefined } from '@syncfusion/ej2-base/util';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
+import { getScrollBarWidth } from '../base/util';
 import { scroll, contentReady, uiUpdate } from '../base/constant';
 import { ColumnWidthService } from '../services/width-controller';
 
@@ -123,6 +124,7 @@ export class Scroll implements IAction {
             let target: HTMLElement = (<HTMLElement>e.target);
             let left: number = target.scrollLeft;
             let sLimit: number = target.scrollWidth;
+            let isFooter: boolean = target.classList.contains('e-summarycontent');
 
             if (this.previousValues.left === left) {
                 this.previousValues.top = !isHeader ? this.previousValues.top : target.scrollTop;
@@ -130,6 +132,7 @@ export class Scroll implements IAction {
             }
 
             element.scrollLeft = left;
+            if (isFooter) { this.header.scrollLeft = left; }
             this.previousValues.left = left;
             this.parent.notify(scroll, { left: left });
         };
@@ -141,6 +144,10 @@ export class Scroll implements IAction {
             this.header = <HTMLDivElement>this.parent.getHeaderContent().firstChild;
             EventHandler.add(this.content, 'scroll', this.onContentScroll(this.header), this);
             EventHandler.add(this.header, 'scroll', this.onContentScroll(this.content), this);
+            if (this.parent.aggregates.length) {
+                EventHandler.add(
+                <HTMLDivElement>this.parent.getFooterContent().firstChild, 'scroll', this.onContentScroll(this.content), this);
+            }
             this.refresh();
             this.oneTimeReady = false;
         }
@@ -206,13 +213,7 @@ export class Scroll implements IAction {
      * @hidden
      */
     public static getScrollBarWidth(): number {
-        let divNode: HTMLDivElement = document.createElement('div');
-        let value: number = 0;
-        divNode.style.cssText = 'width:100px;height: 100px;overflow: scroll;position: absolute;top: -9999px;';
-        document.body.appendChild(divNode);
-        value = (divNode.offsetWidth - divNode.clientWidth) | 0;
-        document.body.removeChild(divNode);
-        return value;
+        return getScrollBarWidth();
     }
 }
 
