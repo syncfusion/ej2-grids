@@ -11,3 +11,5 @@ export type ValueAccessor = (field: string, data: Object, column: ColumnModel) =
 export type SortComparer = (x: ValueType, y: ValueType) => number;
 
 export type CustomSummaryType = (data: Object[] | Object, column: AggregateColumnModel) => Object;
+
+export type ReturnType = { result: Object[], count: number, aggregates?: Object };

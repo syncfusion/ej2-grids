@@ -47,7 +47,7 @@ export class Data implements IDataProcessor {
      * @return {Query}
      * @hidden
      */
-    public generateQuery(): Query {
+    public generateQuery(skipPage?: boolean): Query {
         let gObj: IGrid = this.parent;
         let query: Query = gObj.query.clone();
 
@@ -92,7 +92,7 @@ export class Data implements IDataProcessor {
             }
         }
 
-        if (gObj.allowPaging) {
+        if (gObj.allowPaging && skipPage !== true) {
             query.page(gObj.pageSettings.currentPage, gObj.pageSettings.pageSize);
         }
 
@@ -116,7 +116,13 @@ export class Data implements IDataProcessor {
         return this.dataManager.executeQuery(query);
     }
 
-    private getDatePredicate(filterObject: PredicateModel): Predicate {
+    /** @hidden */
+    public isRemote(): boolean {
+        return this.dataManager.dataSource.offline !== true && this.dataManager.dataSource.url !== undefined;
+    }
+
+    /** @hidden */
+    public getDatePredicate(filterObject: PredicateModel): Predicate {
         let prevDate: Date;
         let nextDate: Date;
         let prevObj: PredicateModel = extend({}, getActualProperties(filterObject)) as PredicateModel;

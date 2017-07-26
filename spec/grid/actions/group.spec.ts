@@ -7,6 +7,7 @@ import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
 import { SortDirection } from '../../../src/grid/base/enum';
 import { DataManager } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
+import { ReturnType } from '../../../src/grid/base/type';
 import { Sort } from '../../../src/grid/actions/sort';
 import { Selection } from '../../../src/grid/actions/selection';
 import { Filter } from '../../../src/grid/actions/filter';
@@ -15,6 +16,7 @@ import { Group } from '../../../src/grid/actions/group';
 import { Reorder } from '../../../src/grid/actions/reorder';
 import { filterData } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { Render } from '../../../src/grid/renderer/render';
 
 Grid.Inject(Sort, Page, Filter, Group, Selection, Reorder);
 
@@ -1143,6 +1145,94 @@ describe('Grouping module', () => {
             elem.remove();
         });
 
+    });
+
+    describe('Grouping date', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'OrderDate', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: { columns: ['OrderDate'] },
+                    allowPaging: true,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('check data', () => {
+            expect(gridObj.currentViewData.length).not.toBeNull();
+        });
+        afterAll(() => {
+            elem.remove();
+        });
+    });
+
+    describe('Grouping remote data', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        let old: (e: ReturnType) => Promise<Object> = Render.prototype.validateGroupRecords;
+        beforeAll((done: Function) => {
+            jasmine.Ajax.install();
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: new DataManager({ url: '/api/test' }),
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'OrderDate', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: { columns: ['EmployeeID', 'CustomerID'] },
+                    allowPaging: true,
+                    actionFailure: dataBound,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+            let first: JasmineAjaxRequest = jasmine.Ajax.requests.at(1);
+            first.respondWith({
+                'status': 200,
+                'contentType': 'application/json',
+                'responseText': JSON.stringify({ d: { results: filterData, __count: 100 } })
+            });
+
+            Render.prototype.validateGroupRecords = (e: ReturnType) => {
+                let promise: Promise<Object> = old.call(gridObj.renderModule, e);
+                let first: JasmineAjaxRequest = jasmine.Ajax.requests.at(1);
+                first.respondWith({
+                    'status': 200,
+                    'contentType': 'application/json',
+                    'responseText': JSON.stringify({ d: { results: filterData, __count: 100 } })
+                });
+                return promise;
+            };
+        });
+        it('check data', () => {
+            expect(gridObj.groupSettings.columns.length).not.toBeNull();
+        });
+        afterAll(() => {
+            Render.prototype.validateGroupRecords = old;
+            elem.remove();
+            jasmine.Ajax.uninstall();
+        });
     });
 
 });

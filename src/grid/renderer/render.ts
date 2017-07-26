@@ -1,12 +1,15 @@
 import { L10n, DateFormatOptions, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base/dom';
 import { isNullOrUndefined, getValue } from '@syncfusion/ej2-base/util';
+import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
 import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
 import { RenderType, CellType } from '../base/enum';
 import { Data } from '../actions/data';
 import { Column } from '../models/column';
+import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
-import { prepareColumns } from '../base/util';
+import { prepareColumns, calculateAggregate } from '../base/util';
+import { ReturnType } from '../base/type';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -86,8 +89,11 @@ export class Render {
     private refreshDataManager(args?: NotifyArgs): void {
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
         let dataManager: Promise<Object> = this.data.getData(this.data.generateQuery().requiresCount());
-        dataManager.then((e: { result: Object, count: number }) => this.dataManagerSuccess(e, args))
-            .catch((e: { result: Object[] }) => this.dataManagerFailure(e));
+        if (this.parent.groupSettings.columns.length) {
+            dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
+        }
+        dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))
+            .catch((e: ReturnType) => this.dataManagerFailure(e));
     }
 
     /** 
@@ -161,7 +167,7 @@ export class Render {
         }
     }
 
-    private dataManagerSuccess(e: { result: Object, count: number, aggregates?: Object }, args?: NotifyArgs): void {
+    private dataManagerSuccess(e: ReturnType, args?: NotifyArgs): void {
         let gObj: IGrid = this.parent;
         let len: number = Object.keys(e.result).length;
         if (this.parent.isDestroyed) { return; }
@@ -245,6 +251,65 @@ export class Render {
         this.parent.on(events.initialLoad, this.instantiateRenderer, this);
         this.parent.on(events.modelChanged, this.refresh, this);
         this.parent.on(events.refreshComplete, this.refreshComplete, this);
+    }
+
+    /** @hidden */
+    public validateGroupRecords(e: ReturnType): Promise<Object> {
+        let index: number = e.result.length - 1;
+        if (index < 0) { return Promise.resolve(e); }
+        let group0: Group = <Group>e.result[0];
+        let groupN: Group = <Group>e.result[index]; let predicate: Predicate[] = [];
+        let addWhere: (query: Query) => void =
+        (input: Query) => {
+            [group0, groupN].forEach((group: Group) =>
+            predicate.push(new Predicate('field', '==', group.field).and(this.getPredicate('key', 'equal', group.key))));
+            input.where(Predicate.or(predicate));
+        };
+        let query: Query = new Query(); addWhere(query);
+        let curDm: DataManager = new DataManager(e.result);
+        let curFilter: Object[] = <Object[]>curDm.executeLocal(query);
+        let newQuery: Query = this.data.generateQuery(true); let rPredicate: Predicate[] = [];
+        if (this.data.isRemote()) {
+            [group0, groupN].forEach((group: Group) =>
+            rPredicate.push(this.getPredicate(group.field, 'equal', group.key)));
+            newQuery.where(Predicate.or(rPredicate));
+        } else {
+            addWhere(newQuery);
+        }
+        let deferred: Deferred = new Deferred();
+        this.data.getData(newQuery).then((r: ReturnType) => {
+            this.updateGroupInfo(curFilter, r.result);
+            deferred.resolve(e);
+        });
+        return deferred.promise;
+    }
+
+    private getPredicate(key: string, operator: string, value: string | number | Date): Predicate {
+        if (value instanceof Date) {
+            return this.data.getDatePredicate({ field: key, operator: operator, value: value });
+        }
+        return new Predicate(key, operator, value);
+    }
+
+    private updateGroupInfo(current: Object[], untouched: Object[]): Object[] {
+        let dm: DataManager = new DataManager(untouched);
+        current.forEach((element: Group, index: number, array: Object[]) => {
+            let uGroup: Group = dm.executeLocal(new Query()
+            .where(new Predicate('field', '==', element.field).and(this.getPredicate('key', 'equal', element.key))))[0];
+            element.count = uGroup.count; let itemGroup: Group = (<Group>element.items); let uGroupItem: Group = (<Group>uGroup.items);
+            if (itemGroup.GroupGuid) {
+                element.items = <Object[]>this.updateGroupInfo(element.items,  uGroup.items);
+            }
+            this.parent.aggregates.forEach((row: AggregateRowModel) =>
+            row.columns.forEach((column: AggregateColumnModel) => {
+                let types: string[] = column.type instanceof Array ? column.type : [column.type];
+                types.forEach((type: string) => {
+                    let key: string = column.field + ' - ' + type;
+                    element.aggregates[key] = calculateAggregate(type, itemGroup.level ? uGroupItem.records : uGroup.items, column);
+                });
+            }));
+        });
+        return current;
     }
 
 }
