@@ -1964,6 +1964,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public recalcIndentWidth(): void {
+        if (!this.getHeaderTable().querySelector('.e-emptycell')) {
+            return;
+        }
         if ((!this.groupSettings.columns.length && !this.isDetail()) ||
             this.getHeaderTable().querySelector('.e-emptycell').getAttribute('indentRefreshed') ||
             !this.getContentTable()) {
