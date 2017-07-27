@@ -443,8 +443,9 @@ describe('Aggregates Functionality testing', () => {
 
     describe('Summary dynamic show/hide column', () => {
         let grid: Grid;
-        let rows: HTMLTableRowElement;
+        let rows: HTMLTableRowElement;        
         beforeAll((done: Function) => {
+		window['browserDetails']['isDevice'] = true;
             grid = createGrid(
                 {
                     allowGrouping: true,
@@ -482,6 +483,7 @@ describe('Aggregates Functionality testing', () => {
         });
 
         afterAll(() => {
+            window['browserDetails']['isDevice'] = false;
             destroy(grid);
         });
     });

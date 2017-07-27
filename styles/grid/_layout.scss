@@ -285,14 +285,9 @@
     .e-gridheader,
     .e-headercontent,
     .e-groupdroparea,
-    .e-gridfooter {
-      overflow: hidden;
-      vertical-align: middle;
-    }
-
+    .e-gridfooter,
     .e-summarycontent {
-      overflow-x: scroll;
-      overflow-y: hidden;
+      overflow: hidden;
       vertical-align: middle;
     }
 
