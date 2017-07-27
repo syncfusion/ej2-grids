@@ -21,6 +21,34 @@
       font-size: $grid-icon-font-size;
     }
 
+    .e-toolbar {
+      border-top: $grid-toolbar-border-width $grid-header-border-color;
+    }
+
+    .e-search {
+      background-color: $grid-toolbar-search-background-color;
+      border: $grid-toolbar-border-width $grid-header-border-color;
+      border-radius: 16px;
+      height: calc(100% - 11px);
+      margin: 4.67px;
+      padding: 2px 5px;
+
+      & input {
+        border: 0;
+        font-family: 'Roboto';
+        font-size: 12px;
+        height: 20px;
+        padding: 1px 0 0;
+        width: 110px;
+      }
+
+      & span {
+        cursor: pointer;
+        font-size: 10px;
+        padding: 4px 0;
+      }
+    }
+
     .e-groupdroparea.e-grouped {
       padding: $grid-grouped-padding;
     }
@@ -384,11 +412,13 @@
     }
 
     // sass-lint:disable-all
-    .e-filterbarcell .e-filtertext::-webkit-search-cancel-button {
+    .e-filterbarcell .e-filtertext::-webkit-search-cancel-button,
+    .e-search input::-webkit-search-cancel-button  {
       display: none;
     }
 
-    .e-filterbarcell .e-filtertext::-ms-clear {
+    .e-filterbarcell .e-filtertext::-ms-clear,
+    .e-search input::-ms-clear {
       display: none;
     }
 
@@ -1177,6 +1207,22 @@
 
     .e-groupcaption {
       line-height: 32px;
+    }
+
+    .e-search {
+      border-radius: 18px;
+      height: calc(100% - 11px);
+      margin: 5.5px 0;
+      padding: 2px 6px 1px;
+
+      & input {
+        border-radius: 7px;
+        height: 30.5px;
+      }
+
+      & span {
+        font-size: 10px;
+      }
     }
  }
 }

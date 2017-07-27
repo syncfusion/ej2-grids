@@ -64,11 +64,14 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                 id: column.field + '_filterBarcell', className: 'e-filtertext',
                 attrs: {
                     type: 'search', title: column.headerText + (cell.attributes as { title: string }).title,
-                    value: data[cell.column.field] ? data[cell.column.field] : ''
+                    value: data[cell.column.field] ? data[cell.column.field] : '', role: 'search'
                 }
             });
             innerDIV.appendChild(input);
-            innerDIV.appendChild(createElement('span', { className: 'e-cancel e-hide e-icons e-icon-hide', }));
+            innerDIV.appendChild(createElement('span', {
+                className: 'e-cancel e-hide e-icons e-icon-hide',
+                attrs: { 'aria-label': 'clear filter cell', tabindex: '-1' }
+            }));
         }
         //TODO: apply intial filtering
         if (column.allowFiltering === false || column.field === '' || isNullOrUndefined(column.field)) {

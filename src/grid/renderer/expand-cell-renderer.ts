@@ -20,6 +20,7 @@ export class ExpandCellRenderer extends IndentCellRenderer implements ICellRende
         node.setAttribute('ej-mappingname', data.field);
         node.setAttribute('ej-mappingvalue', data.key);
         node.setAttribute('aria-expanded', 'true');
+        node.setAttribute('tabindex', '-1');
         node.appendChild(createElement('div', { className: 'e-icons e-gdiagonaldown e-icon-gdownarrow' }));
         return node;
     }

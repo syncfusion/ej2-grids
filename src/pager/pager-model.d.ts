@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, L10n, EmitType } from '@syncfusion/ej2-base';import { createElement, remove, classList } from '@syncfusion/ej2-base/dom';import { isNullOrUndefined } from '@syncfusion/ej2-base/util';import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';import { NumericContainer } from './numeric-container';import { PagerMessage } from './pager-message';import { ExternalMessage } from './external-message';
+import { Component, ModuleDeclaration, L10n, EmitType, Browser } from '@syncfusion/ej2-base';import { createElement, remove, classList } from '@syncfusion/ej2-base/dom';import { isNullOrUndefined } from '@syncfusion/ej2-base/util';import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';import { NumericContainer } from './numeric-container';import { PagerMessage } from './pager-message';import { ExternalMessage } from './external-message';
 import {ComponentModel} from '@syncfusion/ej2-base';
 
 /**

@@ -89,7 +89,10 @@ export class Print {
                 removeElement(this.element, '.e-recordplusexpand');
             }
         }
-        //Todo: consider scrolling, toolbar                       
+        //Todo: consider scrolling, toolbar     
+        if (gObj.toolbar) {
+            (this.element.querySelector('.e-toolbar') as HTMLElement).style.display = 'none';
+        }
         if (gObj.allowFiltering && gObj.filterSettings.type === 'filterbar') {
             (this.element.querySelector('.e-filterbar') as HTMLElement).style.display = 'none';
         }

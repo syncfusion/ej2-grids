@@ -45,8 +45,8 @@ export class Selection implements IAction {
     private isDragged: boolean;
     private x: number;
     private y: number;
-    private isTrigger: boolean;
     private target: Element;
+    private preSelectedCellIndex: IIndex;
     //Module declarations
     private parent: IGrid;
 
@@ -110,30 +110,36 @@ export class Selection implements IAction {
     public selectRow(index: number): void {
         let gObj: IGrid = this.parent;
         let selectedRow: Element = gObj.getRowByIndex(index);
+        let selectData: Object = gObj.getCurrentViewRecords()[index];
         if (!this.isRowType() || !selectedRow) {
             return;
         }
         let isRowSelected: boolean = selectedRow.hasAttribute('aria-selected');
+        let isToogle: boolean = index === this.prevRowIndex && isRowSelected;
+        if (!isToogle) {
+            this.onActionBegin(
+                {
+                    data: selectData, rowIndex: index, isCtrlPressed: this.isMultiCtrlRequest,
+                    isShiftPressed: this.isMultiShiftRequest, row: selectedRow, previousRow: gObj.getRows()[this.prevRowIndex],
+                    previousRowIndex: this.prevRowIndex, target: this.target
+                },
+                events.rowSelecting);
+        }
         this.clearRow();
-        this.onActionBegin(
-            {
-                data: gObj.currentViewData[index], rowIndex: index, isCtrlPressed: this.isMultiCtrlRequest,
-                isShiftPressed: this.isMultiShiftRequest, row: selectedRow, previousRow: gObj.getRows()[this.prevRowIndex],
-                previousRowIndex: this.prevRowIndex, target: this.target
-            },
-            events.rowSelecting);
-        if (!(index === this.prevRowIndex && isRowSelected)) {
+        if (!isToogle) {
             this.updateRowSelection(selectedRow, index);
         }
         this.updateRowProps(index);
         this.parent.selectedRowIndex = index;
-        this.onActionComplete(
-            {
-                data: gObj.currentViewData[index], rowIndex: index,
-                row: selectedRow, previousRow: gObj.getRows()[this.prevRowIndex],
-                previousRowIndex: this.prevRowIndex, target: this.target
-            },
-            events.rowSelected);
+        if (!isToogle) {
+            this.onActionComplete(
+                {
+                    data: selectData, rowIndex: index,
+                    row: selectedRow, previousRow: gObj.getRows()[this.prevRowIndex],
+                    previousRowIndex: this.prevRowIndex, target: this.target
+                },
+                events.rowSelected);
+        }
     }
 
     /** 
@@ -155,17 +161,19 @@ export class Selection implements IAction {
     public selectRows(rowIndexes: number[]): void {
         let gObj: IGrid = this.parent;
         let selectedRow: Element = gObj.getRowByIndex(rowIndexes[0]);
+        let selectedData: Object = gObj.getCurrentViewRecords()[rowIndexes[0]];
         if (this.isSingleSel() || !this.isRowType()) {
             return;
         }
-        this.clearRow();
         this.onActionBegin(
             {
                 rowIndexes: rowIndexes, row: selectedRow, rowIndex: rowIndexes[0], target: this.target,
                 prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex,
-                isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest
+                isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest,
+                data: selectedData
             },
             events.rowSelecting);
+        this.clearRow();
         for (let rowIndex of rowIndexes) {
             this.updateRowSelection(gObj.getRowByIndex(rowIndex), rowIndex);
         }
@@ -173,7 +181,8 @@ export class Selection implements IAction {
         this.onActionComplete(
             {
                 rowIndexes: rowIndexes, row: selectedRow, rowIndex: rowIndexes[0], target: this.target,
-                prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex
+                prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex,
+                data: selectedData
             },
             events.rowSelected);
     }
@@ -191,29 +200,35 @@ export class Selection implements IAction {
             return;
         }
         for (let rowIndex of rowIndexes) {
-            this.onActionBegin(
-                {
-                    data: gObj.currentViewData[rowIndex], rowIndex: rowIndex, row: selectedRow, target: this.target,
-                    prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex,
-                    isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest
-                },
-                events.rowSelecting);
+            let data: Object = gObj.getCurrentViewRecords()[rowIndex];
+            let isUnSelected: boolean = this.selectedRowIndexes.indexOf(rowIndex) > -1;
             gObj.selectedRowIndex = rowIndex;
-            if (this.selectedRowIndexes.indexOf(rowIndex) > -1) {
+            if (isUnSelected) {
+                this.rowDeselect(events.rowDeselecting, [rowIndex], data, [selectedRow]);
                 this.selectedRowIndexes.splice(this.selectedRowIndexes.indexOf(rowIndex), 1);
                 this.selectedRecords.splice(this.selectedRecords.indexOf(selectedRow), 1);
                 selectedRow.removeAttribute('aria-selected');
                 this.addRemoveClassesForRow(selectedRow, false, 'e-selectionbackground', 'e-active');
+                this.rowDeselect(events.rowDeselecting, [rowIndex], data, [selectedRow]);
             } else {
+                this.onActionBegin(
+                    {
+                        data: data, rowIndex: rowIndex, row: selectedRow, target: this.target,
+                        prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex,
+                        isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest
+                    },
+                    events.rowSelecting);
                 this.updateRowSelection(selectedRow, rowIndex);
             }
             this.updateRowProps(rowIndex);
-            this.onActionComplete(
-                {
-                    data: gObj.currentViewData[rowIndex], rowIndex: rowIndex, row: selectedRow, target: this.target,
-                    prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex
-                },
-                events.rowSelected);
+            if (!isUnSelected) {
+                this.onActionComplete(
+                    {
+                        data: data, rowIndex: rowIndex, row: selectedRow, target: this.target,
+                        prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex
+                    },
+                    events.rowSelected);
+            }
         }
     }
 
@@ -275,31 +290,30 @@ export class Selection implements IAction {
             let data: Object[] = [];
             let row: Element[] = [];
             let rowIndex: number[] = [];
+            let currentViewData: Object[] = this.parent.getCurrentViewRecords();
 
             for (let i: number = 0, len: number = this.selectedRowIndexes.length; i < len; i++) {
-                data.push(this.parent.currentViewData[this.selectedRowIndexes[i]]);
+                data.push(currentViewData[this.selectedRowIndexes[i]]);
                 row.push(this.parent.getRows()[this.selectedRowIndexes[i]]);
                 rowIndex.push(this.selectedRowIndexes[i]);
             }
-            if (this.isTrigger) {
-                this.parent.trigger(events.rowDeselecting, {
-                    rowIndex: rowIndex, data: data, row: row
-                });
-            }
+            this.rowDeselect(events.rowDeselecting, rowIndex, data, row);
             for (let i: number = 0, len: number = this.selectedRowIndexes.length; i < len; i++) {
                 rows[this.selectedRowIndexes[i]].removeAttribute('aria-selected');
                 this.addRemoveClassesForRow(rows[this.selectedRowIndexes[i]], false, 'e-selectionbackground', 'e-active');
-            }
-            if (this.isTrigger) {
-                this.parent.trigger(events.rowDeselected, {
-                    rowIndex: rowIndex, data: data, row: row
-                });
             }
             this.selectedRowIndexes = [];
             this.selectedRecords = [];
             this.isRowSelected = false;
             this.parent.selectedRowIndex = undefined;
+            this.rowDeselect(events.rowDeselected, rowIndex, data, row);
         }
+    }
+
+    private rowDeselect(type: string, rowIndex: number[], data: Object, row: Element[]): void {
+        this.parent.trigger(type, {
+            rowIndex: rowIndex, data: data, row: row
+        });
     }
 
     /**
@@ -310,31 +324,41 @@ export class Selection implements IAction {
     public selectCell(cellIndex: IIndex): void {
         let gObj: IGrid = this.parent;
         let selectedCell: Element = gObj.getCellFromIndex(cellIndex.rowIndex, cellIndex.cellIndex);
+        this.currentIndex = cellIndex.rowIndex;
+        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
         if (!this.isCellType() || !selectedCell) {
             return;
         }
         let isCellSelected: boolean = selectedCell.classList.contains('e-cellselectionbackground');
-        this.clearCell();
-        this.onActionBegin(
-            {
-                data: this.parent.getRows()[cellIndex.rowIndex], cellIndex: cellIndex, currentCell: selectedCell,
-                isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
-                previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
-            },
-            events.cellSelecting);
-        if (!(!isUndefined(this.prevCIdxs) &&
+        let isUpdate: boolean = !(!isUndefined(this.prevCIdxs) &&
             cellIndex.rowIndex === this.prevCIdxs.rowIndex && cellIndex.cellIndex === this.prevCIdxs.cellIndex &&
-            isCellSelected)) {
+            isCellSelected);
+
+        if (isUpdate) {
+            this.onActionBegin(
+                {
+                    data: selectedData, cellIndex: cellIndex, currentCell: selectedCell,
+                    isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
+                    previousRowCell: this.prevECIdxs ?
+                        gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
+                },
+                events.cellSelecting);
+        }
+        this.clearCell();
+        if (isUpdate) {
             this.updateCellSelection(selectedCell, cellIndex.rowIndex, cellIndex.cellIndex);
         }
         this.updateCellProps(cellIndex, cellIndex);
-        this.onActionComplete(
-            {
-                data: this.parent.getRows()[cellIndex.rowIndex], cellIndex: cellIndex, currentCell: selectedCell,
-                previousRowCellIndex: this.prevECIdxs, selectedRowCellIndex: this.selectedRowCellIndexes,
-                previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
-            },
-            events.cellSelected);
+        if (isUpdate) {
+            this.onActionComplete(
+                {
+                    data: selectedData, cellIndex: cellIndex, currentCell: selectedCell,
+                    previousRowCellIndex: this.prevECIdxs, selectedRowCellIndex: this.selectedRowCellIndexes,
+                    previousRowCell: this.prevECIdxs ?
+                        gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
+                },
+                events.cellSelected);
+        }
     }
 
     /**
@@ -349,19 +373,21 @@ export class Selection implements IAction {
         let min: number;
         let max: number;
         let stIndex: IIndex = startIndex;
-        let edIndex: IIndex = endIndex;
+        let edIndex: IIndex = endIndex = endIndex ? endIndex : startIndex;
         let cellIndexes: number[];
+        this.currentIndex = startIndex.rowIndex;
+        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
         if (this.isSingleSel() || !this.isCellType()) {
             return;
         }
-        this.clearCell();
         this.onActionBegin(
             {
-                data: this.parent.getRows()[startIndex.rowIndex], cellIndex: startIndex, currentCell: selectedCell,
+                data: selectedData, cellIndex: startIndex, currentCell: selectedCell,
                 isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
                 previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
             },
             events.cellSelecting);
+        this.clearCell();
         if (startIndex.rowIndex > endIndex.rowIndex) {
             let temp: IIndex = startIndex;
             startIndex = endIndex;
@@ -383,13 +409,14 @@ export class Selection implements IAction {
                 }
                 cellIndexes.push(j);
                 selectedCell.classList.add('e-cellselectionbackground');
+                this.addAttribute(selectedCell);
             }
             this.selectedRowCellIndexes.push({ rowIndex: i, cellIndexes: cellIndexes });
         }
         this.updateCellProps(stIndex, edIndex);
         this.onActionComplete(
             {
-                data: this.parent.getRows()[startIndex.rowIndex], cellIndex: startIndex, currentCell: selectedCell,
+                data: selectedData, cellIndex: startIndex, currentCell: selectedCell,
                 previousRowCellIndex: this.prevECIdxs, selectedRowCellIndex: this.selectedRowCellIndexes,
                 previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
             },
@@ -404,12 +431,14 @@ export class Selection implements IAction {
     public selectCells(rowCellIndexes: ISelectedCell[]): void {
         let gObj: IGrid = this.parent;
         let selectedCell: Element = gObj.getCellFromIndex(rowCellIndexes[0].rowIndex, rowCellIndexes[0].cellIndexes[0]);
+        this.currentIndex = rowCellIndexes[0].rowIndex;
+        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
         if (this.isSingleSel() || !this.isCellType()) {
             return;
         }
         this.onActionBegin(
             {
-                data: this.parent.getRows()[rowCellIndexes[0].rowIndex], cellIndex: rowCellIndexes[0].cellIndexes[0],
+                data: selectedData, cellIndex: rowCellIndexes[0].cellIndexes[0],
                 currentCell: selectedCell, isCtrlPressed: this.isMultiCtrlRequest,
                 isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
                 previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
@@ -422,6 +451,7 @@ export class Selection implements IAction {
                     continue;
                 }
                 selectedCell.classList.add('e-cellselectionbackground');
+                this.addAttribute(selectedCell);
                 this.addRowCellIndex({ rowIndex: rowCellIndexes[i].rowIndex, cellIndex: rowCellIndexes[i].cellIndexes[j] });
             }
         }
@@ -430,7 +460,7 @@ export class Selection implements IAction {
             { rowIndex: rowCellIndexes[0].rowIndex, cellIndex: rowCellIndexes[0].cellIndexes[0] });
         this.onActionComplete(
             {
-                data: this.parent.getRows()[rowCellIndexes[0].rowIndex], cellIndex: rowCellIndexes[0].cellIndexes[0],
+                data: selectedData, cellIndex: rowCellIndexes[0].cellIndexes[0],
                 currentCell: selectedCell,
                 previousRowCellIndex: this.prevECIdxs, selectedRowCellIndex: this.selectedRowCellIndexes,
                 previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
@@ -448,56 +478,82 @@ export class Selection implements IAction {
         let gObj: IGrid = this.parent;
         let selectedCell: Element = gObj.getCellFromIndex(cellIndexes[0].rowIndex, cellIndexes[0].cellIndex);
         let index: number;
+        this.currentIndex = cellIndexes[0].rowIndex;
+        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
         if (this.isSingleSel() || !this.isCellType()) {
             return;
         }
         for (let cellIndex of cellIndexes) {
-            this.onActionBegin(
-                {
-                    data: this.parent.getRows()[cellIndexes[0].rowIndex], cellIndex: cellIndexes[0],
-                    isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
-                    currentCell: selectedCell, isCtrlPressed: this.isMultiCtrlRequest,
-                    previousRowCell: this.prevECIdxs ?
-                        gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
-                },
-                events.cellSelecting);
             for (let i: number = 0, len: number = this.selectedRowCellIndexes.length; i < len; i++) {
                 if (this.selectedRowCellIndexes[i].rowIndex === cellIndex.rowIndex) {
                     index = i;
                     break;
                 }
             }
-            if (index > -1) {
+            let args: Object = {
+                data: selectedData, cellIndex: cellIndexes[0],
+                isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
+                currentCell: selectedCell, isCtrlPressed: this.isMultiCtrlRequest,
+                previousRowCell: this.prevECIdxs ?
+                    gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
+            };
+            let isUnSelected: boolean = index > -1;
+            if (isUnSelected) {
                 let selectedCellIdx: number[] = this.selectedRowCellIndexes[index].cellIndexes;
                 if (selectedCellIdx.indexOf(cellIndex.cellIndex) > -1) {
+                    this.cellDeselect(
+                        events.cellDeselecting, [{ rowIndex: cellIndex.rowIndex, cellIndexes: [cellIndex.cellIndex] }],
+                        selectedData, [selectedCell]);
                     selectedCellIdx.splice(selectedCellIdx.indexOf(cellIndex.cellIndex), 1);
                     selectedCell.classList.remove('e-cellselectionbackground');
+                    selectedCell.removeAttribute('aria-selected');
+                    this.cellDeselect(
+                        events.cellDeselected, [{ rowIndex: cellIndex.rowIndex, cellIndexes: [cellIndex.cellIndex] }],
+                        selectedData, [selectedCell]);
                 } else {
+                    isUnSelected = false;
+                    this.onActionBegin(args, events.cellSelecting);
                     this.addRowCellIndex({ rowIndex: cellIndex.rowIndex, cellIndex: cellIndex.cellIndex });
                     selectedCell.classList.add('e-cellselectionbackground');
+                    this.addAttribute(selectedCell);
                 }
             } else {
+                this.onActionBegin(args, events.cellSelecting);
                 this.updateCellSelection(selectedCell, cellIndex.rowIndex, cellIndex.cellIndex);
             }
             this.updateCellProps(cellIndex, cellIndex);
-            this.onActionComplete(
-                {
-                    data: this.parent.getRows()[cellIndexes[0].rowIndex], cellIndex: cellIndexes[0], currentCell: selectedCell,
-                    previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) :
-                        undefined, previousRowCellIndex: this.prevECIdxs, selectedRowCellIndex: this.selectedRowCellIndexes
-                },
-                events.cellSelected);
+            if (!isUnSelected) {
+                this.onActionComplete(
+                    {
+                        data: selectedData, cellIndex: cellIndexes[0], currentCell: selectedCell,
+                        previousRowCell: this.prevECIdxs ? gObj.getCellFromIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) :
+                            undefined, previousRowCellIndex: this.prevECIdxs, selectedRowCellIndex: this.selectedRowCellIndexes
+                    },
+                    events.cellSelected);
+            }
         }
     }
 
+    private cellDeselect(type: string, cellIndexes: ISelectedCell[], data: Object, cells: Element[]): void {
+        this.parent.trigger(type, {
+            cells: cells, data: data, cellIndexes: cellIndexes
+        });
+    }
+
     private clearCell(): void {
-        this.selectedRowCellIndexes = [];
         this.clearCellSelection();
     }
 
     private updateCellSelection(selectedCell: Element, rowIndex: number, cellIndex: number): void {
         this.addRowCellIndex({ rowIndex: rowIndex, cellIndex: cellIndex });
         selectedCell.classList.add('e-cellselectionbackground');
+        this.addAttribute(selectedCell);
+    }
+
+    private addAttribute(cell: Element): void {
+        this.target = cell;
+        cell.setAttribute('aria-selected', 'true');
+        (<HTMLElement>cell).focus();
     }
 
     private updateCellProps(startIndex: IIndex, endIndex: IIndex): void {
@@ -537,30 +593,22 @@ export class Selection implements IAction {
             let rowCell: ISelectedCell[] = this.selectedRowCellIndexes;
             let data: Object[] = [];
             let cells: Element[] = [];
+            let currentViewData: Object[] = gObj.getCurrentViewRecords();
 
             for (let i: number = 0, len: number = rowCell.length; i < len; i++) {
-                data.push(this.parent.currentViewData[rowCell[i].rowIndex]);
+                data.push(currentViewData[rowCell[i].rowIndex]);
                 for (let j: number = 0, cLen: number = rowCell.length; j < cLen; j++) {
                     cells.push(this.parent.getCellFromIndex(rowCell[i].rowIndex, rowCell[i].cellIndexes[j]));
                 }
             }
-
-            if (this.isTrigger) {
-                this.parent.trigger(events.cellDeselecting, {
-                    cells: cells, data: data, cellIndexes: rowCell
-                });
-            }
+            this.cellDeselect(events.cellDeselecting, rowCell, data, cells);
             for (let i: number = 0, len: number = selectedCells.length; i < len; i++) {
                 selectedCells[i].classList.remove('e-cellselectionbackground');
-
+                selectedCells[i].removeAttribute('aria-selected');
             }
             this.selectedRowCellIndexes = [];
             this.isCellSelected = false;
-            if (this.isTrigger) {
-                this.parent.trigger(events.cellDeselected, {
-                    cells: cells, data: data, cellIndexes: rowCell
-                });
-            }
+            this.cellDeselect(events.cellDeselected, rowCell, data, cells);
         }
     }
 
@@ -711,15 +759,14 @@ export class Selection implements IAction {
         this.isMultiCtrlRequest = e.ctrlKey || this.enableSelectMultiTouch;
         this.isMultiShiftRequest = e.shiftKey;
         this.popUpClickHandler(e);
-        this.target = e.target as Element;
         if (target.classList.contains('e-rowcell')) {
+            this.target = e.target as Element;
             this.rowCellSelectionHandler(
                 parseInt(target.parentElement.getAttribute('aria-rowindex'), 10), parseInt(target.getAttribute('aria-colindex'), 10));
             if (Browser.isDevice && this.parent.selectionSettings.type === 'multiple') {
                 this.showPopup(e);
             }
         }
-        this.target = undefined;
         this.isMultiCtrlRequest = false;
         this.isMultiShiftRequest = false;
     }
@@ -901,10 +948,17 @@ export class Selection implements IAction {
         let gObj: IGrid = this.parent;
         if (this.isRowType() && cond1) {
             this.selectRow(gObj.selectedRowIndex + key);
+            this.applyUpDown(gObj.selectedRowIndex);
         }
         if (this.isCellType() && cond2) {
             this.selectCell({ rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: this.prevECIdxs.cellIndex });
         }
+    }
+
+    private applyUpDown(rowIndex: number): void {
+        let gObj: IGrid = this.parent;
+        this.target = gObj.getCellFromIndex(rowIndex, parseInt(this.target.getAttribute('aria-colindex'), 10));
+        this.addAttribute(this.target);
     }
 
     /**
@@ -913,6 +967,7 @@ export class Selection implements IAction {
      * @hidden
      */
     public rightArrowKey(): void {
+        this.preSelectedCellIndex = this.prevECIdxs;
         this.applyRightLeftKey(
             1, 0, !isUndefined(this.prevECIdxs) && this.prevECIdxs.cellIndex + 1 < this.parent.getColumns().length);
     }
@@ -923,6 +978,7 @@ export class Selection implements IAction {
      * @hidden
      */
     public leftArrowKey(): void {
+        this.preSelectedCellIndex = this.prevECIdxs;
         this.applyRightLeftKey(
             -1,
             this.parent.getColumns().length - 1,
@@ -932,18 +988,50 @@ export class Selection implements IAction {
 
     private applyRightLeftKey(key1: number, key2: number, cond: boolean): void {
         let gObj: IGrid = this.parent;
+        let cellIndex: number;
+        let rowIndex: number;
+        if (!isNullOrUndefined(this.prevECIdxs)) {
+            cellIndex = this.prevECIdxs.cellIndex;
+            rowIndex = this.prevECIdxs.rowIndex;
+        }
         if (this.isCellType()) {
             if (cond && this.prevECIdxs.cellIndex + key1 > -1 &&
                 this.prevECIdxs.cellIndex + key1 < this.parent.getColumns().length) {
-                this.selectCell({ rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key1 });
+                cellIndex = this.prevECIdxs.cellIndex + key1;
+                rowIndex = this.prevECIdxs.rowIndex;
+                this.selectCell({ rowIndex: rowIndex, cellIndex: cellIndex });
             } else if (this.prevECIdxs.rowIndex + key1 > -1 &&
                 this.prevECIdxs.rowIndex + key1 < this.parent.getRows().length) {
-                this.selectCell({ rowIndex: this.prevECIdxs.rowIndex + key1, cellIndex: key2 });
+                cellIndex = key2;
+                rowIndex = this.prevECIdxs.rowIndex + key1;
+                this.selectCell({ rowIndex: rowIndex, cellIndex: cellIndex });
             }
-            if (gObj.element.querySelector('.e-cellselectionbackground').classList.contains('e-hide')) {
-                this.applyRightLeftKey(key1, key2, cond);
+            if (this.isCellHide({ rowIndex: rowIndex, cellIndex: cellIndex })) {
+                if (!((cellIndex === 0 && rowIndex === 0) ||
+                    (cellIndex === gObj.getColumns().length - 1 && rowIndex === gObj.getRows().length - 1))) {
+                    this.applyRightLeftKey(key1, key2, cond);
+                } else {
+                    this.selectCell(this.preSelectedCellIndex);
+                }
+            }
+        } else if (this.isRowType()) {
+            let cellIndex: number = parseInt(this.target.getAttribute('aria-colindex'), 10);
+            let rowElement: Element = closest(this.target, 'tr');
+            if (cellIndex + key1 > -1 && cellIndex + key1 < this.parent.getColumns().length) {
+                let cell: Element = gObj.getCellFromIndex(parseInt(rowElement.getAttribute('aria-rowindex'), 10), cellIndex + key1);
+                if (cell) {
+                    if (!cell.classList.contains('e-hide')) {
+                        this.addAttribute(cell);
+                    } else {
+                        key1 += key1;
+                        this.applyRightLeftKey(key1, key2, cond);
+                    }
+                }
+            } else {
+                this.addAttribute(this.target);
             }
         }
+
     }
 
     /**
@@ -952,7 +1040,7 @@ export class Selection implements IAction {
      * @hidden
      */
     public homeKey(): void {
-        this.applyHomeEndKey({ rowIndex: 0, cellIndex: 0 });
+        this.applyHomeEndKey({ rowIndex: this.currentIndex || 0, cellIndex: 0 });
     }
 
     /**
@@ -962,12 +1050,21 @@ export class Selection implements IAction {
      */
     public endKey(): void {
         this.applyHomeEndKey(
-            { rowIndex: this.parent.getRows().length - 1, cellIndex: this.parent.getColumns().length - 1 });
+            { rowIndex: this.currentIndex || 0, cellIndex: this.parent.getColumns().length - 1 });
     }
 
     private applyHomeEndKey(key: IIndex): void {
         if (this.isCellType()) {
             this.selectCell(key);
+            if (this.isCellHide(key)) {
+                if (key.cellIndex > 0) {
+                    this.applyRightLeftKey(-1, this.parent.getColumns().length - 1, true);
+                } else {
+                    this.applyRightLeftKey(1, 0, true);
+                }
+            }
+        } else {
+            this.addAttribute(this.parent.getCellFromIndex(key.rowIndex, key.cellIndex));
         }
     }
 
@@ -986,6 +1083,7 @@ export class Selection implements IAction {
                         gObj.selectedRowIndex + 1 : gObj.selectedRowIndex);
                 if (endIndex < this.parent.getRows().length) {
                     this.selectRowsByRange(this.prevRowIndex, endIndex);
+                    this.applyUpDown(endIndex);
                 }
             } else {
                 this.selectRow(0);
@@ -1017,6 +1115,7 @@ export class Selection implements IAction {
             let endIndex: number = isUndefined(gObj.selectedRowIndex) ? (this.prevRowIndex - 1 > -1 ? (this.prevRowIndex - 1) : 0) :
                 ((gObj.selectedRowIndex - 1) > -1 ? gObj.selectedRowIndex - 1 : gObj.selectedRowIndex);
             this.selectRowsByRange(this.prevRowIndex, endIndex);
+            this.applyUpDown(endIndex);
         }
         if (this.isCellType() && !isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1 && !this.isSingleSel()) {
             this.selectCellsByRange(
@@ -1046,9 +1145,11 @@ export class Selection implements IAction {
 
     private applyShiftLeftRightKey(key: number, cond: boolean): void {
         let gObj: IGrid = this.parent;
+        let cellIndex: IIndex;
         this.isMultiShiftRequest = true;
         if (this.isCellType() && !this.isSingleSel()) {
             if (cond) {
+                cellIndex = { rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key };
                 this.selectCellsByRange(
                     this.prevCIdxs, {
                         rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key
@@ -1056,11 +1157,16 @@ export class Selection implements IAction {
             } else if (!this.isSingleSel()) {
                 if (this.selectionSettings.cellSelectionMode === 'flow' &&
                     (key > 0 ? this.prevECIdxs.rowIndex + 1 < this.parent.pageSettings.pageSize : this.prevECIdxs.rowIndex - 1 > -1)) {
+                    cellIndex = { rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: key > 0 ? 0 : gObj.getColumns().length - 1 };
                     this.selectCellsByRange(
                         this.prevCIdxs, {
                             rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: key > 0 ? 0 : gObj.getColumns().length - 1
                         });
                 }
+            }
+            if (!isNullOrUndefined(cellIndex) && this.isCellHide(cellIndex) && !((cellIndex.rowIndex === 0 && cellIndex.cellIndex === 0) ||
+                (cellIndex.rowIndex === gObj.getRows().length - 1 && cellIndex.cellIndex === gObj.getColumns().length))) {
+                this.applyShiftLeftRightKey(key, cellIndex.cellIndex > 0);
             }
         }
         this.isMultiShiftRequest = false;
@@ -1087,9 +1193,17 @@ export class Selection implements IAction {
     private applyCtrlHomeEndKey(rowIndex: number, colIndex: number): void {
         if (this.isRowType()) {
             this.selectRow(rowIndex);
+            this.addAttribute(this.parent.getCellFromIndex(rowIndex, colIndex));
         }
         if (this.isCellType()) {
             this.selectCell({ rowIndex: rowIndex, cellIndex: colIndex });
+            if (this.isCellHide({ rowIndex: rowIndex, cellIndex: colIndex })) {
+                if (colIndex > 0) {
+                    this.applyRightLeftKey(-1, this.parent.getColumns().length - 1, true);
+                } else {
+                    this.applyRightLeftKey(1, 0, true);
+                }
+            }
         }
     }
 
@@ -1102,8 +1216,10 @@ export class Selection implements IAction {
         for (let i: number = 0, len: number = cells.length; i < len; i++) {
             if (isAdd) {
                 classList(cells[i], [...args], []);
+                cells[i].setAttribute('aria-selected', 'true');
             } else {
                 classList(cells[i], [], [...args]);
+                cells[i].removeAttribute('aria-selected');
             }
         }
     }
@@ -1118,6 +1234,10 @@ export class Selection implements IAction {
 
     private isSingleSel(): boolean {
         return this.selectionSettings.type === 'single';
+    }
+
+    private isCellHide(cellIndex: IIndex): boolean {
+        return !this.parent.getColumns()[cellIndex.cellIndex].visible;
     }
 
 }

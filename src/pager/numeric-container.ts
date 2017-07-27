@@ -65,7 +65,10 @@ export class NumericContainer implements IRender {
         let frag: DocumentFragment = document.createDocumentFragment();
         div.innerHTML = '';
         for (let i: number = 1; i <= pagerObj.pageCount; i++) {
-            link = createElement('a', { className: 'e-link e-numericitem e-spacing e-pager-default', attrs: { role: 'link' } });
+            link = createElement('a', {
+                className: 'e-link e-numericitem e-spacing e-pager-default',
+                attrs: { role: 'link', tabindex: '-1', 'aria-label': 'Goto Page ' + i }
+            });
             if (pagerObj.currentPage === i) {
                 classList(link, ['e-currentitem', 'e-active'], ['e-pager-default']);
             }
@@ -102,7 +105,9 @@ export class NumericContainer implements IRender {
     }
 
     private renderNumericContainer(): void {
-        this.element = createElement('div', { className: 'e-pagercontainer' });
+        this.element = createElement('div', {
+            className: 'e-pagercontainer', attrs: { 'role': 'navigation' }
+        });
         this.renderFirstNPrev(this.element);
         this.renderPrevPagerSet(this.element);
         this.element.appendChild(createElement('div', { className: 'e-numericcontainer' }));
@@ -117,7 +122,8 @@ export class NumericContainer implements IRender {
                 className: 'e-first e-icons e-icon-first',
                 attrs: {
                     title: this.pagerModule.getLocalizedLabel('firstPageTooltip'),
-                    'aria-label': this.pagerModule.getLocalizedLabel('firstPageTooltip')
+                    'aria-label': this.pagerModule.getLocalizedLabel('firstPageTooltip'),
+                    tabindex: '-1'
                 }
             });
         this.prev = createElement(
@@ -125,7 +131,8 @@ export class NumericContainer implements IRender {
                 className: 'e-prev e-icons e-icon-prev',
                 attrs: {
                     title: this.pagerModule.getLocalizedLabel('previousPageTooltip'),
-                    'aria-label': this.pagerModule.getLocalizedLabel('previousPageTooltip')
+                    'aria-label': this.pagerModule.getLocalizedLabel('previousPageTooltip'),
+                    tabindex: '-1'
                 }
             });
         append([this.first, this.prev], pagerContainer);
@@ -137,7 +144,8 @@ export class NumericContainer implements IRender {
                 className: 'e-link e-pp e-spacing', innerHTML: '...',
                 attrs: {
                     title: this.pagerModule.getLocalizedLabel('previousPagerTooltip'), role: 'link',
-                    'aria-label': this.pagerModule.getLocalizedLabel('previousPagerTooltip')
+                    'aria-label': this.pagerModule.getLocalizedLabel('previousPagerTooltip'),
+                    tabindex: '-1'
                 }
             });
         pagerContainer.appendChild(this.PP);
@@ -149,7 +157,8 @@ export class NumericContainer implements IRender {
                 className: 'e-link e-np e-spacing',
                 innerHTML: '...', attrs: {
                     title: this.pagerModule.getLocalizedLabel('nextPagerTooltip'), role: 'link',
-                    'aria-label': this.pagerModule.getLocalizedLabel('nextPagerTooltip')
+                    'aria-label': this.pagerModule.getLocalizedLabel('nextPagerTooltip'),
+                    tabindex: '-1'
                 }
             });
         pagerContainer.appendChild(this.NP);
@@ -161,7 +170,8 @@ export class NumericContainer implements IRender {
                 className: 'e-next e-icons e-icon-next',
                 attrs: {
                     title: this.pagerModule.getLocalizedLabel('nextPageTooltip'),
-                    'aria-label': this.pagerModule.getLocalizedLabel('nextPageTooltip')
+                    'aria-label': this.pagerModule.getLocalizedLabel('nextPageTooltip'),
+                    tabindex: '-1'
                 }
             });
         this.last = createElement(
@@ -169,7 +179,8 @@ export class NumericContainer implements IRender {
                 className: 'e-last e-icons e-icon-last',
                 attrs: {
                     title: this.pagerModule.getLocalizedLabel('lastPageTooltip'),
-                    'aria-label': this.pagerModule.getLocalizedLabel('lastPageTooltip')
+                    'aria-label': this.pagerModule.getLocalizedLabel('lastPageTooltip'),
+                    tabindex: '-1'
                 }
             });
         append([this.next, this.last], pagerContainer);

@@ -1119,6 +1119,18 @@ describe('Grouping module', () => {
             expect(gridObj.getHeaderContent().querySelectorAll('.e-sortnumber').length).toEqual(0);
             expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
         });
+
+        it('check aria attribute', () => {
+            let groupDropArea: Element = gridObj.element.querySelector('.e-groupdroparea');
+            expect(groupDropArea.querySelector('.e-grouptext').hasAttribute('tabindex')).toBeTruthy();
+            expect(groupDropArea.querySelector('.e-groupsort').hasAttribute('tabindex')).toBeTruthy();
+            expect(groupDropArea.querySelector('.e-ungroupbutton').hasAttribute('tabindex')).toBeTruthy();
+            expect(groupDropArea.querySelector('.e-grouptext').hasAttribute('aria-label')).toBeTruthy();
+            expect(groupDropArea.querySelector('.e-groupsort').hasAttribute('aria-label')).toBeTruthy();
+            expect(groupDropArea.querySelector('.e-ungroupbutton').hasAttribute('aria-label')).toBeTruthy();
+            expect(gridObj.element.querySelector('.e-recordplusexpand').hasAttribute('tabindex')).toBeTruthy();
+        });
+        
         it('clear Grouping', (done: Function) => {
             actionComplete = () => {
                 expect(gridObj.sortSettings.columns.length).toEqual(1);

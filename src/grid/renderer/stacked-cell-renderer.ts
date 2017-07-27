@@ -11,7 +11,12 @@ import { CellRenderer } from './cell-renderer';
  */
 export class StackedHeaderCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TH', { className: 'e-headercell e-stackedheadercell', attrs: { role: 'columnheader' } });
+    public element: HTMLElement = createElement('TH', {
+        className: 'e-headercell e-stackedheadercell', attrs: {
+            role: 'columnheader',
+            tabindex: '-1'
+        }
+    });
 
     /**
      * Function to render the cell content based on Column object.

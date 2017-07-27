@@ -50,6 +50,8 @@ export const beforePrint: string = 'beforePrint';
 export const printComplete: string = 'printComplete';
 /** @hidden */
 export const detailDataBound: string = 'detailDataBound';
+/** @hidden */
+export const toolbarClick: string = 'toolbarClick';
 
 /**
  * Specifies grid internal events

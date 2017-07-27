@@ -1,5 +1,6 @@
 import { Component, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
+import { ItemModel } from '@syncfusion/ej2-navigations';
 import { Column, ColumnModel } from '../models/column';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
 import { PageSettingsModel, AggregateRowModel } from '../models/models';
@@ -201,6 +202,14 @@ export interface IGrid extends Component<HTMLElement> {
      * @default []
      */
     query?: Query;
+
+    /**
+     * @hidden
+     * Specifies the toolbar for Grid.
+     * @default null
+     */
+    toolbar?: string | string[] | ItemModel[];
+
     //public methods
     getHeaderContent?(): Element;
     setGridHeaderContent?(value: Element): void;
@@ -228,6 +237,7 @@ export interface IGrid extends Component<HTMLElement> {
     getSelectedRows?(): Element[];
     getSelectedRecords?(): Object[];
     getSelectedRowIndexes?(): number[];
+    getCurrentViewRecords(): Object[];
     selectRows?(indexes: number[]): void;
     clearSelection?(): void;
     updateExternalMessage?(message: string): void;
@@ -244,6 +254,8 @@ export interface IGrid extends Component<HTMLElement> {
     refreshHeader?(): void;
     getDataRows?(): Element[];
     getPrimaryKeyFieldNames?(): string[];
+    print(): void;
+    search(searchString: string): void;
 }
 
 /** @hidden */

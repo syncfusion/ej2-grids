@@ -9,7 +9,10 @@ import { Column } from '../models/column';
  */
 export class DetailExpandCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-detailrowcollapse', attrs: { 'aria-expanded': 'false' } });
+    public element: HTMLElement = createElement('TD', {
+        className: 'e-detailrowcollapse',
+        attrs: { 'aria-expanded': 'false', role: 'gridcell', tabindex: '-1' }
+    });
 
     /**
      * Function to render the detail expand cell           

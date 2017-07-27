@@ -47,6 +47,18 @@ describe('Custom Atrributes and html encode module', () => {
             expect(gridObj.element.classList.contains('e-grid')).toEqual(true);
         });
 
+        it('Attribute testing', () => {
+            let rows: Element[] = gridObj.getRows();
+            let hRow: Element = gridObj.element.querySelector('.e-columnheader');
+            for (let i: number = 0; i < rows[0].children.length; i++) {
+                expect(rows[0].children[i].hasAttribute('tabindex')).toBeTruthy();
+                expect(rows[0].children[i].hasAttribute('aria-label')).toBeTruthy();
+            }
+            for (let i: number = 0; i < hRow.children.length; i++) {
+                expect(hRow.children[i].hasAttribute('tabindex')).toBeTruthy();
+            }
+        });
+
         afterAll(() => {
             remove(elem);
         });

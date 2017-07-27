@@ -62,10 +62,28 @@ export class Page implements IAction {
             extend({}, getActualProperties(this.pageSettings)),
             {
                 click: this.clickHandler.bind(this),
-                enableRtl: gObj.enableRtl, locale: gObj.locale
+                enableRtl: gObj.enableRtl, locale: gObj.locale,
+                created: this.addAriaAttr.bind(this)
             },
             ['parentObj', 'propName']);
         this.pagerObj = new Pager(pagerObj);
+    }
+
+    private addAriaAttr(): void {
+        let numericContainer: Element = this.element.querySelector('.e-numericcontainer');
+        let links: NodeList = numericContainer.querySelectorAll('a');
+        for (let i: number = 0; i < links.length; i++) {
+            if (this.parent.getContentTable()) {
+                (<Element>links[i]).setAttribute('aria-owns', this.parent.getContentTable().id);
+            }
+        }
+        let classList: string[] = ['.e-mfirst', '.e-mprev', '.e-first', '.e-prev', '.e-next', '.e-last', '.e-mnext', '.e-mlast'];
+        classList.forEach((value: string) => {
+            let element: Element = this.element.querySelector(value);
+            if (this.parent.getContentTable()) {
+                element.setAttribute('aria-owns', this.parent.getContentTable().id);
+            }
+        });
     }
 
     private dataReady(e?: NotifyArgs): void {

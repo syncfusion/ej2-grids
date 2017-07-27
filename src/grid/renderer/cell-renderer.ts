@@ -13,9 +13,9 @@ import { ServiceLocator } from '../services/service-locator';
  */
 export class CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell' } });
+    public element: HTMLElement = createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell', tabindex: '-1' } });
 
-    private localizer: L10n;
+    protected localizer: L10n;
     protected formatter: IValueFormatter;
 
     constructor(locator?: ServiceLocator) {
@@ -50,6 +50,8 @@ export class CellRenderer implements ICellRenderer<Column> {
             let literals: string[] = ['index'];
             result = cell.column.getColumnTemplate()(extend({ 'index': attributes[literals[0]] }, data));
             appendChildren(node, result);
+            node.setAttribute('aria-label', (<HTMLElement>node).innerText + ' is template cell' + ' column header ' +
+                cell.column.headerText);
             return false;
         }
         return true;
@@ -110,6 +112,8 @@ export class CellRenderer implements ICellRenderer<Column> {
         let fromFormatter: Object = this.invokeFormatter(column, value, data);
 
         innerHtml = !isNullOrUndefined(column.formatter) ? isNullOrUndefined(fromFormatter) ? '' : fromFormatter.toString() : innerHtml;
+
+        node.setAttribute('aria-label', innerHtml + ' column header ' + cell.column.headerText);
 
         if (this.evaluate(node, cell, data, attributes)) {
             this.appendHtml(node, innerHtml, column.getDomSetter ? column.getDomSetter() : 'innerHTML');

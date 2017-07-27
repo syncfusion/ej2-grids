@@ -94,7 +94,12 @@ export class ContentRender implements IRenderer {
      */
     public createContentTable(): Element {
         let innerDiv: Element = <Element>this.getPanel().firstChild;
-        let table: Element = createElement('table', { className: 'e-table', attrs: { cellspacing: '0.25px', role: 'grid' } });
+        let table: Element = createElement('table', {
+            className: 'e-table', attrs: {
+                cellspacing: '0.25px', role: 'grid',
+                id: this.parent.element.id + '_content_table'
+            }
+        });
         this.setColGroup(<Element>this.parent.element.querySelector('.e-gridheader').querySelector('colgroup').cloneNode(true));
         table.appendChild(this.getColGroup());
         table.appendChild(createElement('tbody'));

@@ -4,6 +4,7 @@ import { createElement, addClass, removeClass, append, remove, classList } from 
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
+import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { GridModel } from './grid-model';
 import { iterateArrayOrObject, prepareColumns, parentsUntil } from './util';
 import * as events from '../base/constant';
@@ -39,6 +40,7 @@ import { Scroll } from '../actions/scroll';
 import { Group } from '../actions/group';
 import { Print } from '../actions/print';
 import { DetailRow } from '../actions/detail-row';
+import { Toolbar } from '../actions/toolbar';
 import { AggregateRow } from '../models/aggregate';
 
 /** 
@@ -413,7 +415,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         GroupDisable: 'Grouping is disabled for this column',
         FilterbarTitle: '\'s filter bar cell',
         EmptyDataSourceError:
-        'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid'
+        'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
+        // Toolbar Items
+        Add: 'Add',
+        Edit: 'Edit',
+        Cancel: 'Cancel',
+        Update: 'Update',
+        Delete: 'Delete',
+        Print: 'Print',
+        Pdfexport: 'PDF Export',
+        Excelexport: 'Excel Export',
+        Wordexport: 'Word Export',
+        Search: 'Search',
+        Item: 'item',
+        Items: 'items'
+
     };
     private keyConfigs: { [key: string]: string } = {
         downArrow: 'downarrow',
@@ -527,6 +543,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public detailRowModule: DetailRow;
+
+    /**
+     * @hidden
+     * `toolbarModule` is used to manipulate toolbar items in the Grid.
+     */
+    public toolbarModule: Toolbar;
 
 
     //Grid Options    
@@ -815,6 +837,46 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property()
     public query: Query;
 
+    /**    
+     * @hidden
+     * `toolbar` defines toolbar items for grid. It contains built-in and custom toolbar items. 
+     * If a string value is assigned to the `toolbar` option, it will be treated as a single string template for the whole Grid Toolbar.
+     * If an Array value is assigned, it will be treated as the list of built-in and custom toolbar items in the Grid's Toolbar. 
+     * <br><br>     
+     * The available built-in toolbar items are
+     * * add - Add a new record.
+     * * edit - Edit the selected record.
+     * * update - Update the edited record.
+     * * delete - Delete the selected record.
+     * * cancel - Cancel the edit state.
+     * * search - Searches records by given key.
+     * * print - Print the Grid.
+     * * excelexport - Export the Grid to Excel.
+     * * pdfexport - Export the Grid to PDF.
+     * * wordexport - Export the Grid to Word.<br><br>
+     * The following code example implements the custom toolbar items.
+     * ```html
+     * <style type="text/css" class="cssStyles">
+     * .refreshicon:before
+     * {
+     *    content:"\e898";
+     * }
+     * </style>
+     * <div id="grid"></div>
+     * <script>
+     * var gridObj = new Grid({
+     * datasource: window.gridData,
+     * toolbar : ['Expand', {text: 'Refresh', tooltipText: 'Refresh', prefixIcon: 'refreshicon'}]});
+     * //Expand - To display button with Expand label
+     * //Refresh - To display button with prefixIcon and text
+     * gridObj.appendTo("#grid");
+     * </script>
+     * ```
+     * @default null
+     */
+    @Property()
+    public toolbar: string | string[] | ItemModel[];
+
     /** 
      * Triggers when the component is created.
      * @event 
@@ -998,6 +1060,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Event()
     public rowDrop: EmitType<RowDragEventArgs>;
 
+    /** 
+     * @hidden
+     * Triggers when toolbar item is clicked.
+     * @event
+     */
+    @Event()
+    public toolbarClick: EmitType<ClickEventArgs>;
+
     /**
      * Constructor for creating the component
      * @hidden
@@ -1020,7 +1090,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
             'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
             'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound', 'detailTemplate',
-            'childGrid', 'queryString'];
+            'childGrid', 'queryString', 'toolbar', 'toolbarClick'];
         return this.addOnPersist(keyEntity);
     }
 
@@ -1080,6 +1150,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             modules.push({
                 member: 'detailRow',
                 args: [this]
+            });
+        }
+        if (this.toolbar) {
+            modules.push({
+                member: 'toolbar',
+                args: [this, this.serviceLocator]
             });
         }
 
@@ -1162,18 +1238,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         let args: Object = { requestType: 'refresh' };
         if (this.isDestroyed) { return; }
         for (let prop of Object.keys(newProp)) {
-            this.extendedPropertyChange(prop, newProp);
             switch (prop) {
-                case 'enableRtl':
-                    this.updateRTL();
-                    if (this.allowPaging) {
-                        (<EJ2Intance>this.element.querySelector('.e-gridpager')).ej2_instances[0].enableRtl = newProp.enableRtl;
-                    }
-                    if (this.height !== 'auto') {
-                        this.scrollModule.removePadding(!newProp.enableRtl);
-                        this.scrollModule.setPadding();
-                    }
-                    break;
                 case 'enableHover':
                     let action: Function = newProp.enableHover ? addClass : removeClass;
                     (<Function>action)([this.element], 'e-gridhover');
@@ -1196,6 +1261,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.localeObj.setLocale(newProp.locale);
                     this.valueFormatterService.setCulture(newProp.locale);
                     requireRefresh = true;
+                    if (this.toolbar) {
+                        this.notify(events.uiUpdate, { module: 'toolbar' });
+                    }
                     break;
                 case 'allowSorting':
                     this.notify(events.uiUpdate, { module: 'sort', enable: this.allowSorting });
@@ -1237,8 +1305,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'childGrid':
                     requireRefresh = true;
                     break;
+                case 'toolbar':
+                    this.notify(events.uiUpdate, { module: 'toolbar' });
+                    break;
                 case 'aggregates':
                     this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
+                    break;
+                default:
+                    this.extendedPropertyChange(prop, newProp);
             }
         }
         if (checkCursor) {
@@ -1253,6 +1327,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private extendedPropertyChange(prop: string, newProp: GridModel): void {
         switch (prop) {
+            case 'enableRtl':
+                this.updateRTL();
+                if (this.allowPaging) {
+                    (<EJ2Intance>this.element.querySelector('.e-gridpager')).ej2_instances[0].enableRtl = newProp.enableRtl;
+                    (<EJ2Intance>this.element.querySelector('.e-gridpager')).ej2_instances[0].dataBind();
+                }
+                if (this.height !== 'auto') {
+                    this.scrollModule.removePadding(!newProp.enableRtl);
+                    this.scrollModule.setPadding();
+                }
+                if (this.toolbar) {
+                    (<EJ2Intance>this.toolbarModule.getToolbar()).ej2_instances[0].enableRtl = newProp.enableRtl;
+                    (<EJ2Intance>this.toolbarModule.getToolbar()).ej2_instances[0].dataBind();
+                }
+                break;
             case 'enableAltRow':
                 this.renderModule.refresh();
                 break;
@@ -2014,7 +2103,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private createGridPopUpElement(): void {
         let popup: Element = createElement('div', { className: 'e-gridpopup', styles: 'display:none;' });
-        let content: Element = createElement('div', { className: 'e-content' });
+        let content: Element = createElement('div', { className: 'e-content', attrs: { tabIndex: '-1' }  });
         append([content, createElement('div', { className: 'e-uptail e-tail' })], popup);
         content.appendChild(createElement('span'));
         append([content, createElement('div', { className: 'e-downtail e-tail' })], popup);
@@ -2107,6 +2196,17 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.off(events.headerRefreshed, this.recalcIndentWidth);
     }
 
+    /** 
+     * Get current visible data of grid.
+     * @return {Object[]}
+     * @hidden
+     */
+    public getCurrentViewRecords(): Object[] {
+        return (this.allowGrouping && this.groupSettings.columns.length) ?
+            (this.currentViewData as Object[] & { records: Object[] }).records : this.currentViewData;
+
+    }
+
     private mouseClickHandler(e: MouseEvent & TouchEvent): void {
         if (this.isChildGrid(e) || (parentsUntil(e.target as Element, 'e-gridpopup') && e.touches) ||
             this.element.querySelectorAll('.e-cloneproperties').length) {
@@ -2156,6 +2256,3 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         }
     }
 }
-
-
-

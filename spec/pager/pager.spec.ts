@@ -18,26 +18,26 @@ describe('Pager base module', () => {
 
         beforeAll((done: Function) => {
             L10n.load({
-            'de-DE': {
-                'pager': {
-                    'currentPageInfo': '{0} van {1} pagina',
-                    'totalItemsInfo': '( {0} items)',
-                    'firstPageTooltip': 'Ga naar de eerste pagina',
-                    'lastPageTooltip': 'Ga naar de laatste pagina',
-                    'nextPageTooltip': 'Ga naar de volgende pagina',
-                    'previousPageTooltip': 'Ga naar de vorige pagina',
-                    'nextPagerTooltip': 'Ga naar de volgende pager',
-                    'previousPagerTooltip': 'Ga naar vorige pager'
+                'de-DE': {
+                    'pager': {
+                        'currentPageInfo': '{0} van {1} pagina',
+                        'totalItemsInfo': '( {0} items)',
+                        'firstPageTooltip': 'Ga naar de eerste pagina',
+                        'lastPageTooltip': 'Ga naar de laatste pagina',
+                        'nextPageTooltip': 'Ga naar de volgende pagina',
+                        'previousPageTooltip': 'Ga naar de vorige pagina',
+                        'nextPagerTooltip': 'Ga naar de volgende pager',
+                        'previousPagerTooltip': 'Ga naar vorige pager'
+                    }
                 }
-            }
-        });
+            });
             let created: EmitType<Object> = () => { done(); };
             document.body.appendChild(elem);
             pagerObj = new Pager(
                 {
                     totalRecordsCount: 100, currentPage: 8, pageCount: 5, pageSize: 5, locale: 'de-DE',
                     enablePagerMessage: true, enableExternalMessage: true, externalMessage: 'externalMessage',
-                     enableRtl: true, enableQueryString: true, customText: 'sheet',
+                    enableRtl: true, enableQueryString: true, customText: 'sheet',
                     created: created
                 });
 
@@ -106,7 +106,7 @@ describe('Pager base module', () => {
 
         it('externalMessage value testing', () => {
             expect(pagerObj.externalMessage).toEqual('externalMessage');
-        });      
+        });
 
         it('enableRtl value testing', () => {
             expect(pagerObj.enableRtl).toEqual(true);
@@ -127,6 +127,22 @@ describe('Pager base module', () => {
 
         it('pager button visibility testing', () => {
             expect(pagerObj.element.querySelectorAll('.e-disable').length).toEqual(0);
+        });
+
+        it('pager aria-attribute testing', () => {
+            let pagerElement: Element = pagerObj.element;
+            expect(pagerElement.querySelector('.e-mfirst').hasAttribute('tabindex')).toBeTruthy();
+            expect(pagerElement.querySelector('.e-mprev').hasAttribute('tabindex')).toBeTruthy();
+            let pagerContainer: Element = pagerObj.element.querySelector('.e-pagercontainer');
+            let numericContainer: Element = pagerObj.element.querySelector('.e-numericcontainer');
+            expect(pagerContainer.querySelector('.e-first').hasAttribute('tabindex')).toBeTruthy();
+            expect(pagerContainer.querySelector('.e-prev').hasAttribute('tabindex')).toBeTruthy();
+            for (let i: number; i < numericContainer.children.length; i++) {
+                expect(numericContainer.children[i].hasAttribute('aria-label')).toBeTruthy();
+                expect(numericContainer.children[i].hasAttribute('tabindex')).toBeTruthy();
+            }
+            expect(pagerElement.querySelector('.e-mnext').hasAttribute('tabindex')).toBeTruthy();
+            expect(pagerElement.querySelector('.e-mlast').hasAttribute('aria-label')).toBeTruthy();
         });
 
         afterAll(() => {
@@ -182,7 +198,7 @@ describe('Pager base module', () => {
             document.body.appendChild(elem);
             pagerObj = new Pager(
                 {
-                    totalRecordsCount: 100, currentPage: 8, pageCount: 5, pageSize: 5, 
+                    totalRecordsCount: 100, currentPage: 8, pageCount: 5, pageSize: 5,
                 });
             pagerObj.appendTo('#Pager');
             setTimeout(() => { done(); }, 1000);
@@ -210,7 +226,7 @@ describe('Pager base module', () => {
                 {
                     totalRecordsCount: 100, currentPage: 8, pageCount: 5, pageSize: 5,
                     enablePagerMessage: true, enableExternalMessage: true, externalMessage: 'externalMessage',
-                     enableRtl: true, enableQueryString: true, customText: 'sheet',
+                    enableRtl: true, enableQueryString: true, customText: 'sheet',
                     created: created
                 });
             pagerObj.appendTo('#Pager');
@@ -277,7 +293,7 @@ describe('Pager base module', () => {
             pagerObj.externalMessage = 'modified';
             pagerObj.dataBind();
             expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent).toEqual('modified');
-        });       
+        });
 
         it('rtl false testing', () => {
             pagerObj.enableRtl = false;

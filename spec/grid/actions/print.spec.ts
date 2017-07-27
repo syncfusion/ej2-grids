@@ -10,10 +10,11 @@ import { Filter } from '../../../src/grid/actions/filter';
 import { Page } from '../../../src/grid/actions/page';
 import { Print } from '../../../src/grid/actions/print';
 import { Group } from '../../../src/grid/actions/group';
+import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
-Grid.Inject(Sort, Page, Filter, Print, Group);
+Grid.Inject(Sort, Page, Filter, Print, Group, Toolbar);
 
 describe('Print module', () => {
     describe('Print without paging, filterbar testing', () => {
@@ -177,6 +178,18 @@ describe('Print module', () => {
             gridObj.print();
 
         });
+
+        it ('Print Grid using toolbar items', (done: Function) => {
+            beforePrint = (args?: { element: Element }): void => {
+                expect((args.element.querySelector('.e-toolbar') as HTMLElement).style.display).toEqual('none');
+                done();
+            };
+            gridObj.beforePrint = beforePrint;
+            gridObj.toolbar = ['print'];
+            gridObj.dataBind();
+            (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_print')).click();
+        });
+        
         // it('UnGroup the columns', (done: Function) => {
         //     actionComplete = () => {
         //         expect(gridObj.groupSettings.columns.length).toEqual(0);

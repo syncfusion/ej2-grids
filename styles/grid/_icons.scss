@@ -57,5 +57,45 @@
       content: '\e919';
     }
 
+    .e-print::before {
+      content: '\e813';
+    }
+
+    .e-add::before {
+      content: '\e7f9';
+    }
+
+    .e-wordexport::before {
+      content: '\e7b0';
+    }
+
+    .e-pdfexport::before {
+      content: '\e7c8';
+    }
+
+    .e-excelexport::before {
+      content: '\e887';
+    }
+
+    .e-edit::before {
+      content: '\e81e';
+    }
+
+    .e-delete::before {
+      content: '\e84e';
+    }
+
+    .e-cancel::before {
+      content: '\e842';
+    }
+
+    .e-update::before {
+      content: '\e735';
+    }
+
+    .e-searchfind::before {
+      content: '\e922';
+    }
+
   }
   }

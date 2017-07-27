@@ -12,7 +12,7 @@ import { AriaService, IAriaOptions } from '../services/aria-service';
  */
 export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TH', { className: 'e-headercell', attrs: { role: 'columnheader' } });
+    public element: HTMLElement = createElement('TH', { className: 'e-headercell', attrs: { role: 'columnheader', tabindex: '-1' } });
     private ariaService: AriaService = new AriaService();
     /**
      * Function to return the wrapper for the TH content.

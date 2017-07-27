@@ -26,7 +26,22 @@ require.config({
       name: '@syncfusion/ej2-data',
       location: 'node_modules/@syncfusion/ej2-data',
       main: 'index.js'            
-    }    
+    },
+    { 
+      name: '@syncfusion/ej2-buttons',
+      location: 'node_modules/@syncfusion/ej2-buttons',
+      main: 'src/button/index.js'            
+    },
+    { 
+      name: '@syncfusion/ej2-popups',
+      location: 'node_modules/@syncfusion/ej2-popups',
+      main: 'src/popup/index.js'            
+    },    
+    { 
+      name: '@syncfusion/ej2-navigations',
+      location: 'node_modules/@syncfusion/ej2-navigations',
+      main: 'src/toolbar/index.js'            
+    }
     // Include dependent packages
   ],
 

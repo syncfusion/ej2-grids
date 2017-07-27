@@ -13,7 +13,7 @@ import { CellRenderer } from './cell-renderer';
  */
 export class SummaryCellRenderer extends CellRenderer implements ICellRenderer<AggregateColumnModel> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-summarycell' });
+    public element: HTMLElement = createElement('TD', { className: 'e-summarycell', attrs: { role: 'gridcell', tabindex: '-1' } });
 
     public getValue(field: string, data: Object, column: AggregateColumnModel): Object {
         let key: string;

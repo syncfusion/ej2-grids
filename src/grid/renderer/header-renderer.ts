@@ -208,7 +208,7 @@ export class HeaderRender implements IRenderer {
         let innerDiv: Element = <Element>this.getPanel().firstChild;
         let thead: Element = createElement('thead');
         let tbody: Element = createElement('tbody', { className: 'e-hide' });
-        let colHeader: Element = createElement('tr', { className: 'e-columnheader' });
+        let colHeader: Element = createElement('tr', { className: 'e-columnheader', attrs: { role: 'row' } });
         let colGroup: Element = createElement('colgroup');
         let rowBody: Element = createElement('tr');
         let bodyCell: Element;

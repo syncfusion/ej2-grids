@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, L10n, EmitType } from '@syncfusion/ej2-base';
+import { Component, ModuleDeclaration, L10n, EmitType, Browser } from '@syncfusion/ej2-base';
 import { createElement, remove, classList } from '@syncfusion/ej2-base/dom';
 import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
 import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';
@@ -183,6 +183,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
             this.pagerMessageModule.render();
         }
         this.renderNextLastDivForDevice();
+        this.addAriaLabel();
         if (this.enableExternalMessage && this.externalMessageModule) {
             this.externalMessageModule.render();
         }
@@ -362,12 +363,12 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
         this.element.appendChild(createElement(
             'div', {
                 className: 'e-mfirst e-icons e-icon-first',
-                attrs: { title: this.getLocalizedLabel('firstPageTooltip'), 'aria-label': this.getLocalizedLabel('firstPageTooltip') }
+                attrs: { title: this.getLocalizedLabel('firstPageTooltip'), tabindex: '-1' }
             }));
         this.element.appendChild(createElement(
             'div', {
                 className: 'e-mprev e-icons e-icon-prev',
-                attrs: { title: this.getLocalizedLabel('previousPageTooltip'), 'aria-label': this.getLocalizedLabel('previousPageTooltip') }
+                attrs: { title: this.getLocalizedLabel('previousPageTooltip'), tabindex: '-1' }
             }));
     }
 
@@ -375,13 +376,23 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
         this.element.appendChild(createElement(
             'div', {
                 className: 'e-mnext e-icons e-icon-next',
-                attrs: { title: this.getLocalizedLabel('nextPageTooltip'), 'aria-label': this.getLocalizedLabel('nextPageTooltip') }
+                attrs: { title: this.getLocalizedLabel('nextPageTooltip'), tabindex: '-1' }
             }));
         this.element.appendChild(createElement(
             'div', {
                 className: 'e-mlast e-icons e-icon-last',
-                attrs: { title: this.getLocalizedLabel('lastPageTooltip'), 'aria-label': this.getLocalizedLabel('lastPageTooltip') }
+                attrs: { title: this.getLocalizedLabel('lastPageTooltip'), tabindex: '-1' }
             }));
+    }
+
+    private addAriaLabel(): void {
+        let classList: string[] = ['.e-mfirst', '.e-mprev', '.e-mnext', '.e-mlast'];
+        if (!Browser.isDevice) {
+            classList.forEach((value: string) => {
+                let element: Element = this.element.querySelector(value);
+                element.setAttribute('aria-label', element.getAttribute('title'));
+            });
+        }
     }
 
 }

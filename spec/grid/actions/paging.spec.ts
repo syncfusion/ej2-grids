@@ -49,6 +49,7 @@ describe('Paging module', () => {
         });
         it('page count testing', () => {
             expect(gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes.length).toEqual(4);
+            expect((<Element>gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes[0]).hasAttribute('aria-owns')).toBeTruthy();
         });
         it('totalRecordsCount testing', () => {
             expect(gridObj.pageSettings.totalRecordsCount).toEqual(15);

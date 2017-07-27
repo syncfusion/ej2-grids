@@ -10,7 +10,7 @@ import { CellRenderer } from './cell-renderer';
  */
 export class GroupCaptionCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-groupcaption' });
+    public element: HTMLElement = createElement('TD', { className: 'e-groupcaption', attrs: { role: 'gridcell', tabindex: '-1' } });
 
     /**
      * Function to render the cell content based on Column object.
@@ -21,8 +21,10 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         let node: Element = this.element.cloneNode() as Element;
         let value: string = this.format(cell.column, cell.column.valueAccessor('key', data, cell.column));
 
-        node.innerHTML = data.field + ': ' + value + ' - ' + data.count + ' ' + (data.count < 2 ? 'item' : 'items');
+        node.innerHTML = data.field + ': ' + value + ' - ' + data.count + ' ' +
+            (data.count < 2 ? this.localizer.getConstant('Item') : this.localizer.getConstant('Items'));
         node.setAttribute('colspan', cell.colSpan.toString());
+        node.setAttribute('aria-label', node.innerHTML + ' is groupcaption cell');
         return node;
     }
 }

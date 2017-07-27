@@ -366,7 +366,7 @@ export class Group implements IAction {
     }
 
     private renderGroupDropArea(): void {
-        this.element = createElement('div', { className: 'e-groupdroparea' });
+        this.element = createElement('div', { className: 'e-groupdroparea', attrs: { 'tabindex': '-1' } });
         this.updateGroupDropArea();
         this.parent.element.insertBefore(this.element, this.parent.element.firstChild);
         if (!this.groupSettings.showDropArea) {
@@ -521,21 +521,30 @@ export class Group implements IAction {
         let column: Column = this.parent.getColumnByField(field);
         //Todo headerTemplateID for grouped column, disableHtmlEncode                          
         let headerCell: Element = gObj.getColumnHeaderByUid(column.uid);
-        childDiv.appendChild(createElement('span', { className: 'e-grouptext', innerHTML: column.headerText }));
+        childDiv.appendChild(createElement('span', {
+            className: 'e-grouptext', innerHTML: column.headerText,
+            attrs: { tabindex: '-1', 'aria-label': 'sort the grouped column' }
+        }));
         if (this.groupSettings.showToggleButton) {
             childDiv.appendChild(createElement(
-                'span', { className: 'e-togglegroupbutton e-icons e-icon-ungroup e-toggleungroup', innerHTML: '&nbsp;' }));
+                'span', {
+                    className: 'e-togglegroupbutton e-icons e-icon-ungroup e-toggleungroup', innerHTML: '&nbsp;',
+                    attrs: { tabindex: '-1', 'aria-label': 'ungroup button' }
+                }));
         }
 
         if (headerCell.querySelectorAll('.e-ascending,.e-descending').length) {
             direction = headerCell.querySelector('.e-ascending') ? 'ascending' : 'descending';
         }
         childDiv.appendChild(createElement(
-            'span', { className: 'e-groupsort e-icons ' + ('e-' + direction + ' e-icon-' + direction), innerHTML: '&nbsp;' }));
+            'span', {
+                className: 'e-groupsort e-icons ' + ('e-' + direction + ' e-icon-' + direction), innerHTML: '&nbsp;',
+                attrs: { tabindex: '-1', 'aria-label': 'sort the grouped column' }
+            }));
         childDiv.appendChild(createElement(
             'span', {
-                className: 'e-ungroupbutton e-icons e-icon-hide',
-                attrs: { title: this.l10n.getConstant('UnGroup'), innerHTML: '&nbsp;' },
+                className: 'e-ungroupbutton e-icons e-icon-hide', innerHTML: '&nbsp;',
+                attrs: { title: this.l10n.getConstant('UnGroup'), tabindex: '-1', 'aria-label': 'ungroup the grouped column' },
                 styles: this.groupSettings.showUngroupButton ? '' : 'display:none'
             }));
 
@@ -559,7 +568,7 @@ export class Group implements IAction {
                             'span', {
                                 className: 'e-grptogglebtn e-icons ' +
                                 (this.groupSettings.columns.indexOf(column.field) > -1 ? 'e-toggleungroup e-icon-ungroup'
-                                    : 'e-togglegroup e-icon-group')
+                                     : 'e-togglegroup e-icon-group'), attrs: { tabindex: '-1', 'aria-label': 'Group button' }
                             }));
                     }
                 }
