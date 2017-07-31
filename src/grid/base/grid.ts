@@ -26,7 +26,7 @@ import { ColumnWidthService } from '../services/width-controller';
 import { AriaService } from '../services/aria-service';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
 import { SortDescriptorModel, PredicateModel, RowDropSettingsModel, GroupSettingsModel } from './grid-model';
-import { PageSettingsModel, AggregateRowModel  } from '../models/models';
+import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { PageSettings } from '../models/page-settings';
 import { Sort } from '../actions/sort';
 import { Page } from '../actions/page';
@@ -544,8 +544,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public detailRowModule: DetailRow;
 
-    /**
-     * @hidden
+    /**     
      * `toolbarModule` is used to manipulate toolbar items in the Grid.
      */
     public toolbarModule: Toolbar;
@@ -838,22 +837,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public query: Query;
 
     /**    
-     * @hidden
      * `toolbar` defines toolbar items for grid. It contains built-in and custom toolbar items. 
      * If a string value is assigned to the `toolbar` option, it will be treated as a single string template for the whole Grid Toolbar.
      * If an Array value is assigned, it will be treated as the list of built-in and custom toolbar items in the Grid's Toolbar. 
      * <br><br>     
-     * The available built-in toolbar items are
-     * * add - Add a new record.
-     * * edit - Edit the selected record.
-     * * update - Update the edited record.
-     * * delete - Delete the selected record.
-     * * cancel - Cancel the edit state.
+     * The available built-in toolbar items are  
      * * search - Searches records by given key.
-     * * print - Print the Grid.
-     * * excelexport - Export the Grid to Excel.
-     * * pdfexport - Export the Grid to PDF.
-     * * wordexport - Export the Grid to Word.<br><br>
+     * * print - Print the Grid.<br><br>
      * The following code example implements the custom toolbar items.
      * ```html
      * <style type="text/css" class="cssStyles">
@@ -1060,8 +1050,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Event()
     public rowDrop: EmitType<RowDragEventArgs>;
 
-    /** 
-     * @hidden
+    /**      
      * Triggers when toolbar item is clicked.
      * @event
      */
@@ -1308,6 +1297,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'toolbar':
                     this.notify(events.uiUpdate, { module: 'toolbar' });
                     break;
+                case 'groupSettings':
+                    if (!(isNullOrUndefined(newProp.groupSettings.showDropArea))) {
+                        this.headerModule.refreshUI();
+                        requireRefresh = true;
+                        checkCursor = true;
+                    }
+                    this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings });
+                    break;
+
                 case 'aggregates':
                     this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
                     break;
@@ -1347,9 +1345,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'gridLines':
                 this.updateGridLines();
-                break;
-            case 'groupSettings':
-                this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings });
                 break;
             case 'filterSettings':
                 this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
@@ -2106,7 +2101,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private createGridPopUpElement(): void {
         let popup: Element = createElement('div', { className: 'e-gridpopup', styles: 'display:none;' });
-        let content: Element = createElement('div', { className: 'e-content', attrs: { tabIndex: '-1' }  });
+        let content: Element = createElement('div', { className: 'e-content', attrs: { tabIndex: '-1' } });
         append([content, createElement('div', { className: 'e-uptail e-tail' })], popup);
         content.appendChild(createElement('span'));
         append([content, createElement('div', { className: 'e-downtail e-tail' })], popup);
@@ -2247,7 +2242,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private isDetail(): boolean {
-        return (this.detailTemplate && this.detailTemplate.length > 1) || !isNullOrUndefined(this.childGrid);
+        return !isNullOrUndefined(this.detailTemplate) || !isNullOrUndefined(this.childGrid);
     }
 
     private keyActionHandler(e: KeyboardEventArgs): void {

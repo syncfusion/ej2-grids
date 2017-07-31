@@ -568,7 +568,7 @@ export class Group implements IAction {
                             'span', {
                                 className: 'e-grptogglebtn e-icons ' +
                                 (this.groupSettings.columns.indexOf(column.field) > -1 ? 'e-toggleungroup e-icon-ungroup'
-                                     : 'e-togglegroup e-icon-group'), attrs: { tabindex: '-1', 'aria-label': 'Group button' }
+                                    : 'e-togglegroup e-icon-group'), attrs: { tabindex: '-1', 'aria-label': 'Group button' }
                             }));
                     }
                 }
@@ -596,6 +596,7 @@ export class Group implements IAction {
                     }
                     break;
                 case 'showDropArea':
+                    this.updateGroupDropArea();
                     this.groupSettings.showDropArea ? this.element.style.display = '' : this.element.style.display = 'none';
                     break;
                 case 'showGroupedColumn':

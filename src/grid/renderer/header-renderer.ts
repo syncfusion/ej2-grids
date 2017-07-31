@@ -421,7 +421,7 @@ export class HeaderRender implements IRenderer {
 
     private initializeHeaderDrag(): void {
         let gObj: IGrid = this.parent;
-        if (!(this.parent.allowReordering || this.parent.allowGrouping)) {
+        if (!(this.parent.allowReordering || (this.parent.allowGrouping && this.parent.groupSettings.showDropArea))) {
             return;
         }
         let headerRows: Element[] = [].slice.call(gObj.getHeaderContent().querySelectorAll('.e-columnheader'));

@@ -110,4 +110,34 @@ describe('Template render module', () => {
 
     });
 
+    //for coverage
+    describe('row template render', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    rowTemplate: '<div>${OrderID}</div>',
+                    columns: [
+                        { field: 'EmployeeID', headerText: 'Employee ID' },                      
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('row render testing', () => {
+            let trs = gridObj.getContent().querySelectorAll('tr');
+            expect(trs[0].querySelectorAll('td')[0].innerHTML).not.toEqual('10248');          
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+
+    });
+
 });
