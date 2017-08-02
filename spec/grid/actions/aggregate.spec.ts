@@ -397,7 +397,7 @@ describe('Aggregates Functionality testing', () => {
                 grid = createGrid(
                     {
                         allowGrouping: true,
-                        groupSettings: { columns: ['Verified'] },
+                        groupSettings: { disablePageWiseAggregates: true, columns: ['Verified'] },
                         columns: [
                             {
                                 field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',

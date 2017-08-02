@@ -89,7 +89,7 @@ export class Render {
     private refreshDataManager(args?: NotifyArgs): void {
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
         let dataManager: Promise<Object> = this.data.getData(this.data.generateQuery().requiresCount());
-        if (this.parent.groupSettings.columns.length) {
+        if (this.parent.groupSettings.disablePageWiseAggregates && this.parent.groupSettings.columns.length) {
             dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
         }
         dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))

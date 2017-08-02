@@ -357,6 +357,15 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
     @Property(true)
     public showUngroupButton: boolean;
 
+    /**
+     * If `disablePageWiseAggregates` set to true, then the group aggregate value will
+     * be calculated from the whole data instead of paged data and two requests will be made for each page
+     * when Grid bound with remote service.
+     * @default false
+     */
+    @Property(false)
+    public disablePageWiseAggregates: boolean;
+
     /**   
      * Specifies the column names to group at initial rendering of Grid.  
      * Also user can get current grouped columns.     

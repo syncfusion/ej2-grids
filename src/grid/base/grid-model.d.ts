@@ -137,6 +137,9 @@ export interface GroupSettingsModel {
      * If `showUngroupButton` set to false, then ungroup button is hidden in dropped element.       * It can be used to ungroup the grouped column when click on ungroup button.      * @default true      */    showUngroupButton?: boolean;
 
     /**
+     * If `disablePageWiseAggregates` set to true, then the group aggregate value will     * be calculated from the whole data instead of paged data and two requests will be made for each page     * when Grid bound with remote service.     * @default false     */    disablePageWiseAggregates?: boolean;
+
+    /**
      * Specifies the column names to group at initial rendering of Grid.       * Also user can get current grouped columns.          */    columns?: string[];
 
 }

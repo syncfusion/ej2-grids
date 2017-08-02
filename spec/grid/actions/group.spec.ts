@@ -1179,7 +1179,7 @@ describe('Grouping module', () => {
                     { field: 'OrderDate', headerText: 'Ship City' },
                     { field: 'ShipCountry', headerText: 'Ship Country' }],
                     allowGrouping: true,
-                    groupSettings: { columns: ['OrderDate'] },
+                    groupSettings: { disablePageWiseAggregates: true, columns: ['OrderDate', 'ShipCountry'] },
                     allowPaging: true,
                     dataBound: dataBound
                 });
@@ -1214,7 +1214,7 @@ describe('Grouping module', () => {
                     { field: 'OrderDate', headerText: 'Ship City' },
                     { field: 'ShipCountry', headerText: 'Ship Country' }],
                     allowGrouping: true,
-                    groupSettings: { columns: ['EmployeeID', 'CustomerID'] },
+                    groupSettings: { disablePageWiseAggregates: true, columns: ['EmployeeID', 'CustomerID'] },
                     allowPaging: true,
                     actionFailure: dataBound,
                     dataBound: dataBound
@@ -1245,6 +1245,39 @@ describe('Grouping module', () => {
             Render.prototype.validateGroupRecords = old;
             elem.remove();
             jasmine.Ajax.uninstall();
+        });
+    });
+
+    describe('Grouping disablePageWiseAggregates with empty datasource', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: [],
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'OrderDate', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: { disablePageWiseAggregates: true, columns: ['OrderDate', 'ShipCountry'] },
+                    allowPaging: true,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('check data length', () => {
+            expect(gridObj.currentViewData.length).toBe(0);
+        });
+        afterAll(() => {
+            elem.remove();
         });
     });
 
