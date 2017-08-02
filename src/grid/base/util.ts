@@ -240,7 +240,11 @@ export function getUid(prefix: string): string {
 /** @hidden */
 export function appendChildren(elem: Element, children: Element[]): Element {
     for (let i: number = 0, len: number = children.length; i < len; i++) {
-        elem.appendChild(children[0]);
+        if (len === children.length) {
+            elem.appendChild(children[i]);
+        } else {
+            elem.appendChild(children[0]);
+        }
     }
     return elem;
 }

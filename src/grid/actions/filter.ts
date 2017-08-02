@@ -349,6 +349,7 @@ export class Filter implements IAction {
             if (cols[i].field === field) {
                 if (!(isClearFilterBar === false)) {
                     (this.element.querySelector('#' + cols[i].field + '_filterBarcell') as HTMLInputElement).value = '';
+                    delete this.values[field];
                 }
                 cols.splice(i, 1);
                 this.parent.getColumnHeaderByField(field).removeAttribute('aria-filtered');

@@ -131,7 +131,7 @@ export class ContentRender implements IRenderer {
                 let elements: NodeList = gObj.getRowTemplate()(extend({ index: i }, dataSource[i]));
                 for (let j: number = 0; j < elements.length; j++) {
                     let isTR: boolean = elements[j].nodeName.toLowerCase() === 'tr';
-                    if (isTR || (elements[j] as Element).querySelectorAll('tr').length) {
+                    if (isTR || ((elements[j] as Element).querySelectorAll && (elements[j] as Element).querySelectorAll('tr').length)) {
                         tr = isTR ? elements[j] as Element : (elements[j] as Element).querySelector('tr');
                     }
                 }
