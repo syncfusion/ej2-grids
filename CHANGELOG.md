@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 1.0.11-preview (2017-08-03)
 
 ### Grid
 
