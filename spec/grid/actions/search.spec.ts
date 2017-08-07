@@ -92,13 +92,17 @@ describe('Search module', () => {
                 expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(1);
                 done();
             };
+            gridObj.isDestroyed = true;
+            (<any>gridObj.searchModule).addEventListener();
+            (<any>gridObj.searchModule).removeEventListener();
+            gridObj.isDestroyed = false;
             gridObj.actionComplete = actionComplete;
             gridObj.isDestroyed = true;
             (<any>gridObj.searchModule).addEventListener();
             (<any>gridObj.searchModule).removeEventListener();
             gridObj.isDestroyed = false;
             gridObj.searchModule.search('TOMSP');
-            (<any>gridObj.searchModule).onPropertyChanged({ module: 'search', properties: {} });
+            (<any>gridObj.searchModule).onPropertyChanged({ module: 'search', properties: {} });          
         });
 
         afterAll(() => {

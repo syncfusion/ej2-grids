@@ -408,7 +408,7 @@ export class Selection implements IAction {
                     continue;
                 }
                 cellIndexes.push(j);
-                selectedCell.classList.add('e-cellselectionbackground');
+                this.updateCellSelection(selectedCell);
                 this.addAttribute(selectedCell);
             }
             this.selectedRowCellIndexes.push({ rowIndex: i, cellIndexes: cellIndexes });
@@ -450,7 +450,7 @@ export class Selection implements IAction {
                 if (!selectedCell) {
                     continue;
                 }
-                selectedCell.classList.add('e-cellselectionbackground');
+                this.updateCellSelection(selectedCell);
                 this.addAttribute(selectedCell);
                 this.addRowCellIndex({ rowIndex: rowCellIndexes[i].rowIndex, cellIndex: rowCellIndexes[i].cellIndexes[j] });
             }
@@ -514,7 +514,7 @@ export class Selection implements IAction {
                     isUnSelected = false;
                     this.onActionBegin(args, events.cellSelecting);
                     this.addRowCellIndex({ rowIndex: cellIndex.rowIndex, cellIndex: cellIndex.cellIndex });
-                    selectedCell.classList.add('e-cellselectionbackground');
+                    this.updateCellSelection(selectedCell);
                     this.addAttribute(selectedCell);
                 }
             } else {
@@ -544,8 +544,10 @@ export class Selection implements IAction {
         this.clearCellSelection();
     }
 
-    private updateCellSelection(selectedCell: Element, rowIndex: number, cellIndex: number): void {
-        this.addRowCellIndex({ rowIndex: rowIndex, cellIndex: cellIndex });
+    private updateCellSelection(selectedCell: Element, rowIndex?: number, cellIndex?: number): void {
+        if (!isNullOrUndefined(rowIndex)) {
+            this.addRowCellIndex({ rowIndex: rowIndex, cellIndex: cellIndex });
+        }
         selectedCell.classList.add('e-cellselectionbackground');
         this.addAttribute(selectedCell);
     }
@@ -702,7 +704,7 @@ export class Selection implements IAction {
         this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.keyPressed, this.keyPressHandler, this);
-        this.parent.on(events.dataReady, this.clearSelection, this);
+        this.parent.on(events.dataReady, this.dataReady, this);
         this.parent.on(events.columnPositionChanged, this.clearSelection, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
     }
@@ -717,9 +719,16 @@ export class Selection implements IAction {
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.keyPressed, this.keyPressHandler);
-        this.parent.off(events.dataReady, this.clearSelection);
+        this.parent.off(events.dataReady, this.dataReady);
         this.parent.off(events.columnPositionChanged, this.clearSelection);
     }
+
+     public dataReady(e: { requestType: string }): void {
+        if (e.requestType !== 'virtualscroll') {
+            this.clearSelection();
+        }
+    };
+
 
     private onPropertyChanged(e: { module: string, properties: SelectionSettings }): void {
         if (e.module !== this.getModuleName()) {

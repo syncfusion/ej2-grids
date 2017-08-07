@@ -206,10 +206,8 @@ describe('Reorder module', () => {
             (<any>gridObj.reorderModule).enableAfterRender({ module: 'sort' });
             headers[3].classList.add('e-reorderindicate');
             gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
-            (<any>gridObj.getHeaderContent()).ej2_instances[0].trigger('drop', {
-                target: createElement('div'),
-                droppedElement: gridObj.element.querySelector('.e-cloneproperties')
-            }); //droppable instance
+           (<any>gridObj.getHeaderContent()).ej2_instances[0].trigger('drop', { target: createElement('div'), 
+            droppedElement: gridObj.element.querySelector('.e-cloneproperties') }); //droppable instance
             gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
             gridObj.width = 300;
             gridObj.dataBind();

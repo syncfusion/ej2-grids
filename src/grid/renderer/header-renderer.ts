@@ -298,10 +298,9 @@ export class HeaderRender implements IRenderer {
 
     private appendCells(cols: Column, rows: Row<Column>[], index: number, isFirstObj: boolean, isFirstCol: boolean): Row<Column>[] {
         if (!cols.columns) {
-            let col: Column = this.parent.getColumnByField(cols.field);
             rows[index].cells.push(this.generateCell(
-                col, CellType.Header, this.colDepth - index,
-                (isFirstObj ? '' : (isFirstCol ? 'e-firstcell' : '')), index, this.parent.getColumnIndexByUid(col.uid)));
+                cols, CellType.Header, this.colDepth - index,
+                (isFirstObj ? '' : (isFirstCol ? 'e-firstcell' : '')), index, this.parent.getColumnIndexByUid(cols.uid)));
         } else {
             let colSpan: number = this.getCellCnt(cols, 0);
             if (colSpan) {

@@ -1,6 +1,6 @@
 import { ChildProperty } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base/util';
-import { setStyleAttribute, addClass, attributes, createElement } from '@syncfusion/ej2-base/dom';
+import { setStyleAttribute, addClass, attributes, createElement, remove } from '@syncfusion/ej2-base/dom';
 import { IPosition } from './interface';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
@@ -216,7 +216,7 @@ export function getActualPropFromColl(collection: Object[]): Object[] {
 export function removeElement(target: Element, selector: string): void {
     let elements: HTMLElement[] = [].slice.call(target.querySelectorAll(selector));
     for (let i: number = 0; i < elements.length; i++) {
-        elements[i].parentElement.removeChild(elements[i]);
+        remove(elements[i]);
     }
 }
 

@@ -337,6 +337,11 @@ describe('Scrolling module', () => {
             let header: HTMLElement = <HTMLElement>grid.getHeaderContent();
             expect((<HTMLElement>header.firstChild).style.borderRightWidth).toBe('0px');
             expect((<HTMLElement>header).style.paddingRight).toBe('0px');
+             //for coverage
+            grid.isDestroyed = true;
+            grid.scrollModule.removeEventListener();
+            grid.isDestroyed = false;
+
         });
 
         afterAll(() => {

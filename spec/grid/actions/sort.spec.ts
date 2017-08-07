@@ -116,15 +116,7 @@ describe('Sorting module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.dataBind();
             gridObj.clearSorting();
-        });
-        it('actionBegin event call', () => {
-            let spyFn: (e?: Object) => void = jasmine.createSpy('begin');
-            gridObj.actionBegin = spyFn;
-            gridObj.dataBind();
-            colHeader = col2;
-            (colHeader as HTMLElement).click();
-            expect(spyFn).toHaveBeenCalled();
-        });
+        });     
         it('Disabled sort asc testing', () => {
             gridObj.allowSorting = false;
             gridObj.dataBind();

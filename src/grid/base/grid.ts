@@ -464,7 +464,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         altUpArrow: 'alt+uparrow',
         ctrlDownArrow: 'ctrl+downarrow',
         ctrlUpArrow: 'ctrl+uparrow',
-        ctrlPlusA: 'ctrl+A'
+        ctrlPlusA: 'ctrl+A',
+         ctrlPlusP: 'ctrl+P'
 
     };
 
@@ -2210,7 +2211,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getCurrentViewRecords(): Object[] {
         return (this.allowGrouping && this.groupSettings.columns.length) ?
-            (this.currentViewData as Object[] & { records: Object[] }).records : this.currentViewData;
+           (this.currentViewData as Object[] & { records: Object[] }).records : this.currentViewData;
 
     }
 
@@ -2259,6 +2260,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             return;
         }
         if (this.allowKeyboard) {
+            if (e.action === 'ctrlPlusP') {
+                e.preventDefault();
+                this.print();
+            }
             this.notify(events.keyPressed, e);
         }
     }

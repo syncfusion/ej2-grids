@@ -254,8 +254,8 @@ export interface IGrid extends Component<HTMLElement> {
     refreshHeader?(): void;
     getDataRows?(): Element[];
     getPrimaryKeyFieldNames?(): string[];
-    print(): void;
-    search(searchString: string): void;
+    print?(): void;
+    search?(searchString: string): void;
 }
 
 /** @hidden */
