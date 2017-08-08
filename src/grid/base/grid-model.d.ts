@@ -61,10 +61,10 @@ export interface FilterSettingsModel {
      * Specifies the columns to filter at initial rendering of Grid.       * Also user can get current filtered columns.      */    columns?: PredicateModel[];
 
     /**
-     * @hidden      * Defines options for filtering type. The available options are           * * excel - Specifies the filter type as excel.      * * filterbar - Specifies the filter type as filterbar.       * @default filterbar      */    type?: FilterType;
+     * @hidden      * Defines options for filtering type. The available options are           * * `excel` - Specifies the filter type as excel.      * * `filterbar` - Specifies the filter type as filterbar.       * @default filterbar      */    type?: FilterType;
 
     /**
-     * Defines the filter bar modes. The available options are       * * onenter - Initiate filter operation after Enter key is pressed.      * * immediate -  Initiate filter operation after certain time interval. By default time interval is 1500 ms.      * @default onenter      */    mode?: FilterBarMode;
+     * Defines the filter bar modes. The available options are       * * `onenter` - Initiate filter operation after Enter key is pressed.      * * `immediate` -  Initiate filter operation after certain time interval. By default time interval is 1500 ms.      * @default onenter      */    mode?: FilterBarMode;
 
     /**
      * Shows or hides the filtered status message in the pager.       * @default true      */    showFilterBarStatus?: boolean;
@@ -83,10 +83,10 @@ export interface SelectionSettingsModel {
      * Grid supports row, cell and both(row and cell) selection mode.      * @default row     */    mode?: SelectionMode;
 
     /**
-     * The cell selection modes are flow and box. It requires the selection      * [`mode`](http://ej2.syncfusion.com/documentation/grid/api-selectionSettings.html#mode-selectionmode)      * to be either cell or both.     * * flow - Select range of cells between the start index and end index which includes in between cells of rows.     * * box - Select range of cells within the start and end column indexes which includes in between cells of rows within the range.     * @default flow     */    cellSelectionMode?: string;
+     * The cell selection modes are flow and box. It requires the selection      * [`mode`](http://ej2.syncfusion.com/documentation/grid/api-selectionSettings.html#mode-selectionmode)      * to be either cell or both.     * * `flow` - Select range of cells between the start index and end index which includes in between cells of rows.     * * `box` - Select range of cells within the start and end column indexes which includes in between cells of rows within the range.     * @default flow     */    cellSelectionMode?: string;
 
     /**
-     * Defines options for selection type. They are      * * single - Allows user to select only a row or cell.      * * multiple - Allows user to select multiple rows or cells.      * @default single      */    type?: SelectionType;
+     * Defines options for selection type. They are      * * `single` - Allows user to select only a row or cell.      * * `multiple` - Allows user to select multiple rows or cells.      * @default single      */    type?: SelectionType;
 
 }
 
@@ -243,7 +243,7 @@ export interface GridModel extends ComponentModel{
      * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html)      * which will execute along with data processing.         * @default null         */    query?: Query;
 
     /**
-     * `toolbar` defines toolbar items for grid. It contains built-in and custom toolbar items.      * If a string value is assigned to the `toolbar` option, it will be treated as a single string template for the whole Grid Toolbar.     * If an Array value is assigned, it will be treated as the list of built-in and custom toolbar items in the Grid's Toolbar.      * <br><br>          * The available built-in toolbar items are       * * search - Searches records by given key.     * * print - Print the Grid.<br><br>     * The following code example implements the custom toolbar items.     * ```html     * <style type="text/css" class="cssStyles">     * .refreshicon:before     * {     *    content:"\e898";     * }     * </style>     * <div id="grid"></div>     * <script>     * var gridObj = new Grid({     * datasource: window.gridData,     * toolbar : ['Expand', {text: 'Refresh', tooltipText: 'Refresh', prefixIcon: 'refreshicon'}]});     * //Expand - To display button with Expand label     * //Refresh - To display button with prefixIcon and text     * gridObj.appendTo("#grid");     * </script>     * ```     * @default null     */    toolbar?: string | string[] | ItemModel[];
+     * `toolbar` defines toolbar items for grid. It contains built-in and custom toolbar items.      * If a string value is assigned to the `toolbar` option, it will be considered as a template for the whole Grid Toolbar.     * If an Array value is assigned, it will be considered as the list of built-in and custom toolbar items in the Grid's Toolbar.       * <br><br>          * The available built-in toolbar items are     * * add - Add a new record.     * * edit - Edit the selected record.     * * update - Update the edited record.     * * delete - Delete the selected record.     * * cancel - Cancel the edit state.     * * search - Searches records by given key.     * * print - Print the Grid.     * * excelexport - Export the Grid to Excel.     * * pdfexport - Export the Grid to PDF.     * * wordexport - Export the Grid to Word.<br><br>     * The following code example implements the custom toolbar items.     * ```html     * <style type="text/css" class="cssStyles">     * .refreshicon:before     * {     *    content:"\e898";     * }     * </style>     * <div id="grid"></div>     * <script>     * var gridObj = new Grid({     * datasource: window.gridData,     * toolbar : ['Expand', {text: 'Refresh', tooltipText: 'Refresh', prefixIcon: 'refreshicon'}]});     * //Expand - To display button with Expand label     * //Refresh - To display button with prefixIcon and text     * gridObj.appendTo("#grid");     * </script>     * ```     * @default null     */    toolbar?: string | string[] | ItemModel[];
 
     /**
      * Triggers when the component is created.     * @event      */    created?: EmitType<Object>;

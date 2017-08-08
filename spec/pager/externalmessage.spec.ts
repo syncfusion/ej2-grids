@@ -28,23 +28,23 @@ describe('ExternalMessage module testing', () => {
 
         it('externalMessage hide testing', () => {
             pagerObj.externalMessageModule.hideMessage();
-            expect((pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0] as HTMLElement).style.display).toEqual('none');
+            expect((pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0] as HTMLElement).style.display).toBe('none');
         });
 
         it('externalMessage show testing', () => {
             pagerObj.externalMessageModule.showMessage();
-            expect((pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0] as HTMLElement).style.display).not.toEqual('none');
+            expect((pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0] as HTMLElement).style.display).not.toBe('none');
         });
 
         it('refresh externalMessage testing', () => {
             pagerObj.externalMessageModule.refresh();
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent.length).toEqual(0);
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent.length).toBe(0);
         });
 
         it('set externalMessage testing', () => {
             pagerObj.externalMessage = 'externalMessage';
             pagerObj.externalMessageModule.refresh();
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent).toEqual('externalMessage');
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent).toBe('externalMessage');
         });
 
         afterAll(() => {
@@ -69,13 +69,13 @@ describe('ExternalMessage module testing', () => {
         });
 
         it('externalMessage element testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toEqual(0);
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toBe(0);
         });
 
         it('externalMessage enable testing', () => {
             pagerObj.enableExternalMessage = true;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toEqual(1);
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toBe(1);
         });
 
         afterAll(() => {

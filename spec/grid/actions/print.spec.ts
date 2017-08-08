@@ -45,9 +45,9 @@ describe('Print module', () => {
         });
         it('Print all pages testing', (done: Function) => {
             beforePrint = (args?: { element: Element }): void => {
-                expect(args.element.querySelectorAll('.e-gridpager').length).toEqual(0);
-                expect(args.element.querySelectorAll('.e-filterbar').length).toEqual(0);
-                expect(args.element.querySelectorAll('.e-row').length).toEqual(15);
+                expect(args.element.querySelectorAll('.e-gridpager').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-filterbar').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-row').length).toBe(15);
                 done();
             };
             window.print = () => { };
@@ -89,8 +89,8 @@ describe('Print module', () => {
         });
         it('Print all pages testing', (done: Function) => {
             beforePrint = (args?: { element: Element }): void => {
-                expect(args.element.querySelectorAll('.e-gridpager').length).toEqual(0);
-                expect((args.element.querySelector('.e-filterbar') as HTMLElement).style.display).toEqual('none');
+                expect(args.element.querySelectorAll('.e-gridpager').length).toBe(0);
+                expect((args.element.querySelector('.e-filterbar') as HTMLElement).style.display).toBe('none');
                 done();
             };
             gridObj.beforePrint = beforePrint;
@@ -100,7 +100,7 @@ describe('Print module', () => {
 
         it('Print current page testing', (done: Function) => {
             beforePrint = (args?: { element: Element }): void => {
-                expect((args.element.querySelector('.e-gridpager') as HTMLElement).style.display).toEqual('none');
+                expect((args.element.querySelector('.e-gridpager') as HTMLElement).style.display).toBe('none');
                 done();
             };
             gridObj.printModule.destroy(); //for coverage
@@ -143,12 +143,12 @@ describe('Print module', () => {
             let flag: boolean = false;
             beforePrint = (args?: { element: Element }): void => {
                 expect(args.element.querySelectorAll('.e-groupcaption').length).toBeGreaterThan(1);
-                expect((args.element.querySelectorAll('.e-groupcaption')[0] as HTMLTableCellElement).colSpan).toEqual(3);
-                expect(args.element.querySelectorAll('.e-grouptopleftcell').length).toEqual(0);
-                expect(args.element.querySelectorAll('.e-recordpluscollapse').length).toEqual(0);
-                expect(args.element.querySelectorAll('.e-indentcell').length).toEqual(0);
-                expect(args.element.querySelectorAll('.e-recordplusexpand').length).toEqual(0);
-                expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toEqual('');
+                expect((args.element.querySelectorAll('.e-groupcaption')[0] as HTMLTableCellElement).colSpan).toBe(3);
+                expect(args.element.querySelectorAll('.e-grouptopleftcell').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-recordpluscollapse').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-indentcell').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-recordplusexpand').length).toBe(0);
+                expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toBe('');
             };
             //data bound hit twice 
             //one for disable paging for print allpages
@@ -167,8 +167,8 @@ describe('Print module', () => {
 
         it('Print current page testing', (done: Function) => { //print current page with grouped columns
             beforePrint = (args?: { element: Element }): void => {
-                expect((args.element.querySelector('.e-gridpager') as HTMLElement).style.display).toEqual('none');
-                expect(args.element.querySelectorAll('.e-row').length).toEqual(8);
+                expect((args.element.querySelector('.e-gridpager') as HTMLElement).style.display).toBe('none');
+                expect(args.element.querySelectorAll('.e-row').length).toBe(8);
                 done();
             };
             gridObj.dataBound = undefined;
@@ -181,7 +181,7 @@ describe('Print module', () => {
 
         it ('Print Grid using toolbar items', (done: Function) => {
             beforePrint = (args?: { element: Element }): void => {
-                expect((args.element.querySelector('.e-toolbar') as HTMLElement).style.display).toEqual('none');
+                expect((args.element.querySelector('.e-toolbar') as HTMLElement).style.display).toBe('none');
                 done();
             };
             gridObj.beforePrint = beforePrint;
@@ -192,7 +192,7 @@ describe('Print module', () => {
         
         // it('UnGroup the columns', (done: Function) => {
         //     actionComplete = () => {
-        //         expect(gridObj.groupSettings.columns.length).toEqual(0);
+        //         expect(gridObj.groupSettings.columns.length).toBe(0);
         //         done();
         //     };
         //     gridObj.actionComplete = actionComplete;
@@ -202,7 +202,7 @@ describe('Print module', () => {
 
         // it('Print no grouped column', (done: Function) => {
         //     beforePrint = (args?: { element: Element }): void => {
-        //         expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toEqual('none');
+        //         expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toBe('none');
         //         done();
         //     };
         //     gridObj.beforePrint = beforePrint;

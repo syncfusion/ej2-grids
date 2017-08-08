@@ -63,7 +63,7 @@ describe('Data module', () => {
         });
 
         it('TR generated testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(5);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(5);
         });
 
         afterAll(() => {
@@ -100,11 +100,11 @@ describe('Data module', () => {
         });
 
         it('TR generated testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(15);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(15);
         });
 
         it('Column count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-headercell').length).toEqual(12);
+            expect(gridObj.element.querySelectorAll('.e-headercell').length).toBe(12);
         });
 
         afterAll(() => {
@@ -177,7 +177,7 @@ describe('Data module', () => {
         });
 
         it('Row count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(0);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
             //for coverage
             gridObj.isDestroyed = true;
             (gridObj.renderModule as any).data.destroy();

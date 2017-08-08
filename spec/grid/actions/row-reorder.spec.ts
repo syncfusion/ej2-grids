@@ -211,9 +211,9 @@ describe('Row Drag and Drop module', () => {
             let mouseup: any = getEventObject('MouseEvents', 'mouseup', rows[1].querySelectorAll('.e-rowcell')[0]);
             EventHandler.trigger(<any>(document.body), 'mouseup', mouseup);
 
-            expect(gridObj.selectionModule.selectedRowIndexes.length).toEqual(2);
-            expect(gridObj.selectionModule.selectedRowIndexes.indexOf(0) > -1).toEqual(true);
-            expect(gridObj.selectionModule.selectedRowIndexes.indexOf(1) > -1).toEqual(true);
+            expect(gridObj.selectionModule.selectedRowIndexes.length).toBe(2);
+            expect(gridObj.selectionModule.selectedRowIndexes.indexOf(0) > -1).toBeTruthy();
+            expect(gridObj.selectionModule.selectedRowIndexes.indexOf(1) > -1).toBeTruthy();
 
         });
 
@@ -233,7 +233,7 @@ describe('Row Drag and Drop module', () => {
             mouseup.type = 'mouseup';
             EventHandler.trigger(<any>(document), 'mouseup', mouseup);
             rows = gridObj.getContent().querySelectorAll('tr.e-row');
-            expect(rows[0].querySelector('.e-rowcell').textContent).toEqual('10248');
+            expect(rows[0].querySelector('.e-rowcell').textContent).toBe('10248');
         });
 
         // it('Reorder drag with dragarea testing', () => {
@@ -254,7 +254,7 @@ describe('Row Drag and Drop module', () => {
         //     mouseup.type = 'mouseup';
         //     EventHandler.trigger(<any>(document), 'mouseup', mouseup);
         //     rows = gridObj.getContent().querySelectorAll('tr.e-row');
-        //     expect(rows[0].querySelector('.e-rowcell').textContent).toEqual('10248');
+        //     expect(rows[0].querySelector('.e-rowcell').textContent).toBe('10248');
         //     remove(gridObj.element.querySelector('.e-griddragarea'));
         // });
 
@@ -279,19 +279,19 @@ describe('Row Drag and Drop module', () => {
         //     mouseup.type = 'mouseup';
         //     EventHandler.trigger(<any>(document), 'mouseup', mouseup);
 
-        //     expect(rows[0].querySelector('.e-rowcell').textContent).toEqual('10248');
-        //     expect(rows[1].querySelector('.e-rowcell').textContent).toEqual('10249');
+        //     expect(rows[0].querySelector('.e-rowcell').textContent).toBe('10248');
+        //     expect(rows[1].querySelector('.e-rowcell').textContent).toBe('10249');
         // });
 
         // it('Reorder Row simulate grid to grid testing', (done: Function) => {
         //     actionComplete = (args: Object): void => {
         //         rows = gridObj1.getContent().querySelectorAll('tr.e-row');
-        //         expect(rows[0].querySelector('.e-rowcell').textContent).toEqual('10248');
-        //         expect(rows[1].querySelector('.e-rowcell').textContent).toEqual('10249');
+        //         expect(rows[0].querySelector('.e-rowcell').textContent).toBe('10248');
+        //         expect(rows[1].querySelector('.e-rowcell').textContent).toBe('10249');
 
         //         rows = gridObj.getContent().querySelectorAll('tr.e-row');
-        //         expect(rows[0].querySelector('.e-rowcell').textContent).toEqual('10250');
-        //         expect(rows[1].querySelector('.e-rowcell').textContent).toEqual('10251');
+        //         expect(rows[0].querySelector('.e-rowcell').textContent).toBe('10250');
+        //         expect(rows[1].querySelector('.e-rowcell').textContent).toBe('10251');
         //         //for coverage
         //         gridObj.allowRowDragAndDrop = false;
         //         gridObj.dataBind();
@@ -626,21 +626,21 @@ describe('Row Drag and Drop module', () => {
 
         //     let mouseup: any = getEventObject('MouseEvents', 'mouseup', gridObj1.getHeaderContent(), 198, 306);
         //     EventHandler.trigger(<any>(document), 'mouseup', mouseup);
-        //     expect(document.querySelectorAll('.e-grid.e-dragclone').length).toEqual(0);
-        //     expect(gridObj.getContent().querySelectorAll('.e-selectionbackground.e-active').length).toEqual(15);
+        //     expect(document.querySelectorAll('.e-grid.e-dragclone').length).toBe(0);
+        //     expect(gridObj.getContent().querySelectorAll('.e-selectionbackground.e-active').length).toBe(15);
         // });
 
         // it('drag and drop selected row in second grid using touch', (done: Function) => {
         //     dataBound1 = () => {
-        //         expect(gridObj1.getRows().length).toEqual(3);
-        //         expect(gridObj1.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj1.pageSettings.totalRecordsCount).toEqual(3);
-        //         expect(gridObj1.getRows()[0].children[3].innerHTML).toEqual('$41.34');
+        //         expect(gridObj1.getRows().length).toBe(3);
+        //         expect(gridObj1.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj1.pageSettings.totalRecordsCount).toBe(3);
+        //         expect(gridObj1.getRows()[0].children[3].innerHTML).toBe('$41.34');
         //     };
         //     let dataBound = () => {
-        //         expect(gridObj.getRows().length).toEqual(6);
-        //         expect(gridObj.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj.pageSettings.totalRecordsCount).toEqual(12);
+        //         expect(gridObj.getRows().length).toBe(6);
+        //         expect(gridObj.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj.pageSettings.totalRecordsCount).toBe(12);
         //     };
         //     gridObj1.dataBound = dataBound1;
         //     gridObj.dataBound = dataBound;
@@ -691,60 +691,60 @@ describe('Row Drag and Drop module', () => {
         //     rows = gridObj.getRows();
         //     gridObj.selectRows([3, 4, 5]);
         //     dataBound1 = () => {
-        //         expect(gridObj1.getRows().length).toEqual(6);
-        //         expect(gridObj1.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj1.pageSettings.totalRecordsCount).toEqual(6);
-        //         expect(gridObj1.currentViewData[0]['OrderID']).toEqual(10254);
+        //         expect(gridObj1.getRows().length).toBe(6);
+        //         expect(gridObj1.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj1.pageSettings.totalRecordsCount).toBe(6);
+        //         expect(gridObj1.currentViewData[0]['OrderID']).toBe(10254);
         //     };
         //     let dataBound = () => {
-        //         expect(gridObj.getRows().length).toEqual(6);
-        //         expect(gridObj.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj.pageSettings.totalRecordsCount).toEqual(9);
-        //         expect(gridObj.currentViewData[3]['OrderID']).toEqual(10257);
+        //         expect(gridObj.getRows().length).toBe(6);
+        //         expect(gridObj.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj.pageSettings.totalRecordsCount).toBe(9);
+        //         expect(gridObj.currentViewData[3]['OrderID']).toBe(10257);
         //     };
         //     actionComplete = (args: Object) => {
-        //         expect(args['requestType']).toEqual('rowdraganddrop');
-        //         expect(args['type']).toEqual('actionComplete');
-        //         expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toEqual(0);
+        //         expect(args['requestType']).toBe('rowdraganddrop');
+        //         expect(args['type']).toBe('actionComplete');
+        //         expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(0);
         //         done();
         //     };
         //     actionComplete1 = (args: Object) => {
-        //         expect(args['requestType']).toEqual('rowdraganddrop');
-        //         expect(args['type']).toEqual('actionComplete');
+        //         expect(args['requestType']).toBe('rowdraganddrop');
+        //         expect(args['type']).toBe('actionComplete');
         //     };
         //     let actionBegin = (args: Object) => {
-        //         expect(args['requestType']).toEqual('rowdraganddrop');
-        //         expect(args['type']).toEqual('actionBegin');
+        //         expect(args['requestType']).toBe('rowdraganddrop');
+        //         expect(args['type']).toBe('actionBegin');
         //     };
         //     let actionBegin1 = (args: Object) => {
-        //         expect(args['requestType']).toEqual('rowdraganddrop');
-        //         expect(args['type']).toEqual('actionBegin');
+        //         expect(args['requestType']).toBe('rowdraganddrop');
+        //         expect(args['type']).toBe('actionBegin');
         //     };
         //     let rowDragStart: EmitType<Object> = (args: Object) => {
-        //         expect(rows[3]).toEqual(args['rows'][0]);
-        //         expect(args['rows'].length).toEqual(3);
+        //         expect(rows[3]).toBe(args['rows'][0]);
+        //         expect(args['rows'].length).toBe(3);
         //         expect(args['target']).toEqual(rows[5].firstChild);
-        //         expect(args['draggableType']).toEqual('rows');
+        //         expect(args['draggableType']).toBe('rows');
         //         expect(args['data']).not.toBe(null);
-        //         expect(args['data'].length).toEqual(gridObj.getSelectedRowIndexes().length);
+        //         expect(args['data'].length).toBe(gridObj.getSelectedRowIndexes().length);
         //     };
         //     let rowDrag: EmitType<Object> = (args: Object) => {
         //         expect(rows[3]).toEqual(args['rows'][0]);
-        //         expect(args['rows'].length).toEqual(3);
+        //         expect(args['rows'].length).toBe(3);
         //         expect(args['target']).toEqual(rows[4].firstChild);
-        //         expect(args['draggableType']).toEqual('rows');
+        //         expect(args['draggableType']).toBe('rows');
         //         expect(args['data']).not.toBe(null);
-        //         expect(args['data'].length).toEqual(gridObj.getSelectedRowIndexes().length);
-        //         expect((<any>document.getElementById(gridObj.rowDropSettings.targetID)).ej2_instances[0].getContent().classList.contains('e-allowRowDrop')).toEqual(true)
-        //         bool ? expect(gridObj.element.classList.contains('e-rowdrag')).toEqual(true) : bool = true;
+        //         expect(args['data'].length).toBe(gridObj.getSelectedRowIndexes().length);
+        //         expect((<any>document.getElementById(gridObj.rowDropSettings.targetID)).ej2_instances[0].getContent().classList.contains('e-allowRowDrop')).toBe(true)
+        //         bool ? expect(gridObj.element.classList.contains('e-rowdrag')).toBe(true) : bool = true;
         //     };
         //     let rowDrop: EmitType<Object> = (args: Object) => {
         //         expect(rows[3]).toEqual(args['rows'][0]);
-        //         expect(args['rows'].length).toEqual(3);
+        //         expect(args['rows'].length).toBe(3);
         //         expect(args['target']).not.toBe(null);
-        //         expect(args['draggableType']).toEqual('rows');
+        //         expect(args['draggableType']).toBe('rows');
         //         expect(args['data']).not.toBe(null);
-        //         expect(args['data'].length).toEqual(gridObj.getSelectedRowIndexes().length);
+        //         expect(args['data'].length).toBe(gridObj.getSelectedRowIndexes().length);
         //     };
         //     gridObj.rowDragStart = rowDragStart;
         //     gridObj.rowDrag = rowDrag;
@@ -771,8 +771,8 @@ describe('Row Drag and Drop module', () => {
 
         // it('Go to second page', (done: Function) => {
         //     actionComplete = () => {
-        //         expect(gridObj.pageSettings.currentPage).toEqual(2);
-        //         expect(gridObj.getPager().querySelector('.e-currentitem.e-active').innerHTML).toEqual('2');
+        //         expect(gridObj.pageSettings.currentPage).toBe(2);
+        //         expect(gridObj.getPager().querySelector('.e-currentitem.e-active').innerHTML).toBe('2');
         //         done();
         //     };
         //     gridObj.actionComplete = actionComplete;
@@ -790,15 +790,15 @@ describe('Row Drag and Drop module', () => {
         //     gridObj.keyboardModule.keyAction(args);
         //     rows = gridObj.getRows();
         //     dataBound1 = () => {
-        //         expect(gridObj1.getRows().length).toEqual(6);
-        //         expect(gridObj1.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj1.pageSettings.totalRecordsCount).toEqual(9);
+        //         expect(gridObj1.getRows().length).toBe(6);
+        //         expect(gridObj1.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj1.pageSettings.totalRecordsCount).toBe(9);
         //     };
         //     let dataBound = () => {
-        //         expect(gridObj.getRows().length).toEqual(6);
-        //         expect(gridObj.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj.getPager().querySelector('.e-currentitem.e-active').innerHTML).toEqual('1');
-        //         expect(gridObj.pageSettings.totalRecordsCount).toEqual(6);
+        //         expect(gridObj.getRows().length).toBe(6);
+        //         expect(gridObj.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj.getPager().querySelector('.e-currentitem.e-active').innerHTML).toBe('1');
+        //         expect(gridObj.pageSettings.totalRecordsCount).toBe(6);
         //     };
         //     gridObj1.dataBound = dataBound1;
         //     gridObj.dataBound = dataBound;
@@ -824,8 +824,8 @@ describe('Row Drag and Drop module', () => {
 
         // it('Go to second page in second grid', (done: Function) => {
         //     actionComplete = () => {
-        //         expect(gridObj1.pageSettings.currentPage).toEqual(2);
-        //         expect(gridObj1.getPager().querySelector('.e-currentitem.e-active').innerHTML).toEqual('2');
+        //         expect(gridObj1.pageSettings.currentPage).toBe(2);
+        //         expect(gridObj1.getPager().querySelector('.e-currentitem.e-active').innerHTML).toBe('2');
         //         done();
         //     };
         //     gridObj1.actionComplete = actionComplete;
@@ -840,17 +840,17 @@ describe('Row Drag and Drop module', () => {
         //     rows = gridObj1.getRows();
         //     firstData = gridObj1.currentViewData[0];
         //     dataBound1 = () => {
-        //         expect(gridObj1.getRows().length).toEqual(6);
-        //         expect(gridObj1.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj1.getPager().querySelector('.e-currentitem.e-active').innerHTML).toEqual('1');
-        //         expect(gridObj1.pageSettings.totalRecordsCount).toEqual(6);
+        //         expect(gridObj1.getRows().length).toBe(6);
+        //         expect(gridObj1.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj1.getPager().querySelector('.e-currentitem.e-active').innerHTML).toBe('1');
+        //         expect(gridObj1.pageSettings.totalRecordsCount).toBe(6);
         //         expect(gridObj1.currentViewData[0]['OrderID']).toEqual(firstData1['OrderID']);
         //         gridObj1.dataBound = undefined;
         //     };
         //     let dataBound = () => {
-        //         expect(gridObj.getRows().length).toEqual(6);
-        //         expect(gridObj.pageSettings.currentPage).toEqual(1);
-        //         expect(gridObj.pageSettings.totalRecordsCount).toEqual(9);
+        //         expect(gridObj.getRows().length).toBe(6);
+        //         expect(gridObj.pageSettings.currentPage).toBe(1);
+        //         expect(gridObj.pageSettings.totalRecordsCount).toBe(9);
         //         expect(gridObj.currentViewData[0]['OrderID']).toEqual(firstData['OrderID']);
         //     };
         //     gridObj1.dataBound = dataBound1;
@@ -887,7 +887,7 @@ describe('Row Drag and Drop module', () => {
 
         // it('Sort a Column', (done: Function) => {
         //     actionComplete = () => {
-        //         expect(gridObj.sortSettings.columns.length).toEqual(1);
+        //         expect(gridObj.sortSettings.columns.length).toBe(1);
         //         done();
         //     };
         //     gridObj.actionComplete = actionComplete;
@@ -901,12 +901,12 @@ describe('Row Drag and Drop module', () => {
         //     rows = gridObj.getRows();
         //     gridObj.selectRows([3, 4, 5]);
         //     dataBound1 = () => {
-        //         expect(gridObj1.getRows().length).toEqual(9);
-        //         expect(gridObj1.currentViewData[0]['OrderID']).toEqual(10252);
+        //         expect(gridObj1.getRows().length).toBe(9);
+        //         expect(gridObj1.currentViewData[0]['OrderID']).toBe(10252);
         //     };
         //     let dataBound = () => {
-        //         expect(gridObj.getRows().length).toEqual(6);
-        //         expect(gridObj.currentViewData[0]['OrderID']).toEqual(10258);
+        //         expect(gridObj.getRows().length).toBe(6);
+        //         expect(gridObj.currentViewData[0]['OrderID']).toBe(10258);
         //     };
         //     gridObj1.dataBound = dataBound1;
         //     gridObj.dataBound = dataBound;
@@ -932,19 +932,19 @@ describe('Row Drag and Drop module', () => {
         // and select last page records using mouse and drag to the grid empty body */
         // it('enable paging', (done: Function) => {
         //     let actionComplete = () => {
-        //         expect(gridObj.element.querySelectorAll('.e-gridpager').length).toEqual(1);
-        //         expect(gridObj.getRows().length).toEqual(6);
+        //         expect(gridObj.element.querySelectorAll('.e-gridpager').length).toBe(1);
+        //         expect(gridObj.getRows().length).toBe(6);
         //         done();
         //     };
         //     gridObj.actionComplete = actionComplete;
         //     gridObj.allowPaging = true,
         //         gridObj.selectionSettings.mode = 'row';
         //     gridObj.dataBind();
-        //     expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toEqual(0);
+        //     expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toBe(0);
         // });
         // it('set page size', (done: Function) => {
         //     let actionComplete = () => {
-        //         expect(gridObj.element.querySelectorAll('.e-gridpager').length).toEqual(1);
+        //         expect(gridObj.element.querySelectorAll('.e-gridpager').length).toBe(1);
         //         done();
         //     };
         //     gridObj.actionComplete = actionComplete;
@@ -954,14 +954,14 @@ describe('Row Drag and Drop module', () => {
         // it('set height to grid', () => {
         //     gridObj.height = 400;
         //     gridObj.dataBind();
-        //     expect((gridObj.getContent().firstChild as HTMLElement).style.height).toEqual('400px');
-        //     expect((gridObj.getContent().firstChild as HTMLElement).style.overflowY).toEqual('scroll');
+        //     expect((gridObj.getContent().firstChild as HTMLElement).style.height).toBe('400px');
+        //     expect((gridObj.getContent().firstChild as HTMLElement).style.overflowY).toBe('scroll');
         // });
 
         // it('Select using mouse', (done: Function) => {   // select rows using mouse drag
         //     let rowSelected = (args: Object) => {
         //         if (i) {
-        //             expect(gridObj.getSelectedRecords().length).toEqual(2);
+        //             expect(gridObj.getSelectedRecords().length).toBe(2);
         //             done();
         //         }
         //         i = true;

@@ -45,79 +45,79 @@ describe('Pager base module', () => {
         });
 
         it('current page testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('8');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('8');
         });
 
         it('page count testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-numericcontainer')[0].childNodes.length).toEqual(5);
+            expect(pagerObj.element.querySelectorAll('.e-numericcontainer')[0].childNodes.length).toBe(5);
         });
 
         it('enable pager message element testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar').length).toEqual(1);
+            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar').length).toBe(1);
         });
 
         it('enable pager message testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toEqual('8 van 20 pagina ( 100 items)');
+            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toBe('8 van 20 pagina ( 100 items)');
         });
 
         it('enable pager external message element testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toEqual(1);
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toBe(1);
         });
 
         it('enable pager external message testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent).toEqual('externalMessage');
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent).toBe('externalMessage');
         });
 
         it('class testing', () => {
-            expect(pagerObj.element.classList.contains('e-pager')).toEqual(true);
+            expect(pagerObj.element.classList.contains('e-pager')).toBeTruthy();
         });
 
         it('rtl testing', () => {
-            expect(pagerObj.element.classList.contains('e-rtl')).toEqual(true);
+            expect(pagerObj.element.classList.contains('e-rtl')).toBeTruthy();
         });
 
         it('custom text testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].textContent).toEqual('sheet8');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].textContent).toBe('sheet8');
         });
 
         it('current page value testing', () => {
-            expect(pagerObj.currentPage).toEqual(8);
+            expect(pagerObj.currentPage).toBe(8);
         });
 
         it('totalRecordsCount value testing', () => {
-            expect(pagerObj.totalRecordsCount).toEqual(100);
+            expect(pagerObj.totalRecordsCount).toBe(100);
         });
 
         it('pageCount value testing', () => {
-            expect(pagerObj.pageCount).toEqual(5);
+            expect(pagerObj.pageCount).toBe(5);
         });
 
         it('pageSize value testing', () => {
-            expect(pagerObj.pageSize).toEqual(5);
+            expect(pagerObj.pageSize).toBe(5);
         });
 
         it('enableExternalMessage value testing', () => {
-            expect(pagerObj.enableExternalMessage).toEqual(true);
+            expect(pagerObj.enableExternalMessage).toBeTruthy();
         });
 
         it('enablePagerMessage value testing', () => {
-            expect(pagerObj.enablePagerMessage).toEqual(true);
+            expect(pagerObj.enablePagerMessage).toBeTruthy();
         });
 
         it('externalMessage value testing', () => {
-            expect(pagerObj.externalMessage).toEqual('externalMessage');
+            expect(pagerObj.externalMessage).toBe('externalMessage');
         });
 
         it('enableRtl value testing', () => {
-            expect(pagerObj.enableRtl).toEqual(true);
+            expect(pagerObj.enableRtl).toBeTruthy();
         });
 
         it('enableQueryString value testing', () => {
-            expect(pagerObj.enableQueryString).toEqual(true);
+            expect(pagerObj.enableQueryString).toBeTruthy();
         });
 
         it('locale value testing', () => {
-            expect(pagerObj.locale).toEqual('de-DE');
+            expect(pagerObj.locale).toBe('de-DE');
         });
 
         it('querystring testing', () => {
@@ -126,7 +126,7 @@ describe('Pager base module', () => {
         });
 
         it('pager button visibility testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-disable').length).toEqual(0);
+            expect(pagerObj.element.querySelectorAll('.e-disable').length).toBe(0);
         });
 
         it('pager aria-attribute testing', () => {
@@ -164,23 +164,23 @@ describe('Pager base module', () => {
         });
 
         it('pager message testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toEqual('0 of 0 pages (0 items)');
+            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toBe('0 of 0 pages (0 items)');
         });
 
         it('disabled element testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-disable').length).toEqual(10);
+            expect(pagerObj.element.querySelectorAll('.e-disable').length).toBe(10);
         });
 
         it('numericcontainer element testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-numericcontainer')[0].childNodes.length).toEqual(10);
+            expect(pagerObj.element.querySelectorAll('.e-numericcontainer')[0].childNodes.length).toBe(10);
         });
 
         it('pager message element testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar').length).toEqual(1);
+            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar').length).toBe(1);
         });
 
         it('pager external message element testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toEqual(0);
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toBe(0);
         });
 
         afterAll(() => {
@@ -205,7 +205,7 @@ describe('Pager base module', () => {
         });
 
         it('getLocalizedLabel testing', () => {
-            expect(pagerObj.getLocalizedLabel('firstPageTooltip')).toEqual('Go to first page');
+            expect(pagerObj.getLocalizedLabel('firstPageTooltip')).toBe('Go to first page');
         });
 
         afterAll(() => {
@@ -235,32 +235,32 @@ describe('Pager base module', () => {
         it('totalRecordsCount testing', () => {
             pagerObj.totalRecordsCount = 200;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toEqual('8 of 40 pages (200 items)');
+            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toBe('8 of 40 pages (200 items)');
         });
 
         it('pageSize testing', () => {
             pagerObj.pageSize = 6;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toEqual('8 of 34 pages (200 items)');
+            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toBe('8 of 34 pages (200 items)');
         });
 
         it('pageCount testing', () => {
             pagerObj.pageCount = 6;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-numericcontainer')[0].childNodes.length).toEqual(6);
+            expect(pagerObj.element.querySelectorAll('.e-numericcontainer')[0].childNodes.length).toBe(6);
         });
 
         it('currentPage testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('8');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('8');
             pagerObj.currentPage = 13;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('13');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('13');
         });
 
         it('currentPage invalid value testing', () => {
             pagerObj.currentPage = -1;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('13');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('13');
             pagerObj.currentPage = 13;
             pagerObj.dataBind();
         });
@@ -268,49 +268,49 @@ describe('Pager base module', () => {
         it('enablePagerMessage false testing', () => {
             pagerObj.enablePagerMessage = false;
             pagerObj.dataBind();
-            expect((pagerObj.element.querySelectorAll('.e-parentmsgbar')[0] as HTMLElement).style.display).toEqual('');
+            expect((pagerObj.element.querySelectorAll('.e-parentmsgbar')[0] as HTMLElement).style.display).toBe('');
         });
 
         it('enablePagerMessage true testing', () => {
             pagerObj.enablePagerMessage = true;
             pagerObj.dataBind();
-            expect((pagerObj.element.querySelectorAll('.e-parentmsgbar')[0] as HTMLElement).style.display).not.toEqual('none');
+            expect((pagerObj.element.querySelectorAll('.e-parentmsgbar')[0] as HTMLElement).style.display).not.toBe('none');
         });
 
         it('enableExternalMessage false testing', () => {
             pagerObj.enableExternalMessage = false;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toEqual(0);
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toBe(0);
         });
 
         it('enableExternalMessage true testing', () => {
             pagerObj.enableExternalMessage = true;
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toEqual(1);
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg').length).toBe(1);
         });
 
         it('enable pager external message testing', () => {
             pagerObj.externalMessage = 'modified';
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent).toEqual('modified');
+            expect(pagerObj.element.querySelectorAll('.e-pagerexternalmsg')[0].textContent).toBe('modified');
         });
 
         it('rtl false testing', () => {
             pagerObj.enableRtl = false;
             pagerObj.dataBind();
-            expect(pagerObj.element.classList.contains('e-rtl')).toEqual(false);
+            expect(pagerObj.element.classList.contains('e-rtl')).toBeFalsy();
         });
 
         it('rtl true testing', () => {
             pagerObj.enableRtl = true;
             pagerObj.dataBind();
-            expect(pagerObj.element.classList.contains('e-rtl')).toEqual(true);
+            expect(pagerObj.element.classList.contains('e-rtl')).toBeTruthy();
         });
 
         it('custom text testing', () => {
             pagerObj.customText = 'spreadsheet';
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].textContent).toEqual('spreadsheet13');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].textContent).toBe('spreadsheet13');
         });
 
         it('querystring testing', () => {
@@ -327,7 +327,7 @@ describe('Pager base module', () => {
         it('locale testing', () => {
             pagerObj.locale = 'de-DE';
             pagerObj.dataBind();
-            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toEqual('15 van 34 pagina ( 200 items)');
+            expect(pagerObj.element.querySelectorAll('.e-parentmsgbar')[0].textContent).toBe('15 van 34 pagina ( 200 items)');
         });
 
         afterAll(() => {

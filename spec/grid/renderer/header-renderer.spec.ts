@@ -41,19 +41,19 @@ describe('header renderer module', () => {
         });
 
         it('Header div testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-gridheader').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-gridheader').length).toBe(1);
         });
 
         it('Header table testing', () => {
-            expect(gridObj.headerModule.getPanel().querySelectorAll('.e-table').length).toEqual(1);
+            expect(gridObj.headerModule.getPanel().querySelectorAll('.e-table').length).toBe(1);
         });
 
         it('Column header testing', () => {
-            expect(gridObj.headerModule.getPanel().querySelectorAll('.e-columnheader').length).toEqual(1);
+            expect(gridObj.headerModule.getPanel().querySelectorAll('.e-columnheader').length).toBe(1);
         });
 
         it('Column count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-headercell').length).toEqual(gridObj.getColumns().length);
+            expect(gridObj.element.querySelectorAll('.e-headercell').length).toBe(gridObj.getColumns().length);
             //for coverage
             let hRender = (<any>gridObj).renderModule.locator.getService('cellRendererFactory').getCellRenderer(CellType.Header);
             hRender.refresh({column: gridObj.getColumns()[1]} as any, createElement('div'));

@@ -139,7 +139,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     public created: EmitType<Object>;
 
     /**
-     * Constructor for creating the widget.
+     * Constructor for creating the component.
      * @hidden
      */
     constructor(options?: PagerModel, element?: string | HTMLElement) {
@@ -202,7 +202,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     }
 
     /**
-     * To destroy the Pager widget.
+     * To destroy the Pager component.
      * @method destroy
      * @return {void}
      */

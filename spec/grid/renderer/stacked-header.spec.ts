@@ -54,12 +54,12 @@ describe('Stacked header render module', () => {
 
         it('header colunt testing', () => {
             let trs = gridObj.getHeaderContent().querySelectorAll('tr');
-            expect(trs[0].querySelectorAll('.e-headercell').length).toEqual(4);
-            expect(trs[0].querySelectorAll('.e-stackedheadercell').length).toEqual(2);
-            expect(trs[1].querySelectorAll('.e-headercell').length).toEqual(6);
-            expect(trs[1].querySelectorAll('.e-stackedheadercell').length).toEqual(1);
-            expect(trs[2].querySelectorAll('.e-headercell').length).toEqual(3);
-            expect(trs[2].querySelectorAll('.e-stackedheadercell').length).toEqual(0);
+            expect(trs[0].querySelectorAll('.e-headercell').length).toBe(4);
+            expect(trs[0].querySelectorAll('.e-stackedheadercell').length).toBe(2);
+            expect(trs[1].querySelectorAll('.e-headercell').length).toBe(6);
+            expect(trs[1].querySelectorAll('.e-stackedheadercell').length).toBe(1);
+            expect(trs[2].querySelectorAll('.e-headercell').length).toBe(3);
+            expect(trs[2].querySelectorAll('.e-stackedheadercell').length).toBe(0);
 
             //for coverage
             gridObj.reorderColumns('ShipCountry', 'Ship Details');

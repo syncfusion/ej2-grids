@@ -32,7 +32,7 @@ describe('Render module', () => {
         });
 
         it('Row count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(data.length);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(data.length);
             //for coverage
             (gridObj.getColumns() as Column[])[0].type = undefined;
             (gridObj.getColumns() as Column[])[1].type = undefined;
@@ -69,12 +69,12 @@ describe('Render module', () => {
         });
 
         it('Column count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-headercell').length).toEqual(gridObj.getColumns().length);
+            expect(gridObj.element.querySelectorAll('.e-headercell').length).toBe(gridObj.getColumns().length);
         });
 
         it('Content cell count testing', () => {
             let cols = gridObj.getColumns();
-            expect(gridObj.element.querySelectorAll('.e-row')[0].childNodes.length).toEqual(cols.length);
+            expect(gridObj.element.querySelectorAll('.e-row')[0].childNodes.length).toBe(cols.length);
             cols = [];
             (<any>gridObj.renderModule).dataManagerSuccess({ result: {}, count: 0 });//for coverage
         });
@@ -105,7 +105,7 @@ describe('Render module', () => {
         });
 
         it('Column type testing', () => {
-            expect((<Column>gridObj.columns[0]).type).toEqual('string');
+            expect((<Column>gridObj.columns[0]).type).toBe('string');
             expect((<Column>gridObj.columns[1]).type).toBeNull();
         });
 

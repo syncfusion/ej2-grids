@@ -79,12 +79,12 @@ describe('Reorder module', () => {
             let dataBound = (args: Object): void => {
                 columns = gridObj.getColumns() as Column[];
                 headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
-                expect(headers[0].querySelector('.e-headercelldiv').textContent).toEqual('EmployeeID');
-                expect(headers[1].querySelector('.e-headercelldiv').textContent).toEqual('OrderID');
-                expect(headers[2].querySelector('.e-headercelldiv').textContent).toEqual('CustomerID');
-                expect(columns[0].field).toEqual('EmployeeID');
-                expect(columns[1].field).toEqual('OrderID');
-                expect(columns[2].field).toEqual('CustomerID');
+                expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+                expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+                expect(headers[2].querySelector('.e-headercelldiv').textContent).toBe('CustomerID');
+                expect(columns[0].field).toBe('EmployeeID');
+                expect(columns[1].field).toBe('OrderID');
+                expect(columns[2].field).toBe('CustomerID');
                 done();
             };
             gridObj.dataBound = dataBound;
@@ -95,29 +95,29 @@ describe('Reorder module', () => {
         it('Reorder Invalid Column testing', () => {
             gridObj.reorderColumns('EmployeeID', 'EmployeeID1');
             headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
-            expect(headers[0].querySelector('.e-headercelldiv').textContent).toEqual('EmployeeID');
-            expect(headers[1].querySelector('.e-headercelldiv').textContent).toEqual('OrderID');
-            expect(columns[0].field).toEqual('EmployeeID');
-            expect(columns[1].field).toEqual('OrderID');
+            expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+            expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+            expect(columns[0].field).toBe('EmployeeID');
+            expect(columns[1].field).toBe('OrderID');
         });
 
         it('Reorder same Column testing', () => {
             gridObj.reorderColumns('EmployeeID', 'EmployeeID');
             headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
-            expect(headers[0].querySelector('.e-headercelldiv').textContent).toEqual('EmployeeID');
-            expect(headers[1].querySelector('.e-headercelldiv').textContent).toEqual('OrderID');
-            expect(columns[0].field).toEqual('EmployeeID');
-            expect(columns[1].field).toEqual('OrderID');
+            expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+            expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+            expect(columns[0].field).toBe('EmployeeID');
+            expect(columns[1].field).toBe('OrderID');
         });
 
         // it('Reorder Column simulate testing', (done: Function) => {
         //     let dataBound = (args: Object): void => {
         //         columns = gridObj.getColumns() as Column[];
         //         headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
-        //         expect(headers[0].querySelector('.e-headercelldiv').textContent).toEqual('OrderID');
-        //         expect(headers[1].querySelector('.e-headercelldiv').textContent).toEqual('EmployeeID');
-        //         expect(columns[0].field).toEqual('OrderID');
-        //         expect(columns[1].field).toEqual('EmployeeID');
+        //         expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+        //         expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+        //         expect(columns[0].field).toBe('OrderID');
+        //         expect(columns[1].field).toBe('EmployeeID');
         //         done();
         //     };
         //     gridObj.dataBound = dataBound;
@@ -142,10 +142,10 @@ describe('Reorder module', () => {
             let dataBound = (args: Object): void => {
                 columns = gridObj.getColumns() as Column[];
                 headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
-                expect(headers[0].querySelector('.e-headercelldiv').textContent).toEqual('OrderID');
-                expect(headers[1].querySelector('.e-headercelldiv').textContent).toEqual('EmployeeID');
-                expect(columns[0].field).toEqual('OrderID');
-                expect(columns[1].field).toEqual('EmployeeID');
+                expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+                expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+                expect(columns[0].field).toBe('OrderID');
+                expect(columns[1].field).toBe('EmployeeID');
                 done();
             };
             gridObj.dataBound = dataBound;
@@ -169,14 +169,14 @@ describe('Reorder module', () => {
             let dataBound = (args: Object): void => {
                 columns = gridObj.getColumns() as Column[];
                 headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
-                expect(headers[0].querySelector('.e-headercelldiv').textContent).toEqual('OrderID');
-                expect(headers[1].querySelector('.e-headercelldiv').textContent).toEqual('ShipCity');
-                expect(headers[2].querySelector('.e-headercelldiv').textContent).toEqual('EmployeeID');
-                expect(headers[4].querySelector('.e-headercelldiv').textContent).toEqual('Freight');
-                expect(columns[0].field).toEqual('OrderID');
-                expect(columns[1].field).toEqual('ShipCity');
-                expect(columns[2].field).toEqual('EmployeeID');
-                expect(columns[4].field).toEqual('Freight');
+                expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+                expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('ShipCity');
+                expect(headers[2].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+                expect(headers[4].querySelector('.e-headercelldiv').textContent).toBe('Freight');
+                expect(columns[0].field).toBe('OrderID');
+                expect(columns[1].field).toBe('ShipCity');
+                expect(columns[2].field).toBe('EmployeeID');
+                expect(columns[4].field).toBe('Freight');
                 //for coverage
                 getActualProperties({});
                 parentsUntil(headers[0], 'e-headercell', false);
@@ -222,7 +222,7 @@ describe('Reorder module', () => {
             gridObj.isDestroyed = true;
             gridObj.reorderModule.destroy();
             gridObj.reorderModule = new Reorder(gridObj);
-            expect(1).toEqual(1);
+            expect(1).toBe(1);
         });
 
         afterAll(() => {
@@ -274,13 +274,13 @@ describe('Reorder module', () => {
     //         let headers = gridObj.getHeaderContent().querySelectorAll('.e-stackedheadercell');
     //         actionComplete = () => {
     //             headers = gridObj.getHeaderContent().querySelectorAll('.e-stackedheadercell');
-    //             expect(headers[1].innerHTML).toEqual('Order Details');
-    //             expect(headers[0].innerHTML).toEqual('Ship Details');
-    //             expect(gridObj.element.querySelectorAll('.e-cloneproperties').length).toEqual(0);
+    //             expect(headers[1].innerHTML).toBe('Order Details');
+    //             expect(headers[0].innerHTML).toBe('Ship Details');
+    //             expect(gridObj.element.querySelectorAll('.e-cloneproperties').length).toBe(0);
     //             done();
     //         };
-    //         expect(headers[0].innerHTML).toEqual('Order Details');
-    //         expect(headers[1].innerHTML).toEqual('Ship Details');
+    //         expect(headers[0].innerHTML).toBe('Order Details');
+    //         expect(headers[1].innerHTML).toBe('Ship Details');
     //         let mousedown: any = getEventObject('MouseEvents', 'mousedown', headers[0], 50, 70);
     //         EventHandler.trigger(gridObj.getHeaderContent().querySelector('.e-columnheader') as HTMLElement, 'mousedown', mousedown);
 

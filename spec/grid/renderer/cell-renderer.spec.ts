@@ -44,7 +44,7 @@ describe('Custom Atrributes and html encode module', () => {
         });
 
         it('ClassName testing', () => {
-            expect(gridObj.element.classList.contains('e-grid')).toEqual(true);
+            expect(gridObj.element.classList.contains('e-grid')).toBeTruthy();
         });
 
         it('Attribute testing', () => {

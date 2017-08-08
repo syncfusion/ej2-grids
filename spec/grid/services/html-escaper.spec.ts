@@ -66,7 +66,7 @@ describe('Html escaper module', () => {
         });
 
         it('content testing', () => {
-            expect(gridObj.getContent().querySelectorAll('.e-rowcell')[2].innerHTML).toEqual('&lt;i&gt;TOMSP&lt;/i&gt;');
+            expect(gridObj.getContent().querySelectorAll('.e-rowcell')[2].innerHTML).toBe('&lt;i&gt;TOMSP&lt;/i&gt;');
         });
 
         afterAll(() => {

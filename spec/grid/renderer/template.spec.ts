@@ -30,9 +30,9 @@ describe('Template render module', () => {
 
         it('template render testing', () => {
             let trs = gridObj.getContent().querySelectorAll('tr');
-            expect(trs[0].querySelector('.e-templatecell').innerHTML).toEqual('<div>5</div><div>0</div>');
-            expect(trs[1].querySelector('.e-templatecell').innerHTML).toEqual('<div>6</div><div>1</div>');
-            expect(gridObj.getHeaderTable().querySelectorAll('.e-headercelldiv')[1].innerHTML).toEqual('<span class="e-headertext">Template column</span>');
+            expect(trs[0].querySelector('.e-templatecell').innerHTML).toBe('<div>5</div><div>0</div>');
+            expect(trs[1].querySelector('.e-templatecell').innerHTML).toBe('<div>6</div><div>1</div>');
+            expect(gridObj.getHeaderTable().querySelectorAll('.e-headercelldiv')[1].innerHTML).toBe('<span class="e-headertext">Template column</span>');
         });
 
         afterAll(() => {
@@ -66,7 +66,7 @@ describe('Template render module', () => {
 
         it('cell value testing', () => {
             let trs = gridObj.getContent().querySelectorAll('tr');
-            expect(trs[0].querySelector('.e-templatecell').innerHTML).toEqual('<div>5</div>');
+            expect(trs[0].querySelector('.e-templatecell').innerHTML).toBe('<div>5</div>');
         });
 
         afterAll(() => {
@@ -98,10 +98,10 @@ describe('Template render module', () => {
 
         it('row render testing', () => {
             let trs = gridObj.getContent().querySelectorAll('tr');
-            expect(trs[0].querySelectorAll('td')[0].innerHTML).toEqual('10248');
-            expect(trs[0].querySelectorAll('td')[1].innerHTML).toEqual('5');
-            expect(trs[1].querySelectorAll('td')[0].innerHTML).toEqual('10249');
-            expect(trs[1].querySelectorAll('td')[1].innerHTML).toEqual('6');
+            expect(trs[0].querySelectorAll('td')[0].innerHTML).toBe('10248');
+            expect(trs[0].querySelectorAll('td')[1].innerHTML).toBe('5');
+            expect(trs[1].querySelectorAll('td')[0].innerHTML).toBe('10249');
+            expect(trs[1].querySelectorAll('td')[1].innerHTML).toBe('6');
         });
 
         afterAll(() => {
@@ -131,7 +131,7 @@ describe('Template render module', () => {
 
         it('row render testing', () => {
             let trs = gridObj.getContent().querySelectorAll('tr');
-            expect(trs[0].querySelectorAll('td')[0].innerHTML).not.toEqual('10248');          
+            expect(trs[0].querySelectorAll('td')[0].innerHTML).not.toBe('10248');          
         });
 
         afterAll(() => {

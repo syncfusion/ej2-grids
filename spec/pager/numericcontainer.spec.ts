@@ -26,7 +26,7 @@ describe('Numericcontainer module testing', () => {
         });
 
         it('current page testing', () => {
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('8');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('8');
         });
 
         afterAll(() => {
@@ -61,7 +61,7 @@ describe('Numericcontainer module testing', () => {
 
         it('Navigate page testing', () => {
             (pagerObj.element.querySelectorAll('.e-numericcontainer')[0].childNodes[1] as HTMLElement).click();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('7');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('7');
         });
 
         it('click event call', () => {
@@ -73,7 +73,7 @@ describe('Numericcontainer module testing', () => {
 
         it('Navigate unavailable page testing', () => {
             pagerObj.goToPage(23);
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('3');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('3');
         });
 
         it('Goto page testing', () => {
@@ -84,208 +84,208 @@ describe('Numericcontainer module testing', () => {
             NP = pagerObj.element.querySelectorAll('.e-np')[0];
             next = pagerObj.element.querySelectorAll('.e-next')[0];
             last = pagerObj.element.querySelectorAll('.e-last')[0];
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('13');
-            expect(first.classList.contains('e-firstpagedisabled')).toEqual(false);
-            expect(first.classList.contains('e-disable')).toEqual(false);
-            expect(first.classList.contains('e-firstpage')).toEqual(true);
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('13');
+            expect(first.classList.contains('e-firstpagedisabled')).toBeFalsy();
+            expect(first.classList.contains('e-disable')).toBeFalsy();
+            expect(first.classList.contains('e-firstpage')).toBeTruthy();
 
-            expect(prev.classList.contains('e-prevpagedisabled')).toEqual(false);
-            expect(prev.classList.contains('e-disable')).toEqual(false);
-            expect(prev.classList.contains('e-prevpage')).toEqual(true);
+            expect(prev.classList.contains('e-prevpagedisabled')).toBeFalsy();
+            expect(prev.classList.contains('e-disable')).toBeFalsy();
+            expect(prev.classList.contains('e-prevpage')).toBeTruthy();
 
-            expect(PP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(PP.classList.contains('e-disable')).toEqual(false);
-            expect(PP.classList.contains('e-numericitem')).toEqual(true);
+            expect(PP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(PP.classList.contains('e-disable')).toBeFalsy();
+            expect(PP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(NP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(NP.classList.contains('e-disable')).toEqual(false);
-            expect(NP.classList.contains('e-numericitem')).toEqual(true);
+            expect(NP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(NP.classList.contains('e-disable')).toBeFalsy();
+            expect(NP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(next.classList.contains('e-nextpagedisabled')).toEqual(false);
-            expect(next.classList.contains('e-disable')).toEqual(false);
-            expect(next.classList.contains('e-nextpage')).toEqual(true);
+            expect(next.classList.contains('e-nextpagedisabled')).toBeFalsy();
+            expect(next.classList.contains('e-disable')).toBeFalsy();
+            expect(next.classList.contains('e-nextpage')).toBeTruthy();
 
-            expect(last.classList.contains('e-lastpagedisabled')).toEqual(false);
-            expect(last.classList.contains('e-disable')).toEqual(false);
-            expect(last.classList.contains('e-lastpage')).toEqual(true);
+            expect(last.classList.contains('e-lastpagedisabled')).toBeFalsy();
+            expect(last.classList.contains('e-disable')).toBeFalsy();
+            expect(last.classList.contains('e-lastpage')).toBeTruthy();
         });
 
         it('Prev page testing', () => {
             (prev as HTMLElement).click();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('12');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('12');
 
-            expect(first.classList.contains('e-firstpagedisabled')).toEqual(false);
-            expect(first.classList.contains('e-disable')).toEqual(false);
-            expect(first.classList.contains('e-firstpage')).toEqual(true);
+            expect(first.classList.contains('e-firstpagedisabled')).toBeFalsy();
+            expect(first.classList.contains('e-disable')).toBeFalsy();
+            expect(first.classList.contains('e-firstpage')).toBeTruthy();
 
-            expect(prev.classList.contains('e-prevpagedisabled')).toEqual(false);
-            expect(prev.classList.contains('e-disable')).toEqual(false);
-            expect(prev.classList.contains('e-prevpage')).toEqual(true);
+            expect(prev.classList.contains('e-prevpagedisabled')).toBeFalsy();
+            expect(prev.classList.contains('e-disable')).toBeFalsy();
+            expect(prev.classList.contains('e-prevpage')).toBeTruthy();
 
-            expect(PP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(PP.classList.contains('e-disable')).toEqual(false);
-            expect(PP.classList.contains('e-numericitem')).toEqual(true);
+            expect(PP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(PP.classList.contains('e-disable')).toBeFalsy();
+            expect(PP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(NP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(NP.classList.contains('e-disable')).toEqual(false);
-            expect(NP.classList.contains('e-numericitem')).toEqual(true);
+            expect(NP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(NP.classList.contains('e-disable')).toBeFalsy();
+            expect(NP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(next.classList.contains('e-nextpagedisabled')).toEqual(false);
-            expect(next.classList.contains('e-disable')).toEqual(false);
-            expect(next.classList.contains('e-nextpage')).toEqual(true);
+            expect(next.classList.contains('e-nextpagedisabled')).toBeFalsy();
+            expect(next.classList.contains('e-disable')).toBeFalsy();
+            expect(next.classList.contains('e-nextpage')).toBeTruthy();
 
-            expect(last.classList.contains('e-lastpagedisabled')).toEqual(false);
-            expect(last.classList.contains('e-disable')).toEqual(false);
-            expect(last.classList.contains('e-lastpage')).toEqual(true);
+            expect(last.classList.contains('e-lastpagedisabled')).toBeFalsy();
+            expect(last.classList.contains('e-disable')).toBeFalsy();
+            expect(last.classList.contains('e-lastpage')).toBeTruthy();
         });
 
         it('First page testing', () => {
             (first as HTMLElement).click();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('1');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('1');
 
-            expect(first.classList.contains('e-firstpagedisabled')).toEqual(true);
-            expect(first.classList.contains('e-disable')).toEqual(true);
-            expect(first.classList.contains('e-firstpage')).toEqual(false);
+            expect(first.classList.contains('e-firstpagedisabled')).toBeTruthy();
+            expect(first.classList.contains('e-disable')).toBeTruthy();
+            expect(first.classList.contains('e-firstpage')).toBeFalsy();
 
-            expect(prev.classList.contains('e-prevpagedisabled')).toEqual(true);
-            expect(prev.classList.contains('e-disable')).toEqual(true);
-            expect(prev.classList.contains('e-prevpage')).toEqual(false);
+            expect(prev.classList.contains('e-prevpagedisabled')).toBeTruthy();
+            expect(prev.classList.contains('e-disable')).toBeTruthy();
+            expect(prev.classList.contains('e-prevpage')).toBeFalsy();
 
-            expect(PP.classList.contains('e-nextprevitemdisabled')).toEqual(true);
-            expect(PP.classList.contains('e-disable')).toEqual(true);
-            expect(PP.classList.contains('e-numericitem')).toEqual(false);
+            expect(PP.classList.contains('e-nextprevitemdisabled')).toBeTruthy();
+            expect(PP.classList.contains('e-disable')).toBeTruthy();
+            expect(PP.classList.contains('e-numericitem')).toBeFalsy();
 
-            expect(NP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(NP.classList.contains('e-disable')).toEqual(false);
-            expect(NP.classList.contains('e-numericitem')).toEqual(true);
+            expect(NP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(NP.classList.contains('e-disable')).toBeFalsy();
+            expect(NP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(next.classList.contains('e-nextpagedisabled')).toEqual(false);
-            expect(next.classList.contains('e-disable')).toEqual(false);
-            expect(next.classList.contains('e-nextpage')).toEqual(true);
+            expect(next.classList.contains('e-nextpagedisabled')).toBeFalsy();
+            expect(next.classList.contains('e-disable')).toBeFalsy();
+            expect(next.classList.contains('e-nextpage')).toBeTruthy();
 
-            expect(last.classList.contains('e-lastpagedisabled')).toEqual(false);
-            expect(last.classList.contains('e-disable')).toEqual(false);
-            expect(last.classList.contains('e-lastpage')).toEqual(true);
+            expect(last.classList.contains('e-lastpagedisabled')).toBeFalsy();
+            expect(last.classList.contains('e-disable')).toBeFalsy();
+            expect(last.classList.contains('e-lastpage')).toBeTruthy();
             (first as HTMLElement).click();
         });
 
         it('Next page testing', () => {
             pagerObj.goToPage(13);
             (next as HTMLElement).click();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('14');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('14');
 
-            expect(first.classList.contains('e-firstpagedisabled')).toEqual(false);
-            expect(first.classList.contains('e-disable')).toEqual(false);
-            expect(first.classList.contains('e-firstpage')).toEqual(true);
+            expect(first.classList.contains('e-firstpagedisabled')).toBeFalsy();
+            expect(first.classList.contains('e-disable')).toBeFalsy();
+            expect(first.classList.contains('e-firstpage')).toBeTruthy();
 
-            expect(prev.classList.contains('e-prevpagedisabled')).toEqual(false);
-            expect(prev.classList.contains('e-disable')).toEqual(false);
-            expect(prev.classList.contains('e-prevpage')).toEqual(true);
+            expect(prev.classList.contains('e-prevpagedisabled')).toBeFalsy();
+            expect(prev.classList.contains('e-disable')).toBeFalsy();
+            expect(prev.classList.contains('e-prevpage')).toBeTruthy();
 
-            expect(PP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(PP.classList.contains('e-disable')).toEqual(false);
-            expect(PP.classList.contains('e-numericitem')).toEqual(true);
+            expect(PP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(PP.classList.contains('e-disable')).toBeFalsy();
+            expect(PP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(NP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(NP.classList.contains('e-disable')).toEqual(false);
-            expect(NP.classList.contains('e-numericitem')).toEqual(true);
+            expect(NP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(NP.classList.contains('e-disable')).toBeFalsy();
+            expect(NP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(next.classList.contains('e-nextpagedisabled')).toEqual(false);
-            expect(next.classList.contains('e-disable')).toEqual(false);
-            expect(next.classList.contains('e-nextpage')).toEqual(true);
+            expect(next.classList.contains('e-nextpagedisabled')).toBeFalsy();
+            expect(next.classList.contains('e-disable')).toBeFalsy();
+            expect(next.classList.contains('e-nextpage')).toBeTruthy();
 
-            expect(last.classList.contains('e-lastpagedisabled')).toEqual(false);
-            expect(last.classList.contains('e-disable')).toEqual(false);
-            expect(last.classList.contains('e-lastpage')).toEqual(true);
+            expect(last.classList.contains('e-lastpagedisabled')).toBeFalsy();
+            expect(last.classList.contains('e-disable')).toBeFalsy();
+            expect(last.classList.contains('e-lastpage')).toBeTruthy();
         });
 
         it('Last page testing', () => {
             (last as HTMLElement).click();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('20');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('20');
 
-            expect(first.classList.contains('e-firstpagedisabled')).toEqual(false);
-            expect(first.classList.contains('e-disable')).toEqual(false);
-            expect(first.classList.contains('e-firstpage')).toEqual(true);
+            expect(first.classList.contains('e-firstpagedisabled')).toBeFalsy();
+            expect(first.classList.contains('e-disable')).toBeFalsy();
+            expect(first.classList.contains('e-firstpage')).toBeTruthy();
 
-            expect(prev.classList.contains('e-prevpagedisabled')).toEqual(false);
-            expect(prev.classList.contains('e-disable')).toEqual(false);
-            expect(prev.classList.contains('e-prevpage')).toEqual(true);
+            expect(prev.classList.contains('e-prevpagedisabled')).toBeFalsy();
+            expect(prev.classList.contains('e-disable')).toBeFalsy();
+            expect(prev.classList.contains('e-prevpage')).toBeTruthy();
 
-            expect(PP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(PP.classList.contains('e-disable')).toEqual(false);
-            expect(PP.classList.contains('e-numericitem')).toEqual(true);
+            expect(PP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(PP.classList.contains('e-disable')).toBeFalsy();
+            expect(PP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(NP.classList.contains('e-nextprevitemdisabled')).toEqual(true);
-            expect(NP.classList.contains('e-disable')).toEqual(true);
-            expect(NP.classList.contains('e-numericitem')).toEqual(false);
+            expect(NP.classList.contains('e-nextprevitemdisabled')).toBeTruthy();
+            expect(NP.classList.contains('e-disable')).toBeTruthy();
+            expect(NP.classList.contains('e-numericitem')).toBeFalsy();
 
-            expect(next.classList.contains('e-nextpagedisabled')).toEqual(true);
-            expect(next.classList.contains('e-disable')).toEqual(true);
-            expect(next.classList.contains('e-nextpage')).toEqual(false);
+            expect(next.classList.contains('e-nextpagedisabled')).toBeTruthy();
+            expect(next.classList.contains('e-disable')).toBeTruthy();
+            expect(next.classList.contains('e-nextpage')).toBeFalsy();
 
-            expect(last.classList.contains('e-lastpagedisabled')).toEqual(true);
-            expect(last.classList.contains('e-disable')).toEqual(true);
-            expect(last.classList.contains('e-lastpage')).toEqual(false);
+            expect(last.classList.contains('e-lastpagedisabled')).toBeTruthy();
+            expect(last.classList.contains('e-disable')).toBeTruthy();
+            expect(last.classList.contains('e-lastpage')).toBeFalsy();
         });
 
         it('Prev page set testing', () => {
             pagerObj.goToPage(13);
             (PP as HTMLElement).click();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('6');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('6');
 
-            expect(first.classList.contains('e-firstpagedisabled')).toEqual(false);
-            expect(first.classList.contains('e-disable')).toEqual(false);
-            expect(first.classList.contains('e-firstpage')).toEqual(true);
+            expect(first.classList.contains('e-firstpagedisabled')).toBeFalsy();
+            expect(first.classList.contains('e-disable')).toBeFalsy();
+            expect(first.classList.contains('e-firstpage')).toBeTruthy();
 
-            expect(prev.classList.contains('e-prevpagedisabled')).toEqual(false);
-            expect(prev.classList.contains('e-disable')).toEqual(false);
-            expect(prev.classList.contains('e-prevpage')).toEqual(true);
+            expect(prev.classList.contains('e-prevpagedisabled')).toBeFalsy();
+            expect(prev.classList.contains('e-disable')).toBeFalsy();
+            expect(prev.classList.contains('e-prevpage')).toBeTruthy();
 
-            expect(PP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(PP.classList.contains('e-disable')).toEqual(false);
-            expect(PP.classList.contains('e-numericitem')).toEqual(true);
+            expect(PP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(PP.classList.contains('e-disable')).toBeFalsy();
+            expect(PP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(NP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(NP.classList.contains('e-disable')).toEqual(false);
-            expect(NP.classList.contains('e-numericitem')).toEqual(true);
+            expect(NP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(NP.classList.contains('e-disable')).toBeFalsy();
+            expect(NP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(next.classList.contains('e-nextpagedisabled')).toEqual(false);
-            expect(next.classList.contains('e-disable')).toEqual(false);
-            expect(next.classList.contains('e-nextpage')).toEqual(true);
+            expect(next.classList.contains('e-nextpagedisabled')).toBeFalsy();
+            expect(next.classList.contains('e-disable')).toBeFalsy();
+            expect(next.classList.contains('e-nextpage')).toBeTruthy();
 
-            expect(last.classList.contains('e-lastpagedisabled')).toEqual(false);
-            expect(last.classList.contains('e-disable')).toEqual(false);
-            expect(last.classList.contains('e-lastpage')).toEqual(true);
+            expect(last.classList.contains('e-lastpagedisabled')).toBeFalsy();
+            expect(last.classList.contains('e-disable')).toBeFalsy();
+            expect(last.classList.contains('e-lastpage')).toBeTruthy();
         });
 
         it('Prev page set testing', () => {
             pagerObj.goToPage(13);
             (NP as HTMLElement).click();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('16');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('16');
 
-            expect(first.classList.contains('e-firstpagedisabled')).toEqual(false);
-            expect(first.classList.contains('e-disable')).toEqual(false);
-            expect(first.classList.contains('e-firstpage')).toEqual(true);
+            expect(first.classList.contains('e-firstpagedisabled')).toBeFalsy();
+            expect(first.classList.contains('e-disable')).toBeFalsy();
+            expect(first.classList.contains('e-firstpage')).toBeTruthy();
 
-            expect(prev.classList.contains('e-prevpagedisabled')).toEqual(false);
-            expect(prev.classList.contains('e-disable')).toEqual(false);
-            expect(prev.classList.contains('e-prevpage')).toEqual(true);
+            expect(prev.classList.contains('e-prevpagedisabled')).toBeFalsy();
+            expect(prev.classList.contains('e-disable')).toBeFalsy();
+            expect(prev.classList.contains('e-prevpage')).toBeTruthy();
 
-            expect(PP.classList.contains('e-nextprevitemdisabled')).toEqual(false);
-            expect(PP.classList.contains('e-disable')).toEqual(false);
-            expect(PP.classList.contains('e-numericitem')).toEqual(true);
+            expect(PP.classList.contains('e-nextprevitemdisabled')).toBeFalsy();
+            expect(PP.classList.contains('e-disable')).toBeFalsy();
+            expect(PP.classList.contains('e-numericitem')).toBeTruthy();
 
-            expect(NP.classList.contains('e-nextprevitemdisabled')).toEqual(true);
-            expect(NP.classList.contains('e-disable')).toEqual(true);
-            expect(NP.classList.contains('e-numericitem')).toEqual(false);
+            expect(NP.classList.contains('e-nextprevitemdisabled')).toBeTruthy();
+            expect(NP.classList.contains('e-disable')).toBeTruthy();
+            expect(NP.classList.contains('e-numericitem')).toBeFalsy();
 
-            expect(next.classList.contains('e-nextpagedisabled')).toEqual(false);
-            expect(next.classList.contains('e-disable')).toEqual(false);
-            expect(next.classList.contains('e-nextpage')).toEqual(true);
+            expect(next.classList.contains('e-nextpagedisabled')).toBeFalsy();
+            expect(next.classList.contains('e-disable')).toBeFalsy();
+            expect(next.classList.contains('e-nextpage')).toBeTruthy();
 
-            expect(last.classList.contains('e-lastpagedisabled')).toEqual(false);
-            expect(last.classList.contains('e-disable')).toEqual(false);
-            expect(last.classList.contains('e-lastpage')).toEqual(true);
+            expect(last.classList.contains('e-lastpagedisabled')).toBeFalsy();
+            expect(last.classList.contains('e-disable')).toBeFalsy();
+            expect(last.classList.contains('e-lastpage')).toBeTruthy();
         });
 
         afterAll(() => {
@@ -313,7 +313,7 @@ describe('Numericcontainer module testing', () => {
             pagerObj.currentPage = 2;
             pagerObj.dataBind();
             pagerObj.refresh();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('1');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('1');
         });
 
         afterAll(() => {
@@ -341,7 +341,7 @@ describe('Numericcontainer module testing', () => {
             pagerObj.currentPage = 5;
             pagerObj.dataBind();
             pagerObj.refresh();
-            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toEqual('3');
+            expect(pagerObj.element.querySelectorAll('.e-active')[0].getAttribute('index')).toBe('3');
         });
 
         afterAll(() => {

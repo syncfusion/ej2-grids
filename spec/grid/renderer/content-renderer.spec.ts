@@ -33,19 +33,19 @@ describe('Content renderer module', () => {
         });
 
         it('Content div testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-gridcontent').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-gridcontent').length).toBe(1);
         });
 
         it('Content table testing', () => {
-            expect(gridObj.contentModule.getPanel().querySelectorAll('.e-table').length).toEqual(1);
+            expect(gridObj.contentModule.getPanel().querySelectorAll('.e-table').length).toBe(1);
         });
 
         it('Content cell count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row')[0].childNodes.length).toEqual(gridObj.getColumns().length);
+            expect(gridObj.element.querySelectorAll('.e-row')[0].childNodes.length).toBe(gridObj.getColumns().length);
         });
 
         it('getRows', () => {
-            expect(gridObj.contentModule.getRows().length).toEqual(5);
+            expect(gridObj.contentModule.getRows().length).toBe(5);
             //for coverage 
             (<any>gridObj.contentModule).setColGroup(undefined);
             (<any>gridObj.contentModule).colGroupRefresh();

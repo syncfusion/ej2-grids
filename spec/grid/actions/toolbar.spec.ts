@@ -47,14 +47,14 @@ describe('Toolbar functionalities', () => {
         gridObj.appendTo('#Grid');
     });
     it('initial checck', () => {
-        expect(gridObj.toolbarModule.getToolbar().firstElementChild.childElementCount).toEqual(4);
-        expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toEqual(true);
+        expect(gridObj.toolbarModule.getToolbar().firstElementChild.childElementCount).toBe(4);
+        expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toBeTruthy();
         let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[0].id).toEqual('Grid_edit');
+        expect(items[0].id).toBe('Grid_edit');
     });
     it('check event trigger', (done: Function) => {
         gridObj.toolbarClick = (args: Object) => {
-            expect(args['target']['id']).toEqual('hello');
+            expect(args['target']['id']).toBe('hello');
             done();
         };
         (<any>gridObj.toolbarModule).toolbarClickHandler({ target: gridObj.toolbarModule.getToolbar().firstElementChild.children[2].firstChild });
@@ -64,22 +64,22 @@ describe('Toolbar functionalities', () => {
         gridObj.enableRtl = true;
         gridObj.dataBind();
         gridObj.toolbarModule.getToolbar()['ej2_instances'][0].dataBind();
-        expect(gridObj.toolbarModule.getToolbar()['ej2_instances'][0]['enableRtl']).toEqual(true);
-        expect(gridObj.toolbarModule.getToolbar().classList.contains('e-rtl')).toEqual(true);
+        expect(gridObj.toolbarModule.getToolbar()['ej2_instances'][0]['enableRtl']).toBeTruthy();
+        expect(gridObj.toolbarModule.getToolbar().classList.contains('e-rtl')).toBeTruthy();
     });
     it('disable Rtl', () => {
         gridObj.enableRtl = false;
         gridObj.dataBind();
         gridObj.toolbarModule.getToolbar()['ej2_instances'][0].dataBind();
-        expect(gridObj.toolbarModule.getToolbar()['ej2_instances'][0]['enableRtl']).toEqual(false);
-        expect(gridObj.toolbarModule.getToolbar().classList.contains('e-rtl')).toEqual(false);
+        expect(gridObj.toolbarModule.getToolbar()['ej2_instances'][0]['enableRtl']).toBeFalsy();
+        expect(gridObj.toolbarModule.getToolbar().classList.contains('e-rtl')).toBeFalsy();
     });
     it('change toolbar value', () => {
         gridObj.toolbar = ['search', 'add', 'update', 'cancel', 'hi'];
         gridObj.dataBind();
-        expect(gridObj.toolbarModule.getToolbar().querySelector('.e-toolbar-left').children.length).toEqual(4);
-        expect(gridObj.toolbarModule.getToolbar().querySelector('.e-toolbar-right').children.length).toEqual(1);
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toEqual(2);
+        expect(gridObj.toolbarModule.getToolbar().querySelector('.e-toolbar-left').children.length).toBe(4);
+        expect(gridObj.toolbarModule.getToolbar().querySelector('.e-toolbar-right').children.length).toBe(1);
+        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(2);
     });
      it('check aria-attribute', () => {
         let search: Element = gridObj.toolbarModule.getToolbar().querySelector('.e-search');
@@ -89,43 +89,43 @@ describe('Toolbar functionalities', () => {
     it('Enable Toolbar items', () => {
         gridObj.toolbarModule.enableItems(['Grid_update'], true);
         gridObj.dataBind();
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toEqual(1);
+        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(1);
     });
     it('add toolbar template', () => {
         let templete: string = '<div><div style="padding: 12px" title="search" ><input id="txt" type="search" style="padding: 0 5px"placeholder="search"></input><span id="searchbutton" class="e-search e-icons"></span></div></div>';
         document.body.appendChild(createElement('div', { innerHTML: templete, id: 'search' }));
         gridObj.toolbar = '#search';
         gridObj.dataBind();
-        expect(gridObj.toolbarModule.getToolbar().firstElementChild.id).toEqual('search');
+        expect(gridObj.toolbarModule.getToolbar().firstElementChild.id).toBe('search');
     });
     it('remove toolbar', () => {
         gridObj.toolbar = '';
         gridObj.dataBind();
-        expect(gridObj.toolbarModule).toEqual(undefined);
+        expect(gridObj.toolbarModule).toBe(undefined);
     });
     it('render all predefined items', () => {
         gridObj.toolbar = ['add', 'edit', 'delete', 'update', 'cancel', 'print', 'excelexport', 'pdfexport', 'wordexport', 'search'];
         gridObj.dataBind();
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-toolbar-item').length).toEqual(10);
+        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-toolbar-item').length).toBe(10);
     });
 
     it('check search', (done: Function) => {
         gridObj.actionComplete = () => {
-            expect(gridObj.currentViewData.length).toEqual(0);
-            expect(gridObj.searchSettings.key).toEqual('hai');
+            expect(gridObj.currentViewData.length).toBe(0);
+            expect(gridObj.searchSettings.key).toBe('hai');
             done();
         };
         let searchElement: HTMLInputElement = <HTMLInputElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_searchbar');
         (searchElement).value = 'hai';
         (<HTMLInputElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_searchbar')).focus();
-        expect(document.activeElement.id).toEqual(gridObj.element.id + '_searchbar');
+        expect(document.activeElement.id).toBe(gridObj.element.id + '_searchbar');
         keyup.target = searchElement;
         EventHandler.trigger(searchElement, 'keyup', keyup);
     });
     it('check search with searchbutton', (done: Function) => {
         gridObj.actionComplete = () => {
-            expect(gridObj.currentViewData.length).toEqual(15);
-            expect(gridObj.searchSettings.key).toEqual('');
+            expect(gridObj.currentViewData.length).toBe(15);
+            expect(gridObj.searchSettings.key).toBe('');
             done();
         };
         let searchElement: HTMLInputElement = <HTMLInputElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_searchbar');
@@ -136,41 +136,41 @@ describe('Toolbar functionalities', () => {
 
     it('Select a row', () => {
         gridObj.selectRow(1);
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toEqual(2);
+        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(2);
         let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[1].id).toEqual('Grid_cancel');
-        expect(items[0].id).toEqual('Grid_update');
+        expect(items[1].id).toBe('Grid_cancel');
+        expect(items[0].id).toBe('Grid_update');
     });
 
     it('De select selected row', () => {
         gridObj.selectRow(1);
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toEqual(4);
+        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(4);
         let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[1].id).toEqual('Grid_delete');
-        expect(items[0].id).toEqual('Grid_edit');
-        expect(items[3].id).toEqual('Grid_cancel');
-        expect(items[2].id).toEqual('Grid_update');
+        expect(items[1].id).toBe('Grid_delete');
+        expect(items[0].id).toBe('Grid_edit');
+        expect(items[3].id).toBe('Grid_cancel');
+        expect(items[2].id).toBe('Grid_update');
     });
 
     it('Select a cell', () => {
         gridObj.selectionSettings.mode = 'cell';
         gridObj.dataBind();
         gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toEqual(3);
+        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(3);
         let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[0].id).toEqual('Grid_delete');
-        expect(items[2].id).toEqual('Grid_cancel');
-        expect(items[1].id).toEqual('Grid_update');
+        expect(items[0].id).toBe('Grid_delete');
+        expect(items[2].id).toBe('Grid_cancel');
+        expect(items[1].id).toBe('Grid_update');
     });
 
     it('DeSelect selected cell', () => {
         gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toEqual(4);
+        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(4);
         let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[0].id).toEqual('Grid_edit');
-        expect(items[1].id).toEqual('Grid_delete');
-        expect(items[3].id).toEqual('Grid_cancel');
-        expect(items[2].id).toEqual('Grid_update');
+        expect(items[0].id).toBe('Grid_edit');
+        expect(items[1].id).toBe('Grid_delete');
+        expect(items[3].id).toBe('Grid_cancel');
+        expect(items[2].id).toBe('Grid_update');
     });
 
     it('check print', (done: Function) => {
@@ -178,7 +178,7 @@ describe('Toolbar functionalities', () => {
             done();
         };
         gridObj.beforePrint = (args: { element: Element }) => {
-            expect((args.element.querySelector('.e-toolbar') as HTMLElement).style.display).toEqual('none');
+            expect((args.element.querySelector('.e-toolbar') as HTMLElement).style.display).toBe('none');
         };
         (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_print')).click();
         //forcoverage

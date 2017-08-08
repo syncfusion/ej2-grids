@@ -83,8 +83,8 @@ describe('Grouping module', () => {
 
         it('group drop area testing', () => {
             let dropArea = gridObj.element.querySelectorAll('.e-groupdroparea');
-            expect(dropArea.length).toEqual(1);
-            expect(dropArea[0].textContent).toEqual('Drag a column header here to group its column');
+            expect(dropArea.length).toBe(1);
+            expect(dropArea[0].textContent).toBe('Drag a column header here to group its column');
         });
 
         it('Single column group testing', (done: Function) => {
@@ -92,29 +92,29 @@ describe('Grouping module', () => {
                 let grpHIndent = gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell');
                 let content = gridObj.getContent().querySelectorAll('tr');
                 let gHeader = gridObj.element.querySelectorAll('.e-groupheadercell');
-                expect(grpHIndent.length).toEqual(1);
-                expect(grpHIndent[0].querySelector('.e-headercelldiv').classList.contains('e-emptycell')).toEqual(true);
-                expect(content[0].querySelectorAll('.e-recordplusexpand').length).toEqual(1);
+                expect(grpHIndent.length).toBe(1);
+                expect(grpHIndent[0].querySelector('.e-headercelldiv').classList.contains('e-emptycell')).toBeTruthy();
+                expect(content[0].querySelectorAll('.e-recordplusexpand').length).toBe(1);
                 expect(content[0].querySelectorAll('.e-recordplusexpand'
-                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toEqual(true);
+                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toBeTruthy();
 
-                expect(content[0].querySelectorAll('.e-groupcaption').length).toEqual(1);
-                expect(content[0].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toEqual('6');
-                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toEqual('Ship City: Albuquerque - 5 items');
+                expect(content[0].querySelectorAll('.e-groupcaption').length).toBe(1);
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toBe('6');
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship City: Albuquerque - 5 items');
 
-                expect(content[1].querySelectorAll('.e-indentcell').length).toEqual(1);
+                expect(content[1].querySelectorAll('.e-indentcell').length).toBe(1);
 
-                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toEqual(6);
+                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toBe(6);
 
-                expect(gHeader.length).toEqual(1);
-                expect(gHeader[0].querySelectorAll('.e-grouptext').length).toEqual(1);
-                expect(gHeader[0].querySelectorAll('.e-grouptext')[0].textContent).toEqual('Ship City');
-                expect(gHeader[0].querySelectorAll('.e-groupsort').length).toEqual(1);
-                expect(gHeader[0].querySelectorAll('.e-groupsort')[0].classList.contains('e-ascending')).toEqual(true);
-                expect(gHeader[0].querySelectorAll('.e-ungroupbutton').length).toEqual(1);
+                expect(gHeader.length).toBe(1);
+                expect(gHeader[0].querySelectorAll('.e-grouptext').length).toBe(1);
+                expect(gHeader[0].querySelectorAll('.e-grouptext')[0].textContent).toBe('Ship City');
+                expect(gHeader[0].querySelectorAll('.e-groupsort').length).toBe(1);
+                expect(gHeader[0].querySelectorAll('.e-groupsort')[0].classList.contains('e-ascending')).toBeTruthy();
+                expect(gHeader[0].querySelectorAll('.e-ungroupbutton').length).toBe(1);
 
-                expect(gridObj.groupSettings.columns.length).toEqual(1);
-                expect(gridObj.sortSettings.columns.length).toEqual(1);
+                expect(gridObj.groupSettings.columns.length).toBe(1);
+                expect(gridObj.sortSettings.columns.length).toBe(1);
 
 
                 done();
@@ -126,17 +126,17 @@ describe('Grouping module', () => {
         it('Expandcollase row shortcut testing', () => {
             gridObj.selectRow(1);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altUpArrow', preventDefault: () => { } });
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(13);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(13);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altUpArrow', preventDefault: () => { } });
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(13);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(13);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altDownArrow', preventDefault: () => { } });
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(18);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(18);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altDownArrow', preventDefault: () => { } });
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(18);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(18);
             gridObj.allowSelection = false;
             gridObj.dataBind();
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altUpArrow', preventDefault: () => { } });
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(18);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(18);
             gridObj.allowSelection = true;
             gridObj.dataBind();
 
@@ -144,8 +144,8 @@ describe('Grouping module', () => {
 
         it('multi column group testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.groupSettings.columns.length).toEqual(2);
-                expect(gridObj.sortSettings.columns.length).toEqual(2);
+                expect(gridObj.groupSettings.columns.length).toBe(2);
+                expect(gridObj.sortSettings.columns.length).toBe(2);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -157,46 +157,46 @@ describe('Grouping module', () => {
                 let grpHIndent = gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell');
                 let content = gridObj.getContent().querySelectorAll('tr');
                 let gHeader = gridObj.element.querySelectorAll('.e-groupheadercell');
-                expect(grpHIndent.length).toEqual(3);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toEqual(3);
-                expect(content[0].querySelectorAll('.e-recordplusexpand').length).toEqual(1);
-                expect((content[0].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toEqual(0);
-                expect(content[0].querySelectorAll('.e-indentcell').length).toEqual(0);
+                expect(grpHIndent.length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toBe(3);
+                expect(content[0].querySelectorAll('.e-recordplusexpand').length).toBe(1);
+                expect((content[0].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toBe(0);
+                expect(content[0].querySelectorAll('.e-indentcell').length).toBe(0);
                 expect(content[0].querySelectorAll('.e-recordplusexpand'
-                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toEqual(true);
+                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toBeTruthy();
 
-                expect(content[1].querySelectorAll('.e-recordplusexpand').length).toEqual(1);
-                expect((content[1].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toEqual(1);
-                expect(content[1].querySelectorAll('.e-indentcell').length).toEqual(1);
+                expect(content[1].querySelectorAll('.e-recordplusexpand').length).toBe(1);
+                expect((content[1].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toBe(1);
+                expect(content[1].querySelectorAll('.e-indentcell').length).toBe(1);
                 expect(content[1].querySelectorAll('.e-recordplusexpand'
-                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toEqual(true);
+                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toBeTruthy();
 
-                expect(content[2].querySelectorAll('.e-recordplusexpand').length).toEqual(1);
-                expect((content[2].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toEqual(2);
-                expect(content[2].querySelectorAll('.e-indentcell').length).toEqual(2);
+                expect(content[2].querySelectorAll('.e-recordplusexpand').length).toBe(1);
+                expect((content[2].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toBe(2);
+                expect(content[2].querySelectorAll('.e-indentcell').length).toBe(2);
                 expect(content[2].querySelectorAll('.e-recordplusexpand'
-                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toEqual(true);
+                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toBeTruthy();
 
-                expect(content[0].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toEqual('8');
-                expect(content[1].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toEqual('7');
-                expect(content[2].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toEqual('6');
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toBe('8');
+                expect(content[1].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toBe('7');
+                expect(content[2].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toBe('6');
 
-                expect(content[0].querySelectorAll('.e-groupcaption').length).toEqual(1);
-                expect(content[1].querySelectorAll('.e-groupcaption').length).toEqual(1);
-                expect(content[2].querySelectorAll('.e-groupcaption').length).toEqual(1);
+                expect(content[0].querySelectorAll('.e-groupcaption').length).toBe(1);
+                expect(content[1].querySelectorAll('.e-groupcaption').length).toBe(1);
+                expect(content[2].querySelectorAll('.e-groupcaption').length).toBe(1);
 
-                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toEqual('Ship City: Albuquerque - 1 item');
-                expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toEqual('Ship Country: USA - 1 item');
-                expect(content[2].querySelectorAll('.e-groupcaption')[0].textContent).toEqual('CustomerID: RATTC - 5 items');
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship City: Albuquerque - 1 item');
+                expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship Country: USA - 1 item');
+                expect(content[2].querySelectorAll('.e-groupcaption')[0].textContent).toBe('CustomerID: RATTC - 5 items');
 
-                expect(content[3].querySelectorAll('.e-indentcell').length).toEqual(3);
+                expect(content[3].querySelectorAll('.e-indentcell').length).toBe(3);
 
-                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toEqual(18);
+                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toBe(18);
 
-                expect(gHeader.length).toEqual(3);
+                expect(gHeader.length).toBe(3);
 
-                expect(gridObj.groupSettings.columns.length).toEqual(3);
-                expect(gridObj.sortSettings.columns.length).toEqual(3);
+                expect(gridObj.groupSettings.columns.length).toBe(3);
+                expect(gridObj.sortSettings.columns.length).toBe(3);
 
                 done();
             };
@@ -210,37 +210,37 @@ describe('Grouping module', () => {
                 let grpHIndent = gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell');
                 let content = gridObj.getContent().querySelectorAll('tr');
                 let gHeader = gridObj.element.querySelectorAll('.e-groupheadercell');
-                expect(grpHIndent.length).toEqual(2);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toEqual(2);
-                expect(content[0].querySelectorAll('.e-recordplusexpand').length).toEqual(1);
-                expect((content[0].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toEqual(0);
-                expect(content[0].querySelectorAll('.e-indentcell').length).toEqual(0);
+                expect(grpHIndent.length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toBe(2);
+                expect(content[0].querySelectorAll('.e-recordplusexpand').length).toBe(1);
+                expect((content[0].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toBe(0);
+                expect(content[0].querySelectorAll('.e-indentcell').length).toBe(0);
                 expect(content[0].querySelectorAll('.e-recordplusexpand'
-                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toEqual(true);
+                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toBeTruthy();
 
-                expect(content[1].querySelectorAll('.e-recordplusexpand').length).toEqual(1);
-                expect((content[1].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toEqual(1);
-                expect(content[1].querySelectorAll('.e-indentcell').length).toEqual(1);
+                expect(content[1].querySelectorAll('.e-recordplusexpand').length).toBe(1);
+                expect((content[1].querySelectorAll('.e-recordplusexpand')[0] as HTMLTableCellElement).cellIndex).toBe(1);
+                expect(content[1].querySelectorAll('.e-indentcell').length).toBe(1);
                 expect(content[1].querySelectorAll('.e-recordplusexpand'
-                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toEqual(true);
+                )[0].firstElementChild.classList.contains('e-gdiagonaldown')).toBeTruthy();
 
-                expect(content[0].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toEqual('7');
-                expect(content[1].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toEqual('6');
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toBe('7');
+                expect(content[1].querySelectorAll('.e-groupcaption')[0].getAttribute('colspan')).toBe('6');
 
-                expect(content[0].querySelectorAll('.e-groupcaption').length).toEqual(1);
-                expect(content[1].querySelectorAll('.e-groupcaption').length).toEqual(1);
+                expect(content[0].querySelectorAll('.e-groupcaption').length).toBe(1);
+                expect(content[1].querySelectorAll('.e-groupcaption').length).toBe(1);
 
-                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toEqual('Ship City: Albuquerque - 1 item');
-                expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toEqual('CustomerID: RATTC - 5 items');
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship City: Albuquerque - 1 item');
+                expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toBe('CustomerID: RATTC - 5 items');
 
-                expect(content[2].querySelectorAll('.e-indentcell').length).toEqual(2);
+                expect(content[2].querySelectorAll('.e-indentcell').length).toBe(2);
 
-                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toEqual(12);
+                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toBe(12);
 
-                expect(gHeader.length).toEqual(2);
+                expect(gHeader.length).toBe(2);
 
-                expect(gridObj.groupSettings.columns.length).toEqual(2);
-                expect(gridObj.sortSettings.columns.length).toEqual(2);
+                expect(gridObj.groupSettings.columns.length).toBe(2);
+                expect(gridObj.sortSettings.columns.length).toBe(2);
 
                 done();
             };
@@ -250,12 +250,12 @@ describe('Grouping module', () => {
 
         it('Sort column with sorting disabled testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toEqual(0);
-                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toEqual(2);
-                expect(gridObj.sortSettings.columns[0].direction).toEqual('ascending');
-                expect(gridObj.sortSettings.columns[1].direction).toEqual('ascending');
-                expect(gridObj.getColumnHeaderByField('CustomerID').querySelectorAll('.e-ascending').length).toEqual(1);
-                expect(gridObj.getColumnHeaderByField('ShipCity').querySelectorAll('.e-ascending').length).toEqual(1);
+                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toBe(0);
+                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toBe(2);
+                expect(gridObj.sortSettings.columns[0].direction).toBe('ascending');
+                expect(gridObj.sortSettings.columns[1].direction).toBe('ascending');
+                expect(gridObj.getColumnHeaderByField('CustomerID').querySelectorAll('.e-ascending').length).toBe(1);
+                expect(gridObj.getColumnHeaderByField('ShipCity').querySelectorAll('.e-ascending').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -269,10 +269,10 @@ describe('Grouping module', () => {
 
         it('Sort column with sorting enable testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toEqual(1);
-                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toEqual(1);
-                expect(gridObj.sortSettings.columns[0].direction).toEqual('descending');
-                expect(gridObj.getColumnHeaderByField('ShipCity').querySelectorAll('.e-descending').length).toEqual(1);
+                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toBe(1);
+                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toBe(1);
+                expect(gridObj.sortSettings.columns[0].direction).toBe('descending');
+                expect(gridObj.getColumnHeaderByField('ShipCity').querySelectorAll('.e-descending').length).toBe(1);
                 done();
             };
             let grpHCell = gridObj.element.querySelectorAll('.e-groupheadercell');
@@ -282,10 +282,10 @@ describe('Grouping module', () => {
 
         it('Sort column with sorting enable testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toEqual(2);
-                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toEqual(0);
-                expect(gridObj.sortSettings.columns[1].direction).toEqual('descending');
-                expect(gridObj.getColumnHeaderByField('CustomerID').querySelectorAll('.e-descending').length).toEqual(1);
+                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toBe(2);
+                expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toBe(0);
+                expect(gridObj.sortSettings.columns[1].direction).toBe('descending');
+                expect(gridObj.getColumnHeaderByField('CustomerID').querySelectorAll('.e-descending').length).toBe(1);
                 done();
             };
             let grpHCell = gridObj.element.querySelectorAll('.e-groupheadercell');
@@ -297,11 +297,11 @@ describe('Grouping module', () => {
             actionComplete = (args?: Object): void => {
                 let grpHIndent = gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell');
                 let gHeader = gridObj.element.querySelectorAll('.e-groupheadercell');
-                expect(grpHIndent.length).toEqual(1);
-                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toEqual(8);
-                expect(gHeader.length).toEqual(1);
-                expect(gridObj.groupSettings.columns.length).toEqual(1);
-                expect(gridObj.sortSettings.columns.length).toEqual(2);
+                expect(grpHIndent.length).toBe(1);
+                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toBe(8);
+                expect(gHeader.length).toBe(1);
+                expect(gridObj.groupSettings.columns.length).toBe(1);
+                expect(gridObj.sortSettings.columns.length).toBe(2);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -312,11 +312,11 @@ describe('Grouping module', () => {
         //     actionComplete = (args?: Object): void => {
         //         let grpHIndent = gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell');
         //         let gHeader = gridObj.element.querySelectorAll('.e-groupheadercell');
-        //         expect(grpHIndent.length).toEqual(0);
-        //         expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toEqual(0);
-        //         expect(gHeader.length).toEqual(0);
-        //         expect(gridObj.groupSettings.columns.length).toEqual(0);
-        //         expect(gridObj.sortSettings.columns.length).toEqual(2);
+        //         expect(grpHIndent.length).toBe(0);
+        //         expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toBe(0);
+        //         expect(gHeader.length).toBe(0);
+        //         expect(gridObj.groupSettings.columns.length).toBe(0);
+        //         expect(gridObj.sortSettings.columns.length).toBe(2);
         //         done();
         //     };
         //     gridObj.actionComplete = actionComplete;
@@ -339,11 +339,11 @@ describe('Grouping module', () => {
         //     actionComplete = (args?: Object): void => {
         //         let grpHIndent = gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell');
         //         let gHeader = gridObj.element.querySelectorAll('.e-groupheadercell');
-        //         expect(grpHIndent.length).toEqual(1);
-        //         expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toEqual(8);
-        //         expect(gHeader.length).toEqual(1);
-        //         expect(gridObj.groupSettings.columns.length).toEqual(1);
-        //         expect(gridObj.sortSettings.columns.length).toEqual(2);
+        //         expect(grpHIndent.length).toBe(1);
+        //         expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toBe(8);
+        //         expect(gHeader.length).toBe(1);
+        //         expect(gridObj.groupSettings.columns.length).toBe(1);
+        //         expect(gridObj.sortSettings.columns.length).toBe(2);
         //         done();
         //     };
         //     gridObj.actionComplete = actionComplete;
@@ -369,13 +369,13 @@ describe('Grouping module', () => {
             gridObj.groupModule.expandCollapseRows(expandElem[1]);
             gridObj.groupModule.expandCollapseRows(expandElem[0]);
             gridObj.groupModule.collapseAll();
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(8);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(8);
         });
 
         it('expandAll method testing', () => {
 
             gridObj.groupModule.expandAll();
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(20);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(20);
         });
 
         it('collapseAll shortcut testing', () => {
@@ -383,19 +383,19 @@ describe('Grouping module', () => {
             gridObj.groupModule.expandCollapseRows(expandElem[1]);
             gridObj.groupModule.expandCollapseRows(expandElem[0]);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'ctrlUpArrow', preventDefault: () => { } });
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(8);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(8);
         });
 
         it('expandAll shortcut testing', () => {
             (<any>gridObj.groupModule).keyPressHandler({ action: 'ctrlDownArrow', preventDefault: () => { } });
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(20);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(20);
         });
 
 
         it('multi column group testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.groupSettings.columns.length).toEqual(2);
-                expect(gridObj.sortSettings.columns.length).toEqual(2);
+                expect(gridObj.groupSettings.columns.length).toBe(2);
+                expect(gridObj.sortSettings.columns.length).toBe(2);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -405,17 +405,17 @@ describe('Grouping module', () => {
         it('expandcollapse rows method testing', () => {
             let expandElem = gridObj.getContent().querySelectorAll('.e-recordplusexpand');
             gridObj.groupModule.expandCollapseRows(expandElem[1]);
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(28);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(28);
             gridObj.groupModule.expandCollapseRows(expandElem[0]);
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(27);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(27);
             gridObj.groupModule.expandCollapseRows(expandElem[0]);
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(28);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(28);
             gridObj.groupModule.expandCollapseRows(expandElem[1]);
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(30);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(30);
             gridObj.groupModule.expandCollapseRows(expandElem[2]);
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(27);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(27);
             gridObj.groupModule.expandCollapseRows(expandElem[2]);
-            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toEqual(30);
+            expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(30);
         });
 
         it('group destroy testing', () => { //for coverage     
@@ -512,9 +512,9 @@ describe('Grouping module', () => {
 
         it('Single column group testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.groupSettings.columns.length).toEqual(1);
-                expect(gridObj.sortSettings.columns.length).toEqual(1);
-                expect(gridObj.element.querySelectorAll('.e-headercell:not(.e-hide)').length).toEqual(5);
+                expect(gridObj.groupSettings.columns.length).toBe(1);
+                expect(gridObj.sortSettings.columns.length).toBe(1);
+                expect(gridObj.element.querySelectorAll('.e-headercell:not(.e-hide)').length).toBe(5);
                 done();
             };
             gridObj.groupSettings.showGroupedColumn = false;
@@ -525,9 +525,9 @@ describe('Grouping module', () => {
 
         it('Single column ungroup testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.groupSettings.columns.length).toEqual(0);
-                expect(gridObj.sortSettings.columns.length).toEqual(0);
-                expect(gridObj.element.querySelectorAll('.e-headercell:not(.e-hide)').length).toEqual(6);
+                expect(gridObj.groupSettings.columns.length).toBe(0);
+                expect(gridObj.sortSettings.columns.length).toBe(0);
+                expect(gridObj.element.querySelectorAll('.e-headercell:not(.e-hide)').length).toBe(6);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -570,7 +570,7 @@ describe('Grouping module', () => {
 
         it('sort after group testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.groupSettings.columns.length).toEqual(1);
+                expect(gridObj.groupSettings.columns.length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -580,7 +580,7 @@ describe('Grouping module', () => {
 
         it('group from toogle header testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.sortSettings.columns.length).toEqual(2);
+                expect(gridObj.sortSettings.columns.length).toBe(2);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -590,46 +590,46 @@ describe('Grouping module', () => {
         it('show drop area', () => {
             gridObj.groupSettings.showDropArea = true;
             gridObj.dataBind();
-            expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0] as HTMLElement).style.display).toEqual('')
+            expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0] as HTMLElement).style.display).toBe('')
         });
 
         it('hide drop area', () => {
             gridObj.groupSettings.showDropArea = false;
             gridObj.dataBind();
-            expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0] as HTMLElement).style.display).toEqual('none');
+            expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0] as HTMLElement).style.display).toBe('none');
         });
 
         it('hide group toggle button', () => {
             gridObj.groupSettings.showToggleButton = false;
             gridObj.dataBind();
-            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toEqual(0);
+            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toBe(0);
         });
 
         it('show group toggle button', () => {
             gridObj.groupSettings.showToggleButton = true;
             gridObj.dataBind();
-            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toEqual(gridObj.columns.length);
+            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toBe(gridObj.columns.length);
         });
 
         it('hide ungroup button', () => {
             gridObj.groupSettings.showUngroupButton = false;
             gridObj.dataBind();
             expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0].
-                querySelectorAll('.e-ungroupbutton')[0] as HTMLElement).style.display).toEqual('none');
+                querySelectorAll('.e-ungroupbutton')[0] as HTMLElement).style.display).toBe('none');
         });
 
         it('show ungroup button', () => {
             gridObj.groupSettings.showUngroupButton = true;
             gridObj.dataBind();
             expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0].
-                querySelectorAll('.e-ungroupbutton')[0] as HTMLElement).style.display).toEqual('');
+                querySelectorAll('.e-ungroupbutton')[0] as HTMLElement).style.display).toBe('');
         });
 
         it('hide Grouped Column', (done: Function) => {
             actionComplete = () => {
                 expect(1).toBe(1);
-                // expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toEqual(gridObj.groupSettings.columns.length);
-                // expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toEqual(gridObj.groupSettings.columns.length * 12);
+                // expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toBe(gridObj.groupSettings.columns.length);
+                // expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toBe(gridObj.groupSettings.columns.length * 12);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -639,8 +639,8 @@ describe('Grouping module', () => {
 
         it('show Grouped Column', (done: Function) => {
             actionComplete = () => {
-                //expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toEqual(0);
-                //expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toEqual(0);
+                //expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toBe(0);
+                //expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -650,7 +650,7 @@ describe('Grouping module', () => {
 
         it('ungroup from toogele header testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                expect(gridObj.groupSettings.columns.length).toEqual(0);
+                expect(gridObj.groupSettings.columns.length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -706,7 +706,7 @@ describe('Grouping module', () => {
         it('group header testing', () => {
             (<any>gridObj.groupModule).contentRefresh = false;
             gridObj.groupModule.groupColumn('EmployeeID');
-            expect(1).toEqual(1);
+            expect(1).toBe(1);
         });
 
         afterAll(() => {
@@ -752,9 +752,9 @@ describe('Grouping module', () => {
 
         it('group a column', (done: Function) => {
             let actionComplete = (args: Object) => {
-                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toEqual(1);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toEqual(3);
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(1);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(3);
                 done();
             };
             gridObj.groupModule.groupColumn('EmployeeID');
@@ -763,9 +763,9 @@ describe('Grouping module', () => {
         });
         it('sort a column', (done: Function) => {
             let actionComplete = (args: Object) => {
-                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toEqual(1);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(2);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toEqual(3);
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(1);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(3);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -774,9 +774,9 @@ describe('Grouping module', () => {
         });
         it('ungroup a column', (done: Function) => {
             let actionComplete = (args: Object) => {
-                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toEqual(0);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toEqual(0);
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(0);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -785,7 +785,7 @@ describe('Grouping module', () => {
         });
         it('clear sort', (done: Function) => {
             let actionComplete = (args: Object) => {
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(0);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -828,13 +828,13 @@ describe('Grouping module', () => {
             gridObj.appendTo('#Grid');
         });
         it('check default group property rendering', () => {
-            expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(1)
-            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toEqual(gridObj.columns.length);
+            expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(1)
+            expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toBe(gridObj.columns.length);
         });
         it('disable Grouping', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(0);
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toEqual(0);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(0);
+                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -843,8 +843,8 @@ describe('Grouping module', () => {
         });
         it('enable Grouping', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(1);
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toEqual(gridObj.columns.length);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(1);
+                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn').length).toBe(gridObj.columns.length);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -853,10 +853,10 @@ describe('Grouping module', () => {
         });
         it('group a column', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(1);
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn.e-toggleungroup').length).toEqual(1);
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toEqual(1);
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-ascending').length).toEqual(1);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(1);
+                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn.e-toggleungroup').length).toBe(1);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toBe(1);
+                expect(gridObj.getHeaderTable().querySelectorAll('.e-ascending').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -865,11 +865,11 @@ describe('Grouping module', () => {
         });
         it('reOrder the grouped column', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn.e-toggleungroup').length).toEqual(1);
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toEqual(1);
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-ascending').length).toEqual(1);
+                expect(gridObj.getHeaderTable().querySelectorAll('.e-grptogglebtn.e-toggleungroup').length).toBe(1);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toBe(1);
+                expect(gridObj.getHeaderTable().querySelectorAll('.e-ascending').length).toBe(1);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-headercell')[5].children[0].innerHTML).toMatch('Employee ID');
-                expect(gridObj.getContent().querySelectorAll('.e-row').length).toEqual(12);
+                expect(gridObj.getContent().querySelectorAll('.e-row').length).toBe(12);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -912,19 +912,19 @@ describe('Grouping module', () => {
             gridObj.appendTo('#Grid');
         });
         it('check default group property rendering', () => {
-            expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(1);
-            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].children.length).toEqual(1);
-            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toEqual(1);
-            expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
-            expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toEqual(2);
-            expect(gridObj.getContent().querySelectorAll('.e-indentcell').length > 0).toEqual(true)
-            expect(gridObj.getContent().querySelectorAll('.e-rowcell')[0].innerHTML).toEqual('10258');
-            expect(gridObj.groupSettings.columns.length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(1);
+            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].children.length).toBe(1);
+            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toBe(1);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toBe(2);
+            expect(gridObj.getContent().querySelectorAll('.e-indentcell').length > 0).toBe(true)
+            expect(gridObj.getContent().querySelectorAll('.e-rowcell')[0].innerHTML).toBe('10258');
+            expect(gridObj.groupSettings.columns.length).toBe(1);
         });
         it('disable Grouping', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(0);
-                expect(gridObj.currentViewData.length).toEqual(12);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(0);
+                expect(gridObj.currentViewData.length).toBe(12);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -933,7 +933,7 @@ describe('Grouping module', () => {
         });
         it('enable Grouping', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(1);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -974,18 +974,18 @@ describe('Grouping module', () => {
             gridObj.appendTo('#Grid');
         });
         it('check default group property rendering', () => {
-            expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(1);
-            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].children.length).toEqual(2);
-            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toEqual(2);
-            expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(2);
-            expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toEqual(2);
-            expect(gridObj.getContentTable().querySelectorAll('.e-indentcell').length > 0).toEqual(true);
-            expect(gridObj.groupSettings.columns.length).toEqual(2);
+            expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(1);
+            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].children.length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-groupdroparea')[0].querySelectorAll('.e-ungroupbutton').length).toBe(2);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(2);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toBe(2);
+            expect(gridObj.getContentTable().querySelectorAll('.e-indentcell').length > 0).toBeTruthy();
+            expect(gridObj.groupSettings.columns.length).toBe(2);
         });
         it('disable Grouping', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(0);
-                expect(gridObj.currentViewData.length).toEqual(12);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(0);
+                expect(gridObj.currentViewData.length).toBe(12);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -994,7 +994,7 @@ describe('Grouping module', () => {
         });
         it('enable Grouping', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toEqual(1);
+                expect(gridObj.element.querySelectorAll('.e-groupdroparea').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -1038,7 +1038,7 @@ describe('Grouping module', () => {
             gridObj.appendTo('#Grid');
         });
         it('test', () => {
-            expect(1).toEqual(1);
+            expect(1).toBe(1);
         });
         afterAll(() => {
             elem.remove();
@@ -1077,7 +1077,7 @@ describe('Grouping module', () => {
             gridObj.appendTo('#Grid');
         });
         it('test', () => {
-            expect(1).toEqual(1);
+            expect(1).toBe(1);
         });
         afterAll(() => {
             elem.remove();
@@ -1116,9 +1116,9 @@ describe('Grouping module', () => {
             gridObj.appendTo('#Grid');
         });
         it('initial render testing', () => {
-            expect(gridObj.groupSettings.columns.length).toEqual(gridObj.sortSettings.columns.length);
-            expect(gridObj.getHeaderContent().querySelectorAll('.e-sortnumber').length).toEqual(0);
-            expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
+            expect(gridObj.groupSettings.columns.length).toBe(gridObj.sortSettings.columns.length);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-sortnumber').length).toBe(0);
+            expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
         });
 
         it('check aria attribute', () => {
@@ -1134,10 +1134,10 @@ describe('Grouping module', () => {
         
         it('clear Grouping', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.sortSettings.columns.length).toEqual(1);
-                expect(gridObj.groupSettings.columns.length).toEqual(0);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(1);
-                expect(gridObj.getContent().querySelectorAll('tr').length).toEqual(12);
+                expect(gridObj.sortSettings.columns.length).toBe(1);
+                expect(gridObj.groupSettings.columns.length).toBe(0);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
+                expect(gridObj.getContent().querySelectorAll('tr').length).toBe(12);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -1146,8 +1146,8 @@ describe('Grouping module', () => {
         });
         it('clear sorting', (done: Function) => {
             actionComplete = () => {
-                expect(gridObj.sortSettings.columns.length).toEqual(0);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toEqual(0);
+                expect(gridObj.sortSettings.columns.length).toBe(0);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;

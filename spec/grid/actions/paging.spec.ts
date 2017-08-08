@@ -42,29 +42,29 @@ describe('Paging module', () => {
             gridObj.appendTo('#Grid');
         });
         it('page size testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(2);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(2);
         });
         it('current page testing', () => {
-            expect(gridObj.getPager().getElementsByClassName('e-active')[0].getAttribute('index')).toEqual('2');
+            expect(gridObj.getPager().getElementsByClassName('e-active')[0].getAttribute('index')).toBe('2');
         });
         it('page count testing', () => {
-            expect(gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes.length).toEqual(4);
+            expect(gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes.length).toBe(4);
             expect((<Element>gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes[0]).hasAttribute('aria-owns')).toBeTruthy();
         });
         it('totalRecordsCount testing', () => {
-            expect(gridObj.pageSettings.totalRecordsCount).toEqual(15);
+            expect(gridObj.pageSettings.totalRecordsCount).toBe(15);
         });
         it('querystring testing', () => {
             gridObj.goToPage(3);
             expect(window.location.href.indexOf('?page=3')).toBeGreaterThan(-1);
         });
         it('class testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-pager').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(1);
         });
         it('navigate page', (done: Function) => {
             let row: string = JSON.stringify(gridObj.currentViewData[0]);
             actionComplete = (args: PageEventArgs): void => {
-                //expect(row !== JSON.stringify(gridObj.currentViewData[0])).toEqual(true);
+                //expect(row).not.toBe(JSON.stringify(gridObj.currentViewData[0]));
                 expect(1).toBe(1);
                 done();
             };
@@ -73,7 +73,7 @@ describe('Paging module', () => {
         });
         it('pageDown shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toEqual('2');
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toBe('2');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -83,7 +83,7 @@ describe('Paging module', () => {
         });
         it('pageUp shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toEqual('1');
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toBe('1');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -92,7 +92,7 @@ describe('Paging module', () => {
         });
         it('ctrlAltPageDown shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toEqual('8');
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toBe('8');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -101,7 +101,7 @@ describe('Paging module', () => {
         });
         it('ctrlAltPageUp shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toEqual('1');
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toBe('1');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -110,7 +110,7 @@ describe('Paging module', () => {
         });
         it('altPageDown shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toEqual('5');
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toBe('5');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -119,7 +119,7 @@ describe('Paging module', () => {
         });
         it('altPageUp shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toEqual('1');
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].textContent).toBe('1');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -128,17 +128,17 @@ describe('Paging module', () => {
         });
         it('updateExternalmessage method false testing', () => {
             gridObj.updateExternalMessage('extmsg');
-            expect(gridObj.getPager().querySelectorAll('.e-pagerexternalmsg')[0].textContent).toEqual('extmsg');
+            expect(gridObj.getPager().querySelectorAll('.e-pagerexternalmsg')[0].textContent).toBe('extmsg');
         });
 
         it('updateExternalmessage method true testing', () => {
             gridObj.updateExternalMessage('extmsg1');
-            expect(gridObj.getPager().querySelectorAll('.e-pagerexternalmsg')[0].textContent).toEqual('extmsg1');
+            expect(gridObj.getPager().querySelectorAll('.e-pagerexternalmsg')[0].textContent).toBe('extmsg1');
         });
 
         it('current page onproperty changed testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getPager().getElementsByClassName('e-active')[0].getAttribute('index')).toEqual('4');
+                expect(gridObj.getPager().getElementsByClassName('e-active')[0].getAttribute('index')).toBe('4');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -174,21 +174,21 @@ describe('Paging module', () => {
             gridObj.appendTo('#Grid');
         });
         it('class testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-pager').length).toEqual(0);
+            expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(0);
         });
         it('allowpaging true setmodel testing', () => {
             gridObj.allowPaging = true;
             gridObj.dataBind();
-            expect(gridObj.element.querySelectorAll('.e-pager').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(1);
         });
         it('allowpaging false setmodel testing', () => {
             gridObj.allowPaging = false;
             gridObj.dataBind();
-            expect(gridObj.element.querySelectorAll('.e-pager').length).toEqual(0);
+            expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(0);
         });
         it('allowpaging true setmodel testing', (done: Function) => {
             let dataBound = (args: Object): void => {
-                expect(gridObj.element.querySelectorAll('.e-pager').length).toEqual(1);
+                expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(1);
                 done();
             };
             gridObj.dataBound = dataBound;
@@ -200,7 +200,7 @@ describe('Paging module', () => {
         it('change pageCount', () => {
             gridObj.pageSettings.pageCount = 3;
             gridObj.dataBind();
-            expect(gridObj.element.querySelectorAll('.e-link.e-numericitem.e-spacing.e-pager-default').length).toEqual(3);
+            expect(gridObj.element.querySelectorAll('.e-link.e-numericitem.e-spacing.e-pager-default').length).toBe(3);
         });
         //check query string
         it('Check enableQueryString', (done: Function) => {
@@ -237,7 +237,7 @@ describe('Paging module', () => {
             gridObj.appendTo('#Grid');
         });
         it('class testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-pager').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(1);
             gridObj.pageSettings = { currentPage: 3 };
             gridObj.dataBind();
             gridObj.pagerModule.refresh();
@@ -293,13 +293,13 @@ describe('Paging module', () => {
             it('pageDown check - no page trigger', () => {
                 content.focus();
                 raiseEvt(34, grid);
-                expect(grid.pageSettings.currentPage).toEqual(1);
+                expect(grid.pageSettings.currentPage).toBe(1);
             });
 
             it('pageDown check - page trigger', () => {
                 content.scrollTop = (content.scrollHeight - content.clientHeight) + 1;
                 raiseEvt(34);
-                expect(grid.pageSettings.currentPage).toEqual(2);
+                expect(grid.pageSettings.currentPage).toBe(2);
             });
 
             afterAll(() => {
@@ -331,13 +331,13 @@ describe('Paging module', () => {
                 grid.goToPage(2);
                 content.scrollTop = 10;
                 raiseEvt(33, grid);
-                expect(grid.pageSettings.currentPage).toEqual(2);
+                expect(grid.pageSettings.currentPage).toBe(2);
             });
 
             it('pageUp check - page trigger', () => {
                 content.scrollTop = 0;
                 raiseEvt(33, grid);
-                expect(grid.pageSettings.currentPage).toEqual(1);
+                expect(grid.pageSettings.currentPage).toBe(1);
             });
 
             afterAll(() => {

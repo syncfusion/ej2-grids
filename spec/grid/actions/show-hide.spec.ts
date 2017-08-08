@@ -68,9 +68,9 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
         });
 
 
@@ -111,9 +111,9 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
         });
 
 
@@ -154,9 +154,9 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
         });
 
 
@@ -197,9 +197,9 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
         });
 
 
@@ -240,9 +240,9 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
         });
 
 
@@ -283,9 +283,9 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
         });
 
 
@@ -326,9 +326,9 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
         });
 
 
@@ -376,13 +376,13 @@ describe('ShowHide module testing', () => {
 
         it('check colgroup->col visiblity', () => {
             let col: HTMLTableColElement = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[0];
-            expect(col.style.display).toEqual('');
+            expect(col.style.display).toBe('');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getHeaderTable()).children[0].children[1];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
             col = <HTMLTableColElement>(<HTMLTableElement>grid.getContentTable()).children[0].children[1];
-            expect(col.style.display).toEqual('none');
+            expect(col.style.display).toBe('none');
         });
 
 
@@ -419,14 +419,14 @@ describe('ShowHide module testing', () => {
         });
         it('render grid with filter enable', () => {
             expect(grid.getHeaderContent().querySelectorAll('.e-filterbarcell.e-hide').length).
-                toEqual(grid.getHeaderContent().querySelectorAll('.e-headercell.e-hide').length);
+                toBe(grid.getHeaderContent().querySelectorAll('.e-headercell.e-hide').length);
         });
         it('hide a column with filter enabled', (done: Function) => {
             grid.hideColumns('Verified', 'headerText');
             setTimeout(() => {
-                expect(grid.getHeaderContent().querySelectorAll('.e-headercell.e-hide').length).toEqual(2);
-                expect(grid.getHeaderContent().querySelectorAll('.e-filterbarcell.e-hide').length).toEqual(2);
-                expect(grid.getContent().querySelectorAll('.e-rowcell.e-hide').length).toEqual(grid.currentViewData.length * 2)
+                expect(grid.getHeaderContent().querySelectorAll('.e-headercell.e-hide').length).toBe(2);
+                expect(grid.getHeaderContent().querySelectorAll('.e-filterbarcell.e-hide').length).toBe(2);
+                expect(grid.getContent().querySelectorAll('.e-rowcell.e-hide').length).toBe(grid.currentViewData.length * 2)
                 done();
             }, 1000);
 
@@ -434,8 +434,8 @@ describe('ShowHide module testing', () => {
         it('show hidden columns', (done: Function) => {
             grid.showColumns(['Verified', 'Order ID'], 'headerText');
             setTimeout(() => {
-                expect(grid.getHeaderContent().querySelectorAll('.e-headercell.e-hide').length).toEqual(0);
-                expect(grid.getContent().querySelectorAll('.e-rowcell.e-hide').length).toEqual(0);
+                expect(grid.getHeaderContent().querySelectorAll('.e-headercell.e-hide').length).toBe(0);
+                expect(grid.getContent().querySelectorAll('.e-rowcell.e-hide').length).toBe(0);
                 done();
             }, 1000);
 

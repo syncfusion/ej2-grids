@@ -42,41 +42,41 @@ describe('Grid base module', () => {
         it('enable RTL testing', () => {
             gridObj.enableRtl = true;
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-rtl')).toEqual(true);
+            expect(gridObj.element.classList.contains('e-rtl')).toBeTruthy();
         });
 
         it('disable RTL testing', () => {
             gridObj.enableRtl = false;
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-rtl')).toEqual(false);
+            expect(gridObj.element.classList.contains('e-rtl')).toBeFalsy();
         });
 
         it('enable row hover testing', () => {
             gridObj.enableHover = true;
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-gridhover')).toEqual(true);
+            expect(gridObj.element.classList.contains('e-gridhover')).toBeTruthy();
         });
 
         it('disable row hover testing', () => {
             gridObj.enableHover = false;
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-gridhover')).toEqual(false);
+            expect(gridObj.element.classList.contains('e-gridhover')).toBeFalsy();
         });
 
         it('Row count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(data.length);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(data.length);
         });
 
         it('Column count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-headercell').length).toEqual(gridObj.getColumns().length);
+            expect(gridObj.element.querySelectorAll('.e-headercell').length).toBe(gridObj.getColumns().length);
         });
         it('Content cell count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row')[0].childNodes.length).toEqual(gridObj.getColumns().length);
+            expect(gridObj.element.querySelectorAll('.e-row')[0].childNodes.length).toBe(gridObj.getColumns().length);
         });
 
         // it('datasource onproperty changed testing', (done: Function) => {
         //     actionComplete = (args: Object): void => {
-        //         expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(15);
+        //         expect(gridObj.element.querySelectorAll('.e-row').length).toBe(15);
         //         done();
         //     };
         //     gridObj.dataBound = actionComplete;
@@ -86,7 +86,7 @@ describe('Grid base module', () => {
 
         it('Disable altrow', (done: Function) => {
             let dataBound = (args: Object) => {
-                expect(gridObj.getContent().querySelectorAll('.e-altrow').length).toEqual(0);
+                expect(gridObj.getContent().querySelectorAll('.e-altrow').length).toBe(0);
                 done();
             };
             gridObj.dataBound = dataBound;
@@ -95,7 +95,7 @@ describe('Grid base module', () => {
         });
         it('enable altrow', (done: Function) => {
             let dataBound = (args: Object) => {
-                expect(gridObj.getContent().querySelectorAll('.e-altrow').length).toEqual(Math.floor(gridObj.currentViewData.length / 2));
+                expect(gridObj.getContent().querySelectorAll('.e-altrow').length).toBe(Math.floor(gridObj.currentViewData.length / 2));
                 done();
             };
             gridObj.dataBound = dataBound;
@@ -133,80 +133,80 @@ describe('Grid base module', () => {
         });
 
         it('getRowByIndex testing', () => {
-            expect(isNullOrUndefined(gridObj.getRowByIndex(1))).toEqual(false);
+            expect(isNullOrUndefined(gridObj.getRowByIndex(1))).toBeFalsy();
         });
 
         it('getHeaderContent testing', () => {
-            expect(isNullOrUndefined(gridObj.getHeaderContent())).toEqual(false);
+            expect(isNullOrUndefined(gridObj.getHeaderContent())).toBeFalsy();
         });
 
         it('getContentTable testing', () => {
-            expect(isNullOrUndefined(gridObj.getContentTable())).toEqual(false);
+            expect(isNullOrUndefined(gridObj.getContentTable())).toBeFalsy();
         });
 
         it('getContent testing', () => {
-            expect(isNullOrUndefined(gridObj.getContent())).toEqual(false);
+            expect(isNullOrUndefined(gridObj.getContent())).toBeFalsy();
         });
 
         it('getHeaderTable testing', () => {
-            expect(isNullOrUndefined(gridObj.getHeaderTable())).toEqual(false);
+            expect(isNullOrUndefined(gridObj.getHeaderTable())).toBeFalsy();
         });
 
         it('setGridHeaderContent testing', () => {
             let element: Element = gridObj.getHeaderContent();
             gridObj.setGridHeaderContent(element);
-            expect(gridObj.getHeaderContent().isEqualNode(element)).toEqual(true);
+            expect(gridObj.getHeaderContent().isEqualNode(element)).toBeTruthy();
         });
 
         it('setGridContentTable testing', () => {
             let element: Element = gridObj.getContentTable();
             gridObj.setGridContentTable(element);
-            expect(gridObj.getContentTable().isEqualNode(element)).toEqual(true);
+            expect(gridObj.getContentTable().isEqualNode(element)).toBeTruthy();
         });
 
         it('setGridContent testing', () => {
             let element: Element = gridObj.getContent();
             gridObj.setGridContent(element);
-            expect(gridObj.getContent().isEqualNode(element)).toEqual(true);
+            expect(gridObj.getContent().isEqualNode(element)).toBeTruthy();
         });
 
         it('setGridHeaderTable testing', () => {
             let element: Element = gridObj.getHeaderTable();
             gridObj.setGridHeaderTable(element);
-            expect(gridObj.getHeaderTable().isEqualNode(element)).toEqual(true);
+            expect(gridObj.getHeaderTable().isEqualNode(element)).toBeTruthy();
         });
 
         it('getColumnByField testing', () => {
             let col: Column = gridObj.getColumnByField('OrderID');
-            expect(col.field).toEqual('OrderID');
+            expect(col.field).toBe('OrderID');
         });
 
         it('getColumnIndexByField testing', () => {
             let col: number = gridObj.getColumnIndexByField('OrderID');
-            expect(col).toEqual(0);
+            expect(col).toBe(0);
             let col1: number = gridObj.getColumnIndexByField('OrderID1');
-            expect(col1).toEqual(-1);
+            expect(col1).toBe(-1);
         });
 
         it('getColumnIndexByUid testing', () => {
             let col: number = gridObj.getColumnIndexByUid(gridObj.getColumnByField('OrderID').uid);
-            expect(col).toEqual(0);
+            expect(col).toBe(0);
             col = gridObj.getColumnIndexByUid(gridObj.getColumnByField('OrderID').uid + 'test');
-            expect(col).toEqual(-1);
+            expect(col).toBe(-1);
         });
 
         it('getUidByColumnField testing', () => {
-            expect(gridObj.getUidByColumnField('OrderID')).toEqual(gridObj.getColumnByField('OrderID').uid);
+            expect(gridObj.getUidByColumnField('OrderID')).toBe(gridObj.getColumnByField('OrderID').uid);
         });
 
         it('getColumnHeaderByIndex testing', () => {
-            expect(gridObj.getColumnHeaderByIndex(1).querySelector('.e-headercelldiv').textContent).toEqual('CustomerID');
+            expect(gridObj.getColumnHeaderByIndex(1).querySelector('.e-headercelldiv').textContent).toBe('CustomerID');
         });
 
         it('renderEmptyRow testing', () => {
             gridObj.renderModule.renderEmptyRow();
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(0);
-            expect(gridObj.element.querySelectorAll('.e-emptyrow').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
+            expect(gridObj.element.querySelectorAll('.e-emptyrow').length).toBe(1);
         });
 
 
@@ -241,33 +241,33 @@ describe('Grid base module', () => {
         });
 
         it('Grid line both testing', () => {
-            expect(gridObj.element.classList.contains('e-horizontallines')).toEqual(false);
-            expect(gridObj.element.classList.contains('e-verticallines')).toEqual(false);
-            expect(gridObj.element.classList.contains('e-hidelines')).toEqual(false);
+            expect(gridObj.element.classList.contains('e-horizontallines')).toBeFalsy();
+            expect(gridObj.element.classList.contains('e-verticallines')).toBeFalsy();
+            expect(gridObj.element.classList.contains('e-hidelines')).toBeFalsy();
         });
 
         it('Grid line horizontal testing', () => {
             gridObj.gridLines = 'horizontal';
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-horizontallines')).toEqual(true);
-            expect(gridObj.element.classList.contains('e-verticallines')).toEqual(false);
-            expect(gridObj.element.classList.contains('e-hidelines')).toEqual(false);
+            expect(gridObj.element.classList.contains('e-horizontallines')).toBeTruthy();
+            expect(gridObj.element.classList.contains('e-verticallines')).toBeFalsy();
+            expect(gridObj.element.classList.contains('e-hidelines')).toBeFalsy();
         });
 
         it('Grid line vertical testing', () => {
             gridObj.gridLines = 'vertical';
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-horizontallines')).toEqual(false);
-            expect(gridObj.element.classList.contains('e-verticallines')).toEqual(true);
-            expect(gridObj.element.classList.contains('e-hidelines')).toEqual(false);
+            expect(gridObj.element.classList.contains('e-horizontallines')).toBeFalsy();
+            expect(gridObj.element.classList.contains('e-verticallines')).toBeTruthy();
+            expect(gridObj.element.classList.contains('e-hidelines')).toBeFalsy();
         });
 
         it('Grid line hide both testing', () => {
             gridObj.gridLines = 'none';
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-horizontallines')).toEqual(false);
-            expect(gridObj.element.classList.contains('e-verticallines')).toEqual(false);
-            expect(gridObj.element.classList.contains('e-hidelines')).toEqual(true);
+            expect(gridObj.element.classList.contains('e-horizontallines')).toBeFalsy();
+            expect(gridObj.element.classList.contains('e-verticallines')).toBeFalsy();
+            expect(gridObj.element.classList.contains('e-hidelines')).toBeTruthy();
         });
 
         afterAll(() => {
@@ -301,19 +301,19 @@ describe('Grid base module', () => {
         });
 
         it('Text wrap testing', () => {
-            expect(gridObj.element.classList.contains('e-wrap')).toEqual(true);
+            expect(gridObj.element.classList.contains('e-wrap')).toBeTruthy();
         });
 
         it('Text wrap false testing', () => {
             gridObj.allowTextWrap = false;
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-wrap')).toEqual(false);
+            expect(gridObj.element.classList.contains('e-wrap')).toBeFalsy();
         });
 
         it('Text wrap false testing', () => {
             gridObj.allowTextWrap = true;
             gridObj.dataBind();
-            expect(gridObj.element.classList.contains('e-wrap')).toEqual(true);
+            expect(gridObj.element.classList.contains('e-wrap')).toBeTruthy();
         });
 
         afterAll(() => {
@@ -352,20 +352,20 @@ describe('Grid base module', () => {
 
         it('renderEmptyRow testing', () => {
             gridObj.renderModule.renderEmptyRow();
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(0);
-            expect(gridObj.element.querySelectorAll('.e-emptyrow').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
+            expect(gridObj.element.querySelectorAll('.e-emptyrow').length).toBe(1);
         });
 
         it('renderEmptyRow content testing', () => {
-            expect(gridObj.element.querySelector('.e-emptyrow').textContent).toEqual('Geen records om te laten zien');
+            expect(gridObj.element.querySelector('.e-emptyrow').textContent).toBe('Geen records om te laten zien');
         });
 
         it('get constant method testing', () => {
-            expect(gridObj.localeObj.getConstant('True')).toEqual('true');
+            expect(gridObj.localeObj.getConstant('True')).toBe('true');
         });
 
         it('get constant method testing', () => {
-            expect(gridObj.localeObj.getConstant('EmptyRecord')).toEqual('Geen records om te laten zien');
+            expect(gridObj.localeObj.getConstant('EmptyRecord')).toBe('Geen records om te laten zien');
             //for coverage 
             gridObj.refreshHeader();
             gridObj.refresh();

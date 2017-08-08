@@ -194,7 +194,7 @@ export class Toolbar {
             case 'rowSelected':
                 this.enableItems([gID + '_edit', gID + '_delete', gID + '_add'], true);
                 this.enableItems([gID + '_update', gID + '_cancel'], false);
-            break;
+                break;
             case 'rowDeselected':
                 if (!this.parent.getSelectedRecords().length) {
                     this.enableItems([gID + '_add'], true);

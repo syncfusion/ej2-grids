@@ -37,7 +37,7 @@ describe('Search module', () => {
 
         it('Search method testing', (done: Function) => {
             actionComplete = (args: any): void => {
-                expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(1);
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -47,12 +47,12 @@ describe('Search module', () => {
 
         it('Search method same key testing', () => {
             gridObj.searchModule.search('10249');
-            expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(1);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
         });
 
         it('Search method empty string testing', (done: Function) => {
             actionComplete = (): void => {
-                expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(12);
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(12);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -61,7 +61,7 @@ describe('Search module', () => {
 
         it('Search method ignorecase testing', (done: Function) => {
             actionComplete = (): void => {
-                expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(1);
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -70,7 +70,7 @@ describe('Search module', () => {
 
         it('Search clear testing', (done: Function) => {
             actionComplete = (): void => {
-                expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(12);
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(12);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -79,7 +79,7 @@ describe('Search module', () => {
 
         it('goToPage testing for search', (done: Function) => {
             actionComplete = (): void => {
-                expect(gridObj.getPager().getElementsByClassName('e-active')[0].getAttribute('index')).toEqual('2');
+                expect(gridObj.getPager().getElementsByClassName('e-active')[0].getAttribute('index')).toBe('2');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -89,7 +89,7 @@ describe('Search module', () => {
 
         it('Search method from last page testing testing', (done: Function) => {
             actionComplete = (): void => {
-                expect(gridObj.element.querySelectorAll('.e-row').length).toEqual(1);
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
                 done();
             };
             gridObj.isDestroyed = true;
@@ -135,7 +135,7 @@ describe('Search module', () => {
         });
         it('go to last page', (done: Function) => {
             actionComplete = (args?: Object) => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].innerHTML).toEqual('3');
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].innerHTML).toBe('3');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -144,8 +144,8 @@ describe('Search module', () => {
         });
         it('search a value', (done: Function) => {
             actionComplete = (args?: Object) => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].innerHTML).toEqual('1');
-                expect(gridObj.pageSettings.totalRecordsCount).toEqual(1);
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].innerHTML).toBe('1');
+                expect(gridObj.pageSettings.totalRecordsCount).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -154,7 +154,7 @@ describe('Search module', () => {
         });
         it('clear search value', (done: Function) => {
             actionComplete = (args?: Object) => {
-                expect(gridObj.getPager().querySelectorAll('.e-active')[0].innerHTML).toEqual('1')
+                expect(gridObj.getPager().querySelectorAll('.e-active')[0].innerHTML).toBe('1')
                 done();
             };
             gridObj.actionComplete = actionComplete;

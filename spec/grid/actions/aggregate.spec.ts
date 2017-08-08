@@ -79,7 +79,7 @@ describe('Aggregates Functionality testing', () => {
         });
         it('check summary value', () => {
             let rows = ((grid.getFooterContentTable() as HTMLTableElement).tFoot.rows[0] as HTMLTableRowElement);
-            expect(rows.cells[2].innerHTML).toEqual('$' + DataUtil.aggregates.average(grid.dataSource, 'Freight').toFixed(2));
+            expect(rows.cells[2].innerHTML).toBe('$' + DataUtil.aggregates.average(grid.dataSource, 'Freight').toFixed(2));
         });
         afterAll(() => {
             destroy(grid);
@@ -167,7 +167,7 @@ describe('Aggregates Functionality testing', () => {
         });
         it('check summary value', () => {
             let rows = ((grid.getFooterContentTable() as HTMLTableElement).tFoot.rows[0] as HTMLTableRowElement);
-            expect(rows.cells[3].innerHTML).toEqual('$' + DataUtil.aggregates.average(grid.dataSource, 'Freight').toFixed(2));
+            expect(rows.cells[3].innerHTML).toBe('$' + DataUtil.aggregates.average(grid.dataSource, 'Freight').toFixed(2));
             expect(rows.cells[0].classList.contains('e-indentcell')).toBeTruthy();
         });
         afterAll(() => {
@@ -223,13 +223,13 @@ describe('Aggregates Functionality testing', () => {
             let val: string | Object = grid.valueFormatterService.toView(
                 DataUtil.aggregates.max((<{ items: Object[] }>grid.currentViewData[0]).items, 'OrderDate'),
                 (<AggregateColumn>grid.aggregates[1].columns[0]).getFormatter());
-            //  expect(rows.innerHTML).toEqual(<string>val);
+            //  expect(rows.innerHTML).toBe(<string>val);
         });
 
         it('check group summary value', () => {
             let rows: HTMLTableRowElement = (<any>(grid.getContentTable() as HTMLTableElement)
                 .querySelector('.e-summaryrow') as HTMLTableRowElement);
-            // expect(rows.cells[3].innerHTML).toEqual(
+            // expect(rows.cells[3].innerHTML).toBe(
             //     DataUtil.aggregates.average((<{ items: Object[] }>grid.currentViewData[0]).items, 'Freight') + '');
         });
 
@@ -277,19 +277,19 @@ describe('Aggregates Functionality testing', () => {
 
         it('check custom footer summary', () => {
             let rows: HTMLTableRowElement = <any>(grid.getFooterContentTable() as HTMLTableElement).tFoot.rows[0];
-            expect(rows.cells[5].innerHTML).toEqual('Best Employee: 1');
+            expect(rows.cells[5].innerHTML).toBe('Best Employee: 1');
         });
 
         it('check custom caption summary value', () => {
             let rows: HTMLTableRowElement = <any>(grid.getContentTable() as HTMLTableElement)
                 .querySelector('.e-summarycell:not(:empty)');
-            expect(rows.innerHTML).toEqual('Best Employee: 1');
+            expect(rows.innerHTML).toBe('Best Employee: 1');
         });
 
         it('check group summary value', () => {
             let rows: HTMLTableRowElement = (<any>(grid.getContentTable() as HTMLTableElement)
                 .querySelector('.e-summaryrow') as HTMLTableRowElement);
-            expect(rows.cells[5].innerHTML).toEqual('Best Employee: 1');
+            expect(rows.cells[5].innerHTML).toBe('Best Employee: 1');
         });
 
         afterAll(() => {
@@ -525,7 +525,7 @@ describe('Aggregates Functionality testing', () => {
             );
         });
         it('check colgroup length', () => {
-            expect(grid.getFooterContentTable().querySelectorAll('colgroup col').length).toEqual(grid.getColumns().length + 1);
+            expect(grid.getFooterContentTable().querySelectorAll('colgroup col').length).toBe(grid.getColumns().length + 1);
         });
         afterAll(() => {
             destroy(grid);

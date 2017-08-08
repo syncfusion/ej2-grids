@@ -11,7 +11,7 @@ describe('Util module', () => {
         class Test {
         }
         it('doesImplementInterface testing', () => {
-            expect(doesImplementInterface(Test, 'hi')).toEqual(false);      
+            expect(doesImplementInterface(Test, 'hi')).toBeFalsy();      
 
             //for coverage
             let div = createElement('div');

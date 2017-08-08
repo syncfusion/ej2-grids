@@ -723,7 +723,7 @@ export class Selection implements IAction {
         this.parent.off(events.columnPositionChanged, this.clearSelection);
     }
 
-     public dataReady(e: { requestType: string }): void {
+    public dataReady(e: { requestType: string }): void {
         if (e.requestType !== 'virtualscroll') {
             this.clearSelection();
         }
