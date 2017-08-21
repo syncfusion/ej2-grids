@@ -13,3 +13,13 @@ export type SortComparer = (x: ValueType, y: ValueType) => number;
 export type CustomSummaryType = (data: Object[] | Object, column: AggregateColumnModel) => Object;
 
 export type ReturnType = { result: Object[], count: number, aggregates?: Object };
+
+export type SentinelType = {
+    check?: (rect: ClientRect, info: SentinelInfo) => boolean,
+    top?: number, entered?: boolean,
+    axis?: string;
+};
+
+export type SentinelInfo = { up?: SentinelType, down?: SentinelType, right?: SentinelType, left?: SentinelType };
+
+export type Offsets = { top?: number, left?: number };

@@ -170,6 +170,10 @@ export class CellRenderer implements ICellRenderer<Column> {
             classes.push('e-templatecell');
         }
 
+        if (cell.isSelected) {
+            classes.push(...['e-selectionbackground', 'e-active']);
+        }
+
         if (!isNullOrUndefined(cell.index)) {
             attr[prop.colindex] = cell.index;
         }

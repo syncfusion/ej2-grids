@@ -15,6 +15,7 @@ import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEv
 import { DetailDataBoundEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
 import { Render } from '../renderer/render';
+import { Row } from '../models/row';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
 import { Data } from '../actions/data';
@@ -396,6 +397,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private detailTemplateFn: Function;
     private sortedColumns: string[] = [];
     private footerElement: Element;
+    private inViewIndexes: number[] = [];
 
     /** @hidden */
     public recordsCount: number;
@@ -613,6 +615,23 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Complex<PageSettingsModel>({}, PageSettings)
     public pageSettings: PageSettingsModel;
+
+    /**    
+     * If `enableVirtualization` set to true, then the Grid will render only the rows visible within the view-port
+     * and load subsequent rows on vertical scrolling. This helps to load large dataset in Grid.
+     * @default false
+     */
+    @Property(false)
+    public enableVirtualization: boolean;
+
+    /**    
+     * If `enableColumnVirtualization` set to true, then the Grid will render only the columns visible within the view-port
+     * and load subsequent columns on horizontal scrolling. This helps to load large dataset of columns in Grid.
+     * @default false
+     */
+    @Property(false)
+    public enableColumnVirtualization: boolean;
+
 
     /**    
      * Configures the search behavior in the Grid. 
@@ -1129,7 +1148,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.allowSelection) {
             modules.push({
                 member: 'selection',
-                args: [this, this.selectionSettings]
+                args: [this, this.selectionSettings, this.serviceLocator]
             });
         }
         if (this.allowReordering) {
@@ -1165,6 +1184,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.serviceLocator]
             });
         }
+        if (this.enableVirtualization || this.enableColumnVirtualization) {
+            modules.push({
+                member: 'virtualscroll',
+                args: [this, this.serviceLocator]
+            });
+        }
 
         return modules;
     }
@@ -1175,6 +1200,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     protected preRender(): void {
         this.serviceLocator = new ServiceLocator;
+        this.initializeServices();
     }
 
     /**
@@ -1182,14 +1208,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @private
      */
     protected render(): void {
-        this.initializeServices();
         this.ariaService.setOptions(this.element, { role: 'grid' });
         this.renderModule = new Render(this, this.serviceLocator);
         this.searchModule = new Search(this);
         this.scrollModule = new Scroll(this);
         this.notify(events.initialLoad, {});
         this.trigger(events.load);
-        prepareColumns(this.columns as Column[]);
+        prepareColumns(this.columns as Column[], this.enableColumnVirtualization);
         this.getColumns();
         this.processModel();
         this.gridRender();
@@ -1412,9 +1437,30 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Column[]} 
      */
     public getColumns(): Column[] {
-        this.columnModel = [];
-        this.updateColumnModel(this.columns as Column[]);
-        return this.columnModel;
+        let inview: number[] = this.inViewIndexes.map((v: number) => v - this.groupSettings.columns.length).filter((v: number) => v > -1);
+        let vLen: number = inview.length;
+        if (!this.enableColumnVirtualization || isNullOrUndefined(this.columnModel) || this.columnModel.length === 0) {
+            this.columnModel = [];
+            this.updateColumnModel(this.columns as Column[]);
+        }
+        let columns: Column[] = vLen === 0 ? this.columnModel :
+            this.columnModel.slice(inview[0], inview[vLen - 1] + 1);
+        return columns;
+
+    }
+
+    /**
+     * @private
+     */
+    public getColumnIndexesInView(): number[] {
+        return this.inViewIndexes;
+    }
+
+    /**
+     * @private
+     */
+    public setColumnIndexesInView(indexes: number[]): void {
+        this.inViewIndexes = indexes;
     }
 
     /**
@@ -1547,7 +1593,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Element} 
      */
     public getRowByIndex(index: number): Element {
-        return this.getDataRows()[index];
+        return this.contentModule.getRowByIndex(index);
     }
 
     /**
@@ -1786,7 +1832,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {number[]}
      */
     public getSelectedRowIndexes(): number[] {
-        return this.selectionModule.selectedRowIndexes;
+        return this.selectionModule ? this.selectionModule.selectedRowIndexes : [];
     }
 
     /**
@@ -1802,16 +1848,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Object[]}
      */
     public getSelectedRecords(): Object[] {
-        let records: Object[] = [];
-        let key: string = 'records';
-
-        let currentViewData: Object[] = this.allowGrouping && this.groupSettings.columns.length ?
-            this.currentViewData[key] : this.currentViewData;
-
-        for (let i: number = 0, len: number = this.selectionModule.selectedRowIndexes.length; i < len; i++) {
-            records.push(currentViewData[this.selectionModule.selectedRowIndexes[i]]);
-        }
-        return records;
+        return (<Row<Column>[]>this.contentModule.getRows()).filter((row: Row<Column>) => row.isSelected)
+        .map((m: Row<Column>) => m.data);
     }
 
     /** 
@@ -1993,6 +2031,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (perPixel >= 1) {
             indentWidth = (30 / perPixel);
         }
+        if (this.enableColumnVirtualization) { indentWidth = 30; }
         while (i < this.groupSettings.columns.length) {
             headerCol[i].style.width = indentWidth + 'px';
             contentCol[i].style.width = indentWidth + 'px';
@@ -2053,7 +2092,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     }
                 }
                 if (!this.groupSettings.showGroupedColumn) {
-                    this.getColumnByField(gCols[i]).visible = false;
+                    let column: Column = this.enableColumnVirtualization ?
+                    (<Column[]>this.columns).filter((c: Column) => c.field === gCols[i])[0] : this.getColumnByField(gCols[i]);
+                    column.visible = false;
                 }
             }
         }

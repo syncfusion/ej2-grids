@@ -93,7 +93,7 @@ export function extend(copied: Object, first: Object, second?: Object, exclude?:
 }
 
 /** @hidden */
-export function prepareColumns(columns: Column[] | string[] | ColumnModel[]): Column[] {
+export function prepareColumns(columns: Column[] | string[] | ColumnModel[], autoWidth?: boolean): Column[] {
     for (let c: number = 0, len: number = columns.length; c < len; c++) {
 
         let column: Column;
@@ -114,6 +114,8 @@ export function prepareColumns(columns: Column[] | string[] | ColumnModel[]): Co
         column.headerText = isNullOrUndefined(column.headerText) ? column.field || '' : column.headerText;
 
         column.valueAccessor = column.valueAccessor || valueAccessor;
+
+        column.width = autoWidth && isNullOrUndefined(column.width) ? 200 : column.width;
 
         if (isNullOrUndefined(column.visible)) {
             column.visible = true;
@@ -282,4 +284,20 @@ export function getScrollBarWidth(): number {
     value = (divNode.offsetWidth - divNode.clientWidth) | 0;
     document.body.removeChild(divNode);
     return scrollWidth = value;
+}
+
+/** @hidden */
+let rowHeight: number;
+/** @hidden */
+export function getRowHeight(element?: HTMLElement): number {
+    if (rowHeight !== undefined) {
+        return rowHeight;
+    }
+    let table: HTMLTableElement = <HTMLTableElement>createElement('table', { className: 'e-table', styles: 'visibility: hidden' });
+    table.innerHTML = '<tr><td class="e-rowcell">A<td></tr>';
+    element.appendChild(table);
+    let rect: ClientRect = table.querySelector('td').getBoundingClientRect();
+    element.removeChild(table);
+    rowHeight = Math.ceil(rect.height);
+    return rowHeight;
 }

@@ -2,6 +2,7 @@ import { Browser } from '@syncfusion/ej2-base';
 import { extend, isNullOrUndefined } from '@syncfusion/ej2-base/util';
 import { remove, createElement, closest, classList } from '@syncfusion/ej2-base/dom';
 import { SortSettings } from '../base/grid';
+import { Column } from '../models/column';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { SortDirection } from '../base/enum';
 import { setCssInGridPopUp, getActualPropFromColl } from '../base/util';
@@ -316,7 +317,9 @@ export class Sort implements IAction {
         let header: Element;
         let filterElement: Element;
         let cols: SortDescriptorModel[] = this.sortSettings.columns;
+        let fieldNames: string[] = this.parent.getColumns().map((c: Column) => c.field);
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
+            if (fieldNames.indexOf(cols[i].field) === -1) { continue; }
             header = gObj.getColumnHeaderByField(cols[i].field);
             this.aria.setSort(<HTMLElement>header, cols[i].direction);
             if (this.isMultiSort && cols.length > 1) {
@@ -337,11 +340,13 @@ export class Sort implements IAction {
         let gObj: IGrid = this.parent;
         let header: Element;
         let cols: SortDescriptorModel[] = this.sortSettings.columns;
+        let fieldNames: string[] = this.parent.getColumns().map((c: Column) => c.field);
         for (let i: number = position ? position : 0,
             len: number = !isNullOrUndefined(position) ? position + 1 : cols.length; i < len; i++) {
             if (gObj.allowGrouping && gObj.groupSettings.columns.indexOf(cols[i].field) > -1) {
                 continue;
             }
+            if (fieldNames.indexOf(cols[i].field) === -1) { continue; }
             header = gObj.getColumnHeaderByField(cols[i].field);
             this.aria.setSort(<HTMLElement>header, 'none');
             classList(
@@ -362,7 +367,9 @@ export class Sort implements IAction {
     }
 
     private updateAriaAttr(): void {
+        let fieldNames: string[] = this.parent.getColumns().map((c: Column) => c.field);
         for (let col of this.sortedColumns) {
+            if (fieldNames.indexOf(col) === -1) { continue; }
             let header: Element = this.parent.getColumnHeaderByField(col);
             this.aria.setSort(<HTMLElement>header, this.getSortColumnFromField(col).direction);
         }

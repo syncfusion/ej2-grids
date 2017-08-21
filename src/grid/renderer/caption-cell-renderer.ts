@@ -28,3 +28,25 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         return node;
     }
 }
+
+/**
+ * GroupCaptionEmptyCellRenderer class which responsible for building group caption empty cell. 
+ * @hidden
+ */
+export class GroupCaptionEmptyCellRenderer extends CellRenderer implements ICellRenderer<Column> {
+
+    public element: HTMLElement = createElement('TD', { className: 'e-groupcaption' });
+
+    /**
+     * Function to render the cell content based on Column object.
+     * @param  {Cell} cell
+     * @param  {Object} data         
+     */
+    public render(cell: Cell<Column>, data: { field: string, key: string, count: number }): Element {
+        let node: Element = this.element.cloneNode() as Element;
+        node.innerHTML = '&nbsp;';
+        node.setAttribute('colspan', cell.colSpan.toString());
+        return node;
+    }
+}
+

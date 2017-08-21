@@ -16,3 +16,4 @@ export * from './actions/print';
 export * from './actions/detail-row';
 export * from './actions/toolbar';
 export * from './actions/aggregate';
+export * from './actions/virtual-scroll';

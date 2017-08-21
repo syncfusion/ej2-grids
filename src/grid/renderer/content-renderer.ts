@@ -23,7 +23,7 @@ export class ContentRender implements IRenderer {
     private contentPanel: Element;
     private rows: Row<Column>[] = [];
     private rowElements: Element[];
-    private colgroup: Element;
+    public colgroup: Element;
     private drop: Function = (e: DropEventArgs) => {
         this.parent.notify(events.columnDrop, { target: e.target, droppedElement: e.droppedElement });
         remove(e.droppedElement);
@@ -37,12 +37,14 @@ export class ContentRender implements IRenderer {
         if (this.args) {
             let action: string = (this.args.requestType || '').toLowerCase() + '-complete';
             this.parent.notify(action, this.args);
+
         }
     }
     //Module declarations
     protected parent: IGrid;
     private serviceLocator: ServiceLocator;
     private ariaService: AriaService;
+    protected generator: IModelGenerator<Column>;
 
     /**
      * Constructor for content renderer module
@@ -51,6 +53,7 @@ export class ContentRender implements IRenderer {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.ariaService = this.serviceLocator.getService<AriaService>('ariaService');
+        this.generator = this.getModelGenerator();
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.columnVisibilityChanged, this.setVisible, this);
         this.parent.on(events.colGroupRefresh, this.colGroupRefresh, this);
@@ -111,7 +114,7 @@ export class ContentRender implements IRenderer {
      * Refresh the content of the Grid. 
      * @return {void}  
      */
-    public refreshContentRows(args?: NotifyArgs): void {
+    public refreshContentRows(args: NotifyArgs = {}): void {
         let gObj: IGrid = this.parent;
         let dataSource: Object = gObj.currentViewData;
         let frag: DocumentFragment = document.createDocumentFragment();
@@ -119,9 +122,7 @@ export class ContentRender implements IRenderer {
         let tr: Element;
         let row: RowRenderer<Column> = new RowRenderer(this.serviceLocator, null, this.parent);
         this.rowElements = [];
-        let model: IModelGenerator<Column> = gObj.allowGrouping && gObj.groupSettings.columns.length ?
-            new GroupModelGenerator(this.parent) : new RowModelGenerator(this.parent);
-        let modelData: Row<Column>[] = model.generateRows(dataSource);
+        let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args);
         let tbody: Element = this.getTable().querySelector('tbody');
 
         for (let i: number = 0, len: number = modelData.length; i < len; i++) {
@@ -153,12 +154,15 @@ export class ContentRender implements IRenderer {
             () => {
                 remove(tbody);
                 tbody = createElement('tbody');
-                tbody.appendChild(frag);
-                this.getTable().appendChild(tbody);
+                this.appendContent(tbody, frag, args);
             },
             this.rafCallback);
     }
 
+    public appendContent(tbody: Element, frag: DocumentFragment, args: NotifyArgs): void {
+        tbody.appendChild(frag);
+        this.getTable().appendChild(tbody);
+    }
 
     /**
      * Get the content div element of grid
@@ -210,19 +214,19 @@ export class ContentRender implements IRenderer {
     }
 
     /**
-     * Get the header colgroup element
-     * @returns {Element}
-     */
-    public getColGroup(): Element {
-        return this.colgroup;
-    }
-
-    /**
      * Get the content table data row elements
      * @return {Element} 
      */
     public setRowElements(elements: Element[]): void {
         this.rowElements = elements;
+    }
+
+    /**
+     * Get the header colgroup element
+     * @returns {Element}
+     */
+    public getColGroup(): Element {
+        return this.colgroup;
     }
 
     /**
@@ -290,4 +294,22 @@ export class ContentRender implements IRenderer {
             isNullOrUndefined(column.visible) ||   //(2)    
             row.cells[index].visible === column.visible;  //(3)
     }
+
+    public getModelGenerator(): IModelGenerator<Column> {
+        return this.generator = this.parent.allowGrouping ? new GroupModelGenerator(this.parent) : new RowModelGenerator(this.parent);
+    }
+
+    public renderEmpty(tbody: HTMLElement): void {
+        this.getTable().appendChild(tbody);
+    }
+
+    public setSelection(uid: string, set: boolean, clearAll?: boolean): void {
+        (<Row<Column>[]>this.getRows()).filter((row: Row<Column>) => clearAll || uid === row.uid)
+        .forEach((row: Row<Column>) => row.isSelected = set);
+    }
+
+    public getRowByIndex(index: number): Element {
+        return this.parent.getDataRows()[index];
+    }
+
 }

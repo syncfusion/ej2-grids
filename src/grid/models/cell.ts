@@ -18,6 +18,8 @@ export class Cell<T> {
 
     public isDataCell: boolean;
 
+    public isSelected: boolean;
+
     public column: T;
 
     public rowID: string;

@@ -9,6 +9,7 @@ import { Cell } from '../models/cell';
 import { Row } from '../models/row';
 import { GridLine, Action, CellType, SortDirection, PrintMode } from './enum';
 import { PredicateModel } from './grid-model';
+import { SentinelType, Offsets } from './type';
 
 /**
  * Specifies grid interfaces.
@@ -60,6 +61,10 @@ export interface IGrid extends Component<HTMLElement> {
      * @default PageSettings
      */
     pageSettings?: PageSettingsModel;
+
+    enableVirtualization: boolean;
+
+    enableColumnVirtualization: boolean;
 
     /**
      * Specifies whether the sorting is enable or not.
@@ -231,6 +236,8 @@ export interface IGrid extends Component<HTMLElement> {
     getColumnIndexByUid?(uid: string): number;
     getUidByColumnField?(field: string): string;
     getNormalizedColumnIndex?(uid: string): number;
+    getColumnIndexesInView(): number[];
+    setColumnIndexesInView(indexes?: number[]): void;
     getRows?(): Element[];
     getCellFromIndex?(rowIndex: number, columnIndex: number): Element;
     getColumnFieldNames?(): string[];
@@ -272,6 +279,8 @@ export interface IRenderer {
     addEventListener?(): void;
     removeEventListener?(): void;
     getRowElements?(): Element[];
+    setSelection?(uid: string, set: boolean, clearAll: boolean): void;
+    getRowByIndex?(index: number): Element;
 }
 
 /**
@@ -388,6 +397,7 @@ export interface NotifyArgs {
     module?: string;
     enable?: boolean;
     properties?: Object;
+    virtualInfo?: VirtualInfo;
 }
 
 /**
@@ -439,6 +449,8 @@ export interface IRow<T> {
 
     index?: number;
 
+    indent?: number;
+
     subRowDetails?: Object;
 
     height?: string;
@@ -450,6 +462,7 @@ export interface IRow<T> {
  */
 export interface IModelGenerator<T> {
     generateRows(data: Object, args?: Object): Row<T>[];
+    refreshRows?(input?: Row<T>[]): Row<T>[];
 }
 
 export interface ActionEventArgs {
@@ -622,5 +635,33 @@ export interface ParentDetails {
     parentKeyField?: string;
     parentKeyFieldValue?: string;
     parentRowData?: Object;
+}
 
+/**
+ * @hidden
+ */
+export interface VirtualInfo {
+    data?: boolean;
+    event?: string;
+    block?: number;
+    page?: number;
+    currentPage?: number;
+    direction?: string;
+    blockIndexes?: number[];
+    columnIndexes?: number[];
+    columnBlocks?: number [];
+    loadSelf?: boolean;
+    loadNext?: boolean;
+    nextInfo?: { page?: number };
+    sentinelInfo?: SentinelType;
+    offsets?: Offsets;
+}
+/**
+ * @hidden
+ */
+export interface InterSection {
+    container?: HTMLElement;
+    pageHeight?: number;
+    debounceEvent?: boolean;
+    axes?: string[];
 }

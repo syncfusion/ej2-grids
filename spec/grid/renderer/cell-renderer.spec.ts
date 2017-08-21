@@ -6,6 +6,8 @@ import { createElement, remove } from '@syncfusion/ej2-base/dom';
 import { Grid } from '../../../src/grid/base/grid';
 import { Column } from '../../../src/grid/models/column';
 import { ICellFormatter } from '../../../src/grid/base/interface';
+import { RowRenderer } from '../../../src/grid/renderer/row-renderer';
+import { Row } from '../../../src/grid/models/row';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 describe('Custom Atrributes and html encode module', () => {
@@ -158,10 +160,16 @@ describe('Custom Atrributes and html encode module', () => {
             expect(rows.cells[1].innerHTML).toBe('5.00');
         });
 
+        it('Row Rendeder functionality object to attribute conversion checking', () => {
+            let render: RowRenderer<Column> = new RowRenderer<Column>(grid.serviceLocator);
+            let tr: HTMLElement = <HTMLElement>render.render(<Row<Column>>{ isSelected: true, visible: false, rowSpan: 1, cells:[] }, []);
+            expect(tr.classList.contains('e-hide')).toBeTruthy();
+            expect(tr.getAttribute('aria-selected')).not.toBeNull();
+        });
+
         afterAll(() => {
             remove(element);
         });
     });
 
 });
-

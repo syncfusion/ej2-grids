@@ -25,6 +25,8 @@ export class Row<T> {
 
     public index: number;
 
+    public indent: number;
+
     public subRowDetails: Object;
 
     public height: string;

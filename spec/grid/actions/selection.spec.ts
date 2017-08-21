@@ -2,6 +2,7 @@
  * Grid Selection spec document
  */
 import { Browser, EmitType } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
 import { createElement, remove } from '@syncfusion/ej2-base/dom';
 import { Grid } from '../../../src/grid/base/grid';
 import { Selection } from '../../../src/grid/actions/selection';
@@ -12,6 +13,35 @@ import { Sort } from '../../../src/grid/actions/sort';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Selection, Page, Sort, Group);
+
+function copyObject(source: Object, destiation: Object): Object {
+    for (let prop in source) {
+        destiation[prop] = source[prop];
+    }
+    return destiation;
+}
+
+function getEventObject(eventType: string, eventName: string, target?: Element, x?: number, y?: number): Object {
+    let tempEvent: any = document.createEvent(eventType);
+    tempEvent.initEvent(eventName, true, true);
+    let returnObject: any = copyObject(tempEvent, {});
+    returnObject.preventDefault = () => { return true; };
+
+    if (!isNullOrUndefined(x)) {
+        returnObject.pageX = x;
+        returnObject.clientX = x;
+    }
+    if (!isNullOrUndefined(y)) {
+        returnObject.pageY = y;
+        returnObject.clientY = y;
+    }
+    if (!isNullOrUndefined(target)) {
+        returnObject.target = returnObject.srcElement = returnObject.toElement = returnObject.currentTarget = target;
+    }
+
+    return returnObject;
+}
+
 
 describe('Selection Shortcuts testing', () => {
     let gridObj: Grid;
@@ -446,6 +476,7 @@ describe('Grid Selection module', () => {
             selectionModule = gridObj.selectionModule;
             rows = gridObj.getRows();
             selectionModule.selectRowsByRange(0, 1);
+            selectionModule.selectCells([{ rowIndex: 0, cellIndexes: [0] }]);
             expect(rows[0].hasAttribute('aria-selected')).toBeTruthy();
             expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
             expect(rows[0].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
@@ -840,7 +871,7 @@ describe('Grid Selection module', () => {
             expect(rows[0].querySelectorAll('.e-rowcell')[1].classList.contains('e-cellselectionbackground')).toBeTruthy();
         });
 
-        it('allowSelection false testing', () => {           
+        it('allowSelection false testing', () => {
             gridObj.allowSelection = false;
             gridObj.dataBind();
             cell.click();
@@ -898,7 +929,7 @@ describe('Grid Selection module', () => {
             gridObj.selectionModule.addCellsToSelection([{ rowIndex: 0, cellIndex: 0 }]);
             gridObj.selectionSettings.mode = 'row';
             gridObj.dataBind();
-            (<any>gridObj.selectionModule).applyHomeEndKey({rowIndex: 0, cellIndex: 0});
+            (<any>gridObj.selectionModule).applyHomeEndKey({ rowIndex: 0, cellIndex: 0 });
             gridObj.allowRowDragAndDrop = true;
             gridObj.dataBind();
             (<any>gridObj.selectionModule).element = createElement('div');
@@ -1084,8 +1115,9 @@ describe('Grid Touch Selection', () => {
             remove(elem);
         });
     });
+
     // select row/cell and navigate with grouped columns
-    describe('select Row after grouping', () => {
+    describe('select Row/cell after grouping', () => {
         let gridObj: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
@@ -1155,11 +1187,11 @@ describe('Grid Touch Selection', () => {
         it('select a row', (done: Function) => {
             let rowSelected = (args: Object) => {
                 expect((<HTMLTableCellElement>gridObj.getContent().querySelectorAll('.e-selectionbackground')[0]).innerHTML).
-                    toBe(gridObj.currentViewData['records'][0]['OrderID'].toString());
-                expect(JSON.stringify(args['data'])).toBe(JSON.stringify(gridObj.getSelectedRecords()[0]));
+                    toEqual(gridObj.currentViewData['records'][0]['OrderID'].toString());
+                expect(JSON.stringify(args['data'])).toEqual(JSON.stringify(gridObj.getSelectedRecords()[0]));
                 expect(args['rowIndex']).toBe(gridObj.getSelectedRowIndexes()[0]);
-                expect(args['row']).toBe(gridObj.getSelectedRows()[0]);
-                expect(args['previousRow']).toBe(gridObj.getSelectedRows()[0]);
+                expect(args['row']).toEqual(gridObj.getSelectedRows()[0]);
+                expect(args['previousRow']).toEqual(gridObj.getSelectedRows()[0]);
                 expect(args['previousRowIndex']).toBe(0);
                 previousRow = args['previousRow'];
                 previousRowIndex = args['previousRowIndex'];
@@ -1167,61 +1199,53 @@ describe('Grid Touch Selection', () => {
                 done();
             };
             rowSelecting = (args: Object) => {
-                expect(JSON.stringify(args['data'])).not.toBe(undefined);
+                expect(JSON.stringify(args['data'])).not.toBeUndefined();
                 expect(args['rowIndex']).toBe(0);
                 expect(args['row']).toEqual(gridObj.getRows()[0]);
-                expect(args['previousRow']).toBe(undefined);
-                expect(args['previousRowIndex']).toBe(undefined);
+                expect(args['previousRow']).toBeUndefined();
+                expect(args['previousRowIndex']).toBeUndefined();
                 expect(args['isCtrlPressed']).toBeFalsy();
                 expect(args['isShiftPressed']).toBeFalsy();
             };
-            gridObj.rowSelecting = rowSelecting;
             gridObj.rowSelected = rowSelected;
+            gridObj.rowSelecting = rowSelecting;
             (<HTMLElement>gridObj.getRows()[0].children[2]).click();
         });
+
         it('Check selected records', () => {
             let selectedData: Object[] = gridObj.getSelectedRecords();
             expect((<HTMLTableCellElement>gridObj.getContent().querySelectorAll('.e-selectionbackground')[0]).innerHTML).
-                toBe(selectedData[0]['OrderID'].toString());
+                toEqual(selectedData[0]['OrderID'].toString());
             gridObj.rowSelected = undefined;
             gridObj.rowSelecting = undefined;
         });
 
         it('DeSelect a row', (done: Function) => {
+            gridObj.rowSelected = undefined;
+            gridObj.rowSelecting = undefined;
             let rowDeSelecting: EmitType<Object> = (args: Object) => {
-                expect(args['data']).not.toBe(undefined);
-                expect(args['rowIndex'][0]).toBe(0);
+                expect(args['data']).not.toEqual(undefined);
+                expect(args['rowIndex'][0]).toEqual(0);
                 expect(args['row'][0]).toEqual(gridObj.getRows()[0]);
             };
             let rowDeSelected: EmitType<Object> = (args: Object) => {
-                expect(args['data']).not.toBe(undefined);
-                expect(args['rowIndex'][0]).toBe(0);
+                expect(args['data']).not.toEqual(undefined);
+                expect(args['rowIndex'][0]).toEqual(0);
                 expect(args['row'][0]).toEqual(gridObj.getRows()[0]);
-                gridObj.selectRow(0);
+                gridObj.rowSelected = undefined;
+                gridObj.rowSelecting = undefined;              
                 done();
             };
             gridObj.rowDeselecting = rowDeSelecting;
             gridObj.rowDeselected = rowDeSelected;
             gridObj.selectRow(0);
         });
-        it('press left arrow', () => {
-            gridObj.rowDeselecting = undefined;
-            gridObj.rowDeselected = undefined;
-            let args: any = { action: 'leftArrow', preventDefault: preventDefault };
-            gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[2].hasAttribute('aria-selected')).toBeTruthy();
-        });
-        it('press right arrow', () => {
-            let args: any = { action: 'rightArrow', preventDefault: preventDefault };
-            gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[2].hasAttribute('aria-selected')).toBeTruthy();
-            expect(gridObj.getRows()[0].children[3].hasAttribute('aria-selected')).toBeTruthy();
-        });
 
         //key board handling with grouping in row selection
         it('press up arrow', () => {
             gridObj.rowDeselecting = undefined;
             gridObj.rowDeselected = undefined;
+            gridObj.selectRow(0);
             let args: any = { action: 'upArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getRows()[0].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
@@ -1229,17 +1253,20 @@ describe('Grid Touch Selection', () => {
         });
         it('press down arrow', (done: Function) => {
             rowSelected = (args: Object) => {
-                expect(JSON.stringify(args['data'])).toBe(JSON.stringify(gridObj.getSelectedRecords()[0]));
+                expect(JSON.stringify(args['data'])).toEqual(JSON.stringify(gridObj.getSelectedRecords()[0]));
                 expect(args['rowIndex']).toBe(gridObj.getSelectedRowIndexes()[0]);
                 expect(args['row']).toEqual(gridObj.getSelectedRows()[0]);
+                expect(args['previousRow']).toEqual(gridObj.getSelectedRows()[0]);
                 expect(args['previousRowIndex']).toBe(1);
+                expect(gridObj.getRows()[1].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
                 expect(gridObj.getRows()[1].children[3].hasAttribute('aria-selected')).toBeTruthy();
                 done();
             };
             rowSelecting = (args: Object) => {
-                expect(JSON.stringify(args['data'])).not.toBe(undefined);
+                expect(JSON.stringify(args['data'])).not.toBeUndefined();
                 expect(args['rowIndex']).toBe(1);
                 expect(args['row']).toEqual(gridObj.getRows()[1]);
+                expect(args['previousRow']).toEqual(previousRow);
                 expect(args['previousRowIndex']).toBe(previousRowIndex);
                 expect(args['isCtrlPressed']).toBeFalsy();
                 expect(args['isShiftPressed']).toBeFalsy();
@@ -1248,7 +1275,6 @@ describe('Grid Touch Selection', () => {
             gridObj.rowSelecting = rowSelecting;
             let args: any = { action: 'downArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            //expect(gridObj.getRows()[1].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
         });
 
         it('press ctrl+home arrow', () => {
@@ -1262,6 +1288,8 @@ describe('Grid Touch Selection', () => {
         });
 
         it('press ctrl+end arrow', () => {
+            gridObj.rowSelected = undefined;
+            gridObj.rowSelecting = undefined;
             let args: any = { action: 'ctrlEnd', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getRows()[gridObj.getRows().length - 1].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
@@ -1273,7 +1301,6 @@ describe('Grid Touch Selection', () => {
             let args: any = { action: 'downArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getRows()[gridObj.getRows().length - 1].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[gridObj.getRows().length - 1].children[3].hasAttribute('aria-selected')).toBeTruthy();
         });
 
         it('select multiple row with selction type "single"', () => {
@@ -1296,6 +1323,7 @@ describe('Grid Touch Selection', () => {
             gridObj.getRows()[1].children[3].dispatchEvent(ctrlEvt);
             expect(gridObj.getRows()[1].querySelectorAll('.e-selectionbackground').length).toBe(6);
             expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(30);
+            expect(gridObj.getRows()[1].children[3].hasAttribute('aria-selected')).toBeTruthy();
         });
 
         it('clear row selections', () => {
@@ -1305,21 +1333,21 @@ describe('Grid Touch Selection', () => {
 
         it('select a cell', (done: Function) => {
             cellSelecting = (args: Object) => {
-                expect(JSON.stringify(args['data'])).not.toBe(undefined);
-                expect(JSON.stringify(args['cellIndex'])).toBe(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
-                expect(args['currentCell']).toBe(gridObj.getRows()[0].children[2]);
-                expect(args['previousRowCellIndex']).toBe(undefined);
-                expect(args['previousRowCell']).toBe(undefined);
+                expect(JSON.stringify(args['data'])).not.toBeUndefined();
+                expect(JSON.stringify(args['cellIndex'])).toEqual(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
+                expect(args['currentCell']).toEqual(gridObj.getRows()[0].children[2]);
+                expect(args['previousRowCellIndex']).toBeUndefined();
+                expect(args['previousRowCell']).toBeUndefined();
                 expect(args['isCtrlPressed']).toBeFalsy();
                 expect(args['isShiftPressed']).toBeFalsy();
             };
             cellSelected = (args: Object) => {
-                expect(JSON.stringify(args['data'])).not.toBe(undefined);
-                expect(JSON.stringify(args['cellIndex'])).toBe(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
+                expect(JSON.stringify(args['data'])).not.toBeUndefined();
+                expect(JSON.stringify(args['cellIndex'])).toEqual(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
                 expect(args['currentCell']).toEqual(gridObj.getRows()[0].children[2]);
-                expect(JSON.stringify(args['previousRowCellIndex'])).toBe(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
+                expect(JSON.stringify(args['previousRowCellIndex'])).toEqual(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
                 expect(args['previousRowCell']).toEqual(gridObj.getRows()[0].children[2]);
-                expect(JSON.stringify(args['selectedRowCellIndex'])).toBe(JSON.stringify([{ rowIndex: 0, cellIndexes: [0] }]));
+                expect(JSON.stringify(args['selectedRowCellIndex'])).toEqual(JSON.stringify([{ rowIndex: 0, cellIndexes: [0] }]));
                 expect(gridObj.getRows()[0].children[2].classList.contains('e-cellselectionbackground')).toBeTruthy();
                 previousRowCell = args['previousRowCell'];
                 previousRowCellIndex = args['selectedRowCellIndex'];
@@ -1337,15 +1365,15 @@ describe('Grid Touch Selection', () => {
             gridObj.cellSelected = undefined;
             gridObj.cellSelecting = undefined;
             let cellDeSelecting: EmitType<Object> = (args: Object) => {
-                expect(args['data']).not.toBe(undefined);
-                expect(args['cellIndexes'][0]['cellIndexes'][0]).toBe(0);
-                expect(args['cellIndexes'][0]['rowIndex']).toBe(0);
+                expect(args['data']).not.toEqual(undefined);
+                expect(args['cellIndexes'][0]['cellIndexes'][0]).toEqual(0);
+                expect(args['cellIndexes'][0]['rowIndex']).toEqual(0);
                 expect(args['cells'][0]).toEqual(gridObj.getRows()[0].children[2]);
             };
             let cellDeSelected: EmitType<Object> = (args: Object) => {
-                expect(args['data']).not.toBe(undefined);
-                expect(args['cellIndexes'][0]['cellIndexes'][0]).toBe(0);
-                expect(args['cellIndexes'][0]['rowIndex']).toBe(0);
+                expect(args['data']).not.toEqual(undefined);
+                expect(args['cellIndexes'][0]['cellIndexes'][0]).toEqual(0);
+                expect(args['cellIndexes'][0]['rowIndex']).toEqual(0);
                 expect(args['cells'][0]).toEqual(gridObj.getRows()[0].children[2]);
                 gridObj.selectCell({ rowIndex: 0, cellIndex: 0 });
                 done();
@@ -1365,21 +1393,21 @@ describe('Grid Touch Selection', () => {
         });
         it('press right arrow', (done: Function) => {
             cellSelecting = (args: Object) => {
-                expect(JSON.stringify(args['data'])).not.toBe(undefined);
-                expect(JSON.stringify(args['cellIndex'])).toBe(JSON.stringify({ rowIndex: 0, cellIndex: 1 }));
+                expect(JSON.stringify(args['data'])).not.toBeUndefined();
+                expect(JSON.stringify(args['cellIndex'])).toEqual(JSON.stringify({ rowIndex: 0, cellIndex: 1 }));
                 expect(args['currentCell']).toEqual(gridObj.getRows()[0].children[3]);
-                expect(JSON.stringify(args['previousRowCellIndex'])).toBe(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
+                expect(JSON.stringify(args['previousRowCellIndex'])).toEqual(JSON.stringify({ rowIndex: 0, cellIndex: 0 }));
                 expect(args['previousRowCell']).toEqual(previousRowCell);
                 expect(args['isCtrlPressed']).toBeFalsy();
                 expect(args['isShiftPressed']).toBeFalsy();
             };
             cellSelected = (args: Object) => {
-                expect(JSON.stringify(args['data'])).not.toBe(undefined);
-                expect(JSON.stringify(args['cellIndex'])).toBe(JSON.stringify({ rowIndex: 0, cellIndex: 1 }));
+                expect(JSON.stringify(args['data'])).not.toBeUndefined();
+                expect(JSON.stringify(args['cellIndex'])).toEqual(JSON.stringify({ rowIndex: 0, cellIndex: 1 }));
                 expect(args['currentCell']).toEqual(gridObj.getRows()[0].children[3]);
-                expect(JSON.stringify(args['previousRowCellIndex'])).toBe(JSON.stringify({ rowIndex: 0, cellIndex: 1 }));
-                expect(args['previousRowCell']).toBe(gridObj.getRows()[0].children[3]);
-                expect(JSON.stringify(args['selectedRowCellIndex'])).toBe(JSON.stringify([{ rowIndex: 0, cellIndexes: [1] }]));
+                expect(JSON.stringify(args['previousRowCellIndex'])).toEqual(JSON.stringify({ rowIndex: 0, cellIndex: 1 }));
+                expect(args['previousRowCell']).toEqual(gridObj.getRows()[0].children[3]);
+                expect(JSON.stringify(args['selectedRowCellIndex'])).toEqual(JSON.stringify([{ rowIndex: 0, cellIndexes: [1] }]));
                 expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeTruthy();
                 done();
             };

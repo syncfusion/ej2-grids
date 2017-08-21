@@ -26,8 +26,12 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         this.captionModelGen = new CaptionSummaryModelGenerator(parent);
     }
 
-    public generateRows(data: { length: number }): Row<Column>[] {
-
+    public generateRows(data: { length: number }, args?: Object): Row<Column>[] {
+        if (this.parent.groupSettings.columns.length === 0) {
+            return super.generateRows(data, args);
+        }
+        this.rows = [];
+        this.index = this.parent.enableVirtualization ? (this.parent.pageSettings.currentPage - 1) * (<Group>data).records.length : 0;
         for (let i: number = 0, len: number = data.length; i < len; i++) {
             this.getGroupedRecords(0, data[i], (<Group>data).level);
         }
@@ -57,15 +61,22 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
     }
 
     private getCaptionRowCells(field: string, indent: number, data: Object): Cell<Column>[] {
-        let cells: Cell<Column>[] = []; let indx: number = 0; let visibles: Cell<Column>[] = [];
-        let groupedLen: number = this.parent.groupSettings.columns.length; let gObj: IGrid = this.parent;
-        for (let i: number = 0; i < indent; i++) {
-            cells.push(this.generateIndentCell());
+        let cells: Cell<Column>[] = []; let visibles: Cell<Column>[] = [];
+        let column: Column = this.parent.getColumnByField(field); let indexes: number[] = this.parent.getColumnIndexesInView();
+        if (this.parent.enableColumnVirtualization) {
+            column = (<Column[]>this.parent.columns).filter((c: Column) => c.field === field)[0];
         }
-        cells.push(this.generateCell({} as Column, null, CellType.Expand));
+        let groupedLen: number = this.parent.groupSettings.columns.length; let gObj: IGrid = this.parent;
+        if (!this.parent.enableColumnVirtualization || indexes.indexOf(indent) !== -1) {
+            for (let i: number = 0; i < indent; i++) {
+                cells.push(this.generateIndentCell());
+            }
+            cells.push(this.generateCell({} as Column, null, CellType.Expand));
+        }
 
-        indent = (this.parent.getVisibleColumns().length + groupedLen + (gObj.detailTemplate || gObj.childGrid ? 1 : 0) -
-            indent + (this.parent.getVisibleColumns().length ? -1 : 0));
+        indent = this.parent.enableColumnVirtualization ? 1 :
+            (this.parent.getVisibleColumns().length + groupedLen + (gObj.detailTemplate || gObj.childGrid ? 1 : 0) -
+                indent + (this.parent.getVisibleColumns().length ? -1 : 0));
         //Captionsummary cells will be added here.    
         if (this.parent.aggregates.length && !this.captionModelGen.isEmpty()) {
             let captionCells: Row<Column> = <Row<Column>>this.captionModelGen.generateRows(data)[0];
@@ -74,8 +85,16 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
             visibles = visibles.slice(groupedLen + 1, visibles.length);
             indent = indent - visibles.length;
         }
-
-        cells.push(this.generateCell(this.parent.getColumnByField(field), null, CellType.GroupCaption, indent));
+        let cols: Column[] = (!this.parent.enableColumnVirtualization ? [column] : this.parent.getColumns());
+        let wFlag: boolean = true;
+        cols.forEach((col: Column, index: number) => {
+            let tmpFlag: boolean = wFlag && indexes.indexOf(indent) !== -1;
+            if (tmpFlag) { wFlag = false; }
+            let cellType: CellType = !this.parent.enableColumnVirtualization || tmpFlag ?
+            CellType.GroupCaption : CellType.GroupCaptionEmpty;
+            indent = this.parent.enableColumnVirtualization && cellType === CellType.GroupCaption ? indent + groupedLen : indent;
+            cells.push(this.generateCell(column, null, cellType, indent));
+        });
         cells.push(...visibles);
 
         return cells;
@@ -84,21 +103,24 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
     private generateCaptionRow(data: GroupedData, indent: number): Row<Column> {
         let options: IRow<Column> = {};
         let tmp: Cell<Column>[] = [];
-
+        let col: Column = this.parent.getColumnByField(data.field);
         options.data = extend({}, data);
-        (<GroupedData>options.data).field = this.parent.getColumnByField(data.field).headerText;
+        if (col) {
+            (<GroupedData>options.data).field = col.headerText;
+        }
         options.isDataRow = false;
-
         let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);
+        row.indent = indent;
         row.cells = this.getCaptionRowCells(data.field, indent, row.data);
         return row;
     }
 
     private generateDataRows(data: Object[], indent: number): Row<Column>[] {
-        let rows: Row<Column>[] = [];
+        let rows: Row<Column>[] = []; let indexes: number[] = this.parent.getColumnIndexesInView();
         for (let i: number = 0, len: number = data.length; i < len; i++) {
-            rows[i] = this.generateRow(data[i], this.index, i ? undefined : 'e-firstchildrow');
+            rows[i] = this.generateRow(data[i], this.index, i ? undefined : 'e-firstchildrow', indent);
             for (let j: number = 0; j < indent; j++) {
+                if (this.parent.enableColumnVirtualization && indexes.indexOf(indent) === -1) { continue; }
                 rows[i].cells.unshift(this.generateIndentCell());
             }
             this.index++;
@@ -108,6 +130,23 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
 
     private generateIndentCell(): Cell<Column> {
         return this.generateCell({} as Column, null, CellType.Indent) as Cell<Column>;
+    }
+
+    public refreshRows(input?: Row<Column>[]): Row<Column>[] {
+        let indexes: number[] = this.parent.getColumnIndexesInView();
+        input.forEach((row: Row<Column>) => {
+            if (row.isDataRow) {
+                row.cells = this.generateCells(row);
+                for (let j: number = 0; j < row.indent; j++) {
+                    if (this.parent.enableColumnVirtualization && indexes.indexOf(row.indent) === -1) { continue; }
+                    row.cells.unshift(this.generateIndentCell());
+                }
+            } else {
+                let cRow: Row<Column> = this.generateCaptionRow(row.data, row.indent);
+                row.cells = cRow.cells;
+            }
+        });
+        return input;
     }
 
 }

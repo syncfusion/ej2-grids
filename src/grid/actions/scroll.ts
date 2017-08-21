@@ -146,7 +146,7 @@ export class Scroll implements IAction {
             EventHandler.add(this.header, 'scroll', this.onContentScroll(this.content), this);
             if (this.parent.aggregates.length) {
                 EventHandler.add(
-                <HTMLDivElement>this.parent.getFooterContent().firstChild, 'scroll', this.onContentScroll(this.content), this);
+                    <HTMLDivElement>this.parent.getFooterContent().firstChild, 'scroll', this.onContentScroll(this.content), this);
             }
             this.refresh();
             this.oneTimeReady = false;
@@ -155,8 +155,14 @@ export class Scroll implements IAction {
         if (table.scrollHeight < this.parent.getContent().clientHeight) {
             addClass(table.querySelectorAll('tr:last-child td'), 'e-lastrowcell');
         }
-        this.content.scrollTop = this.previousValues.top;
-        this.content.scrollLeft = this.previousValues.left;
+        if (!this.parent.enableVirtualization) {
+            this.content.scrollLeft = this.previousValues.left;
+            this.content.scrollTop = this.previousValues.top;
+        }
+        if (!this.parent.enableColumnVirtualization) {
+            this.content.scrollLeft = this.previousValues.left;
+        }
+
     }
     /** 
      * @hidden

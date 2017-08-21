@@ -1,15 +1,15 @@
 import { L10n, DateFormatOptions, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base/dom';
-import { isNullOrUndefined, getValue } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base/util';
 import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
 import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
 import { RenderType, CellType } from '../base/enum';
+import { ReturnType } from '../base/type';
 import { Data } from '../actions/data';
 import { Column } from '../models/column';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
 import { prepareColumns, calculateAggregate } from '../base/util';
-import { ReturnType } from '../base/type';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -19,7 +19,7 @@ import { CellRenderer } from '../renderer/cell-renderer';
 import { HeaderCellRenderer } from '../renderer/header-cell-renderer';
 import { StackedHeaderCellRenderer } from '../renderer/stacked-cell-renderer';
 import { IndentCellRenderer } from '../renderer/indent-cell-renderer';
-import { GroupCaptionCellRenderer } from '../renderer/caption-cell-renderer';
+import { GroupCaptionCellRenderer, GroupCaptionEmptyCellRenderer } from '../renderer/caption-cell-renderer';
 import { ExpandCellRenderer } from '../renderer/expand-cell-renderer';
 import { HeaderIndentCellRenderer } from '../renderer/header-indent-renderer';
 import { DetailHeaderIndentCellRenderer } from '../renderer/detail-header-indent-renderer';
@@ -41,6 +41,7 @@ export class Render {
     private l10n: L10n;
     private data: Data;
     private ariaService: AriaService;
+    private renderer: RendererFactory;
 
     /**
      * Constructor for render module
@@ -51,6 +52,7 @@ export class Render {
         this.data = new Data(parent);
         this.l10n = locator.getService<L10n>('localization');
         this.ariaService = this.locator.getService<AriaService>('ariaService');
+        this.renderer = this.locator.getService<RendererFactory>('rendererFactory');
         this.addEventListener();
     }
 
@@ -59,6 +61,8 @@ export class Render {
      */
     public render(): void {
         let gObj: IGrid = this.parent;
+        this.headerRenderer = <HeaderRender>this.renderer.getRenderer(RenderType.Header);
+        this.contentRenderer = <ContentRender>this.renderer.getRenderer(RenderType.Content);
         this.headerRenderer.renderPanel();
         this.contentRenderer.renderPanel();
         if (gObj.getColumns().length) {
@@ -74,6 +78,7 @@ export class Render {
      * @return {void} 
      */
     public refresh(e: NotifyArgs = { requestType: 'refresh' }): void {
+        this.parent.notify(`${e.requestType}-begin`, e);
         this.parent.trigger(events.actionBegin, e);
         this.refreshDataManager(e);
     }
@@ -117,7 +122,7 @@ export class Render {
             attrs: { colspan: gObj.getColumns().length.toString() }
         }));
         tbody.appendChild(tr);
-        this.contentRenderer.getTable().appendChild(tbody);
+        this.contentRenderer.renderEmpty(<HTMLElement>tbody);
         if (isTrigger) {
             this.parent.trigger(events.dataBound, {});
         }
@@ -183,7 +188,7 @@ export class Render {
         if (!this.isColTypeDef) {
             this.updateColumnType(e.result[0]);
         }
-        this.parent.notify(events.dataReady, { count: e.count, result: e.result, aggregates: e.aggregates });
+        this.parent.notify(events.dataReady, extend({ count: e.count, result: e.result, aggregates: e.aggregates }, args));
         if (gObj.groupSettings.columns.length || (args && args.requestType === 'ungrouping')) {
             this.headerRenderer.refreshUI();
         }
@@ -223,14 +228,16 @@ export class Render {
         let cols: Column[] = [];
         for (let i: number = 0, len: number = columns.length; i < len; i++) {
             cols[i] = { 'field': columns[i] } as Column;
+            if (this.parent.enableColumnVirtualization) {
+                cols[i].width = !isNullOrUndefined(cols[i].width) ? cols[i].width : 200;
+            }
         }
         this.parent.columns = cols;
     }
 
     private instantiateRenderer(): void {
-        let renderer: RendererFactory = this.locator.getService<RendererFactory>('rendererFactory');
-        renderer.addRenderer(RenderType.Header, this.headerRenderer = new HeaderRender(this.parent, this.locator));
-        renderer.addRenderer(RenderType.Content, this.contentRenderer = new ContentRender(this.parent, this.locator));
+        this.renderer.addRenderer(RenderType.Header, new HeaderRender(this.parent, this.locator));
+        this.renderer.addRenderer(RenderType.Content, new ContentRender(this.parent, this.locator));
 
         let cellrender: CellRendererFactory = this.locator.getService<CellRendererFactory>('cellRendererFactory');
         cellrender.addCellRenderer(CellType.Header, new HeaderCellRenderer(this.locator));
@@ -238,6 +245,7 @@ export class Render {
         cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.Indent, new IndentCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.GroupCaption, new GroupCaptionCellRenderer(this.locator));
+        cellrender.addCellRenderer(CellType.GroupCaptionEmpty, new GroupCaptionEmptyCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.Expand, new ExpandCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.HeaderIndent, new HeaderIndentCellRenderer(this.locator));
         cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.locator));
@@ -298,7 +306,7 @@ export class Render {
             .where(new Predicate('field', '==', element.field).and(this.getPredicate('key', 'equal', element.key))))[0];
             element.count = uGroup.count; let itemGroup: Group = (<Group>element.items); let uGroupItem: Group = (<Group>uGroup.items);
             if (itemGroup.GroupGuid) {
-                element.items = <Object[]>this.updateGroupInfo(element.items,  uGroup.items);
+                element.items = <Object[]>this.updateGroupInfo(element.items, uGroup.items);
             }
             this.parent.aggregates.forEach((row: AggregateRowModel) =>
             row.columns.forEach((column: AggregateColumnModel) => {
@@ -311,6 +319,5 @@ export class Render {
         });
         return current;
     }
-
 }
 

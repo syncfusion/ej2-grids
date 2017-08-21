@@ -45,16 +45,19 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         let cellArgs: QueryCellInfoEventArgs = { data: row.data };
         let attrCopy: Object = extend({}, attributes, {});
 
+        if (row.isDataRow) {
+            row.isSelected = this.parent.getSelectedRowIndexes().indexOf(row.index) > -1;
+        }
+
         this.buildAttributeFromRow(tr, row);
 
         addAttributes(tr, attrCopy as { [x: string]: string });
-
         setStyleAndAttributes(tr, row.attributes);
 
         let cellRendererFact: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
         for (let i: number = 0, len: number = row.cells.length; i < len; i++) {
-            let cell: Cell<T> = row.cells[i];
-            let cellRenderer: ICellRenderer<T> = cellRendererFact.getCellRenderer(row.cells[i].cellType || CellType.Data);
+            let cell: Cell<T> = row.cells[i]; cell.isSelected = row.isSelected;
+            let cellRenderer: ICellRenderer<T> = cellRendererFact.getCellRenderer( row.cells[i].cellType || CellType.Data);
             let td: Element = cellRenderer.render(
                 row.cells[i], row.data,
                 { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' });
@@ -79,7 +82,8 @@ export class RowRenderer<T> implements IRowRenderer<T> {
      */
     public buildAttributeFromRow(tr: Element, row: Row<T>): void {
         let attr: IRow<T> & { 'class'?: string[] } = {};
-        let prop: { 'rowindex'?: string; 'dataUID'?: string } = { 'rowindex': 'aria-rowindex', 'dataUID': 'data-uid' };
+        let prop: { 'rowindex'?: string; 'dataUID'?: string, 'ariaSelected'?: string }
+         = { 'rowindex': 'aria-rowindex', 'dataUID': 'data-uid', 'ariaSelected': 'aria-selected' };
         let classes: string[] = [];
 
         if (row.isDataRow) {
@@ -88,10 +92,6 @@ export class RowRenderer<T> implements IRowRenderer<T> {
 
         if (row.isAltRow) {
             classes.push('e-altrow');
-        }
-
-        if (row.visible === false) {
-            classes.push('e-hide');
         }
 
         if (!isNullOrUndefined(row.index)) {
@@ -104,6 +104,14 @@ export class RowRenderer<T> implements IRowRenderer<T> {
 
         if (row.uid) {
             attr[prop.dataUID] = row.uid;
+        }
+
+        if (row.isSelected) {
+            attr[prop.ariaSelected] = true;
+        }
+
+        if (row.visible === false) {
+            classes.push('e-hide');
         }
 
         attr.class = classes;

@@ -18,7 +18,7 @@ import { SummaryModelGenerator } from '../services/summary-model-generator';
 export class FooterRenderer extends ContentRender implements IRenderer {
     //private parent: Grid;
     private locator: ServiceLocator;
-    private modelGenerator: SummaryModelGenerator;
+    protected modelGenerator: SummaryModelGenerator;
     private aggregates: Object = {};
 
     constructor(gridModule?: IGrid, serviceLocator?: ServiceLocator) {

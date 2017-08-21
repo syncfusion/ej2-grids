@@ -92,7 +92,7 @@ export class Data implements IDataProcessor {
             }
         }
 
-        if (gObj.allowPaging && skipPage !== true) {
+        if ((gObj.allowPaging || gObj.enableVirtualization) && skipPage !== true) {
             query.page(gObj.pageSettings.currentPage, gObj.pageSettings.pageSize);
         }
 

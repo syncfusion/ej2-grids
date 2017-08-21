@@ -448,7 +448,8 @@ export class Group implements IAction {
      */
     public ungroupColumn(columnName: string): void {
         let gObj: IGrid = this.parent;
-        let column: Column = gObj.getColumnByField(columnName);
+        let column: Column = this.parent.enableColumnVirtualization ?
+        (<Column[]>this.parent.columns).filter((c: Column) => c.field === columnName)[0] : gObj.getColumnByField(columnName);
         if (isNullOrUndefined(column) || column.allowGrouping === false || this.groupSettings.columns.indexOf(columnName) < 0) {
             return;
         }
@@ -512,6 +513,7 @@ export class Group implements IAction {
         } : { requestType: 'ungrouping', type: events.actionComplete };
         this.parent.trigger(events.actionComplete, extend(e, args));
     }
+
 
     private addColToGroupDrop(field: string): void {
         let gObj: IGrid = this.parent;
@@ -673,8 +675,10 @@ export class Group implements IAction {
         let header: Element;
         let cols: SortDescriptorModel[] = gObj.sortSettings.columns;
         let gCols: string[] = gObj.groupSettings.columns;
+        let fieldNames: string[] = this.parent.getColumns().map((c: Column) => c.field);
         this.refreshToggleBtn();
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
+            if (fieldNames.indexOf(cols[i].field) === -1) { continue; }
             header = gObj.getColumnHeaderByField(cols[i].field);
             if (!gObj.allowSorting && (this.sortedColumns.indexOf(cols[i].field) > -1 ||
                 this.groupSettings.columns.indexOf(cols[i].field) > -1)) {
@@ -696,6 +700,7 @@ export class Group implements IAction {
             }
         }
         for (let i: number = 0, len: number = gCols.length; i < len; i++) {
+            if (fieldNames.indexOf(gCols[i]) === -1) { continue; }
             gObj.getColumnHeaderByField(gCols[i]).setAttribute('aria-grouped', 'true');
         }
     }

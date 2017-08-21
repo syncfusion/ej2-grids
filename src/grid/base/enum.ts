@@ -95,6 +95,8 @@ export enum CellType {
     Indent,
     /**  Defines CellType as GroupCaption */
     GroupCaption,
+    /**  Defines CellType as GroupCaptionEmpty */
+    GroupCaptionEmpty,
     /**  Defines CellType as Expand */
     Expand,
     /**  Defines CellType as HeaderIndent */

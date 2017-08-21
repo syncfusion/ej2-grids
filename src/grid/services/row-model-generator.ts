@@ -22,10 +22,11 @@ export class RowModelGenerator implements IModelGenerator<Column> {
         this.parent = parent;
     }
 
-    public generateRows(data: Object): Row<Column>[] {
+    public generateRows(data: Object, args?: { startIndex?: number }): Row<Column>[] {
         let rows: Row<Column>[] = [];
-        for (let i: number = 0, len: number = Object.keys(data).length; i < len; i++) {
-            rows[i] = this.generateRow(data[i], i);
+        let startIndex: number = this.parent.enableVirtualization ? args.startIndex : 0;
+        for (let i: number = 0, len: number = Object.keys(data).length; i < len; i++ , startIndex++) {
+            rows[i] = this.generateRow(data[i], startIndex);
         }
         return rows;
     }
@@ -42,31 +43,37 @@ export class RowModelGenerator implements IModelGenerator<Column> {
 
     }
 
-    protected generateRow(data: Object, index: number, cssClass?: string): Row<Column> {
+    protected generateRow(data: Object, index: number, cssClass?: string, indent?: number): Row<Column> {
         let options: IRow<Column> = {};
         let tmp: Cell<Column>[] = [];
 
         options.uid = getUid('grid-row');
         options.data = data;
         options.index = index;
+        options.indent = indent;
         options.isDataRow = true;
         options.cssClass = cssClass;
         options.isAltRow = this.parent.enableAltRow ? index % 2 !== 0 : false;
+        options.isSelected = this.parent.getSelectedRowIndexes().indexOf(index) > -1;
 
         let cells: Cell<Column>[] = this.ensureColumns();
-
-        let dummies: Column[] = this.parent.getColumns() as Column[];
-
-        for (let dummy of dummies) {
-            tmp.push(this.generateCell(dummy, <string>options.uid));
-        }
-
         let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);
-        row.cells = cells.concat(tmp);
+        row.cells =  cells.concat(this.generateCells(options));
+
         return row;
     }
 
-    protected generateCell(column: Column, rowId?: string, cellType?: CellType, colSpan?: number): Cell<Column> {
+    protected generateCells(options: IRow<Column>): Cell<Column>[] {
+        let dummies: Column[] = this.parent.getColumns() as Column[];
+        let tmp: Cell<Column>[] = [];
+
+        dummies.forEach((dummy: Column, index: number) =>
+            tmp.push(this.generateCell(
+                dummy, <string>options.uid, undefined, null, index)));
+        return tmp;
+    }
+
+    protected generateCell(column: Column, rowId?: string, cellType?: CellType, colSpan?: number, oIndex?: number): Cell<Column> {
         let opt: ICell<Column> = {
             'visible': column.visible,
             'isDataCell': !isNullOrUndefined(column.field || column.template),
@@ -82,5 +89,10 @@ export class RowModelGenerator implements IModelGenerator<Column> {
         }
 
         return new Cell<Column>(<{ [x: string]: Object }>opt);
+    }
+
+    public refreshRows(input?: Row<Column>[]): Row<Column>[] {
+        input.forEach((row: Row<Column>) => row.cells = this.generateCells(row));
+        return input;
     }
 }

@@ -146,4 +146,6 @@ export const headerDrop: string = 'header-drop';
 export const dataSourceModified: string = 'datasource-modified';
 /** @hidden */
 export const refreshComplete: string = 'refresh-complete';
+/** @hidden */
+export const refreshVirtualBlock: string = 'refresh-virtual-block';
 

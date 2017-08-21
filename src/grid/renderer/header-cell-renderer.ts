@@ -14,12 +14,15 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
     public element: HTMLElement = createElement('TH', { className: 'e-headercell', attrs: { role: 'columnheader', tabindex: '-1' } });
     private ariaService: AriaService = new AriaService();
+    private hTxtEle: Element = createElement('span', { className: 'e-headertext' });
+    private sortEle: Element = createElement('div', { className: 'e-sortfilterdiv e-icons' });
+    private gui: Element = createElement('div');
     /**
      * Function to return the wrapper for the TH content.
      * @returns string 
      */
     public getGui(): string | Element {
-        return createElement('div');
+        return <Element>this.gui.cloneNode();
     }
 
     /**
@@ -55,7 +58,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
         let value: string = column.headerText;
 
-        let headerText: Element = createElement('span', { className: 'e-headertext' });
+        let headerText: Element = <Element>this.hTxtEle.cloneNode();
 
         //TODO: Header Template support.
 
@@ -72,7 +75,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
         this.appendHtml(node, innerDIV);
 
-        node.appendChild(createElement('div', { className: 'e-sortfilterdiv e-icons' }));
+        node.appendChild(this.sortEle.cloneNode());
 
         if (cell.className) {
             node.classList.add(cell.className);

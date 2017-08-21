@@ -99,10 +99,10 @@ export class HeaderRender implements IRenderer {
     }
 
     //Module declarations
-    private parent: IGrid;
-    private serviceLocator: ServiceLocator;
-    private widthService: ColumnWidthService;
-    private ariaService: AriaService;
+    protected parent: IGrid;
+    protected serviceLocator: ServiceLocator;
+    protected widthService: ColumnWidthService;
+    protected ariaService: AriaService;
     /**
      * Constructor for header renderer module
      */
@@ -202,6 +202,16 @@ export class HeaderRender implements IRenderer {
      * @hidden
      */
     private createHeaderTable(): Element {
+        let table: Element = this.createTable();
+        let innerDiv: Element = <Element>this.getPanel().firstChild;
+        innerDiv.appendChild(table);
+        return innerDiv;
+    }
+
+    /**
+     * @hidden
+     */
+    public createTable(): Element {
         let gObj: IGrid = this.parent;
         let columns: Column[] = <Column[]>gObj.getColumns();
         let table: Element = createElement('table', { className: 'e-table', attrs: { cellspacing: '0.25px', role: 'grid' } });
@@ -212,7 +222,7 @@ export class HeaderRender implements IRenderer {
         let colGroup: Element = createElement('colgroup');
         let rowBody: Element = createElement('tr');
         let bodyCell: Element;
-        let rowRenderer: RowRenderer<Column> = new RowRenderer(this.serviceLocator, CellType.Header);
+        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header);
         rowRenderer.element = colHeader;
         let rows: Row<Column>[] = [];
         let headerRow: Element;
@@ -242,16 +252,16 @@ export class HeaderRender implements IRenderer {
         table.appendChild(this.setColGroup(colGroup));
         table.appendChild(thead);
         table.appendChild(tbody);
-        innerDiv.appendChild(table);
         this.ariaService.setOptions(table as HTMLElement, { colcount: gObj.getColumns().length.toString() });
-        return innerDiv;
+        return table;
     }
 
     private updateColGroup(colGroup: Element): Element {
         let cols: Column[] = this.parent.getColumns() as Column[];
-        let col: Element;
+        let col: Element; let indexes: number[] = this.parent.getColumnIndexesInView();
         if (this.parent.allowGrouping) {
             for (let i: number = 0, len: number = this.parent.groupSettings.columns.length; i < len; i++) {
+                if (this.parent.enableColumnVirtualization && indexes.indexOf(i) === -1) { continue; }
                 col = createElement('col');
                 colGroup.appendChild(col);
             }
@@ -273,10 +283,11 @@ export class HeaderRender implements IRenderer {
 
     private ensureColumns(rows: Row<Column>[]): Row<Column>[] {
         //TODO: generate dummy column for group, detail, stacked row here; ensureColumns here
-        let gObj: IGrid = this.parent;
+        let gObj: IGrid = this.parent; let indexes: number[] = this.parent.getColumnIndexesInView();
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
             if (gObj.allowGrouping) {
                 for (let c: number = 0, len: number = gObj.groupSettings.columns.length; c < len; c++) {
+                    if (this.parent.enableColumnVirtualization && indexes.indexOf(c) === -1) { continue; }
                     rows[i].cells.push(this.generateCell({} as Column, CellType.HeaderIndent));
                 }
             }
@@ -288,7 +299,7 @@ export class HeaderRender implements IRenderer {
     }
 
     private getHeaderCells(rows: Row<Column>[]): Row<Column>[] {
-        let cols: Column[] = this.parent.columns as Column[];
+        let cols: Column[] = this.parent.enableColumnVirtualization ? this.parent.getColumns() : this.parent.columns as Column[];
 
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             rows = this.appendCells(cols[i], rows, 0, i === 0, false);
@@ -374,13 +385,18 @@ export class HeaderRender implements IRenderer {
      */
     public refreshUI(): void {
         let headerDiv: Element = this.getPanel();
-        headerDiv.firstElementChild.innerHTML = '';
-        headerDiv.appendChild(this.createHeaderTable());
-        this.setTable(headerDiv.querySelector('.e-table'));
+        remove(this.getTable());
+        let table: Element = this.createTable();
+        this.setTable(table);
+        this.appendContent(table);
         this.parent.notify(events.colGroupRefresh, {});
         this.widthService.setWidthToColumns();
         this.initializeHeaderDrag();
         this.parent.notify(events.headerRefreshed, {});
+    }
+
+    public appendContent(table?: Element): void {
+        this.getPanel().firstChild.appendChild(table);
     }
 
     private getObjDepth(): number {
@@ -443,7 +459,4 @@ export class HeaderRender implements IRenderer {
             drop: this.drop as (e: DropEventArgs) => void
         });
     }
-
-
-
 }
