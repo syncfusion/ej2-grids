@@ -177,7 +177,7 @@
       padding: $pager-tripledot-padding;
     }
 
-    @media (max-width: 590px) {
+    @media (max-width: 769px) {
 
       padding: 13px 0;
 
@@ -356,7 +356,7 @@
         padding: $pager-activeitem-padding;
       }
 
-      @media (max-width: 590px) {
+      @media (max-width: 769px) {
         .e-mfirst,
         .e-mprev,
         .e-mnext,
@@ -388,7 +388,7 @@
       margin: 5px 8px 5px 24px;
     }
 
-    @media (max-width: 590px) {
+    @media (max-width: 769px) {
       padding: 19px 0;
 
       div.e-parentmsgbar {
