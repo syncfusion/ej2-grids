@@ -1,6 +1,6 @@
 import { Droppable, DropEventArgs, Browser } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
-import { createElement, setStyleAttribute, remove } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { createElement, setStyleAttribute, remove } from '@syncfusion/ej2-base';
 import { getUpdateUsingRaf } from '../base/util';
 import * as events from '../base/constant';
 import { IRenderer, IGrid, NotifyArgs, IModelGenerator } from '../base/interface';

@@ -1,6 +1,6 @@
 import { KeyboardEventArgs, Browser, EventHandler, MouseEventArgs } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, isUndefined } from '@syncfusion/ej2-base/util';
-import { remove, createElement, closest, classList } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined, isUndefined } from '@syncfusion/ej2-base';
+import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
 import { IGrid, IAction, IIndex, ISelectedCell, IPosition, IRenderer } from '../base/interface';
 import { SelectionSettings } from '../base/grid';
 import { setCssInGridPopUp, getPosition, parentsUntil } from '../base/util';

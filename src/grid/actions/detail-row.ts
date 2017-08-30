@@ -1,5 +1,5 @@
 import { KeyboardEventArgs } from '@syncfusion/ej2-base';
-import { createElement, closest, classList } from '@syncfusion/ej2-base/dom';
+import { createElement, closest, classList } from '@syncfusion/ej2-base';
 import { IGrid } from '../base/interface';
 import { Grid } from '../base/grid';
 import { parents, getUid, appendChildren } from '../base/util';
@@ -66,6 +66,11 @@ export class DetailRow {
                             parentRowData: data
                         };
                         let grid: Grid = new Grid(gObj.childGrid);
+                        let modules: Function[] = grid.getInjectedModules();
+                        let injectedModues: Function[] = gObj.getInjectedModules();
+                        if (!modules || modules.length !== injectedModues.length) {
+                            grid.setInjectedModules(injectedModues);
+                        }
                         let gridElem: HTMLElement = createElement('div', {
                             id: 'child' + parents(tr, 'e-grid').length +
                             '_grid' + tr.rowIndex + getUid('')

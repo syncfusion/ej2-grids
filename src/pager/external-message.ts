@@ -1,4 +1,4 @@
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Pager, IRender } from './pager';
 
 /**

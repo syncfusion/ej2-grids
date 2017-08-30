@@ -1,5 +1,5 @@
 import { L10n, EventHandler } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Toolbar as tool, ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { IGrid, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';

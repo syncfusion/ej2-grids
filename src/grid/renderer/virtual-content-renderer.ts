@@ -1,6 +1,6 @@
-import { createElement, closest } from '@syncfusion/ej2-base/dom';
+import { createElement, closest } from '@syncfusion/ej2-base';
 import { Browser } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { DataManager } from '@syncfusion/ej2-data';
 import { IGrid, IRenderer, NotifyArgs, VirtualInfo, IModelGenerator, InterSection } from '../base/interface';
 import { getRowHeight } from '../base/util';
@@ -79,6 +79,10 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         this.parent.notify(viewInfo.event, { requestType: 'virtualscroll', virtualInfo: viewInfo });
     }
 
+    private block(blk: number): boolean {
+        return this.vgenerator.isBlockAvailable(blk);
+    }
+
     private getInfoFromView(direction: string, info: SentinelType, e: Offsets): VirtualInfo {
         let tempBlocks: number[] = [];
         let infoType: VirtualInfo = { direction: direction, sentinelInfo: info, offsets: e };
@@ -88,7 +92,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         let blocks: number[] = this.ensureBlocks(infoType);
         infoType.blockIndexes = blocks;
         infoType.loadNext = !blocks.filter((val: number) => tempBlocks.indexOf(val) === -1)
-            .every((blk: number) => this.vgenerator.isBlockAvailable(blk));
+            .every(this.block.bind(this));
         infoType.event = (infoType.loadNext || infoType.loadSelf) ? modelChanged : refreshVirtualBlock;
         infoType.nextInfo = infoType.loadNext ? { page: Math.max(1, infoType.page + (direction === 'down' ? 1 : -1)) } : {};
         infoType.columnIndexes = info.axis === 'X' ? this.vgenerator.getColumnIndexes() : this.parent.getColumnIndexesInView();
@@ -179,7 +183,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
 
     private setVirtualHeight(): void {
         let width: string = this.parent.enableColumnVirtualization ?
-        this.getColumnOffset(this.parent.columns.length + this.parent.groupSettings.columns.length - 1) + 'px' : '100%';
+            this.getColumnOffset(this.parent.columns.length + this.parent.groupSettings.columns.length - 1) + 'px' : '100%';
         this.virtualEle.setVirtualHeight(this.offsets[this.getTotalBlocks()], width);
         if (this.parent.enableColumnVirtualization) {
             this.header.virtualEle.setVirtualHeight(1, width);

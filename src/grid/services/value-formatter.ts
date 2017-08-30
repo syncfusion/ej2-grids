@@ -1,4 +1,4 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Internationalization, setCulture, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
 import { IValueFormatter } from '../base/interface';
 /**

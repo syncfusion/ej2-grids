@@ -1,4 +1,4 @@
-import { extend, isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { SearchSettingsModel } from '../base/grid-model';

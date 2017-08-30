@@ -1,6 +1,6 @@
 import { ChildProperty } from '@syncfusion/ej2-base';
-import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base/util';
-import { setStyleAttribute, addClass, attributes, createElement, remove } from '@syncfusion/ej2-base/dom';
+import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
+import { setStyleAttribute, addClass, attributes, createElement, remove } from '@syncfusion/ej2-base';
 import { IPosition } from './interface';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';

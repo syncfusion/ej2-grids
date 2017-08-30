@@ -1,4 +1,4 @@
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { Query, DataManager, Predicate } from '@syncfusion/ej2-data';
 import { IDataProcessor, IGrid } from '../base/interface';
 import { SearchSettingsModel, PredicateModel, SortDescriptorModel } from '../base/grid-model';

@@ -1,5 +1,5 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement } from '@syncfusion/ej2-base';
 import { AggregateColumnModel } from '../models/models';
 import { Cell } from '../models/cell';
 import { AggregateColumn } from '../models/aggregate';

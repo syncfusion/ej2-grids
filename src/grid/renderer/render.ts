@@ -1,6 +1,6 @@
 import { L10n, DateFormatOptions, NumberFormatOptions } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
-import { isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base/util';
+import { createElement, remove } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base';
 import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
 import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
 import { RenderType, CellType } from '../base/enum';

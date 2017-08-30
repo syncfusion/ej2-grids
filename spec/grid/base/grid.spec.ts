@@ -2,8 +2,8 @@
  * Grid base spec 
  */
 import { L10n, EmitType } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Query } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { GridLine } from '../../../src/grid/base/enum';
@@ -369,6 +369,7 @@ describe('Grid base module', () => {
             //for coverage 
             gridObj.refreshHeader();
             gridObj.refresh();
+            gridObj.setInjectedModules([]);
         });
 
         afterAll(() => {

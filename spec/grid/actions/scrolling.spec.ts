@@ -2,8 +2,8 @@
  * Scrolling module spec
  */
 import { Browser } from '@syncfusion/ej2-base';
-import { extend } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { extend } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { uiUpdate } from '../../../src/grid/base/constant';
 import { GridModel } from '../../../src/grid/base/grid-model';

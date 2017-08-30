@@ -2,7 +2,7 @@
  * Util spec
  */
 import { doesImplementInterface, prepareColumns, setCssInGridPopUp} from '../../../src/grid/base/util';
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { createElement } from '@syncfusion/ej2-base';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 describe('Util module', () => {

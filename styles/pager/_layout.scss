@@ -1,5 +1,81 @@
   @include export-module('pager-layout') {
   /*! Pager layout */
+  .e-bigger  .e-pager,
+  .e-pager.e-bigger {
+    font-size: $pager-bigger-font-size;
+    padding: $pager-bigger-padding;
+
+    .e-icons {
+      font-size: $pager-bigger-icon-font-size;
+    }
+
+    div.e-parentmsgbar {
+      padding-right: $pager-bigger-messagebar-padding-right;
+      padding-top: $pager-bigger-messagebar-padding-top;
+    }
+
+    .e-pagercontainer {
+      margin: $pager-bigger-pagercontainer-margin;
+    }
+
+    &.e-rtl .e-pagercontainer {
+      margin: $pager-bigger-container-rtl-margin;
+	}
+
+    @media (max-width: 769px) {
+      padding: $pager-device-padding;
+
+      div.e-parentmsgbar {
+        padding: $pager-device-messabar-padding;
+      }
+}
+
+    .e-next.e-icons.e-icon-next.e-nextpagedisabled.e-disable,
+    .e-next.e-icons.e-icon-next.e-nextpage.e-pager-default {
+      margin-left: $pager-bigger-nexticon-marign-left;
+    }
+
+    &.e-rtl .e-next.e-icons.e-icon-next.e-nextpagedisabled.e-disable,
+    &.e-rtl e-next.e-icons.e-icon-next.e-nextpage.e-pager-default {
+      margin-left: 0;
+      margin-right: $pager-bigger-rtl-nexticon-marign-right;
+  }
+
+    &.e-rtl div.e-parentmsgbar {
+      margin-left: $pager-bigger-rtl-parentmsgbar-margin-left;
+   }
+
+    .e-numericitem {
+      margin: $pager-bigger-numeric-item-margin;
+    }
+
+    .e-spacing,
+    .e-numericitem:hover,
+    .e-currentitem {
+      border-radius: $pager-bigger-current-item-border-radius;
+      padding: $pager-bigger-current-item-padding;
+      }
+
+    &.e-rtl .e-spacing,
+    &.e-rtl .e-numericitem:hover,
+    &.e-rtl .e-currentitem {
+      margin: $pager-bigger-rtl-numeric-margin;
+      padding: $pager-bigger-rtl-activeitem-padding;
+      }
+
+    .e-pagercontainer .e-firstpage,
+    .e-pagercontainer .e-prevpage,
+    .e-pagercontainer .e-firstpagedisabled,
+    .e-pagercontainer .e-prevpagedisabled,
+    .e-pagercontainer .e-nextpage,
+    .e-pagercontainer .e-lastpage,
+    .e-pagercontainer .e-nextpagedisabled,
+    .e-pagercontainer .e-lastpagedisabled {
+      margin-right: $pager-bigger-pagercontainer-icons-marign-right;
+      padding: $pager-bigger-pagercontainer-icons-padding;
+    }
+   }
+
   .e-pager {
     border-style: $pager-border-type;
     border-width: 1px;
@@ -16,7 +92,7 @@
 
     div.e-parentmsgbar {
       float: right;
-      padding-bottom: 8px;
+      padding-bottom: $pager-messagebar-padding-bottom;
       padding-right: $pager-messagebar-padding-right;
       padding-top: $pager-messagebar-padding-top;
     }
@@ -88,7 +164,7 @@
       margin-right: $pager-navigationicon-right;
       margin-top: $pager-navigationicon-top;
       min-width: 26px;
-      padding: 11px 9px 8px;
+      padding: $pager-pagecontainer-icon-padding;
     }
 
     .e-pagercontainer .e-lastpage,
@@ -128,11 +204,11 @@
     }
 
     .e-lastpage:Hover {
-      border-radius: 0 4px 4px 0;
+      border-radius: $pager-last-page-hover-border-radius;
     }
 
     .e-firstpage:Hover {
-      border-radius: 4px 0 0 4px;
+      border-radius: $pager-first-page-hover-border-radius;
     }
 
     .e-pagermessage,
@@ -252,7 +328,7 @@
 
       & .e-parentmsgbar {
         float: left;
-        margin-left: 6px;
+        margin-left: $pager-rtl-parentmsgbar-margin-left;
       }
 
       & .e-pagerexternalmsg {
@@ -370,64 +446,4 @@
        }
    }
 }
-
-  .e-bigger  .e-pager,
-  .e-pager.e-bigger {
-    padding: 4px 0 2px;
-
-    .e-icons {
-      font-size: 13px;
-    }
-
-    div.e-parentmsgbar {
-      padding-right: $pager-messagebar-padding-right / .75;
-      padding-top: $pager-messagebar-padding-top / .75;
-    }
-
-    .e-pagercontainer {
-      margin: 5px 8px 5px 24px;
-    }
-
-    @media (max-width: 769px) {
-      padding: 19px 0;
-
-      div.e-parentmsgbar {
-        padding: 0;
-      }
-}
-
-    .e-next.e-icons.e-icon-next.e-nextpagedisabled.e-disable,
-    .e-next.e-icons.e-icon-next.e-nextpage.e-pager-default {
-      margin-left: $pager-next-icon-margin-left / .75;
-    }
-
-    &.e-rtl .e-next.e-icons.e-icon-next.e-nextpagedisabled.e-disable,
-    &.e-rtl e-next.e-icons.e-icon-next.e-nextpage.e-pager-default {
-      margin-left: 0;
-      margin-right: $pager-next-icon-margin-left / .75;
-  }
-
-    .e-numericitem {
-      margin: 0 8px;
-    }
-
-    .e-spacing,
-    .e-numericitem:hover,
-    .e-currentitem {
-      border-radius: $pager-numericitem-border-radius / .75;
-      padding: 10px 13px;
-      }
-
-    .e-pagercontainer .e-firstpage,
-    .e-pagercontainer .e-prevpage,
-    .e-pagercontainer .e-firstpagedisabled,
-    .e-pagercontainer .e-prevpagedisabled,
-    .e-pagercontainer .e-nextpage,
-    .e-pagercontainer .e-lastpage,
-    .e-pagercontainer .e-nextpagedisabled,
-    .e-pagercontainer .e-lastpagedisabled {
-      margin-right: 16px;
-      padding: 6px;
-    }
-   }
 }

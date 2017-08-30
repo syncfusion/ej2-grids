@@ -1,6 +1,6 @@
 import { Browser } from '@syncfusion/ej2-base';
-import { extend, isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { remove, createElement, closest, classList } from '@syncfusion/ej2-base/dom';
+import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
 import { SortSettings } from '../base/grid';
 import { Column } from '../models/column';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';

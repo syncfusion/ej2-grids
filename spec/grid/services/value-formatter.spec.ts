@@ -7,8 +7,8 @@ import { GridModel } from '../../../src/grid/base/grid-model';
 import { IValueFormatter } from '../../../src/grid/base/interface';
 import { Column } from '../../../src/grid/models/column';
 import { L10n, Internationalization } from '@syncfusion/ej2-base';
-import { extend } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { extend } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 

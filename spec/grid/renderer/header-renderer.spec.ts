@@ -2,7 +2,7 @@
  * Header renderer spec
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Query } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { CellType } from '../../../src/grid/base/enum';

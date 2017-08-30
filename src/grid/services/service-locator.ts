@@ -1,4 +1,4 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 
 /**
  * ServiceLocator

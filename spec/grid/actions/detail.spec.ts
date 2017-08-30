@@ -2,7 +2,7 @@
  * Grid detail template spec document
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Sort } from '../../../src/grid/actions/sort';
 import { Group } from '../../../src/grid/actions/group';

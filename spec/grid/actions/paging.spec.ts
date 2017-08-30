@@ -2,7 +2,7 @@
  * Grid Paging spec document
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { PageEventArgs } from '../../../src/grid/base/interface';
 import { Page } from '../../../src/grid/actions/page';

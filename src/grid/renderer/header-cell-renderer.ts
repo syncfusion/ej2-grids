@@ -1,5 +1,5 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { createElement, attributes } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, attributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';

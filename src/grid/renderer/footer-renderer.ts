@@ -1,5 +1,5 @@
-import { createElement } from '@syncfusion/ej2-base/dom';
-import { formatUnit } from '@syncfusion/ej2-base/util';
+import { createElement } from '@syncfusion/ej2-base';
+import { formatUnit } from '@syncfusion/ej2-base';
 import { IRenderer, IGrid } from '../base/interface';
 import { Browser } from '@syncfusion/ej2-base';
 import { colGroupRefresh, columnWidthChanged, scroll, columnVisibilityChanged } from '../base/constant';

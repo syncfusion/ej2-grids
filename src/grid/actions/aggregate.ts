@@ -1,5 +1,5 @@
-import { remove } from '@syncfusion/ej2-base/dom';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { remove } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
 import { IAction, IGrid, NotifyArgs, ICellRenderer } from '../base/interface';
 import { CellType } from '../base/enum';

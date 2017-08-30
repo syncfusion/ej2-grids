@@ -1,6 +1,6 @@
 import { IModelGenerator, IRow, IGrid } from '../base/interface';
 import { Row } from '../models/row';
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { Group } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { CellType } from '../base/enum';
@@ -106,7 +106,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         let col: Column = this.parent.getColumnByField(data.field);
         options.data = extend({}, data);
         if (col) {
-            (<GroupedData>options.data).field = col.headerText;
+            (<GroupedData>options.data).field = data.field;
         }
         options.isDataRow = false;
         let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);

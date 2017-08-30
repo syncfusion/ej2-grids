@@ -1,6 +1,6 @@
 import { KeyboardEventArgs } from '@syncfusion/ej2-base';
-import { extend } from '@syncfusion/ej2-base/util';
-import { remove, createElement } from '@syncfusion/ej2-base/dom';
+import { extend } from '@syncfusion/ej2-base';
+import { remove, createElement } from '@syncfusion/ej2-base';
 import { Pager } from '../../pager/pager';
 import { ExternalMessage } from '../../pager/external-message';
 import { PageSettingsModel } from '../models/page-settings-model';

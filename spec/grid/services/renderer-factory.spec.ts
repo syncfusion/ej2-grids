@@ -2,8 +2,8 @@
  * Renderer Factory spec
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { getEnumValue } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { getEnumValue } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { RenderType } from '../../../src/grid/base/enum';
 import { IRenderer } from '../../../src/grid/base/interface';

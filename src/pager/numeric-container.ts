@@ -1,6 +1,6 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { EventHandler } from '@syncfusion/ej2-base';
-import { createElement, remove, classList, append } from '@syncfusion/ej2-base/dom';
+import { createElement, remove, classList, append } from '@syncfusion/ej2-base';
 import { Pager, IRender } from './pager';
 
 /**

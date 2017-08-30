@@ -1,5 +1,5 @@
-import { extend } from '@syncfusion/ej2-base/util';
-import { closest as closestElement, removeClass, classList, createElement, remove } from '@syncfusion/ej2-base/dom';
+import { extend } from '@syncfusion/ej2-base';
+import { closest as closestElement, removeClass, classList, createElement, remove } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { getElementIndex, inArray, iterateArrayOrObject, parentsUntil, getPosition } from '../base/util';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';

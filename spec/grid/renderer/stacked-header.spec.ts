@@ -2,7 +2,7 @@
  * Stacked header render spec
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Reorder } from '../../../src/grid/actions/reorder';
 import { data } from '../base/datasource.spec';

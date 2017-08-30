@@ -1,4 +1,4 @@
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { createElement } from '@syncfusion/ej2-base';
 import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
 import { Column } from '../models/column';

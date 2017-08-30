@@ -2,7 +2,7 @@
  * Grid print spec document
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { createElement } from '@syncfusion/ej2-base';
 import { PrintMode } from '../../../src/grid/base/enum';
 import { Grid } from '../../../src/grid/base/grid';
 import { Sort } from '../../../src/grid/actions/sort';

@@ -1,4 +1,4 @@
-import { merge } from '@syncfusion/ej2-base/util';
+import { merge } from '@syncfusion/ej2-base';
 import { Cell } from './cell';
 
 /**

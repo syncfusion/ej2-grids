@@ -2,8 +2,8 @@
  * Grid Selection spec document
  */
 import { Browser, EmitType } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Selection } from '../../../src/grid/actions/selection';
 import { Page } from '../../../src/grid/actions/page';
@@ -1233,7 +1233,7 @@ describe('Grid Touch Selection', () => {
                 expect(args['rowIndex'][0]).toEqual(0);
                 expect(args['row'][0]).toEqual(gridObj.getRows()[0]);
                 gridObj.rowSelected = undefined;
-                gridObj.rowSelecting = undefined;              
+                gridObj.rowSelecting = undefined;
                 done();
             };
             gridObj.rowDeselecting = rowDeSelecting;
@@ -1502,6 +1502,14 @@ describe('Grid Touch Selection', () => {
         it('clear cell Selection', () => {
             gridObj.selectionModule.clearCellSelection();
             expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toBe(0);
+            (gridObj.selectionModule as any).addRemoveClassesForRow(null, false, false);
+            (gridObj.selectionModule as any).isDragged = true;
+            (gridObj.selectionModule as any).isMultiCtrlRequest = false;
+            (gridObj.selectionModule as any).isMultiShiftRequest = false;
+            (gridObj.selectionModule as any).rowCellSelectionHandler(1, 1);
+            (gridObj.selectionModule as any).dataReady({ requrestType: 'virtualscroll' });
+            (gridObj.selectionModule as any).clearSelAfterRefresh({ requrestType: 'virtualscroll' });
+
         });
 
         afterAll(() => {

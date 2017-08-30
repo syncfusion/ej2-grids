@@ -19,11 +19,21 @@
       background-color: $grid-default-color;
     }
 
+    .e-tableborder {
+      border-right-color: $grid-header-border-color;
+    }
+
     .e-gridheader {
       background-color: $grid-header-bg-color;
       border-bottom-color: $grid-header-border-color;
       border-top-color: $grid-header-border-color;
       color: $grid-header-color;
+    }
+
+    .e-gridcontent {
+      & tr:first-child td {
+        border-top-color: transparent;
+      }
     }
 
     th.e-headercell[aria-sort='ascending'] .e-headertext,
@@ -39,6 +49,18 @@
     }
 
     &.e-default.e-horizontallines .e-grouptopleftcell {
+      border-color: $grid-header-border-color;
+    }
+
+    &.e-default .e-gridheader.e-stackedfilter tr:last-child th.e-grouptopleftcell,
+    &.e-default.e-horizontallines .e-gridheader.e-stackedfilter tr:last-child th.e-grouptopleftcell,
+    &.e-default .e-gridheader.e-stackedfilter tr:first-child th.e-grouptopleftcell,
+    &.e-default.e-horizontallines .e-gridheader.e-stackedfilter tr:first-child th.e-grouptopleftcell {
+      border-color: $grid-header-border-color;
+    }
+
+    &.e-default .e-gridheader .e-headercell.e-firstheader,
+    &.e-default.e-horizontallines .e-headercell.e-firstheader {
       border-color: $grid-header-border-color;
     }
 
@@ -71,10 +93,6 @@
     tr  th.e-firstcell {
       border-left-color: $grid-header-border-color;
       border-right-color: $grid-header-border-color;
-    }
-
-    .e-altrow {
-      background-color: $grid-altrow-bg-color;
     }
 
     .e-rowcell,
@@ -205,9 +223,14 @@
 
     .e-groupheadercell {
       background-color: $group-header-bg-color;
-      border-color: $grid-header-border-color;
+      border-color: $grid-group-broder-color;
       border-radius: $group-header-border-radius;
       color: $group-header-color;
+    }
+
+    .e-groupheadercell:hover {
+      background-color: $group-header-hover-bg-color;
+      border-color: $grid-group-hover-broder-color;
     }
 
     .e-ungroupbutton:hover {
@@ -224,6 +247,7 @@
     .e-recordplusexpand,
     .e-recordpluscollapse {
       background-color: $group-row-bg-color;
+      color: $group-caption-font-color;
     }
 
     .e-grouptopleftcell {
@@ -244,6 +268,22 @@
       & .e-verticallines tr th:first-child:not(.e-firstcell) {
         border-color:  $grid-header-border-color;
     }
+
+      &.e-default .e-gridheader .e-headercell.e-firstheader,
+      &.e-default.e-horizontallines .e-headercell.e-firstheader,
+      &.e-default.e-verticallines .e-gridheader .e-headercell.e-firstheader,
+      &.e-default.e-verticallines .e-headercell.e-stackedheadercell,
+      &.e-default.e-verticallines tr th:last-child,
+      &.e-default.e-verticallines .e-gridheader th.e-grouptopleftcell,
+      &.e-default.e-verticallines .e-gridheader th.e-grouptopleftcell.e-lastgrouptopleftcell,
+      &.e-default.e-bothlines .e-gridheader .e-headercell.e-firstheader,
+      &.e-default.e-bothlines .e-gridheader th.e-grouptopleftcell.e-lastgrouptopleftcell {
+        border-color: $grid-header-border-color;
+      }
+
+      &.e-tableborder {
+        border-left-color: $grid-header-border-color;
+      }
 
     }
 

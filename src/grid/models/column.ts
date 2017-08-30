@@ -1,4 +1,4 @@
-import { merge } from '@syncfusion/ej2-base/util';
+import { merge } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions, compile as templateCompiler } from '@syncfusion/ej2-base';
 import { ICellFormatter, IFilterUI } from '../base/interface';
 import { TextAlign } from '../base/enum';

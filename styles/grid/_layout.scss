@@ -4,6 +4,236 @@
     user-select: none;
   }
 
+  .e-bigger .e-grid,
+  .e-grid.e-bigger  {
+    font-size: $grid-bigger-font-size;
+
+    .e-headercell {
+      height: $grid-bigger-headercell-line-height;
+      padding: 0 $grid-bigger-headercell-padding $grid-bigger-headercell-bootom-padding;
+    }
+
+    .e-icons {
+      font-size: $grid-bigger-icons-font-size;
+    }
+
+    .e-gridheader .e-icons {
+      font-size: $grid-bigger-header-icons-font-size;
+    }
+
+    .e-icon-gdownarrow {
+      font-size: $grid-bigger-gdownarrow-icon-font-size;
+    }
+
+    .e-icon-grightarrow {
+      font-size: $grid-bigger-grightarrow-icon-font-size;
+    }
+
+    .e-gridheader {
+      & tr th:last-child  {
+        padding-right: $grid-bigger-header-first-last-cell-padding;
+      }
+
+      & tr th:first-child  {
+        padding-left: $grid-bigger-header-first-last-cell-padding;
+      }
+    }
+
+    .e-headercelldiv {
+      font-size: $grid-bigger-headercell-font-size;
+    }
+
+    .e-rowcell,
+    .e-summarycell {
+      font-size: $grid-bigger-content-font-size;
+      padding: $grid-bigger-content-padding;
+    }
+
+    .e-rowcell:first-child,
+    .e-summarycell:first-child {
+      padding-left: $grid-bigger-first-last-rowcell-padding;
+    }
+
+    .e-rowcell:last-child,
+    .e-summarycell:last-child {
+      padding-right:  $grid-bigger-first-last-rowcell-padding;
+    }
+
+    .e-filterbarcell,
+    .e-filterbarcelldisabled {
+      height: $grid-bigger-headercell-line-height;
+      padding: 0 $grid-bigger-headercell-padding;
+    }
+
+    .e-filterbarcell input {
+      height: $grid-bigger-filterbarcell-text-input;
+    }
+
+    .e-sortfilterdiv {
+      margin: $grid-bigger-sortdiv-margin;
+    }
+
+    .e-gridheader .e-rightalign .e-sortfilterdiv {
+      margin: $grid-bigger-sortdiv-rightalign-margin;
+    }
+
+    .e-rowcell,
+    .e-summarycell,
+    .e-emptyrow td {
+      line-height: $grid-bigger-rowcell-line-height;
+    }
+
+    .e-filterdiv.e-fltrinputdiv span {
+      right: $grid-bigger-filterbarcell-clear-icon-right;
+      top: $grid-bigger-filterinputdiv-span-top;
+    }
+
+    .e-filterbarcell input {
+      font-size: $grid-bigger-font-size;
+    }
+
+    .e-groupdroparea {
+      font-size: $grid-bigger-grouparea-font-size;
+      min-height: $grid-bigger-group-line-height;
+      padding: $grid-bigger-groupdroparea-padding;
+    }
+
+    .e-groupdroparea.e-grouped {
+      padding: $grid-bigger-groupedcell-padding;
+    }
+
+    .e-groupheadercell,
+    .e-groupheadercell:hover {
+      border-radius: $grid-bigger-grouped-headercell-border-radius;
+      height: $grid-bigger-group-headercell-height;
+      margin: $grid-bigger-group-headercell-margin;
+      padding: $grid-bigger-group-headercell-padding;
+  }
+
+    .e-gdclone {
+      border-radius: $grid-bigger-group-clone-broder-radius;
+      padding: $grid-bigger-group-clone-padding;
+    }
+
+    .e-groupheadercell span {
+      line-height: $grid-bigger-groupcell-span-line-height;
+    }
+
+    .e-groupheadercell .e-ungroupbutton {
+      font-size: $grid-bigger-ungroup-button-font-size;
+    }
+
+    .e-groupheadercell .e-grouptext {
+      line-height: $grid-bigger-group-text-line-height;
+    }
+
+    &.e-device .e-headercell {
+      padding: $grid-device-headercell-padding;
+    }
+
+    &.e-device .e-headercell:first-child {
+      padding: $grid-device-headercell-fistchild-padding;
+    }
+
+    &.e-device .e-headercell:last-child {
+      padding: $grid-device-headercell-lastchild-padding;
+    }
+
+    &.e-device .e-groupheadercell span {
+      line-height: $grid-device-groupheadercell-span-line-height;
+    }
+
+    &.e-device .e-rowcell,
+    &.e-device .e-summarycell {
+      padding: $grid-device-rowcell-padding;
+    }
+
+    &.e-device .e-rowcell:first-child,
+    &.e-device .e-summarycell:first-child {
+      padding: $grid-device-rowcell-firstchild-padding;
+    }
+
+    &.e-device .e-rowcell:last-child,
+    &.e-device .e-summarycell:last-child {
+      padding: $grid-device-rowcell-lastchild-padding;
+    }
+
+    &.e-device .e-filterbarcell {
+      padding: $grid-device-filterbarcell-padding;
+    }
+
+    &.e-device .e-filterbarcell:first-child {
+      padding: $grid-device-rowcell-firstchild-padding;
+    }
+
+    &.e-device .e-filterbarcell:last-child {
+      padding: $grid-device-rowcell-lastchild-padding;
+    }
+
+    &.e-device .e-groupheadercell .e-ungroupbutton {
+      line-height: $grid-device-ungroupbutton-line-height;
+    }
+
+    .e-grouptext {
+      margin-right: $grid-bigger-grouptext-marign;
+      width: $grid-bigger-grouptext-width;
+    }
+
+    .e-gridheader table th[rowspan],
+    &.e-device .e-gridheader table th[rowspan] {
+      padding-bottom: $grid-device-gridheader-row-span-padding;
+    }
+
+    .e-groupsort,
+    span.e-ungroupbutton,
+    .e-toggleungroup {
+      margin-left: $grid-bigger-groupedcell-icons-marign-left;
+    }
+
+    span.e-ungroupbutton.e-icons {
+      font-size: $grid-bigger-ungroupbutton-icons-font-size;
+      margin-top: $grid-bigger-ungroupbutton-icon-margin-top;
+    }
+
+    .e-groupsort {
+      margin-right: $group-bigger-sorticon-margin-right;
+    }
+
+    &.e-rtl .e-groupheadercell,
+    &.e-rtl .e-groupheadercell:hover {
+      margin: $grid-bigger-rtl-group-headercell-margin;
+      padding: $grid-bigger-rtl-group-headercell-padding;
+ }
+
+    &.e-rtl span.e-ungroupbutton.e-icons {
+      margin-right: $grid-bigger-rtl-ungroup-icon-margin-right;
+      margin-top: $grid-bigger-rtl-ungroup-icon-margin-top;
+      padding-top: $grid-ungroup-rtl-padding-top;
+    }
+
+    .e-groupcaption {
+      line-height: $grid-bigger-groupcaption-line-height;
+    }
+
+    .e-toolbar-items .e-toolbar-item .e-search {
+      border-radius: $grid-bigger-searchbar-border-radius;
+      height: $grid-bigger-searchbar-height;
+      margin: $grid-bigger-searchbar-marign;
+      padding: $grid-bigger-searchbar-padding;
+
+      & input {
+        border-radius: $grid-bigger-search-input-border-radius;
+        font-size: $grid-bigger-search-input-font-size;
+        height: $gird-bigger-search-input-height;
+        padding: $gird-bigger-search-input-padding;
+      }
+
+      & span {
+        font-size: $grid-bigger-search-span-font-size;
+      }
+    }
+ }
+
   .e-grid {
     border-style: none $grid-border-type $grid-border-type;
     border-width: $grid-border-size;
@@ -28,27 +258,27 @@
       border-top: $grid-toolbar-border-width $grid-header-border-color;
     }
 
-    .e-search {
+    .e-toolbar-items .e-toolbar-item .e-search {
       background-color: $grid-toolbar-search-background-color;
       border: $grid-toolbar-border-width $grid-header-border-color;
-      border-radius: 16px;
-      height: calc(100% - 11px);
-      margin: 4.67px;
-      padding: 2px 5px;
+      border-radius: $grid-searchbar-border-radius;
+      height: $grid-searchbar-height;
+      margin: $grid-searchbar-marign;
+      padding: $grid-searchbar-padding;
 
       & input {
         border: 0;
         font-family: 'Roboto';
-        font-size: 12px;
-        height: 20px;
-        padding: 1px 0 0;
-        width: 110px;
+        font-size: $grid-search-input-font-size;
+        height: $gird-search-input-height;
+        padding: $gird-search-input-padding;
+        width: $grid-search-input-width;
       }
 
       & span {
         cursor: pointer;
-        font-size: 10px;
-        padding: 4px 0;
+        font-size: $grid-search-span-font-size;
+        padding: $grid-search-span-padding;
       }
     }
 
@@ -56,9 +286,43 @@
       padding: $grid-grouped-padding;
     }
 
+    &.e-default .e-gridheader.e-stackedfilter .e-grouptopleftcell,
+    &.e-default.e-horizontallines .e-gridheader.e-stackedfilter .e-grouptopleftcell {
+      border-top: 0;
+     }
+
+    &.e-default .e-gridheader.e-stackedfilter tr:first-child th.e-grouptopleftcell,
+    &.e-default.e-horizontallines .e-gridheader.e-stackedfilter tr:first-child th.e-grouptopleftcell {
+      border-bottom: 1px solid;
+    }
+
+    &.e-default.e-verticallines .e-gridheader.e-stackedfilter tr:first-child th.e-grouptopleftcell,
+    &.e-default.e-hidelines .e-gridheader.e-stackedfilter tr:first-child th.e-grouptopleftcell {
+      border-bottom: 0;
+    }
+
+    &.e-default .e-gridheader.e-stackedfilter tr:last-child th.e-grouptopleftcell,
+    &.e-default.e-horizontallines .e-gridheader.e-stackedfilter tr:last-child th.e-grouptopleftcell {
+      border-top: 1px solid;
+    }
+
+    &.e-default.e-hidelines .e-gridheader.e-stackedfilter tr:last-child th.e-grouptopleftcell,
+    &.e-default.e-verticallines .e-gridheader.e-stackedfilter tr:last-child th.e-grouptopleftcell {
+      border-top: 0;
+    }
+
     &.e-default .e-grouptopleftcell {
       border-top: $grid-grouptopleftcell-border-top;
     }
+
+    &.e-default .e-gridheader .e-headercell.e-firstheader,
+    &.e-default.e-horizontallines .e-headercell.e-firstheader {
+      border-left: 1px solid;
+    }
+
+    &.e-default.e-hidelines .e-headercell.e-firstheader {
+      border-left: 0;
+     }
 
     &.e-default.e-verticallines .e-grouptopleftcell,
     &.e-default.e-bothlines .e-grouptopleftcell,
@@ -83,10 +347,8 @@
       width: 100%;
     }
 
-    .e-virtualtable {
-      overflow: hidden;
-      will-change: transform;
-      z-index: 1;
+    .e-tableborder {
+      border-right: 1px solid;
     }
 
     .e-headercelldiv {
@@ -96,7 +358,7 @@
       font-weight: $grid-header-font-weight;
       height: 29px;
       line-height: $grid-headercelldiv-line-height;
-      margin: -7px;
+      margin: $grid-headercelldiv-margin;
       overflow: hidden;
       padding: 0 .6em;
       text-align: left;
@@ -122,9 +384,18 @@
       }
     }
 
+
     .e-gridheader {
       & tr:first-child th {
         border-top: 0 none;
+      }
+
+      & tr th:last-child  {
+        padding-right:  $grid-header-first-last-cell-padding;
+      }
+
+      & tr th:first-child  {
+        padding-left: $grid-header-first-last-cell-padding;
       }
     }
 
@@ -177,13 +448,21 @@
       width: auto;
     }
 
+    .e-rowcell:first-child {
+      padding-left: $grid-first-last-rowcell-padding;
+    }
+
+    .e-rowcell:last-child {
+      padding-right: $grid-first-last-rowcell-padding;
+    }
+
     .e-summarycell {
       border-style: solid;
       border-width: $border-size 0 0;
-      font-size: $grid-content-font-size;
-      font-weight:  $grid-header-font-weight;
+      font-size: $grid-summary-cell-font-size;
+      font-weight: $grid-header-font-weight;
       height: auto;
-      line-height: 18px;
+      line-height: $grid-summary-cell-line-height;
       padding: $grid-content-padding $grid-content-right-padding;
       white-space: normal;
       word-wrap: break-word;
@@ -305,41 +584,59 @@
 
     .e-sortfilterdiv {
       float: right;
-      height: 10px;
-      margin: -14px 10px;
+      height: $grid-sortdiv-height;
+      margin: $grid-sortdiv-margin;
       padding: 3px;
-      width: 10px;
+      width: $grid-sortdiv-width;
     }
 
     .e-gridheader .e-rightalign .e-sortfilterdiv {
       float: left;
-      margin: -14px 5px;
+      margin: $grid-sortdiv-right-align-margin;
     }
 
-    .e-gridheader .e-sortfilter .e-rightalign .e-headercelldiv {
-      padding: 0 .6em 0 1.9em;
+    .e-gridheader .e-sortfilter .e-rightalign .e-headercelldiv,
+    .e-gridheader .e-rightalign .e-stackedheadercelldiv {
+      padding: $grid-headercelldiv-right-align-padding;
     }
 
-    .e-gridheader .e-sortfilter .e-headercelldiv {
-      padding: 0 1.8em 0 .5em;
+    .e-gridheader .e-sortfilter .e-headercelldiv,
+    .e-gridheader .e-stackedheadercelldiv {
+      padding: $grid-headercelldiv-padding;
     }
 
     .e-sortnumber {
-      border-radius: 65%;
+      border-radius: $grid-sortnumber-border-radius;
       display: inline-block;
       float: right;
       font-size: 9px;
       height: 15px;
-      line-height: 16px;
-      margin: 7px 5px 0 2px;
+      line-height: $grid-sortnumer-line-height;
+      margin: $grid-sortnumber-margin;
       text-align: center;
       width: 15px;
     }
 
     .e-gridheader .e-rightalign .e-sortnumber {
       float: left;
-      margin: 8px 2px 0 5px;
+      margin: $grid-sortnumber-rightalign-margin;
     }
+
+    &.e-wrap .e-gridheader .e-rightalign .e-sortnumber {
+      margin: $grid-textwrap-srotnumber-rightalign-margin;
+    }
+
+    &.e-wrap .e-gridheader .e-rightalign .e-sortfilterdiv {
+      margin: $grid-textwrap-sorticon-rightalign-margin;
+   }
+
+    &.e-wrap .e-gridheader .e-sortnumber {
+      margin: $grid-textwrap-srotnumber-margin;
+    }
+
+    &.e-wrap .e-gridheader .e-sortfilterdiv {
+      margin: $grid-textwrap-sorticon-margin;
+   }
 
     [class^='e-'] {
       box-sizing: border-box;
@@ -420,12 +717,12 @@
 
     // sass-lint:disable-all
     .e-filterbarcell .e-filtertext::-webkit-search-cancel-button,
-    .e-search input::-webkit-search-cancel-button  {
+    .e-search input::-webkit-search-cancel-button {
       display: none;
     }
 
-    .e-filterbarcell .e-filtertext::-ms-clear,
-    .e-search input::-ms-clear {
+    .e-filterbarcell .e-filtertext::-ms-clear, 
+    .e-search input::-ms-clear{
       display: none;
     }
 
@@ -443,11 +740,12 @@
     }
 
     .e-filterbarcell input {
+      border-style: solid;
       border-width: $grid-filterbar-input-border-width ;
       font-family: $grid-font-family;
       font-size: $grid-font-size;
       font-weight: normal;
-      height: 26px;
+      height: $grid-filterbarcell-text-input;
       padding-right: 24px;
       text-indent: $grid-filterbarcell-text-indent;
       width: 100%;
@@ -471,6 +769,7 @@
 
     .e-filterdiv,
     .e-fltrtempdiv {
+      padding: $grid-filterdiv-padding;
       position: relative;
       text-align: center;
       width: 100%;
@@ -481,8 +780,8 @@
       display: block;
       height: 16px;
       position: absolute;
-      right: 3px;
-      top: 10px;
+      right: $grid-filterbarcell-clear-icon-right;
+      top: $grid-filterbarcell-clear-icon-top;
       width: 21px;
     }
 
@@ -631,10 +930,8 @@
     }
 
     .e-content {
-      -webkit-overflow-scrolling: touch; // sass-lint:disable-line no-vendor-prefixes        
       overflow-x: auto;
       overflow-y: scroll;
-      position: relative;
     }
 
     &.e-ungroupdrag .e-columnheader,
@@ -699,17 +996,17 @@
       display: inline-block;
       float: left;
       height: $grid-headecell-height;
-      line-height: 26px;
+      line-height: $grid-group-headercell-line-height;
       vertical-align: middle;
     }
 
     .e-groupheadercell .e-grouptext {
-      line-height: 24px;
+      line-height: $grid-group-text-line-height;
     }
 
     .e-groupheadercell .e-ungroupbutton {
-      font-size: 13px;
-      line-height: 26px;
+      font-size: $grid-ungroup-button-font-size;
+      line-height: $grid-ungroup-button-line-height;
     }
 
     &.e-device .e-groupheadercell span {
@@ -735,6 +1032,10 @@
       margin-left: $group-sorticon-margin-left;
     }
 
+    .e-groupsort {
+      margin-right: $group-sorticon-margin-right;
+    }
+
     span.e-ungroupbutton.e-icons {
       margin-left: $group-unpgrouicon-margin-left;
     }
@@ -744,12 +1045,12 @@
     }
 
     .e-icon-gdownarrow {
-      font-size: 11px;
+      font-size: $grid-group-down-arrow-icon-font-size;
       text-indent: $group-collapse-icon-text-indent;
     }
 
     .e-icon-grightarrow {
-      font-size: 10px;
+      font-size: $grid-group-right-arrow-icon-font-size;
       text-indent: $group-expand-icon-text-indent;
     }
 
@@ -777,17 +1078,13 @@
       border-style: $grid-border-type;
       border-width: $grid-border-size 0 0;
       display: table-cell;
-      line-height: $grid-rowcell-line-height;
+      font-size: $grid-group-caption-font-size;
+      line-height: $grid-group-captioncell-line-height;
       overflow: hidden;
       padding: .7em;
       vertical-align: middle;
       white-space: nowrap;
       width: auto;
-    }
-
-    .e-virtualtable .e-groupcaption {
-      line-height: $grid-rowcell-line-height;
-      padding: $grid-content-padding $grid-content-right-padding;
     }
 
     .e-headercontent {
@@ -814,9 +1111,12 @@
 
           & .e-sortnumber {
             float: left;
-            margin: 6px 0 0 5px;
+            margin: $grid-rtl-sortnumber-margin;
           }
+        }
 
+        & .e-tableborder {
+          border-left: 1px solid;
         }
 
         & .e-filterbarcell input {
@@ -825,7 +1125,7 @@
 
         & .e-sortfilterdiv {
           float: left;
-          margin: -14px 10px;
+          margin: $grid-rtl-sortcelldiv-margin;
         }
 
         &.e-leftalign {
@@ -846,7 +1146,30 @@
 
         }
 
+        &.e-rightalign {
+          & .e-sortnumber {
+            float: left;
+            margin: $grid-rtl-sortnumber-rightalign-margin;
+         }
+        }
+
       }
+
+      &.e-wrap .e-gridheader .e-rightalign .e-sortnumber {
+        margin: $grid-rtl-textwrap-srotnumber-rightalign-margin;
+     }
+
+      &.e-wrap .e-gridheader .e-sortnumber {
+        margin: $grid-rtl-textwrap-srotnumber-margin;
+     }
+
+      &.e-wrap .e-gridheader .e-sortfilterdiv {
+        margin: $grid-rtl-textwrap-sorticon-margin;
+     }
+
+      &.e-wrap .e-gridheader .e-rightalign .e-sortfilterdiv {
+        margin: $grid-rtl-textwrap-sorticon-rightalign-margin;
+     }
 
       &.e-verticallines .e-grouptopleftcell,
       &.e-bothlines .e-grouptopleftcell,
@@ -859,9 +1182,13 @@
     }
 
       & .e-grouptext {
-        margin-left: 18px;
-        margin-right: 0;
+        margin-left: $grid-rtl-group-text-margin-left;
+        margin-right: $grid-rtl-group-text-margin-right;
    }
+
+      & .e-groupheadercell span {
+        float: right;
+      }
 
       &.e-horizontallines .e-grouptopleftcell {
         border-top: 1px solid;
@@ -892,11 +1219,11 @@
       }
 
       & .e-gridheader .e-rightalign .e-sortfilterdiv {
-        margin: -14px 10px;
+        margin: $grid-rtl-sortcelldiv-margin;
       }
 
       & .e-sortfilterdiv {
-        margin: -14px 5px;
+        margin: $grid-rtl-sortcelldiv-margin;
       }
 
       & .e-cloneproperties {
@@ -924,6 +1251,22 @@
       }
     }
 
+      &.e-default.e-verticallines tr th:last-child {
+        border-left: 1px solid;
+      }
+
+      &.e-default .e-gridheader {
+        & tr th:last-child  {
+          padding-left:  $grid-header-first-last-cell-padding;
+          padding-right: $grid-header-first-last-cell-padding;
+      }
+
+        & tr th:first-child  {
+          padding-left: $grid-header-first-last-cell-padding;
+          padding-right: $grid-header-first-last-cell-padding;
+      }
+    }
+
       &.e-default th:first-child
       &.e-default .e-headercell,
       &.e-default .e-detailheadercell {
@@ -937,7 +1280,8 @@
       &.e-default.e-verticallines .e-headercell,
       &.e-default.e-verticallines .e-rowcell,
       &.e-default.e-verticallines .e-filterbarcell,
-      &.e-default.e-verticallines .e-detailheadercell {
+      &.e-default.e-verticallines .e-detailheadercell,
+      &.e-default.e-verticallines .e-gridheader th.e-firstcell {
         border-width: 0 0  0 $grid-border-size;
       }
 
@@ -945,26 +1289,78 @@
         border-left-width: $grid-border-size;
      }
 
-      &.e-default .e-stackedheadercell {
-        border-width: $grid-stackedheadercell-border-size;
+      &.e-default .e-stackedheadercell,
+      &.e-default.e-horizontallines .e-stackedheadercell {
+        border-width: $grid-rtl-stackedheadercell-border-size;
+     }
+
+      &.e-default .e-gridheader th.e-firstcell,
+      &.e-default.e-horizontallines .e-gridheader th.e-firstcell {
+        border-left-width: $grid-rtl-stackedhader-firstcell-left-border-size;
+        border-right-width: $grid-rtl-stackedhader-firstcell-right-border-size;
       }
+
+      &.e-default .e-gridheader .e-headercell.e-firstheader,
+      &.e-default.e-horizontallines .e-headercell.e-firstheader {
+        border-left: 0;
+      }
+
+      &.e-default.e-hidelines .e-gridheader th.e-firstcell {
+        border-left: 0;
+        border-right: 0;
+    }
+
+      &.e-default .e-gridheader .e-headercell.e-firstheader,
+      &.e-default.e-horizontallines .e-gridheader .e-headercell.e-firstheader {
+        border-right: 1px solid;
+    }
+
+      &.e-default.e-verticallines .e-gridheader .e-headercell.e-firstheader {
+        border-right: 0;
+    }
+
+      &.e-default.e-verticallines .e-gridheader .e-headercell.e-firstheader,
+      &.e-default.e-verticallines .e-gridheader th.e-grouptopleftcell.e-lastgrouptopleftcell {
+        border-left: 1px solid;
+    }
+
+      &.e-default.e-verticallines .e-headercell.e-stackedheadercell {
+        border-bottom: 1px solid;
+    }
+
+      &.e-default .e-detailcell ,
+      &.e-default.e-bothlines .e-detailcell {
+        border-right-style: solid;
+        border-right-width: 1px;
+     }
 
       & .e-groupsort,
       & .e-ungroupbutton,
       & .e-toggleungroup {
         margin-left: 0;
-        margin-right: $group-sorticon-margin-left;
+        margin-right: $grid-rtl-group-sorticon-margin-right;
     }
 
       & span.e-ungroupbutton.e-icons {
         margin-left: 0;
         margin-right: 6px;
-        padding-top: 4px;
+        padding-top: $grid-ungroup-rtl-padding-top;
     }
 
       &.e-default.e-bothlines .e-headercell,
       &.e-default.e-bothlines .e-detailheadercell {
         border-width: $grid-headercell-both-border-width;
+      }
+
+      &.e-default.e-bothlines .e-gridheader .e-headercell.e-firstheader,
+      &.e-default.e-bothlines .e-gridheader th.e-grouptopleftcell.e-lastgrouptopleftcell {
+        border-left: 1px solid;
+        border-right: 0;
+     }
+
+      &.e-bothlines .e-gridheader th.e-stackedheadercell {
+        border-bottom-style: $grid-border-type;
+        border-bottom-width: $grid-border-size;
       }
 
       &.e-bothlines .e-filterbarcell,
@@ -989,8 +1385,6 @@
         border-width: 0;
       }
 
-      &.e-horizontallines .e-headercell,
-      &.e-horizontallines .e-detailheadercell,
       &.e-horizontallines .e-rowcell,
       &.e-horizontallines .e-filterbarcell {
         border-width: $grid-border-size 0 0;
@@ -1023,7 +1417,9 @@
 
       & .e-groupheadercell,
       & .e-groupheadercell:hover {
-        margin-right: 10px;
+        margin-left: $grid-rtl-group-headercell-margin-left;
+        margin-right: $grid-rtl-group-headercell-margin-right;
+        padding: $grid-rtl-grouped-headercell-padding;
       }
 
       & .e-groupheadercell,
@@ -1054,7 +1450,7 @@
 
     &.e-wrap {
       & .e-rowcell,
-      & .e-columnheader .e-stackedheadercell,
+      & .e-columnheader .e-stackedheadercelldiv,
       & .e-columnheader .e-headercelldiv {
         height: Auto;
         line-height: 18px;
@@ -1062,184 +1458,4 @@
       }
     }
   }
-
-  .e-bigger .e-grid,
-  .e-grid.e-bigger  {
-    .e-headercell {
-      height: round($grid-headercell-line-height/.75);
-      padding: 0 round($grid-header-padding/.75) round($grid-header-bottom-padding/.75);
-    }
-
-    .e-icons {
-      font-size: 12px;
-    }
-
-    .e-icon-gdownarrow {
-      font-size: 12px;
-    }
-
-    .e-icon-grightarrow {
-      font-size: 11px;
-    }
-
-    .e-rowcell,
-    .e-summarycell {
-      padding: round($grid-content-padding/.75) round($grid-content-right-padding/.75);
-    }
-
-    .e-filterbarcell,
-    .e-filterbarcelldisabled {
-      height: round($grid-headercell-line-height/.75);
-      padding: 0 28px;
-    }
-
-    .e-sortfilterdiv {
-      margin: -16px 8px;
-    }
-
-    .e-gridheader .e-rightalign .e-sortfilterdiv {
-      margin: -15px 2px;
-    }
-
-    .e-rowcell,
-    .e-emptyrow td {
-      line-height: round($grid-rowcell-line-height/.75);
-    }
-
-    .e-filterdiv.e-fltrinputdiv span {
-      top: 8px;
-    }
-
-    .e-groupdroparea {
-      min-height: round($grid-group-height/.75);
-      padding: 22px 24px;
-    }
-
-    .e-groupdroparea.e-grouped {
-      padding: 11px 0 12px;
-    }
-
-    .e-groupheadercell,
-    .e-groupheadercell:hover {
-      border-radius: 16px;
-      height: round($grid-headecell-height/.75);
-      margin: 4px 0 0 24px;
-      padding: 0 8px 0 12px;
-  }
-
-    .e-gdclone {
-      border-radius: round($grid-gd-clone-border-radius / .75);
-      padding: 6px;
-    }
-
-    .e-groupheadercell span {
-      line-height: 33px;
-    }
-
-    .e-groupheadercell .e-ungroupbutton {
-      font-size: 16px;
-    }
-
-    .e-groupheadercell .e-grouptext {
-      line-height: 32px;
-    }
-
-    &.e-device .e-headercell {
-      padding: 0 12px $grid-header-bottom-padding;
-    }
-
-    &.e-device .e-headercell:first-child {
-      padding: 0 12px $grid-header-bottom-padding 16px;
-    }
-
-    &.e-device .e-headercell:last-child {
-      padding: 0 16px $grid-header-bottom-padding 12px;
-    }
-
-    &.e-device .e-groupheadercell span {
-      line-height: 36px;
-    }
-
-    &.e-device .e-rowcell,
-    &.e-device .e-summarycell {
-      padding: $grid-content-padding 12px;
-    }
-
-    &.e-device .e-rowcell:first-child,
-    &.e-device .e-summarycell:first-child {
-      padding: $grid-content-padding 12px $grid-content-padding 16px;
-    }
-
-    &.e-device .e-rowcell:last-child,
-    &.e-device .e-summarycell:last-child {
-      padding: $grid-content-padding 16px $grid-content-padding 12px;
-    }
-
-    &.e-device .e-filterbarcell {
-      padding: $grid-content-padding 12px;
-    }
-
-    &.e-device .e-filterbarcell:first-child {
-      padding: $grid-content-padding 12px $grid-content-padding 16px;
-    }
-
-    &.e-device .e-filterbarcell:last-child {
-      padding: $grid-content-padding 16px $grid-content-padding 12px;
-    }
-
-    &.e-device .e-groupheadercell .e-ungroupbutton {
-      line-height: 38px;
-    }
-
-    .e-grouptext {
-      margin-right: round($grid-grouptext-margin-right / .75);
-      width: 76px;
-    }
-
-    .e-gridheader table th[rowspan],
-    &.e-device .e-gridheader table th[rowspan] {
-      padding-bottom: 20px;
-    }
-
-    .e-groupsort,
-    span.e-ungroupbutton,
-    .e-toggleungroup {
-      margin-left: round($group-sorticon-margin-left / .75);
-    }
-
-    span.e-ungroupbutton.e-icons {
-      font-size: 16px;
-    }
-
-    &.e-rtl .e-groupheadercell,
-    & .e-rtl .e-groupheadercell:hover {
-      margin: 3px 24px 0 0;
-      padding: 4px 6px 4px 9px;
- }
-
-    &.e-rtl span.e-ungroupbutton.e-icons {
-      margin-top: 0;
-      padding-top: $grid-ungroup-rtl-padding-top;
-    }
-
-    .e-groupcaption {
-      line-height: 32px;
-    }
-
-    .e-search {
-      border-radius: 18px;
-      height: calc(100% - 11px);
-      margin: 5.5px 0;
-      padding: 2px 6px 1px;
-
-      & input {
-        border-radius: 7px;
-        height: 30.5px;
-      }
-
-      & span {
-        font-size: 10px;
-      }
-    }
- }
 }

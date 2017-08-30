@@ -1,4 +1,4 @@
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { createElement } from '@syncfusion/ej2-base';
 import { setStyleAndAttributes } from '../base/util';
 import { Cell } from '../models/cell';
 import { Column } from '../models/column';

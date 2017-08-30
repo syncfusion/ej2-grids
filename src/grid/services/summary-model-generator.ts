@@ -4,7 +4,7 @@ import { Row } from '../models/row';
 import { AggregateColumnModel, AggregateRowModel } from '../models/aggregate-model';
 import { AggregateColumn } from '../models/aggregate';
 import { Column } from '../models/column';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { calculateAggregate } from '../base/util';
 import { Group } from '@syncfusion/ej2-data';
 import { CellType } from '../base/enum';

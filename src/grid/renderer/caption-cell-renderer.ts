@@ -1,4 +1,4 @@
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
@@ -21,7 +21,7 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         let node: Element = this.element.cloneNode() as Element;
         let value: string = this.format(cell.column, cell.column.valueAccessor('key', data, cell.column));
 
-        node.innerHTML = data.field + ': ' + value + ' - ' + data.count + ' ' +
+        node.innerHTML = cell.column.headerText + ': ' + value + ' - ' + data.count + ' ' +
             (data.count < 2 ? this.localizer.getConstant('Item') : this.localizer.getConstant('Items'));
         node.setAttribute('colspan', cell.colSpan.toString());
         node.setAttribute('aria-label', node.innerHTML + ' is groupcaption cell');

@@ -2,8 +2,8 @@
  * Grid Sorting spec document
  */
 import { Browser, ChildProperty, EmitType } from '@syncfusion/ej2-base';
-import { getValue } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { getValue } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Sort } from '../../../src/grid/actions/sort';
 import { Filter } from '../../../src/grid/actions/filter';

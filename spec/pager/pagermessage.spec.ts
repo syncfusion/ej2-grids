@@ -2,7 +2,7 @@
  * Pagermessage spec 
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { createElement } from '@syncfusion/ej2-base';
 import { Pager } from '../../src/pager/pager';
 import '../../node_modules/es6-promise/dist/es6-promise';
 

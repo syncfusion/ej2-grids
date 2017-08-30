@@ -1,4 +1,4 @@
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { createElement } from '@syncfusion/ej2-base';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
 import { IndentCellRenderer } from './indent-cell-renderer';

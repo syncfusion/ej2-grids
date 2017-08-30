@@ -12,11 +12,11 @@
     }
 
     .e-icon-hide::before {
-      content: '\e825';
+      content: $grid-hide-icon-content;
     }
 
     .e-ungroupbutton.e-icon-hide::before {
-      content: $grid-hide-icon-content;
+      content: $grid-ungroup-icon-content;
     }
 
     .e-icon-rowselect::before {
@@ -28,16 +28,16 @@
     }
 
     .e-icon-gdownarrow::before {
-      content: '\e83d';
+      content: $grid-group-down-arrow-icon;
     }
 
     .e-icon-grightarrow::before {
-      content: '\e859';
+      content: $grid-group-right-arrow-icon;
     }
 
     &.e-rtl {
       .e-icon-grightarrow::before {
-        content: '\e854';
+        content: $grid-group-rtl-right-arrow-icon;
       }
     }
 
@@ -86,7 +86,7 @@
     }
 
     .e-cancel::before {
-      content: '\e842';
+      content: $grid-filterbar-cancel-icon-content;
     }
 
     .e-update::before {
@@ -95,6 +95,10 @@
 
     .e-searchfind::before {
       content: '\e922';
+    }
+
+    .e-cancel-icon::before {
+      content: $grid-searchbar-cancel-icon-content;
     }
 
   }

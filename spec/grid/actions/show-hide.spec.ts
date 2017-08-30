@@ -2,8 +2,8 @@
  * Show hide module specs
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { extend } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { extend } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Filter } from '../../../src/grid/actions/filter';
 import { contentReady } from '../../../src/grid/base/constant';

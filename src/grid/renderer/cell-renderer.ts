@@ -1,6 +1,6 @@
 import { L10n } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
-import { createElement } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer, IValueFormatter, ICellFormatter, ICell } from '../base/interface';

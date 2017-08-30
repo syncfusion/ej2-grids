@@ -1,4 +1,4 @@
-import { isNullOrUndefined, getEnumValue } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined, getEnumValue } from '@syncfusion/ej2-base';
 import { ICellRenderer } from '../base/interface';
 import { CellType } from '../base/enum';
 

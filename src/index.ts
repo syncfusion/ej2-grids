@@ -2,5 +2,5 @@
  * Export Grid components
  */
 
-export * from './grid';
-export * from './pager';
+export * from './grid/index';
+export * from './pager/index';

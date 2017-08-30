@@ -1,6 +1,6 @@
 import { Browser, EventHandler } from '@syncfusion/ej2-base';
-import { remove, addClass, removeClass } from '@syncfusion/ej2-base/dom';
-import { formatUnit, isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { remove, addClass, removeClass } from '@syncfusion/ej2-base';
+import { formatUnit, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { getScrollBarWidth } from '../base/util';
 import { scroll, contentReady, uiUpdate } from '../base/constant';

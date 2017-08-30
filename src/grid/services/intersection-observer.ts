@@ -1,5 +1,5 @@
 import { EventHandler } from '@syncfusion/ej2-base';
-import { debounce } from '@syncfusion/ej2-base/util';
+import { debounce } from '@syncfusion/ej2-base';
 import { SentinelInfo, SentinelType } from '../base/type';
 import { InterSection } from '../base/interface';
 export type ScrollDirection = 'up' | 'down' | 'right' | 'left';

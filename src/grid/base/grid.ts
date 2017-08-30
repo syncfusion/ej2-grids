@@ -1,6 +1,6 @@
 import { Component, ModuleDeclaration, ChildProperty, compile as templateComplier, Browser } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
@@ -1849,7 +1849,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getSelectedRecords(): Object[] {
         return (<Row<Column>[]>this.contentModule.getRows()).filter((row: Row<Column>) => row.isSelected)
-        .map((m: Row<Column>) => m.data);
+            .map((m: Row<Column>) => m.data);
     }
 
     /** 
@@ -2093,7 +2093,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 }
                 if (!this.groupSettings.showGroupedColumn) {
                     let column: Column = this.enableColumnVirtualization ?
-                    (<Column[]>this.columns).filter((c: Column) => c.field === gCols[i])[0] : this.getColumnByField(gCols[i]);
+                        (<Column[]>this.columns).filter((c: Column) => c.field === gCols[i])[0] : this.getColumnByField(gCols[i]);
                     column.visible = false;
                 }
             }
@@ -2315,6 +2315,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             }
             this.notify(events.keyPressed, e);
         }
+    }
+    /**
+     * @hidden
+     */
+    public setInjectedModules(modules: Function[]): void {
+        this.injectedModules = modules;
     }
 }
 

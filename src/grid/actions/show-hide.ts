@@ -1,4 +1,4 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { iterateArrayOrObject } from '../base/util';
 import * as events from '../base/constant';

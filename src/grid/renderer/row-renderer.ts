@@ -1,5 +1,5 @@
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
-import { createElement, attributes as addAttributes } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { createElement, attributes as addAttributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Row } from '../models/row';
 import { Cell } from '../models/cell';

@@ -1,6 +1,6 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid } from '../base/interface';
-import { formatUnit } from '@syncfusion/ej2-base/util';
+import { formatUnit } from '@syncfusion/ej2-base';
 import { columnWidthChanged } from '../base/constant';
 import { Column } from '../models/column';
 

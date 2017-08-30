@@ -66,7 +66,7 @@ function startKarma(done) {
     return new karma.Server({
         configFile: __dirname + '/karma.conf.js',
         singleRun: true,
-        browsers: ['PhantomJS']
+        browsers: ['ChromeHeadless']
     }, function(e) {
         if (service) {
             service.kill();

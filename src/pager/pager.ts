@@ -1,6 +1,6 @@
 import { Component, ModuleDeclaration, L10n, EmitType, Browser } from '@syncfusion/ej2-base';
-import { createElement, remove, classList } from '@syncfusion/ej2-base/dom';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
+import { createElement, remove, classList } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';
 import { PagerModel } from './pager-model';
 import { NumericContainer } from './numeric-container';

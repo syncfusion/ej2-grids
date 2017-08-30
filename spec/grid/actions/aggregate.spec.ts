@@ -1,7 +1,7 @@
 /**
  * Data spec
  */
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager, ODataV4Adaptor, DataUtil } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
@@ -9,7 +9,7 @@ import { CustomSummaryType } from '../../../src/grid/base/type';
 import { Aggregate } from '../../../src/grid/actions/aggregate';
 import { AggregateColumn } from '../../../src/grid/models/aggregate';
 import { GridModel } from '../../../src/grid/base/grid-model';
-import { extend } from '@syncfusion/ej2-base/util';
+import { extend } from '@syncfusion/ej2-base';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 

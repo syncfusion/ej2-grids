@@ -1,7 +1,7 @@
 import { EventHandler, L10n } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { getActualPropFromColl } from '../base/util';
-import { remove, createElement, matches } from '@syncfusion/ej2-base/dom';
+import { remove, createElement, matches } from '@syncfusion/ej2-base';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { FilterSettings } from '../base/grid';
 import { IGrid, IAction, NotifyArgs, IFilterOperator, IValueFormatter } from '../base/interface';

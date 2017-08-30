@@ -2,7 +2,7 @@
  * Grid search spec document
  */
 import { Browser, EmitType } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { SortDirection } from '../../../src/grid/base/enum';
 import { DataManager } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';

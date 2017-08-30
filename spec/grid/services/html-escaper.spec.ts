@@ -2,7 +2,7 @@
  * Service Locator spec
  */
 import { EmitType } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Column } from '../../../src/grid/models/column';
 import { ICellFormatter } from '../../../src/grid/base/interface';

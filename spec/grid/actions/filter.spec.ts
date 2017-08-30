@@ -2,8 +2,8 @@
  * Grid Filtering spec document
  */
 import { EventHandler, ChildProperty, EmitType } from '@syncfusion/ej2-base';
-import { extend, getValue } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { extend, getValue } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Group } from '../../../src/grid/actions/group';

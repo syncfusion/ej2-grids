@@ -1,6 +1,6 @@
 import { MouseEventArgs, Draggable, Droppable, L10n, DropEventArgs, KeyboardEventArgs } from '@syncfusion/ej2-base';
-import { createElement, closest, remove, classList } from '@syncfusion/ej2-base/dom';
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base/util';
+import { createElement, closest, remove, classList } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { GroupSettingsModel, SortDescriptorModel } from '../base/grid-model';
 import { parentsUntil } from '../base/util';

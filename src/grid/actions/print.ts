@@ -1,5 +1,5 @@
-import { removeClass } from '@syncfusion/ej2-base/dom';
-import { print as printWindow } from '@syncfusion/ej2-base/util';
+import { removeClass } from '@syncfusion/ej2-base';
+import { print as printWindow } from '@syncfusion/ej2-base';
 import { IGrid } from '../base/interface';
 import { removeElement } from '../base/util';
 import { Scroll, ScrollCss } from '../actions/scroll';

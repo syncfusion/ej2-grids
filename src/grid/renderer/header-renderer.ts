@@ -1,6 +1,6 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { createElement, setStyleAttribute, closest as getClosest, remove } from '@syncfusion/ej2-base/dom';
-import { classList } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, setStyleAttribute, closest as getClosest, remove } from '@syncfusion/ej2-base';
+import { classList } from '@syncfusion/ej2-base';
 import { CellType } from '../base/enum';
 import { IRenderer, IGrid, ICell } from '../base/interface';
 import { RowRenderer } from './row-renderer';

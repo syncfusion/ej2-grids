@@ -2,8 +2,8 @@
  * Grid Row Reordering spec document
  */
 import { EventHandler, EmitType } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base/util';
-import { createElement, remove } from '@syncfusion/ej2-base/dom';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Column } from '../../../src/grid/models/column';
 import { Sort } from '../../../src/grid/actions/sort';
