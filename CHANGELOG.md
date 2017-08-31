@@ -9,6 +9,7 @@
 
 #### Bug Fixes
 - Hierarchy feature in Angular issue fixed.
+- Rollup bundling issue fixed.
 
 ## 1.0.11-preview (2017-08-03)
 
