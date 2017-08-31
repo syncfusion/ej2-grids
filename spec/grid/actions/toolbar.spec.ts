@@ -81,7 +81,7 @@ describe('Toolbar functionalities', () => {
         expect(gridObj.toolbarModule.getToolbar().querySelector('.e-toolbar-right').children.length).toBe(1);
         expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(2);
     });
-     it('check aria-attribute', () => {
+    it('check aria-attribute', () => {
         let search: Element = gridObj.toolbarModule.getToolbar().querySelector('.e-search');
         expect(search.querySelector('.e-searchfind').hasAttribute('tabindex')).toBeTruthy();
         expect(search.querySelector('.e-searchfind').hasAttribute('aria-label')).toBeTruthy();
@@ -130,47 +130,8 @@ describe('Toolbar functionalities', () => {
         };
         let searchElement: HTMLInputElement = <HTMLInputElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_searchbar');
         searchElement.value = '';
-        (<any>gridObj.toolbarModule).toolbarClickHandler({item: (<any>gridObj.toolbarModule).toolbar.items[9], originalEvent:{ target: document.getElementById(gridObj.element.id + '_searchbutton') }});
-        (<any>gridObj.toolbarModule).toolbarClickHandler({item: (<any>gridObj.toolbarModule).toolbar.items[9], originalEvent:{ target: searchElement}});
-    });
-
-    it('Select a row', () => {
-        gridObj.selectRow(1);
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(2);
-        let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[1].id).toBe('Grid_cancel');
-        expect(items[0].id).toBe('Grid_update');
-    });
-
-    it('De select selected row', () => {
-        gridObj.selectRow(1);
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(4);
-        let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[1].id).toBe('Grid_delete');
-        expect(items[0].id).toBe('Grid_edit');
-        expect(items[3].id).toBe('Grid_cancel');
-        expect(items[2].id).toBe('Grid_update');
-    });
-
-    it('Select a cell', () => {
-        gridObj.selectionSettings.mode = 'cell';
-        gridObj.dataBind();
-        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(3);
-        let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[0].id).toBe('Grid_delete');
-        expect(items[2].id).toBe('Grid_cancel');
-        expect(items[1].id).toBe('Grid_update');
-    });
-
-    it('DeSelect selected cell', () => {
-        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
-        expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(4);
-        let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[0].id).toBe('Grid_edit');
-        expect(items[1].id).toBe('Grid_delete');
-        expect(items[3].id).toBe('Grid_cancel');
-        expect(items[2].id).toBe('Grid_update');
+        (<any>gridObj.toolbarModule).toolbarClickHandler({ item: (<any>gridObj.toolbarModule).toolbar.items[9], originalEvent: { target: document.getElementById(gridObj.element.id + '_searchbutton') } });
+        (<any>gridObj.toolbarModule).toolbarClickHandler({ item: (<any>gridObj.toolbarModule).toolbar.items[9], originalEvent: { target: searchElement } });
     });
 
     it('check print', (done: Function) => {
@@ -182,7 +143,7 @@ describe('Toolbar functionalities', () => {
         };
         (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_print')).click();
         //forcoverage
-        (<any>gridObj.toolbarModule).toolbarClickHandler({target: (<any>gridObj.toolbarModule).element});
+        (<any>gridObj.toolbarModule).toolbarClickHandler({ target: (<any>gridObj.toolbarModule).element });
         (gridObj.toolbarModule as any).keyUpHandler({ keyCode: 12 });
 
         keyup.target = gridObj.toolbarModule.getToolbar();
@@ -195,6 +156,18 @@ describe('Toolbar functionalities', () => {
         (<any>gridObj.toolbarModule).removeEventListener();
         gridObj.isDestroyed = false;
         (<any>gridObj.toolbarModule).onPropertyChanged({ module: 'Grouping' });
+    });
+
+    it('for coverage', () => {
+        gridObj.selectRow(1);
+        gridObj.selectRow(1);
+        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
+        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
+        (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: '' } });
+        gridObj.isDestroyed = true;
+        (<any>gridObj.toolbarModule).destroy();
+        gridObj.isDestroyed = false;
+
     });
 
     afterAll(() => {

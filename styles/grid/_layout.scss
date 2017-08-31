@@ -351,6 +351,12 @@
       border-right: 1px solid;
     }
 
+    .e-virtualtable {
+      overflow: hidden;
+      will-change: transform;
+      z-index: 1;
+    }
+
     .e-headercelldiv {
       border: 0 none;
       display: block;
@@ -930,8 +936,10 @@
     }
 
     .e-content {
+      -webkit-overflow-scrolling: touch; // sass-lint:disable-line no-vendor-prefixes
       overflow-x: auto;
       overflow-y: scroll;
+      position: relative;
     }
 
     &.e-ungroupdrag .e-columnheader,
@@ -1085,6 +1093,11 @@
       vertical-align: middle;
       white-space: nowrap;
       width: auto;
+    }
+
+    .e-virtualtable .e-groupcaption {
+      line-height: $grid-rowcell-line-height;
+      padding: $grid-content-padding $grid-content-right-padding;
     }
 
     .e-headercontent {
