@@ -46,7 +46,7 @@
     .e-rowcell,
     .e-summarycell {
       font-size: $grid-bigger-content-font-size;
-      padding: $grid-bigger-content-padding;
+      padding: $grid-bigger-content-padding $grid-bigger-content-right-padding;
     }
 
     .e-rowcell:first-child,
