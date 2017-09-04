@@ -886,6 +886,9 @@ describe('Grid Selection module', () => {
         });
 
         it('keydown selection false testing', () => {
+            gridObj.allowSelection = true;
+            gridObj.dataBind();
+            (gridObj.element.querySelectorAll('.e-row')[0].firstChild as HTMLElement).click();
             let preventDefault: Function = new Function();
             let args: any = { action: 'downArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);

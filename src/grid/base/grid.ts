@@ -34,6 +34,7 @@ import { Page } from '../actions/page';
 import { Selection } from '../actions/selection';
 import { Filter } from '../actions/filter';
 import { Search } from '../actions/search';
+import { Resize } from '../actions/resize';
 import { Reorder } from '../actions/reorder';
 import { RowDD } from '../actions/row-reorder';
 import { ShowHide } from '../actions/show-hide';
@@ -541,6 +542,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * `reorderModule` is used to manipulate reordering in the Grid.
      */
     public reorderModule: Reorder;
+    /**
+     * `resizeModule` is used to manipulate resize in the Grid.
+     * @hidden
+     */
+    public resizeModule: Resize;
     /**
      * `groupModule` is used to manipulate grouping behavior from the Grid.
      */
@@ -1151,6 +1157,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.selectionSettings, this.serviceLocator]
             });
         }
+        modules.push({
+            member: 'resize',
+            args: [this]
+        });
+
         if (this.allowReordering) {
             modules.push({
                 member: 'reorder',
@@ -2057,6 +2068,33 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.reorderModule.reorderColumns(fromFName, toFName);
     }
 
+    /** 
+     * Change the column width to automatically fit its content 
+     * which ensures that the width is wide enough to show the content without wrapping/hiding. 
+     * > * This method ignores the hidden columns.
+     * > * Use the `autoFitColumns` method in the `dataBound` event to resize at the initial rendering
+     * @param  {string |string[]} fieldNames - Defines the column names. 
+     * @return {void} 
+     * 
+     * 
+     * ```typescript
+     * <div id="Grid"></div> 
+     * <script>
+     * let gridObj: Grid = new Grid({
+     *     dataSource: employeeData,
+     *     columns: [
+     *         { field: 'OrderID', headerText: 'Order ID', width:100 },
+     *         { field: 'EmployeeID', headerText: 'Employee ID' }],
+     *     dataBound: () => gridObj.autoFitColumns('EmployeeID')
+     * });
+     * gridObj.appendTo('#Grid');
+     * </script>
+     * ``` 
+     *  
+     */
+    public autoFitColumns(fieldNames: string | string[]): void {
+        this.resizeModule.autoFitColumns(fieldNames);
+    }
 
     private initializeServices(): void {
         this.serviceLocator.register('widthService', this.widthService = new ColumnWidthService(this));

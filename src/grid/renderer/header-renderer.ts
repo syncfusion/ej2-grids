@@ -216,27 +216,13 @@ export class HeaderRender implements IRenderer {
         let columns: Column[] = <Column[]>gObj.getColumns();
         let table: Element = createElement('table', { className: 'e-table', attrs: { cellspacing: '0.25px', role: 'grid' } });
         let innerDiv: Element = <Element>this.getPanel().firstChild;
-        let thead: Element = createElement('thead');
+        let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
+        let thead: Element = findHeaderRow.thead;
         let tbody: Element = createElement('tbody', { className: 'e-hide' });
-        let colHeader: Element = createElement('tr', { className: 'e-columnheader', attrs: { role: 'row' } });
         let colGroup: Element = createElement('colgroup');
         let rowBody: Element = createElement('tr');
         let bodyCell: Element;
-        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header);
-        rowRenderer.element = colHeader;
-        let rows: Row<Column>[] = [];
-        let headerRow: Element;
-        this.colDepth = this.getObjDepth();
-        for (let i: number = 0, len: number = this.colDepth; i < len; i++) {
-            rows[i] = this.generateRow(i);
-            rows[i].cells = [];
-        }
-        rows = this.ensureColumns(rows);
-        rows = this.getHeaderCells(rows);
-        for (let i: number = 0, len: number = this.colDepth; i < len; i++) {
-            headerRow = rowRenderer.render(rows[i], columns);
-            thead.appendChild(headerRow);
-        }
+        let rows: Row<Column>[] = findHeaderRow.rows;
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
             for (let j: number = 0, len: number = rows[i].cells.length; j < len; j++) {
                 let cell: Cell<Column> = rows[i].cells[j];
@@ -254,6 +240,32 @@ export class HeaderRender implements IRenderer {
         table.appendChild(tbody);
         this.ariaService.setOptions(table as HTMLElement, { colcount: gObj.getColumns().length.toString() });
         return table;
+    }
+     private createHeaderContent(): { thead: Element, rows: Row<Column>[] } {
+        let gObj: IGrid = this.parent;
+        let columns: Column[] = <Column[]>gObj.getColumns();
+        let thead: Element = createElement('thead');
+        let colHeader: Element = createElement('tr', { className: 'e-columnheader' });
+        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header);
+        rowRenderer.element = colHeader;
+        let rows: Row<Column>[] = [];
+        let headerRow: Element;
+        this.colDepth = this.getObjDepth();
+        for (let i: number = 0, len: number = this.colDepth; i < len; i++) {
+            rows[i] = this.generateRow(i);
+            rows[i].cells = [];
+        }
+        rows = this.ensureColumns(rows);
+        rows = this.getHeaderCells(rows);
+        for (let i: number = 0, len: number = this.colDepth; i < len; i++) {
+            headerRow = rowRenderer.render(rows[i], columns);
+            thead.appendChild(headerRow);
+        }
+        let findHeaderRow: { thead: Element, rows: Row<Column>[] } = {
+            thead: thead,
+            rows: rows
+        };
+        return findHeaderRow;
     }
 
     private updateColGroup(colGroup: Element): Element {
@@ -385,8 +397,15 @@ export class HeaderRender implements IRenderer {
      */
     public refreshUI(): void {
         let headerDiv: Element = this.getPanel();
+        let table: Element = this.getTable();
         remove(this.getTable());
-        let table: Element = this.createTable();
+        table.removeChild(table.firstChild);
+        table.removeChild(table.childNodes[0]);
+        let colGroup: Element = createElement('colgroup');
+        let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
+        table.insertBefore(findHeaderRow.thead, table.firstChild);
+        this.updateColGroup(colGroup);
+        table.insertBefore(this.setColGroup(colGroup), table.firstChild);
         this.setTable(table);
         this.appendContent(table);
         this.parent.notify(events.colGroupRefresh, {});
