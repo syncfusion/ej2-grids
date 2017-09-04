@@ -163,11 +163,11 @@
     }
 
     &.e-device .e-filterbarcell:first-child {
-      padding: $grid-device-rowcell-firstchild-padding;
+      padding: $grid-device-filterbarcell-firstchild-padding;
     }
 
     &.e-device .e-filterbarcell:last-child {
-      padding: $grid-device-rowcell-lastchild-padding;
+      padding: $grid-device-filterbarcell-lastchild-padding;
     }
 
     &.e-device .e-groupheadercell .e-ungroupbutton {
@@ -430,15 +430,15 @@
     }
 
     &.e-device .e-headercell {
-      padding: 0 12px $grid-header-bottom-padding;
+      padding: $grid-device-headercell-padding;
     }
 
     &.e-device .e-headercell:first-child {
-      padding: 0 12px $grid-header-bottom-padding 16px;
+      padding: $grid-device-headercell-fistchild-padding;
     }
 
     &.e-device .e-headercell:last-child {
-      padding: 0 16px $grid-header-bottom-padding 12px;
+      padding: $grid-device-headercell-lastchild-padding;
     }
 
     .e-rowcell {
@@ -454,11 +454,13 @@
       width: auto;
     }
 
-    .e-rowcell:first-child {
+    .e-rowcell:first-child,
+    .e-summarycell:first-child {
       padding-left: $grid-first-last-rowcell-padding;
     }
 
-    .e-rowcell:last-child {
+    .e-rowcell:last-child,
+    .e-summarycell:last-child {
       padding-right: $grid-first-last-rowcell-padding;
     }
 
@@ -480,17 +482,17 @@
 
     &.e-device .e-rowcell,
     &.e-device .e-summarycell {
-      padding: $grid-content-padding 12px;
+      padding: $grid-device-rowcell-padding;
     }
 
     &.e-device .e-rowcell:first-child,
     &.e-device .e-summarycell:first-child {
-      padding: $grid-content-padding 12px $grid-content-padding 16px;
+      padding: $grid-device-rowcell-firstchild-padding;
     }
 
     &.e-device .e-rowcell:last-child,
     &.e-device .e-summarycell:last-child {
-      padding: $grid-content-padding 16px $grid-content-padding 12px;
+      padding: $grid-device-rowcell-lastchild-padding;
     }
 
     td.e-rowcell.e-checkbox {
@@ -758,15 +760,15 @@
     }
 
     &.e-device .e-filterbarcell {
-      padding: 0 12px $grid-header-bottom-padding;
+      padding: $grid-device-filterbarcell-padding;
     }
 
     &.e-device .e-filterbarcell:first-child {
-      padding: 0 12px $grid-header-bottom-padding 16px;
+      padding: $grid-device-filterbarcell-firstchild-padding;
     }
 
     &.e-device .e-filterbarcell:last-child {
-      padding: 0 16px $grid-header-bottom-padding 12px;
+      padding: $grid-device-filterbarcell-lastchild-padding;
     }
 
     .e-filterdiv .e-filtertext:focus {

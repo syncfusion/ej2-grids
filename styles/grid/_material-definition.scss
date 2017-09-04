@@ -124,3 +124,5 @@ $grid-device-rowcell-padding: $grid-content-padding 12px;
 $grid-device-rowcell-firstchild-padding: $grid-content-padding 12px $grid-content-padding 16px;
 $grid-device-rowcell-lastchild-padding: $grid-content-padding 16px $grid-content-padding 12px;
 $grid-device-filterbarcell-padding: $grid-content-padding 12px;
+$grid-device-filterbarcell-firstchild-padding: $grid-device-rowcell-firstchild-padding;
+$grid-device-filterbarcell-lastchild-padding: $grid-device-rowcell-lastchild-padding;
