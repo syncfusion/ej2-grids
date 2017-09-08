@@ -6,7 +6,7 @@ import { ServiceLocator } from '../services/service-locator';
 import { IGrid, IAction } from '../base/interface';
 import * as events from '../base/constant';
 import { ShowHide } from './show-hide';
-import { Dialog } from '@syncfusion/ej2-popups';
+import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
 
 /**
  * 
@@ -122,6 +122,12 @@ export class ColumnChooser implements IAction {
             this.dlgObj.dataBind();
             this.dlgObj.element.style.top = y + 'px';
             this.dlgObj.element.style.maxHeight = '350px';
+            let dis: string = this.dlgObj.element.style.display;
+            this.dlgObj.element.style.display = 'block';
+            let newpos: { top: number, left: number } = calculateRelativeBasedPosition
+                ((<HTMLElement>target.parentElement), this.dlgObj.element);
+            this.dlgObj.element.style.display = dis;
+            this.dlgObj.element.style.top = newpos.top + target.getBoundingClientRect().height + 'px';
             let dlgWidth: number = 250;
             if (this.parent.element.classList.contains('e-device')) {
                 this.dlgObj.position = { X: 'center', Y: 'center' };
@@ -130,7 +136,7 @@ export class ColumnChooser implements IAction {
                 if (this.parent.enableRtl) {
                     this.dlgObj.element.style.left = (<HTMLElement>target).offsetLeft + 'px';
                 } else {
-                    this.dlgObj.element.style.left = (this.parent.element.getBoundingClientRect().right - dlgWidth) - 30 + 'px';
+                    this.dlgObj.element.style.left = (newpos.left - dlgWidth) + 42 + 'px';
                 }
             }
             this.removeCancelIcon();
