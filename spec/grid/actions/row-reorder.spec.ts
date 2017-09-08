@@ -448,7 +448,7 @@ describe('Row Drag and Drop module', () => {
                 (gridObj1.rowDragAndDropModule as any).dragStart({ target: gridObj.element });
                 (gridObj.rowDragAndDropModule as any).drag({ target: gridObj.element, event: { clientX: 10, clientY: 10, target: gridObj.element } });
                 (gridObj.rowDragAndDropModule as any).dragStop({ helper: gridObj.element, event: { clientX: 10, clientY: 10, target: gridObj.element } });
-
+                (gridObj.rowDragAndDropModule as any).getTargetIdx(null);
             });
 
 

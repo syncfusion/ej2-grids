@@ -52,6 +52,34 @@ export const printComplete: string = 'printComplete';
 export const detailDataBound: string = 'detailDataBound';
 /** @hidden */
 export const toolbarClick: string = 'toolbarClick';
+/** @hidden */
+export const batchAdd: string = 'batchAdd';
+/** @hidden */
+export const batchDelete: string = 'batchDelete';
+/** @hidden */
+export const beforeBatchAdd: string = 'beforeBatchAdd';
+/** @hidden */
+export const beforeBatchDelete: string = 'beforeBatchDelete';
+/** @hidden */
+export const beforeBatchSave: string = 'beforeBatchSave';
+/** @hidden */
+export const beginEdit: string = 'beginEdit';
+/** @hidden */
+export const cellEdit: string = 'cellEdit';
+/** @hidden */
+export const cellSave: string = 'cellSave';
+/** @hidden */
+export const endAdd: string = 'endAdd';
+/** @hidden */
+export const endDelete: string = 'endDelete';
+/** @hidden */
+export const endEdit: string = 'endEdit';
+/** @hidden */
+export const recordDoubleClick: string = 'recordDoubleClick';
+/** @hidden */
+export const recordClick: string = 'recordClick';
+/** @hidden */
+export const beforeDataBound: string = 'beforeDataBound';
 
 /**
  * Specifies grid internal events
@@ -148,4 +176,35 @@ export const dataSourceModified: string = 'datasource-modified';
 export const refreshComplete: string = 'refresh-complete';
 /** @hidden */
 export const refreshVirtualBlock: string = 'refresh-virtual-block';
-
+/** @hidden */
+export const dblclick: string = 'dblclick';
+/** @hidden */
+export const toolbarRefresh: string = 'toolbar-refresh';
+/** @hidden */
+export const bulkSave: string = 'bulk-save';
+/** @hidden */
+export const autoCol: string = 'auto-col';
+/** @hidden */
+export const tooltipDestroy: string = 'tooltip-destroy';
+/** @hidden */
+export const updateData: string = 'update-data';
+/** @hidden */
+export const editBegin: string = 'edit-begin';
+/** @hidden */
+export const editComplete: string = 'edit-complete';
+/** @hidden */
+export const addBegin: string = 'add-begin';
+/** @hidden */
+export const addComplete: string = 'add-complete';
+/** @hidden */
+export const deleteBegin: string = 'delete-begin';
+/** @hidden */
+export const deleteComplete: string = 'delete-complete';
+/** @hidden */
+export const preventBatch: string = 'prevent-batch';
+/** @hidden */
+export const dialogDestroy: string = 'dialog-destroy';
+/** @hidden */
+export const crudAction: string = 'crud-Action';
+/** @hidden */
+export const addDeleteAction: string = 'add-delete-Action';

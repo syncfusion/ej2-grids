@@ -1,6 +1,7 @@
 import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
+import { isActionPrevent } from '../base/util';
 import { SearchSettingsModel } from '../base/grid-model';
 
 /**
@@ -30,10 +31,14 @@ export class Search implements IAction {
      */
     public search(searchString: string): void {
         let gObj: IGrid = this.parent;
+        if (isActionPrevent(gObj)) {
+            gObj.notify(events.preventBatch, { instance: this, handler: this.search, arg1: searchString });
+            return;
+        }
         searchString = searchString.toLowerCase();
-        if (searchString !== this.parent.searchSettings.key) {
-            this.parent.searchSettings.key = searchString;
-            this.parent.dataBind();
+        if (searchString !== gObj.searchSettings.key) {
+            gObj.searchSettings.key = searchString;
+            gObj.dataBind();
         }
     }
     /**

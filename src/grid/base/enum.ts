@@ -30,7 +30,9 @@ export type Action =
     /**  Defines current Action as Grouping */
     'grouping' |
     /**  Defines current Action as UnGrouping */
-    'ungrouping';
+    'ungrouping' |
+    /**  Defines current Action as Batch Save */
+    'batchsave';
 
 
 /** 
@@ -213,4 +215,3 @@ export type AggregateType =
     'falsecount' |
     /** Specifies custom aggregate type */
     'custom';
-    

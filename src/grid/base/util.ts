@@ -1,7 +1,7 @@
 import { ChildProperty } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
 import { setStyleAttribute, addClass, attributes, createElement, remove } from '@syncfusion/ej2-base';
-import { IPosition } from './interface';
+import { IPosition, IGrid } from './interface';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { ColumnModel, AggregateColumnModel } from '../models/models';
@@ -300,4 +300,29 @@ export function getRowHeight(element?: HTMLElement): number {
     element.removeChild(table);
     rowHeight = Math.ceil(rect.height);
     return rowHeight;
+}
+
+/** @hidden */
+export function isEditable(col: Column, type: string, elem: Element): boolean {
+    let row: Element = parentsUntil(elem, 'e-row');
+    let isOldRow: boolean = !row ? true : row && !row.classList.contains('e-insertedrow');
+    if (type === 'edit' && isOldRow) {
+        if (col.isIdentity || col.isPrimaryKey || !col.allowEditing) {
+            return false;
+        }
+        return true;
+    } else {
+        if (isOldRow && !col.allowEditing && !col.isIdentity && !col.isPrimaryKey) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/** @hidden */
+export function isActionPrevent(inst: IGrid): boolean {
+    let dlg: HTMLElement = inst.element.querySelector('#' + inst.element.id + 'EditConfirm') as HTMLElement;
+    return inst.editSettings.mode === 'batch' &&
+        (inst.element.querySelectorAll('.e-updatedtd').length) &&
+        (dlg ? dlg.classList.contains('e-popup-close') : true);
 }

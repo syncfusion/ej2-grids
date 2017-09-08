@@ -5,7 +5,7 @@ import { SortSettings } from '../base/grid';
 import { Column } from '../models/column';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { SortDirection } from '../base/enum';
-import { setCssInGridPopUp, getActualPropFromColl } from '../base/util';
+import { setCssInGridPopUp, getActualPropFromColl, isActionPrevent } from '../base/util';
 import * as events from '../base/constant';
 import { SortDescriptorModel } from '../base/grid-model';
 import { AriaService } from '../services/aria-service';
@@ -109,6 +109,15 @@ export class Sort implements IAction {
         if (this.parent.getColumnByField(columnName).allowSorting === false) {
             return;
         }
+        if (this.isActionPrevent()) {
+            this.parent.notify(
+                events.preventBatch,
+                {
+                    instance: this, handler: this.sortColumn,
+                    arg1: columnName, arg2: direction, arg3: isMultiSort
+                });
+            return;
+        }
         this.columnName = columnName;
         this.direction = direction;
         this.isMultiSort = isMultiSort;
@@ -160,9 +169,17 @@ export class Sort implements IAction {
      */
     public clearSorting(): void {
         let cols: SortDescriptorModel[] = getActualPropFromColl(this.sortSettings.columns);
+        if (this.isActionPrevent()) {
+            this.parent.notify(events.preventBatch, { instance: this, handler: this.clearSorting });
+            return;
+        }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             this.removeSortColumn(cols[i].field);
         }
+    }
+
+    private isActionPrevent(): boolean {
+        return isActionPrevent(this.parent);
     }
 
     /** 
@@ -174,6 +191,10 @@ export class Sort implements IAction {
     public removeSortColumn(field: string): void {
         let gObj: IGrid = this.parent;
         let cols: SortDescriptorModel[] = this.sortSettings.columns;
+        if (this.isActionPrevent()) {
+            this.parent.notify(events.preventBatch, { instance: this, handler: this.removeSortColumn, arg1: field });
+            return;
+        }
         this.removeSortIcons();
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             if (cols[i].field === field) {

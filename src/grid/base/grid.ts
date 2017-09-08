@@ -12,10 +12,11 @@ import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventA
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
+import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from './interface';
+import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
 import { DetailDataBoundEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
 import { Render } from '../renderer/render';
-import { Row } from '../models/row';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
 import { Data } from '../actions/data';
@@ -25,7 +26,7 @@ import { ValueFormatter } from '../services/value-formatter';
 import { RendererFactory } from '../services/renderer-factory';
 import { ColumnWidthService } from '../services/width-controller';
 import { AriaService } from '../services/aria-service';
-import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
+import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel, EditSettingsModel } from './grid-model';
 import { SortDescriptorModel, PredicateModel, RowDropSettingsModel, GroupSettingsModel } from './grid-model';
 import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { PageSettings } from '../models/page-settings';
@@ -44,6 +45,8 @@ import { Print } from '../actions/print';
 import { DetailRow } from '../actions/detail-row';
 import { Toolbar } from '../actions/toolbar';
 import { AggregateRow } from '../models/aggregate';
+import { Edit } from '../actions/edit';
+import { Row } from '../models/row';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -378,6 +381,60 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
 }
 
 
+/**   
+ * Configures the edit behavior of the Grid.    
+ */
+export class EditSettings extends ChildProperty<EditSettings> {
+    /**   
+     * If `allowAdding` set to true, then the user can able to add new record on the Grid.     
+     * @default false 
+     */
+    @Property(false)
+    public allowAdding: boolean;
+
+    /**   
+     * If `allowEditing` set to true, then the user can able to update values in the existing record.     
+     * @default false 
+     */
+    @Property(false)
+    public allowEditing: boolean;
+
+    /**   
+     * If `allowDeleting` set to true, then the user can able to delete existing record on the Grid.     
+     * @default false 
+     */
+    @Property(false)
+    public allowDeleting: boolean;
+
+    /**   
+     * Defines the edit mode of the Grid.   
+     * @default normal 
+     */
+    @Property('normal')
+    public mode: string;
+
+    /**   
+     * If `allowEditOnDblClick` set to false, then edit state not enabled while double click on the Grid record. 
+     * @default true 
+     */
+    @Property(true)
+    public allowEditOnDblClick: boolean;
+
+    /**   
+     * If `showConfirmDialog` set to false, then the confirm dialog not shown while saving or discarding the batch changes. 
+     * @default true 
+     */
+    @Property(true)
+    public showConfirmDialog: boolean;
+
+    /**   
+     * If `showDeleteConfirmDialog` set to true, then the confirm dialog has to be shown while deleting record. 
+     * @default false 
+     */
+    @Property(false)
+    public showDeleteConfirmDialog: boolean;
+}
+
 /**
  * Represents the Grid component. 
  * ```html
@@ -411,6 +468,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /** @hidden */
     public currentAction: Action;
     /** @hidden */
+    public isEdit: boolean;
+    /** @hidden */
     public filterOperators: IFilterOperator = {
         contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
         lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
@@ -440,8 +499,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         Wordexport: 'Word Export',
         Search: 'Search',
         Item: 'item',
-        Items: 'items'
-
+        Items: 'items',
+        EditOperationAlert: 'No records selected for edit operation',
+        DeleteOperationAlert: 'No records selected for delete operation',
+        SaveButton: 'Save',
+        OKButton: 'OK',
+        CancelButton: 'Cancel',
+        EditFormTitle: 'Details of ',
+        AddFormTitle: 'Add New Record',
+        BatchSaveConfirm: 'Are you sure you want to save changes?',
+        BatchSaveLostChanges: 'Unsaved changes will be lost. Are you sure you want to continue?',
+        ConfirmDelete: 'Are you sure you want to Delete Record?',
+        CancelEdit: 'Are you sure you want to Cancel the changes?'
     };
     private keyConfigs: { [key: string]: string } = {
         downArrow: 'downarrow',
@@ -468,8 +537,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         ctrlDownArrow: 'ctrl+downarrow',
         ctrlUpArrow: 'ctrl+uparrow',
         ctrlPlusA: 'ctrl+A',
-        ctrlPlusP: 'ctrl+P'
-
+        ctrlPlusP: 'ctrl+P',
+        insert: 'insert',
+        delete: 'delete',
+        f2: 'f2',
+        enter: 'enter',
+        tab: 'tab',
+        shiftTab: 'shift+tab'
     };
 
     //Module Declarations
@@ -566,6 +640,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * `toolbarModule` is used to manipulate toolbar items in the Grid.
      */
     public toolbarModule: Toolbar;
+
+    /**
+     * `editModule` is used to handle Grid content manipulation.
+     */
+    public editModule: Edit;
 
 
     //Grid Options    
@@ -672,7 +751,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Also, user can get the current selected row index.
      * @default -1        
      */
-    @Property()
+    @Property(-1)
     public selectedRowIndex: number;
 
     /**    
@@ -735,6 +814,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Complex<GroupSettingsModel>({}, GroupSettings)
     public groupSettings: GroupSettingsModel;
+
+    /**    
+     * Configures the edit settings. 
+     * @default { allowAdding: false, allowEditing: false, allowDeleting: false, mode:'normal',
+     * allowEditOnDblClick: true, showConfirmDialog: true, showDeleteConfirmDialog: false }    
+     */
+    @Complex<EditSettingsModel>({}, EditSettings)
+    public editSettings: EditSettingsModel;
 
     /**
      * Configures the Grid aggregate rows.
@@ -1100,6 +1187,69 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Event()
     public toolbarClick: EmitType<ClickEventArgs>;
 
+    /** 
+     * Triggers when record batch add.
+     * @event
+     */
+    @Event()
+    public batchAdd: EmitType<BatchAddArgs>;
+
+    /** 
+     * Triggers when record batch delete.
+     * @event
+     */
+    @Event()
+    public batchDelete: EmitType<BatchDeleteArgs>;
+
+    /** 
+     * Triggered before the batch add.
+     * @event
+     */
+    @Event()
+    public beforeBatchAdd: EmitType<BeforeBatchAddArgs>;
+
+    /** 
+     * Triggered before the batch delete.
+     * @event
+     */
+    @Event()
+    public beforeBatchDelete: EmitType<BeforeBatchDeleteArgs>;
+
+    /** 
+     * Triggered before the batch save.
+     * @event
+     */
+    @Event()
+    public beforeBatchSave: EmitType<BeforeBatchSaveArgs>;
+
+    /** 
+     * Triggered before the record is going to be edited.
+     * @event
+     */
+    @Event()
+    public beginEdit: EmitType<BeginEditArgs>;
+
+    /** 
+     * Triggered when record cell edit.
+     * @event
+     */
+    @Event()
+    public cellEdit: EmitType<CellEditArgs>;
+
+    /** 
+     * Triggered when record cell save.
+     * @event
+     */
+    @Event()
+    public cellSave: EmitType<CellSaveArgs>;
+
+    /** 
+     * Triggered when data manager `then` event.
+     * @event
+     */
+    @Event()
+    public beforeDataBound: EmitType<BeforeDataBoundArgs>;
+
     /**
      * Constructor for creating the component
      * @hidden
@@ -1122,7 +1272,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
             'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
             'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound', 'detailTemplate',
-            'childGrid', 'queryString', 'toolbar', 'toolbarClick'];
+            'childGrid', 'queryString', 'toolbar', 'toolbarClick', 'editSettings',
+            'batchAdd', 'batchDelete', 'beforeBatchAdd', 'beforeBatchDelete',
+            'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete', 'endEdit', 'beforeDataBound'];
         return this.addOnPersist(keyEntity);
     }
 
@@ -1198,6 +1350,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.enableVirtualization || this.enableColumnVirtualization) {
             modules.push({
                 member: 'virtualscroll',
+                args: [this, this.serviceLocator]
+            });
+        }
+        if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
+            modules.push({
+                member: 'edit',
                 args: [this, this.serviceLocator]
             });
         }
@@ -1412,6 +1570,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             case 'selectionSettings':
                 this.notify(events.inBoundModelChanged, { module: 'selection', properties: newProp.selectionSettings });
                 break;
+            case 'editSettings':
+                this.notify(events.inBoundModelChanged, { module: 'edit', properties: newProp.editSettings });
+                break;
             case 'allowTextWrap':
                 if (this.allowTextWrap) {
                     this.applyTextWrap();
@@ -1620,10 +1781,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Element[]} 
      */
     public getDataRows(): Element[] {
-        let rows: NodeList = this.getContentTable().querySelector('tbody').children;
+        let rows: HTMLElement[] = [].slice.call(this.getContentTable().querySelector('tbody').children);
         let dataRows: Element[] = [];
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
-            if ((rows[i] as Element).classList.contains('e-row')) {
+            if (rows[i].classList.contains('e-row') && !rows[i].classList.contains('e-hiddenrow')) {
                 dataRows.push(rows[i] as Element);
             }
         }
@@ -1647,6 +1808,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getColumnHeaderByIndex(index: number): Element {
         return this.getHeaderTable().querySelectorAll('.e-headercell')[index];
+    }
+
+    /**
+     * @hidden   
+     */
+    public getRowObjectFromUID(uid: string): Row<Column> {
+        for (let row of this.contentModule.getRows() as Row<Column>[]) {
+            if (row.uid === uid) {
+                return row;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1801,9 +1974,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the collection of primary keys.
-     * @private
-     * @return {Function}
+     * Get the names of primary key columns in Grid. 
+     * @return {string[]}
      */
     public getPrimaryKeyFieldNames(): string[] {
         let keys: string[] = [];
@@ -2020,6 +2192,53 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public print(): void {
         this.printModule.print();
+    }
+
+    /**
+     * Delete a record in grid control when allowDeleting is set as true.
+     * @param {string} fieldname - Defines the primary key field Name of the column.
+     * @param {Object} data - Defines the JSON data of record need to be delete.
+     */
+    public deleteRecord(fieldname?: string, data?: Object): void {
+        this.editModule.deleteRecord(fieldname, data);
+    }
+
+    /**
+     * Send an edit record request in Grid.
+     * @param {HTMLTableRowElement} tr - Defines the table row to be edited.
+     */
+    public startEdit(): void {
+        this.editModule.startEdit();
+    }
+
+    /**
+     * Send a save request in Grid.
+     */
+    public endEdit(): void {
+        this.editModule.endEdit();
+    }
+
+    /**
+     * Send a cancel request in Grid.
+     */
+    public closeEdit(): void {
+        this.editModule.closeEdit();
+    }
+
+    /**
+     * Add a new record in grid control when allowAdding is set as true.Without passing parameters it will add empty row.
+     * @param {Object} data - Defines the new add record data.
+     */
+    public addRecord(data?: Object): void {
+        this.editModule.addRecord(data);
+    }
+
+    /**
+     * Delete the row based on the given tr element in Grid.
+     * @param {HTMLTableRowElement} tr - Defines the table row element.
+     */
+    public deleteRow(tr: HTMLTableRowElement): void {
+        this.editModule.deleteRow(tr);
     }
 
     /**    
@@ -2251,6 +2470,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         EventHandler.add(this.element, 'click', this.mouseClickHandler, this);
         EventHandler.add(this.element, 'touchend', this.mouseClickHandler, this);
         EventHandler.add(this.element, 'focusout', this.focusOutHandler, this);
+        EventHandler.add(this.getContent(), 'dblclick', this.dblClickHandler, this);
         if (this.allowKeyboard) {
             this.element.tabIndex = this.element.tabIndex === -1 ? 0 : this.element.tabIndex;
         }
@@ -2304,7 +2524,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private mouseClickHandler(e: MouseEvent & TouchEvent): void {
         if (this.isChildGrid(e) || (parentsUntil(e.target as Element, 'e-gridpopup') && e.touches) ||
-            this.element.querySelectorAll('.e-cloneproperties').length) {
+            this.element.querySelectorAll('.e-cloneproperties').length || this.checkEdit(e)) {
             return;
         }
         if (((!this.allowRowDragAndDrop && parentsUntil(e.target as Element, 'e-gridcontent')) ||
@@ -2315,6 +2535,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             e.preventDefault();
         }
         this.notify(events.click, e);
+    }
+
+    private checkEdit(e: MouseEvent): boolean {
+        let tr: Element = parentsUntil(e.target as Element, 'e-row');
+        let isEdit: boolean = this.editSettings.mode !== 'batch' &&
+            this.isEdit && tr && (tr.classList.contains('e-editedrow') || tr.classList.contains('e-addedrow'));
+        return isEdit || (parentsUntil(e.target as Element, 'e-rowcell') &&
+            parentsUntil(e.target as Element, 'e-rowcell').classList.contains('e-editedbatchcell'));
+    }
+
+    private dblClickHandler(e: MouseEvent): void {
+        this.notify(events.dblclick, e);
     }
 
     private focusOutHandler(e: MouseEvent): void {
@@ -2343,7 +2575,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private keyActionHandler(e: KeyboardEventArgs): void {
-        if (this.isChildGrid(e)) {
+        if (this.isChildGrid(e) ||
+            (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'tab' && e.action !== 'shiftTab')) {
             return;
         }
         if (this.allowKeyboard) {

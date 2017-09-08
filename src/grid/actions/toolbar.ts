@@ -4,6 +4,7 @@ import { Toolbar as tool, ItemModel, ClickEventArgs } from '@syncfusion/ej2-navi
 import { IGrid, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { ServiceLocator } from '../services/service-locator';
+import { EditSettingsModel } from '../base/grid-model';
 
 /**
  * `Toolbar` module used to handle toolbar actions.
@@ -88,10 +89,39 @@ export class Toolbar {
         this.toolbar.appendTo(this.element);
         this.searchElement = (<HTMLInputElement>this.element.querySelector('#' + this.gridID + '_searchbar'));
         this.wireEvent();
-        this.enableItems([this.gridID + '_update', this.gridID + '_cancel', this.gridID + '_delete', this.gridID + '_edit'], false);
+        this.refreshToolbarItems();
         if (this.parent.searchSettings) {
             this.updateSearchBox();
         }
+    }
+
+    private refreshToolbarItems(args?: { editSettings: EditSettingsModel, name: string }): void {
+        let gObj: IGrid = this.parent;
+        let enableItems: string[] = [];
+        let disableItems: string[] = [];
+        let edit: EditSettingsModel = gObj.editSettings;
+        edit.allowAdding ? enableItems.push(this.gridID + '_add') : disableItems.push(this.gridID + '_add');
+        edit.allowEditing ? enableItems.push(this.gridID + '_edit') : disableItems.push(this.gridID + '_edit');
+        edit.allowDeleting ? enableItems.push(this.gridID + '_delete') : disableItems.push(this.gridID + '_delete');
+        if (gObj.editSettings.mode === 'batch') {
+            if (gObj.element.querySelectorAll('.e-updatedtd').length && (edit.allowAdding || edit.allowEditing)) {
+                enableItems.push(this.gridID + '_update');
+                enableItems.push(this.gridID + '_cancel');
+            } else {
+                disableItems.push(this.gridID + '_update');
+                disableItems.push(this.gridID + '_cancel');
+            }
+        } else {
+            if (gObj.isEdit && (edit.allowAdding || edit.allowEditing)) {
+                enableItems = [this.gridID + '_update', this.gridID + '_cancel'];
+                disableItems = [this.gridID + '_add', this.gridID + '_edit', this.gridID + '_delete'];
+            } else {
+                disableItems.push(this.gridID + '_update');
+                disableItems.push(this.gridID + '_cancel');
+            }
+        }
+        this.enableItems(enableItems, true);
+        this.enableItems(disableItems, false);
     }
 
     private getItems(): ItemModel[] {
@@ -136,16 +166,21 @@ export class Toolbar {
             case gID + '_print':
                 gObj.print();
                 break;
-            // case gID + '_edit':
-            //     break;
-            // case gID + '_update':
-            //     break;
-            // case gID + '_cancel':
-            //     break;
-            // case gID + '_add':
-            //     break;
-            // case gID + '_delete':
-            //     break;
+            case gID + '_edit':
+                gObj.startEdit();
+                break;
+            case gID + '_update':
+                gObj.endEdit();
+                break;
+            case gID + '_cancel':
+                gObj.closeEdit();
+                break;
+            case gID + '_add':
+                gObj.addRecord();
+                break;
+            case gID + '_delete':
+                gObj.deleteRecord();
+                break;
             // case gID + '_pdfexport':
             //     break;
             // case gID + '_wordexport':
@@ -159,6 +194,12 @@ export class Toolbar {
                 break;
             default:
                 gObj.trigger(events.toolbarClick, args);
+        }
+    }
+
+    private modelChanged(e: { module: string, properties: EditSettingsModel }): void {
+        if (e.module === 'edit') {
+            this.refreshToolbarItems();
         }
     }
 
@@ -188,30 +229,6 @@ export class Toolbar {
         }
     }
 
-    private selectAction(args: { name: string }): void {
-        let gID: string = this.gridID;
-        switch (args.name) {
-            case 'rowSelected':
-                this.enableItems([gID + '_edit', gID + '_delete', gID + '_add'], true);
-                this.enableItems([gID + '_update', gID + '_cancel'], false);
-                break;
-            case 'rowDeselected':
-                if (!this.parent.getSelectedRecords().length) {
-                    this.enableItems([gID + '_add'], true);
-                    this.enableItems([gID + '_edit', gID + '_delete', gID + '_update', gID + '_cancel'], false);
-                }
-                break;
-            case 'cellDeselected':
-                this.enableItems([gID + '_add'], true);
-                this.enableItems([gID + '_delete', gID + '_cancel', gID + '_update', gID + '_edit'], false);
-                break;
-            case 'cellSelected':
-                this.enableItems([gID + '_edit', gID + '_add'], true);
-                this.enableItems([gID + '_delete', gID + '_cancel', gID + '_update'], false);
-                break;
-        }
-    }
-
     private wireEvent(): void {
         if (this.searchElement) {
             EventHandler.add(this.searchElement, 'keyup', this.keyUpHandler, this);
@@ -229,10 +246,10 @@ export class Toolbar {
         this.parent.on(events.initialEnd, this.render, this);
         this.parent.on(events.uiUpdate, this.onPropertyChanged, this);
         this.parent.on(events.inBoundModelChanged, this.updateSearchBox.bind(this));
-        this.parent.addEventListener(events.rowSelected, this.selectAction.bind(this));
-        this.parent.addEventListener(events.rowDeselected, this.selectAction.bind(this));
-        this.parent.addEventListener(events.cellSelected, this.selectAction.bind(this));
-        this.parent.addEventListener(events.cellDeselected, this.selectAction.bind(this));
+        this.parent.on(events.modelChanged, this.refreshToolbarItems, this);
+        this.parent.on(events.toolbarRefresh, this.refreshToolbarItems, this);
+        this.parent.on(events.inBoundModelChanged, this.modelChanged, this);
+        this.parent.on(events.dataBound, this.refreshToolbarItems, this);
     }
 
     protected removeEventListener(): void {
@@ -240,10 +257,10 @@ export class Toolbar {
         this.parent.off(events.initialEnd, this.render);
         this.parent.off(events.uiUpdate, this.onPropertyChanged);
         this.parent.off(events.inBoundModelChanged, this.updateSearchBox);
-        this.parent.removeEventListener(events.rowSelected, this.selectAction);
-        this.parent.removeEventListener(events.rowDeselected, this.selectAction);
-        this.parent.removeEventListener(events.cellSelected, this.selectAction);
-        this.parent.removeEventListener(events.cellDeselected, this.selectAction);
+        this.parent.off(events.modelChanged, this.refreshToolbarItems);
+        this.parent.off(events.toolbarRefresh, this.refreshToolbarItems);
+        this.parent.off(events.inBoundModelChanged, this.modelChanged);
+        this.parent.off(events.dataBound, this.refreshToolbarItems);
     }
     /**
      * For internal use only - Get the module name.

@@ -66,7 +66,7 @@ export class CellRenderer implements ICellRenderer<Column> {
     public invokeFormatter(column: Column, value: Object, data: Object): Object {
         if (!isNullOrUndefined(column.formatter)) {
             if (doesImplementInterface(column.formatter, 'getValue')) {
-                let formatter: { new (): ICellFormatter } = <{ new (): ICellFormatter }>column.formatter;
+                let formatter: { new(): ICellFormatter } = <{ new(): ICellFormatter }>column.formatter;
                 value = new formatter().getValue(column, data);
 
             } else if (typeof column.formatter === 'function') {
@@ -86,6 +86,22 @@ export class CellRenderer implements ICellRenderer<Column> {
      * @param  {Element}
      */
     public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
+        return this.refreshCell(cell, data, attributes);
+    }
+
+    /**
+     * Function to refresh the cell content based on Column object.
+     * @param  {Column} column
+     * @param  {Object} data
+     * @param  {{[x:string]:Object}} attributes?
+     * @param  {Element}
+     */
+    public refreshTD(td: Element, cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): void {
+        let node: Element = this.refreshCell(cell, data, attributes);
+        td.innerHTML = node.innerHTML;
+    }
+
+    private refreshCell(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
         let node: Element = this.element.cloneNode() as Element;
         let column: Column = cell.column;
 
@@ -93,6 +109,10 @@ export class CellRenderer implements ICellRenderer<Column> {
         let innerHtml: string = <string>this.getGui();
 
         let value: Object = this.getValue(column.field, data, column);
+
+        if (column.type === 'date') {
+            value = new Date(value);
+        }
 
         value = this.format(column, value, data);
 

@@ -1,6 +1,6 @@
 import { merge } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions, compile as templateCompiler } from '@syncfusion/ej2-base';
-import { ICellFormatter, IFilterUI } from '../base/interface';
+import { ICellFormatter, IFilterUI, IEditCell } from '../base/interface';
 import { TextAlign } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
 import { ValueAccessor } from '../base/type';
@@ -126,6 +126,14 @@ export class Column {
     public allowGrouping: boolean = true;
 
     /**    
+     * If `allowEditing` set to false, then it disables editing of a particular column. 
+     * By default all columns are editable. 
+     * @default true   
+     */
+
+    public allowEditing: boolean = true;
+
+    /**    
      * User can customize css styles and attributes of the content cells of a particular column. 
      *  
      * ```html 
@@ -190,7 +198,7 @@ export class Column {
      *  
      * @default null   
      */
-    public formatter: { new (): ICellFormatter } | ICellFormatter | Function;
+    public formatter: { new(): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method which is used to apply custom cell values from external function and display this on each cells of render.     
@@ -275,6 +283,44 @@ export class Column {
      * @default false         
      */
     public isPrimaryKey: boolean;
+
+    /**    
+     * Defines the `editType` which is used to render the element for editing the grid record.   
+     * @default stringedit         
+     */
+    public editType: string;
+
+    /**    
+     * Defines a value to set validation for saving data to the database.
+     * @default null         
+     */
+    public validationRules: Object;
+
+    /**    
+     * Defines the values which is used to display while adding a new record to the Grid.
+     * @default null         
+     */
+    public defaultValue: string;
+
+    /**    
+     * Defines the `IEditCell` object which is used to customize default edit cell and also you can create edit template cell.
+     * @default null         
+     */
+    public edit: IEditCell;
+
+    /**    
+     * Defines a value that indicates the column has an identity in the database.
+     * @default false         
+     */
+    public isIdentity: boolean;
+
+    /**    
+     * To define foreign key field name of the grid datasource.
+     * @hidden
+     * @default null         
+     */
+    public foreignKeyValue: string;
+
 
     constructor(options: ColumnModel) {
         merge(this, options);
@@ -439,6 +485,13 @@ export interface ColumnModel {
      */
     allowGrouping?: boolean;
 
+    /**    
+     * If `allowEditing` set to false, then it disables editing of a particular column. 
+     * By default all columns are editable.   
+     * @default true   
+     */
+    allowEditing?: boolean;
+
     /**   
      * User can customize css styles and attributes of the content cells of a particular column.   
      * 
@@ -502,7 +555,7 @@ export interface ColumnModel {
      * 
      * @default null  
      */
-    formatter?: { new (): ICellFormatter } | ICellFormatter | Function;
+    formatter?: { new(): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method which is used to apply custom cell values from external function and display this on each cells of render.     
@@ -584,5 +637,49 @@ export interface ColumnModel {
      * @default false         
      */
     isPrimaryKey?: boolean;
+
+    /**    
+     * Defines the `editType` which is used to render the element for editing the grid record.   
+     * @default stringedit         
+     */
+    editType?: string;
+
+    /**    
+     * Defines a value to set validation for saving data to the database.
+     * @default null         
+     */
+    validationRules?: Object;
+
+    /**    
+     * Defines the values which is used to display while adding a new record to the Grid.
+     * @default null         
+     */
+    defaultValue?: string;
+
+    /**    
+     * Defines the `IEditCell` object which is used to customize default edit cell and also you can create edit template cell.
+     * @default null         
+     */
+    edit?: IEditCell;
+
+    /**    
+     * Defines a value that indicates the column has an identity in the database.
+     * @default false         
+     */
+    isIdentity?: boolean;
+
+    /**    
+     * To define foreign key field name of the grid datasource.
+     * @hidden
+     * @default null         
+     */
+    foreignKeyField?: string;
+
+    /**    
+     * Defines the value to bind the field which is in foreign column datasource based on the foreignKeyField.
+     * @hidden
+     * @default null         
+     */
+    foreignKeyValue?: string;
 
 }

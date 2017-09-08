@@ -18,3 +18,8 @@ export * from './actions/detail-row';
 export * from './actions/toolbar';
 export * from './actions/aggregate';
 export * from './actions/virtual-scroll';
+export * from './actions/edit';
+export * from './actions/batch-edit';
+export * from './actions/inline-edit';
+export * from './actions/normal-edit';
+export * from './actions/dialog-edit';

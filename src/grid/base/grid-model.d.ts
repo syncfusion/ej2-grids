@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, ChildProperty, compile as templateComplier, Browser } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager } from '@syncfusion/ej2-data';import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';import { iterateArrayOrObject, prepareColumns, parentsUntil } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';import { DetailDataBoundEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';import { Render } from '../renderer/render';import { Row } from '../models/row';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { Data } from '../actions/data';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { PageSettingsModel, AggregateRowModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Resize } from '../actions/resize';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';import { DetailRow } from '../actions/detail-row';import { Toolbar } from '../actions/toolbar';import { AggregateRow } from '../models/aggregate';
+import { Component, ModuleDeclaration, ChildProperty, compile as templateComplier, Browser } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager } from '@syncfusion/ej2-data';import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';import { iterateArrayOrObject, prepareColumns, parentsUntil } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from './interface';import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';import { DetailDataBoundEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';import { Render } from '../renderer/render';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { Data } from '../actions/data';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { PageSettingsModel, AggregateRowModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Resize } from '../actions/resize';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';import { DetailRow } from '../actions/detail-row';import { Toolbar } from '../actions/toolbar';import { AggregateRow } from '../models/aggregate';import { Edit } from '../actions/edit';import { Row } from '../models/row';
 import {ComponentModel} from '@syncfusion/ej2-base';
 
 /**
@@ -318,6 +318,55 @@ export interface GroupSettingsModel {
 }
 
 /**
+ * Interface for a class EditSettings
+ */
+export interface EditSettingsModel {
+
+    /**
+     * If `allowAdding` set to true, then the user can able to add new record on the Grid.     
+     * @default false 
+     */
+    allowAdding?: boolean;
+
+    /**
+     * If `allowEditing` set to true, then the user can able to update values in the existing record.     
+     * @default false 
+     */
+    allowEditing?: boolean;
+
+    /**
+     * If `allowDeleting` set to true, then the user can able to delete existing record on the Grid.     
+     * @default false 
+     */
+    allowDeleting?: boolean;
+
+    /**
+     * Defines the edit mode of the Grid.   
+     * @default normal 
+     */
+    mode?: string;
+
+    /**
+     * If `allowEditOnDblClick` set to false, then edit state not enabled while double click on the Grid record. 
+     * @default true 
+     */
+    allowEditOnDblClick?: boolean;
+
+    /**
+     * If `showConfirmDialog` set to false, then the confirm dialog not shown while saving or discarding the batch changes. 
+     * @default true 
+     */
+    showConfirmDialog?: boolean;
+
+    /**
+     * If `showDeleteConfirmDialog` set to true, then the confirm dialog has to be shown while deleting record. 
+     * @default false 
+     */
+    showDeleteConfirmDialog?: boolean;
+
+}
+
+/**
  * Interface for a class Grid
  */
 export interface GridModel extends ComponentModel{
@@ -464,6 +513,13 @@ export interface GridModel extends ComponentModel{
      * @default {showDropArea: true, showToggleButton: false, showGroupedColumn: false, showUngroupButton: true, columns: []}    
      */
     groupSettings?: GroupSettingsModel;
+
+    /**
+     * Configures the edit settings. 
+     * @default { allowAdding: false, allowEditing: false, allowDeleting: false, mode:'normal',
+     * allowEditOnDblClick: true, showConfirmDialog: true, showDeleteConfirmDialog: false }    
+     */
+    editSettings?: EditSettingsModel;
 
     /**
      * Configures the Grid aggregate rows.
@@ -791,5 +847,59 @@ export interface GridModel extends ComponentModel{
      * @event
      */
     toolbarClick?: EmitType<ClickEventArgs>;
+
+    /**
+     * Triggers when record batch add.
+     * @event
+     */
+    batchAdd?: EmitType<BatchAddArgs>;
+
+    /**
+     * Triggers when record batch delete.
+     * @event
+     */
+    batchDelete?: EmitType<BatchDeleteArgs>;
+
+    /**
+     * Triggered before the batch add.
+     * @event
+     */
+    beforeBatchAdd?: EmitType<BeforeBatchAddArgs>;
+
+    /**
+     * Triggered before the batch delete.
+     * @event
+     */
+    beforeBatchDelete?: EmitType<BeforeBatchDeleteArgs>;
+
+    /**
+     * Triggered before the batch save.
+     * @event
+     */
+    beforeBatchSave?: EmitType<BeforeBatchSaveArgs>;
+
+    /**
+     * Triggered before the record is going to be edited.
+     * @event
+     */
+    beginEdit?: EmitType<BeginEditArgs>;
+
+    /**
+     * Triggered when record cell edit.
+     * @event
+     */
+    cellEdit?: EmitType<CellEditArgs>;
+
+    /**
+     * Triggered when record cell save.
+     * @event
+     */
+    cellSave?: EmitType<CellSaveArgs>;
+
+    /**
+     * Triggered when data manager `then` event.
+     * @event
+     */
+    beforeDataBound?: EmitType<BeforeDataBoundArgs>;
 
 }

@@ -3,7 +3,7 @@ import { createElement, closest, remove, classList } from '@syncfusion/ej2-base'
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { GroupSettingsModel, SortDescriptorModel } from '../base/grid-model';
-import { parentsUntil } from '../base/util';
+import { parentsUntil, isActionPrevent } from '../base/util';
 import { Action } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
@@ -431,6 +431,10 @@ export class Group implements IAction {
             (this.contentRefresh && this.groupSettings.columns.indexOf(columnName) > -1)) {
             return;
         }
+        if (isActionPrevent(gObj)) {
+            gObj.notify(events.preventBatch, { instance: this, handler: this.groupColumn, arg1: columnName });
+            return;
+        }
         column.visible = gObj.groupSettings.showGroupedColumn;
         this.colName = columnName;
         if (this.contentRefresh) {
@@ -449,8 +453,12 @@ export class Group implements IAction {
     public ungroupColumn(columnName: string): void {
         let gObj: IGrid = this.parent;
         let column: Column = this.parent.enableColumnVirtualization ?
-        (<Column[]>this.parent.columns).filter((c: Column) => c.field === columnName)[0] : gObj.getColumnByField(columnName);
+            (<Column[]>this.parent.columns).filter((c: Column) => c.field === columnName)[0] : gObj.getColumnByField(columnName);
         if (isNullOrUndefined(column) || column.allowGrouping === false || this.groupSettings.columns.indexOf(columnName) < 0) {
+            return;
+        }
+        if (isActionPrevent(gObj)) {
+            gObj.notify(events.preventBatch, { instance: this, handler: this.ungroupColumn, arg1: columnName });
             return;
         }
         column.visible = true;

@@ -18,11 +18,16 @@ module.exports = function (config) {
       "test-main.js",
       "styles/grid/material.css",
       { pattern: "src/**/*.js", included: false },     
-      { pattern: "spec/**/*.spec.js", included: false },
+      { pattern: "spec/**/datasource.spec.js", included: false },
+      { pattern: "spec/**/*.spec.js", included: false },      
       { pattern: "node_modules/@syncfusion/ej2-base/**/*.js", included: false },
       { pattern: "node_modules/@syncfusion/ej2-data/**/*.js", included: false },
+      { pattern: "node_modules/@syncfusion/ej2-inputs/**/*.js", included: false },
       { pattern: "node_modules/@syncfusion/ej2-buttons/**/*.js", included: false },
-      { pattern: "node_modules/@syncfusion/ej2-popups/**/*.js", included: false },        
+      { pattern: "node_modules/@syncfusion/ej2-calendars/**/*.js", included: false },
+      { pattern: "node_modules/@syncfusion/ej2-popups/**/*.js", included: false },
+      { pattern: "node_modules/@syncfusion/ej2-lists/**/*.js", included: false },  
+      { pattern: "node_modules/@syncfusion/ej2-dropdowns/**/*.js", included: false },              
       { pattern: "node_modules/@syncfusion/ej2-navigations/**/*.js", included: false },
       { pattern: 'node_modules/es6-promise/dist/es6-promise.js', included: false } 
       // Add dependent package's script files here              
@@ -70,7 +75,7 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS', 'Chrome', 'Firefox'],
+    browsers: ['ChromeHeadless', 'Chrome'],
 
 
     // Continuous Integration mode

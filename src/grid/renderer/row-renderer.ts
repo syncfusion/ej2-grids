@@ -40,6 +40,26 @@ export class RowRenderer<T> implements IRowRenderer<T> {
      * @param  {string} rowTemplate?
      */
     public render(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string): Element {
+        return this.refreshRow(row, columns, attributes, rowTemplate);
+    }
+
+    /**
+     * Function to refresh the row content based on Column[] and data.
+     * @param  {Column[]} columns
+     * @param  {Object} data?
+     * @param  {{[x:string]:Object}} attributes?
+     * @param  {string} rowTemplate?
+     */
+    public refresh(row: Row<T>, columns: Column[], isChanged: boolean, attributes?: { [x: string]: Object }, rowTemplate?: string): void {
+        if (isChanged) {
+            row.data = extend({}, row.changes);
+        }
+        let node: Element = this.parent.getContent().querySelector('[data-uid=' + row.uid + ']');
+        let tr: Element = this.refreshRow(row, columns, attributes, rowTemplate);
+        node.innerHTML = tr.innerHTML;
+    }
+
+    private refreshRow(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string): Element {
         let tr: Element = this.element.cloneNode() as Element;
         let rowArgs: RowDataBoundEventArgs = { data: row.data };
         let cellArgs: QueryCellInfoEventArgs = { data: row.data };
@@ -57,7 +77,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         let cellRendererFact: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
         for (let i: number = 0, len: number = row.cells.length; i < len; i++) {
             let cell: Cell<T> = row.cells[i]; cell.isSelected = row.isSelected;
-            let cellRenderer: ICellRenderer<T> = cellRendererFact.getCellRenderer( row.cells[i].cellType || CellType.Data);
+            let cellRenderer: ICellRenderer<T> = cellRendererFact.getCellRenderer(row.cells[i].cellType || CellType.Data);
             let td: Element = cellRenderer.render(
                 row.cells[i], row.data,
                 { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' });
@@ -83,7 +103,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
     public buildAttributeFromRow(tr: Element, row: Row<T>): void {
         let attr: IRow<T> & { 'class'?: string[] } = {};
         let prop: { 'rowindex'?: string; 'dataUID'?: string, 'ariaSelected'?: string }
-         = { 'rowindex': 'aria-rowindex', 'dataUID': 'data-uid', 'ariaSelected': 'aria-selected' };
+            = { 'rowindex': 'aria-rowindex', 'dataUID': 'data-uid', 'ariaSelected': 'aria-selected' };
         let classes: string[] = [];
 
         if (row.isDataRow) {

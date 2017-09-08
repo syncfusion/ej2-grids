@@ -5,7 +5,7 @@ import { Pager } from '../../pager/pager';
 import { ExternalMessage } from '../../pager/external-message';
 import { PageSettingsModel } from '../models/page-settings-model';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
-import { extend as gridExtend, getActualProperties } from '../base/util';
+import { extend as gridExtend, getActualProperties, isActionPrevent } from '../base/util';
 import * as events from '../base/constant';
 Pager.Inject(ExternalMessage);
 
@@ -16,6 +16,7 @@ export class Page implements IAction {
     //Internal variables          
     private element: HTMLElement;
     private pageSettings: PageSettingsModel;
+    private isForceCancel: boolean;
 
     //Module declarations
     private parent: IGrid;
@@ -143,8 +144,19 @@ export class Page implements IAction {
         this.pagerObj.dataBind();
     }
 
-    private clickHandler(e: Pager): void {
+    private clickHandler(e: { currentPage: number, cancel: boolean }): void {
         let gObj: IGrid = this.parent;
+        if (this.isForceCancel || isActionPrevent(gObj)) {
+            if (!this.isForceCancel) {
+                gObj.notify(events.preventBatch, { instance: this, handler: this.goToPage, arg1: e.currentPage });
+                this.pagerObj.currentPage = gObj.pageSettings.currentPage;
+                this.isForceCancel = true;
+            } else {
+                this.isForceCancel = false;
+            }
+            e.cancel = true;
+            return;
+        }
         let prevPage: number = this.pageSettings.currentPage;
         this.pageSettings.currentPage = e.currentPage;
         this.parent.notify(events.modelChanged, {

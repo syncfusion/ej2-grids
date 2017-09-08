@@ -1,0 +1,527 @@
+import { KeyboardEventArgs, L10n } from '@syncfusion/ej2-base';
+import { extend, getValue } from '@syncfusion/ej2-base';
+import { remove, createElement } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
+import { IGrid, IAction, NotifyArgs, EJ2Intance, IEdit } from '../base/interface';
+import * as events from '../base/constant';
+import { EditRender } from '../renderer/edit-renderer';
+import { ServiceLocator } from '../services/service-locator';
+import { Column } from '../models/column';
+import { BooleanEditCell } from '../renderer/boolean-edit-cell';
+import { DropDownEditCell } from '../renderer/dropdown-edit-cell';
+import { NumericEditCell } from '../renderer/numeric-edit-cell';
+import { DefaultEditCell } from '../renderer/default-edit-cell';
+import { InlineEdit } from './inline-edit';
+import { BatchEdit } from './batch-edit';
+import { DialogEdit } from './dialog-edit';
+import { Dialog } from '@syncfusion/ej2-popups';
+import { parentsUntil } from '../base/util';
+import { Tooltip } from '@syncfusion/ej2-popups';
+
+/**
+ * `Edit` module is used to handle editing actions.
+ */
+export class Edit implements IAction {
+    //Internal variables                  
+    protected renderer: EditRender;
+    private editModule: IEdit;
+    private editCellType: Object = {
+        'dropdownedit': DropDownEditCell,
+        'numericedit': NumericEditCell, 'booleanedit': BooleanEditCell, 'default': DefaultEditCell
+    };
+    private editType: Object = { 'inline': InlineEdit, 'normal': InlineEdit, 'batch': BatchEdit, 'dialog': DialogEdit };
+    //Module declarations
+    protected parent: IGrid;
+    protected serviceLocator: ServiceLocator;
+    protected l10n: L10n;
+    private dialogObj: Dialog;
+    private alertDObj: Dialog;
+    private preventObj: {
+        instance: Object,
+        handler: Function, arg1?: Object, arg2?: Object, arg3?: Object, arg4?: Object, arg5?: Object, arg6?: Object, arg7?: Object
+    };
+
+    /**
+     * Constructor for the Grid editing module
+     * @hidden
+     */
+    constructor(parent?: IGrid, serviceLocator?: ServiceLocator) {
+        this.parent = parent;
+        this.serviceLocator = serviceLocator;
+        this.addEventListener();
+        this.updateEditObj();
+    }
+
+    private updateColTypeObj(): void {
+        for (let col of this.parent.columns as Column[]) {
+            col.edit = extend(
+                new this.editCellType[col.editType && this.editCellType[col.editType] ?
+                    col.editType : 'default'](this.parent, this.serviceLocator),
+                col.edit || {}
+            );
+        }
+    }
+
+    /**
+     * For internal use only - Get the module name.
+     * @private
+     */
+    protected getModuleName(): string {
+        return 'edit';
+    }
+
+    /**
+     * @hidden
+     */
+    public onPropertyChanged(e: NotifyArgs): void {
+        if (e.module !== this.getModuleName()) {
+            return;
+        }
+        let gObj: IGrid = this.parent;
+        let newProp: Object = e.properties;
+        for (let prop of Object.keys(e.properties)) {
+            switch (prop) {
+                case 'allowAdding':
+                case 'allowDeleting':
+                case 'allowEditing':
+                    if (gObj.editSettings.allowAdding || gObj.editSettings.allowEditing || gObj.editSettings.allowDeleting) {
+                        this.initialEnd();
+                    }
+                    break;
+                case 'mode':
+                    this.updateEditObj();
+                    gObj.isEdit = false;
+                    gObj.refresh();
+                    break;
+            }
+        }
+    }
+
+    private updateEditObj(): void {
+        if (this.editModule) {
+            this.editModule.destroy();
+        }
+        this.renderer = new EditRender(this.parent, this.serviceLocator);
+        this.editModule = new this.editType[this.parent.editSettings.mode](this.parent, this.serviceLocator, this.renderer);
+    }
+
+    private initialEnd(): void {
+        this.updateColTypeObj();
+        this.l10n = this.serviceLocator.getService<L10n>('localization');
+        this.createAlertDlg();
+        this.createConfirmDlg();
+    }
+
+    /**
+     * Send an edit record request in Grid.
+     * @param {HTMLTableRowElement} tr - Defines the table row to be edited.
+     */
+    public startEdit(tr?: HTMLTableRowElement): void {
+        let gObj: IGrid = this.parent;
+        if (!gObj.editSettings.allowEditing || gObj.isEdit) {
+            return;
+        }
+        if (!gObj.getSelectedRows().length && gObj.editSettings.mode !== 'batch') {
+            if (!tr) {
+                this.showDialog('EditOperationAlert', this.alertDObj);
+                return;
+            }
+        } else if (!tr) {
+            tr = gObj.getSelectedRows()[0] as HTMLTableRowElement;
+        }
+        if (tr.style.display === 'none') {
+            return;
+        }
+        this.editModule.startEdit(tr);
+        this.refreshToolbar();
+        (gObj.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
+    }
+
+    /**
+     * Send a cancel request in grid.
+     */
+    public closeEdit(): void {
+        if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog) {
+            this.showDialog('CancelEdit', this.dialogObj);
+            return;
+        }
+        this.editModule.closeEdit();
+    }
+
+    protected refreshToolbar(): void {
+        this.parent.notify(events.toolbarRefresh, {});
+    }
+
+    /**
+     * Add a new record in grid control when allowAdding is set as true. Without passing parameters it will add empty row.
+     * @param {Object} data - Defines the new add record data.
+     */
+    public addRecord(data?: Object): void {
+        if (!this.parent.editSettings.allowAdding) {
+            return;
+        }
+        this.editModule.addRecord(data);
+        this.refreshToolbar();
+    }
+
+    /**
+     * Delete a record in grid control when allowDeleting is set as true.
+     * @param {string} fieldname - Defines the primary key field Name of the column.
+     * @param {Object} data - Defines the JSON data of record need to be delete.
+     */
+    public deleteRecord(fieldname?: string, data?: Object): void {
+        let gObj: IGrid = this.parent;
+        if (!gObj.editSettings.allowDeleting) {
+            return;
+        }
+        if (!data) {
+            if (isNullOrUndefined(gObj.selectedRowIndex) || gObj.selectedRowIndex === -1) {
+                this.showDialog('DeleteOperationAlert', this.alertDObj);
+                return;
+            }
+            if (gObj.editSettings.showDeleteConfirmDialog) {
+                this.showDialog('ConfirmDelete', this.dialogObj);
+                return;
+            }
+        }
+        this.editModule.deleteRecord(fieldname, data);
+    }
+
+    /**
+     * Delete the row based on the given tr element in Grid.
+     * @param {HTMLTableRowElement} tr - Defines the table row element.
+     */
+    public deleteRow(tr: HTMLTableRowElement): void {
+        this.deleteRecord(null, this.parent.getCurrentViewRecords()[parseInt(tr.getAttribute('aria-rowindex'), 10)]);
+    }
+
+    /**
+     * Send a save request in Grid.
+     */
+    public endEdit(): void {
+        if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog) {
+            this.showDialog('BatchSaveConfirm', this.dialogObj);
+            return;
+        }
+        this.endEditing();
+    }
+
+    /**
+     * To update a cell value with given options.
+     * @param {number} rowIndex -Defines the row index.
+     * @param {string} field - Defines the column field.
+     * @param {string | number | boolean | Date} value - Defines the value to change.
+     */
+    public updateCell(rowIndex: number, field: string, value: string | number | boolean | Date): void {
+        this.editModule.updateCell(rowIndex, field, value);
+    }
+
+    /**
+     * To update a row values with given options.
+     * @param {number} index -Defines the row index.
+     * @param {Object} data - Defines the data object to update.
+     */
+    public updateRow(index: number, data: Object): void {
+        this.editModule.updateRow(index, data);
+    }
+
+    /**
+     * Cancel the modified changes in Grid control when edit mode is `batch`.
+     */
+    public batchCancel(): void {
+        this.closeEdit();
+    }
+
+    /**
+     * Save the modified changes to data source in Grid control when edit mode is `batch`.
+     */
+    public batchSave(): void {
+        this.endEdit();
+    }
+
+    /**
+     * Edit a particular cell based on the row index and field name provided in `batch` edit mode.
+     * @param {number} index - Defines row index to edit particular cell.
+     * @param {string} field - Defines the field name of the column to perform batch edit.
+     */
+    public editCell(index: number, field: string): void {
+        this.editModule.editCell(index, field);
+    }
+
+    /**
+     * It returns a value and if the input field values of edit form is
+     * not based on the validation rules then it will show the validation message.
+     * @return {boolean}
+     */
+    public editFormValidate(): boolean {
+        if (this.editModule.formObj) {
+            return this.editModule.formObj.validate();
+        }
+        return false;
+    }
+
+    /**
+     * Get the batch changes of edit, delete and add operations of Grid.
+     * @return {Object}
+     */
+    public getBatchChanges(): Object {
+        return this.editModule.getBatchChanges ? this.editModule.getBatchChanges() : {};
+    }
+
+    /**
+     * Get the data of currently edited cell value in `batch` edit mode.
+     */
+    public getCurrentEditCellData(): void {
+        let obj: Object = this.getCurrentEditedData(this.editModule.formObj.element, {});
+        return obj[Object.keys(obj)[0]];
+    }
+
+    /**
+     * Save the particular edited Grid cell.
+     */
+    public saveCell(): void {
+        this.editModule.saveCell();
+    }
+
+    private endEditing(): void {
+        this.editModule.endEdit();
+        this.refreshToolbar();
+    }
+
+    private showDialog(content: string, obj: Dialog): void {
+        obj.content = '<div>' + this.l10n.getConstant(content) + '</div>';
+        obj.show();
+    }
+
+    public getValueFromType(col: Column, value: string | Date | boolean): number | string | Date | boolean {
+        let val: number | string | Date | boolean = value;
+        switch (col.type) {
+            case 'number':
+                val = parseFloat(value as string);
+                break;
+            case 'boolean':
+                if (col.editType !== 'booleanedit') {
+                    val = value === this.l10n.getConstant('True') ? true : false;
+                }
+                break;
+            case 'date':
+                if (col.editType !== 'datepicker') {
+                    val = new Date(value);
+                }
+                break;
+        }
+        return val;
+    }
+
+    private destroyToolTip(): void {
+        let elements: Element[] = [].slice.call(this.parent.element.getElementsByClassName('e-tooltip'));
+        for (let elem of elements) {
+            (elem as EJ2Intance).ej2_instances[0].destroy();
+            //remove(elem);
+        }
+    }
+
+    private createConfirmDlg(): void {
+        this.dialogObj = this.dlgWidget(
+            [
+                {
+                    click: this.dlgOk.bind(this),
+                    buttonModel: { content: this.l10n.getConstant('OKButton'), cssClass: 'e-primary', isPrimary: true }
+                },
+                {
+                    click: this.dlgCancel.bind(this),
+                    buttonModel: { cssClass: 'e-flat', content: this.l10n.getConstant('CancelButton') }
+                }
+            ],
+            'EditConfirm');
+    }
+
+    private createAlertDlg(): void {
+        this.alertDObj = this.dlgWidget(
+            [
+                {
+                    click: this.alertClick.bind(this), buttonModel:
+                    { content: this.l10n.getConstant('OKButton'), cssClass: 'e-flat', isPrimary: true }
+                }
+            ],
+            'EditAlert');
+    }
+
+    private alertClick(): void {
+        this.alertDObj.hide();
+    }
+
+    private dlgWidget(btnOptions: Object[], name: string): Dialog {
+        let div: HTMLElement = createElement('div', { id: this.parent.element.id + name });
+        this.parent.element.appendChild(div);
+        let options: Object = {
+            showCloseIcon: false,
+            isModal: true,
+            visible: false,
+            closeOnEscape: false,
+            target: this.parent.element,
+            width: '320px',
+            animationSettings: { effect: 'None' }
+        };
+        (options as { buttons: Object[] }).buttons = btnOptions;
+        let obj: Dialog = new Dialog(options);
+        obj.appendTo(div);
+        return obj;
+    }
+
+    private dlgCancel(): void {
+        this.dialogObj.hide();
+    }
+
+    private dlgOk(e: MouseEvent): void {
+        switch ((this.dialogObj.element.querySelector('.e-dlg-content').firstElementChild as HTMLElement).innerText) {
+            case this.l10n.getConstant('ConfirmDelete'):
+                this.editModule.deleteRecord();
+                break;
+            case this.l10n.getConstant('CancelEdit'):
+                this.editModule.closeEdit();
+                break;
+            case this.l10n.getConstant('BatchSaveConfirm'):
+                this.endEditing();
+                break;
+            case this.l10n.getConstant('BatchSaveLostChanges'):
+                this.executeAction();
+                break;
+        }
+        this.dlgCancel();
+    }
+
+    /**
+     * @hidden
+     */
+    public addEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
+        this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
+        this.parent.on(events.initialEnd, this.initialEnd, this);
+        this.parent.on(events.keyPressed, this.keyPressHandler, this);
+        this.parent.on(events.autoCol, this.updateColTypeObj, this);
+        this.parent.on(events.tooltipDestroy, this.destroyToolTip, this);
+        this.parent.on(events.preventBatch, this.preventBatch, this);
+        this.parent.addEventListener(events.actionComplete, this.actionComplete.bind(this));
+    }
+
+    /**
+     * @hidden
+     */
+    public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
+        this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
+        this.parent.off(events.initialEnd, this.initialEnd);
+        this.parent.off(events.keyPressed, this.keyPressHandler);
+        this.parent.off(events.autoCol, this.updateColTypeObj);
+        this.parent.off(events.tooltipDestroy, this.destroyToolTip);
+        this.parent.off(events.preventBatch, this.preventBatch);
+        this.parent.removeEventListener(events.actionComplete, this.actionComplete);
+    }
+
+    private actionComplete(): void {
+        this.parent.isEdit = false;
+        this.refreshToolbar();
+    }
+
+    /**
+     * @hidden
+     */
+    public getCurrentEditedData(form: Element, editedData: Object): Object {
+        let gObj: IGrid = this.parent;
+        let inputs: HTMLInputElement[] = [].slice.call(form.querySelectorAll('.e-field'));
+        for (let i: number = 0, len: number = inputs.length; i < len; i++) {
+            let col: Column = gObj.getColumnByUid(inputs[i].getAttribute('e-mappinguid'));
+            let value: number | string | Date | boolean;
+            if (col) {
+                let temp: Function = col.edit.read as Function;
+                if (typeof temp === 'string') {
+                    temp = getValue(temp, window);
+                }
+                value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
+                setValue(col.field, value, editedData);
+            }
+        }
+        return editedData;
+    }
+
+    /**
+     * @hidden
+     */
+    public destroyWidgets(cols?: Column[]): void {
+        cols = cols ? cols : this.parent.columns as Column[];
+        for (let col of cols) {
+            if (col.edit.destroy) {
+                col.edit.destroy();
+            }
+        }
+    }
+
+    /**
+     * To destroy the editing. 
+     * @return {void}
+     * @hidden
+     */
+    public destroy(): void {
+        this.removeEventListener();
+    }
+
+    private keyPressHandler(e: KeyboardEventArgs): void {
+        switch (e.action) {
+            case 'insert':
+                this.addRecord();
+                break;
+            case 'delete':
+                this.deleteRecord();
+                break;
+            case 'f2':
+                this.startEdit();
+                break;
+            case 'enter':
+                if (this.parent.editSettings.mode !== 'batch' &&
+                    parentsUntil(e.target as HTMLElement, 'e-gridcontent') && !document.querySelectorAll('.e-popup-open').length) {
+                    e.preventDefault();
+                    this.endEdit();
+                }
+                break;
+            case 'escape':
+                this.closeEdit();
+                break;
+        }
+    }
+
+    private preventBatch(args: {
+        instance: Object,
+        handler: Function, arg1?: Object, arg2?: Object, arg3?: Object,
+        arg4?: Object, arg5?: Object, arg6?: Object, arg7?: Object
+    }): void {
+        this.preventObj = args;
+        this.showDialog('BatchSaveLostChanges', this.dialogObj);
+    }
+
+    private executeAction(): void {
+        this.preventObj.handler.call(
+            this.preventObj.instance, this.preventObj.arg1, this.preventObj.arg2, this.preventObj.arg3, this.preventObj.arg4,
+            this.preventObj.arg5, this.preventObj.arg6, this.preventObj.arg7);
+    }
+
+    private valErrorPlacement(inputElement: HTMLElement, error: HTMLElement): void {
+        let td: HTMLElement = parentsUntil(inputElement, 'e-rowcell') as HTMLElement;
+        let tooltip: Tooltip = new Tooltip({
+            opensOn: 'custom', content: error, position: 'bottom center', cssClass: 'e-griderror',
+            animation: { open: { effect: 'None' }, close: { effect: 'None' } }
+        });
+        tooltip.appendTo(td);
+        tooltip.open(td);
+    }
+
+    private validationComplete(args: { status: string, inputName: string, element: HTMLElement }): void {
+        let elem: Element = parentsUntil(document.getElementById(this.parent.element.id + args.inputName), 'e-rowcell');
+        if (elem && (elem as EJ2Intance).ej2_instances) {
+            let tObj: Tooltip = (elem as EJ2Intance).ej2_instances[0];
+            args.status === 'failure' ? tObj.open(parentsUntil(args.element, 'e-rowcell') as HTMLElement) : tObj.close();
+            tObj.refresh();
+        }
+    }
+
+}

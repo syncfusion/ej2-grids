@@ -309,8 +309,11 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
         if (this.enableQueryString) {
             this.updateQueryString(this.currentPage);
         }
-        this.trigger('click', { 'currentPage': this.currentPage });
-        this.refresh();
+        let args: { currentPage: number, cancel: boolean } = { currentPage: this.currentPage, cancel: false };
+        this.trigger('click', args);
+        if (!args.cancel) {
+            this.refresh();
+        }
     }
 
     /** 

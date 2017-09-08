@@ -1,7 +1,7 @@
 import { extend } from '@syncfusion/ej2-base';
 import { closest as closestElement, removeClass, classList, createElement, remove } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
-import { getElementIndex, inArray, iterateArrayOrObject, parentsUntil, getPosition } from '../base/util';
+import { getElementIndex, inArray, iterateArrayOrObject, parentsUntil, getPosition, isActionPrevent } from '../base/util';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 
@@ -101,8 +101,16 @@ export class Reorder implements IAction {
         }
     }
 
+    private isActionPrevent(gObj: IGrid): boolean {
+        return isActionPrevent(gObj);
+    }
+
     private moveColumns(destIndex: number, column: Column): void {
         let gObj: IGrid = this.parent;
+        if (this.isActionPrevent(gObj)) {
+            gObj.notify(events.preventBatch, { instance: this, handler: this.moveColumns, arg1: destIndex, arg2: column });
+            return;
+        }
         let parent: Column = this.getColParent(column, this.parent.columns as Column[]);
         let cols: Column[] = parent ? parent.columns as Column[] : this.parent.columns as Column[];
         let srcIdx: number = inArray(column, cols);

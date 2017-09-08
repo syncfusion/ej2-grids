@@ -124,10 +124,10 @@
       border-color: $grid-header-border-color;
   }
 
-    &.e-gridhover tr[role='row']:hover .e-rowcell,
+    &.e-gridhover tr[role='row']:not(.e-editedrow):hover .e-rowcell,
     &.e-gridhover tr[role='row']:hover .e-detailrowcollapse,
     &.e-gridhover tr[role='row']:hover .e-detailrowexpand {
-      &:not(.e-cellselectionbackground):not(.e-active) {
+      &:not(.e-cellselectionbackground):not(.e-active):not(.e-updatedtd):not(.e-indentcell) {
         background-color: $grid-hover-bg-color;
       }
     }
@@ -263,6 +263,14 @@
       border-color:  $grid-header-border-color;
     }
 
+    td.e-updatedtd {
+      background-color: $grid-batch-updated-bg-color;
+    }
+
+    .e-gridcontent .e-normaledit .e-rowcell {
+      border-top-color: $grid-header-border-color;
+    }
+
     &.e-rtl {
 
       & .e-verticallines tr th:first-child:not(.e-firstcell) {
@@ -286,7 +294,25 @@
       }
 
     }
+  }
 
+  .e-tooltip-wrap.e-griderror {
+    background-color: $grid-val-error-bg-color;
+    border-color: $grid-val-error-bg-color;
+  }
+
+  .e-tooltip-wrap.e-griderror .e-arrow-tip-inner.e-tip-top,
+  .e-tooltip-wrap.e-griderror .e-arrow-tip-outer.e-tip-top {
+    border-bottom: 7px solid $grid-val-error-bg-color;
+  }
+
+  .e-tooltip-wrap.e-griderror .e-arrow-tip-outer.e-tip-bottom,
+  .e-tooltip-wrap.e-griderror .e-arrow-tip-inner.e-tip-bottom {
+    border-top: 7px solid $grid-val-error-bg-color;
+  }
+
+  .e-griderror .e-error {
+    color: $grid-val-error-color;
   }
 
 }

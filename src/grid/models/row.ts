@@ -11,6 +11,12 @@ export class Row<T> {
 
     public data: Object;
 
+    public changes: Object;
+
+    public isDirty: boolean;
+
+    public edit: string;
+
     public isSelected: boolean;
 
     public isReadOnly: boolean;

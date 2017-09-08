@@ -93,12 +93,31 @@ export class Render {
      */
     private refreshDataManager(args?: NotifyArgs): void {
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
-        let dataManager: Promise<Object> = this.data.getData(this.data.generateQuery().requiresCount());
+        let dataManager: Promise<Object> = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount());
         if (this.parent.groupSettings.disablePageWiseAggregates && this.parent.groupSettings.columns.length) {
             dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
         }
         dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))
             .catch((e: ReturnType) => this.dataManagerFailure(e));
+    }
+
+    private sendBulkRequest(args?: { changes: Object }): void {
+        let promise: Promise<Object> = this.data.saveChanges(args.changes, this.parent.getPrimaryKeyFieldNames()[0]);
+        if (this.data.dataManager.dataSource.offline) {
+            this.refreshDataManager({ requestType: 'batchsave' } as NotifyArgs);
+            return;
+        } else {
+            promise.then((e: ReturnType) => this.dmSuccess(e, args as NotifyArgs))
+                .catch((e: { result: Object[] }) => this.dmFailure(e as { result: Object[] }));
+        }
+    }
+
+    private dmSuccess(e: ReturnType, args: NotifyArgs): void {
+        this.dataManagerSuccess(e, args as NotifyArgs);
+    }
+
+    private dmFailure(e: { result: Object[] }): void {
+        this.dataManagerFailure(e);
     }
 
     /** 
@@ -174,6 +193,7 @@ export class Render {
 
     private dataManagerSuccess(e: ReturnType, args?: NotifyArgs): void {
         let gObj: IGrid = this.parent;
+        gObj.trigger(events.beforeDataBound, e);
         let len: number = Object.keys(e.result).length;
         if (this.parent.isDestroyed) { return; }
         gObj.currentViewData = <Object[]>e.result;
@@ -221,6 +241,7 @@ export class Render {
         prepareColumns(this.parent.columns);
         this.headerRenderer.renderTable();
         this.contentRenderer.renderTable();
+        this.parent.notify(events.autoCol, {});
     }
 
     private buildColumns(record: Object): void {
@@ -259,6 +280,7 @@ export class Render {
         this.parent.on(events.initialLoad, this.instantiateRenderer, this);
         this.parent.on(events.modelChanged, this.refresh, this);
         this.parent.on(events.refreshComplete, this.refreshComplete, this);
+        this.parent.on(events.bulkSave, this.sendBulkRequest, this);
     }
 
     /** @hidden */
@@ -268,24 +290,24 @@ export class Render {
         let group0: Group = <Group>e.result[0];
         let groupN: Group = <Group>e.result[index]; let predicate: Predicate[] = [];
         let addWhere: (query: Query) => void =
-        (input: Query) => {
-            [group0, groupN].forEach((group: Group) =>
-            predicate.push(new Predicate('field', '==', group.field).and(this.getPredicate('key', 'equal', group.key))));
-            input.where(Predicate.or(predicate));
-        };
+            (input: Query) => {
+                [group0, groupN].forEach((group: Group) =>
+                    predicate.push(new Predicate('field', '==', group.field).and(this.getPredicate('key', 'equal', group.key))));
+                input.where(Predicate.or(predicate));
+            };
         let query: Query = new Query(); addWhere(query);
-        let curDm: DataManager = new DataManager(e.result);
+        let curDm: DataManager = new DataManager(e.result as JSON[]);
         let curFilter: Object[] = <Object[]>curDm.executeLocal(query);
         let newQuery: Query = this.data.generateQuery(true); let rPredicate: Predicate[] = [];
         if (this.data.isRemote()) {
             [group0, groupN].forEach((group: Group) =>
-            rPredicate.push(this.getPredicate(group.field, 'equal', group.key)));
+                rPredicate.push(this.getPredicate(group.field, 'equal', group.key)));
             newQuery.where(Predicate.or(rPredicate));
         } else {
             addWhere(newQuery);
         }
         let deferred: Deferred = new Deferred();
-        this.data.getData(newQuery).then((r: ReturnType) => {
+        this.data.getData({}, newQuery).then((r: ReturnType) => {
             this.updateGroupInfo(curFilter, r.result);
             deferred.resolve(e);
         });
@@ -303,19 +325,19 @@ export class Render {
         let dm: DataManager = new DataManager(untouched);
         current.forEach((element: Group, index: number, array: Object[]) => {
             let uGroup: Group = dm.executeLocal(new Query()
-            .where(new Predicate('field', '==', element.field).and(this.getPredicate('key', 'equal', element.key))))[0];
+                .where(new Predicate('field', '==', element.field).and(this.getPredicate('key', 'equal', element.key))))[0];
             element.count = uGroup.count; let itemGroup: Group = (<Group>element.items); let uGroupItem: Group = (<Group>uGroup.items);
             if (itemGroup.GroupGuid) {
                 element.items = <Object[]>this.updateGroupInfo(element.items, uGroup.items);
             }
             this.parent.aggregates.forEach((row: AggregateRowModel) =>
-            row.columns.forEach((column: AggregateColumnModel) => {
-                let types: string[] = column.type instanceof Array ? column.type : [column.type];
-                types.forEach((type: string) => {
-                    let key: string = column.field + ' - ' + type;
-                    element.aggregates[key] = calculateAggregate(type, itemGroup.level ? uGroupItem.records : uGroup.items, column);
-                });
-            }));
+                row.columns.forEach((column: AggregateColumnModel) => {
+                    let types: string[] = column.type instanceof Array ? column.type : [column.type];
+                    types.forEach((type: string) => {
+                        let key: string = column.field + ' - ' + type;
+                        element.aggregates[key] = calculateAggregate(type, itemGroup.level ? uGroupItem.records : uGroup.items, column);
+                    });
+                }));
         });
         return current;
     }

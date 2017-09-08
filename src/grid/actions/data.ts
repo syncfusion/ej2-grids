@@ -12,7 +12,7 @@ import * as events from '../base/constant';
  */
 export class Data implements IDataProcessor {
     //Internal variables   
-    private dataManager: DataManager;
+    public dataManager: DataManager;
 
     //Module declarations    
     private parent: IGrid;
@@ -29,6 +29,8 @@ export class Data implements IDataProcessor {
         this.parent.on(events.rowsRemoved, this.removeRows, this);
         this.parent.on(events.dataSourceModified, this.initDataManager, this);
         this.parent.on(events.destroy, this.destroy, this);
+        this.parent.on(events.updateData, this.crudActions, this);
+        this.parent.on(events.addDeleteAction, this.getData, this);
     }
 
     /**
@@ -112,8 +114,55 @@ export class Data implements IDataProcessor {
      * @return {Promise<Object>} 
      * @hidden
      */
-    public getData(query: Query): Promise<Object> {
+    public getData(
+        args: {
+            requestType?: string, foreignKeyData?: string[], data?: Object
+        } =
+            { requestType: '' },
+        query?: Query): Promise<Object> {
+        let key: string = this.getKey(args.foreignKeyData ? args.foreignKeyData : this.parent.getPrimaryKeyFieldNames());
+        switch (args.requestType) {
+            case 'delete':
+                query = query ? query : this.generateQuery();
+                this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
+                break;
+            case 'add':
+                query = query ? query : this.generateQuery();
+                this.dataManager.insert(args.data, null, query);
+                break;
+        }
         return this.dataManager.executeQuery(query);
+    }
+
+    private crudActions(args: {
+        requestType?: string, foreignKeyData?: string[], data?: Object
+    }): void {
+        this.generateQuery();
+        let promise: Promise<Object> = null;
+        let pr: string = 'promise';
+        let key: string = this.getKey(args.foreignKeyData ? args.foreignKeyData : this.parent.getPrimaryKeyFieldNames());
+        switch (args.requestType) {
+            case 'save':
+                promise = this.dataManager.update(key, args.data, null, this.generateQuery()) as Promise<Object>;
+                break;
+        }
+        args[pr] = promise;
+        this.parent.notify(events.crudAction, args);
+    }
+
+
+    /** @hidden */
+    public saveChanges(changes: Object, key: string): Promise<Object> {
+        let promise: Promise<Object> =
+            this.dataManager.saveChanges(changes, key, null, this.generateQuery().requiresCount()) as Promise<Object>;
+        return promise;
+    }
+
+    private getKey(keys: string[]): string {
+        if (keys && keys.length) {
+            return keys[0];
+        }
+        return undefined;
     }
 
     /** @hidden */
@@ -161,6 +210,8 @@ export class Data implements IDataProcessor {
         this.parent.off(events.rowsRemoved, this.removeRows);
         this.parent.off(events.dataSourceModified, this.initDataManager);
         this.parent.off(events.dataSourceModified, this.destroy);
+        this.parent.off(events.updateData, this.crudActions);
+        this.parent.off(events.addDeleteAction, this.getData);
     }
 
 

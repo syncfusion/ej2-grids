@@ -49,6 +49,11 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                     temp = getValue(temp, window);
                 }
                 input = temp(args);
+                if (typeof input === 'string') {
+                    let div: Element = createElement('div');
+                    div.innerHTML = input;
+                    input = div.firstChild as Element;
+                }
                 attributes(innerDIV, {
                     class: 'e-filterUi_input e-filtertext e-fltrTemp',
                     title: column.headerText,

@@ -1,6 +1,6 @@
 import { EventHandler, L10n } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
-import { getActualPropFromColl } from '../base/util';
+import { getActualPropFromColl, isActionPrevent } from '../base/util';
 import { remove, createElement, matches } from '@syncfusion/ej2-base';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { FilterSettings } from '../base/grid';
@@ -262,6 +262,13 @@ export class Filter implements IAction {
         if (!isNullOrUndefined(this.column.allowFiltering) && !this.column.allowFiltering) {
             return;
         }
+        if (isActionPrevent(gObj)) {
+            gObj.notify(events.preventBatch, {
+                instance: this, handler: this.filterByColumn, arg1: fieldName, arg2: filterOperator, arg3: filterValue, arg4: predicate,
+                arg5: matchCase, arg6: actualFilterValue, arg7: actualOperator
+            });
+            return;
+        }
         this.value = filterValue;
         this.matchCase = matchCase || false;
         this.fieldName = fieldName;
@@ -317,6 +324,10 @@ export class Filter implements IAction {
      */
     public clearFiltering(): void {
         let cols: PredicateModel[] = getActualPropFromColl(this.filterSettings.columns);
+        if (isActionPrevent(this.parent)) {
+            this.parent.notify(events.preventBatch, { instance: this, handler: this.clearFiltering });
+            return;
+        }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             this.removeFilteredColsByField(cols[i].field, true);
         }
@@ -345,6 +356,16 @@ export class Filter implements IAction {
      */
     public removeFilteredColsByField(field: string, isClearFilterBar?: boolean): void {
         let cols: PredicateModel[] = this.filterSettings.columns;
+        if (isActionPrevent(this.parent)) {
+            this.parent.notify(
+                events.preventBatch,
+                {
+                    instance: this, handler: this.removeFilteredColsByField,
+                    arg1: field, arg2: isClearFilterBar
+                }
+            );
+            return;
+        }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             if (cols[i].field === field) {
                 if (!(isClearFilterBar === false)) {

@@ -4,12 +4,16 @@ import { ItemModel } from '@syncfusion/ej2-navigations';
 import { Column, ColumnModel } from '../models/column';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
 import { PageSettingsModel, AggregateRowModel } from '../models/models';
-import { RowDropSettingsModel, GroupSettingsModel, GridModel } from './grid-model';
+import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel } from './grid-model';
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
 import { GridLine, Action, CellType, SortDirection, PrintMode } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
+import { Edit } from '../actions/edit';
+import { DropDownListModel } from '@syncfusion/ej2-dropdowns';
+import { NumericTextBoxModel } from '@syncfusion/ej2-inputs';
+import { FormValidator } from '@syncfusion/ej2-base';
 
 /**
  * Specifies grid interfaces.
@@ -127,6 +131,12 @@ export interface IGrid extends Component<HTMLElement> {
     groupSettings?: GroupSettingsModel;
 
     /**
+     * Specifies the editSettings for Grid.
+     * @default []
+     */
+    editSettings?: EditSettingsModel;
+
+    /**
      * Specifies the summaryRows for Grid.
      * @default []
      */
@@ -215,6 +225,10 @@ export interface IGrid extends Component<HTMLElement> {
      */
     toolbar?: string | string[] | ItemModel[];
 
+    isEdit?: boolean;
+
+    editModule?: Edit;
+
     //public methods
     getHeaderContent?(): Element;
     setGridHeaderContent?(value: Element): void;
@@ -229,6 +243,7 @@ export interface IGrid extends Component<HTMLElement> {
     getPager?(): Element;
     setGridPager?(value: Element): void;
     getRowByIndex?(index: number): Element;
+    selectRow?(index: number): void;
     getColumnHeaderByIndex?(index: number): Element;
     getColumnByField?(field: string): Column;
     getColumnIndexByField?(field: string): number;
@@ -263,6 +278,13 @@ export interface IGrid extends Component<HTMLElement> {
     getPrimaryKeyFieldNames?(): string[];
     print?(): void;
     search?(searchString: string): void;
+    deleteRecord?(fieldname?: string, data?: Object): void;
+    startEdit?(): void;
+    endEdit?(): void;
+    closeEdit?(): void;
+    addRecord?(data?: Object): void;
+    deleteRow?(tr: HTMLTableRowElement): void;
+    getRowObjectFromUID?(uid: string): Row<Column>;
 }
 
 /** @hidden */
@@ -299,7 +321,7 @@ export interface IAction {
  */
 export interface IDataProcessor {
     generateQuery(): Query;
-    getData(query: Query): Promise<Object>;
+    getData(args: Object, query: Query): Promise<Object>;
     processData?(): void;
 }
 /**
@@ -323,10 +345,12 @@ export interface ITemplateRender {
 /**
  * @hidden
  */
-export interface IEditorUI {
-    create(): Element;
-    read(): Object;
-    write(): void;
+export interface IEditCell {
+    create?: Element | Function;
+    read?: Object | Function;
+    write?: void | Function;
+    params?: NumericTextBoxModel | DropDownListModel;
+    destroy?: Function;
 }
 /**
  * @hidden
@@ -649,7 +673,7 @@ export interface VirtualInfo {
     direction?: string;
     blockIndexes?: number[];
     columnIndexes?: number[];
-    columnBlocks?: number [];
+    columnBlocks?: number[];
     loadSelf?: boolean;
     loadNext?: boolean;
     nextInfo?: { page?: number };
@@ -664,4 +688,160 @@ export interface InterSection {
     pageHeight?: number;
     debounceEvent?: boolean;
     axes?: string[];
+}
+
+/**
+ * @hidden
+ */
+export interface ICancel {
+    /** Defines the cancel option value. */
+    cancel?: boolean;
+}
+
+/**
+ * @hidden
+ */
+export interface IPrimaryKey {
+    /** Defines the primaryKey. */
+    primaryKey?: string[];
+}
+
+/**
+ * @hidden
+ */
+export interface BeforeBatchAddArgs extends ICancel, IPrimaryKey {
+    /** Defines the default data object. */
+    defaultData?: Object;
+
+}
+
+/**
+ * @hidden
+ */
+export interface BatchDeleteArgs extends IPrimaryKey {
+    /** Defines the deleted data. */
+    rowData?: Object;
+    /** Defines the row index. */
+    rowIndex?: number;
+}
+
+/**
+ * @hidden
+ */
+export interface BeforeBatchDeleteArgs extends BatchDeleteArgs, ICancel {
+    /** Defines the row element. */
+    row?: Element;
+}
+
+/**
+ * @hidden
+ */
+export interface BeforeBatchSaveArgs extends ICancel {
+    /** Defines the changed record object. */
+    batchChanges?: Object;
+}
+
+/**
+ * @hidden
+ */
+export interface BatchAddArgs extends ICancel, IPrimaryKey {
+    /** Defines the added data. */
+    defaultData?: Object;
+    /** Defines the column index. */
+    columnIndex?: number;
+    /** Defines the row element. */
+    row?: Element;
+    /** Defines the cell element. */
+    cell?: Element;
+    /** Defines the column object. */
+    columnObject?: Column;
+}
+
+
+/**
+ * @hidden
+ */
+export interface BeginEditArgs extends ICancel, IPrimaryKey {
+    /** Defines the edited data. */
+    rowData?: Object;
+    /** Defines the edited row index. */
+    rowIndex?: number;
+    /** Defines the current edited row. */
+    row?: Element;
+    /** Defines the name of the event. */
+    type?: string;
+    /** Defines the primary key value. */
+    primaryKeyValue?: string[];
+}
+
+/**
+ * @hidden
+ */
+export interface CellEditSameArgs extends ICancel {
+    /** Defines the row data object. */
+    rowData?: Object;
+    /** Defines the column name. */
+    columnName?: string;
+    /** Defines the cell object. */
+    cell?: Element;
+    /** Defines the column object. */
+    columnObject?: Column;
+    /** Defines the cell value. */
+    value?: string;
+    /** Defines isForeignKey option value. */
+    isForeignKey?: boolean;
+
+}
+/**
+ * @hidden
+ */
+export interface CellEditArgs extends CellEditSameArgs, IPrimaryKey {
+    /** Defines the current row. */
+    row?: Element;
+    /** Defines the validation rules. */
+    validationRules?: Object;
+    /** Defines the name of the event. */
+    type?: string;
+}
+
+/**
+ * @hidden
+ */
+export interface CellSaveArgs extends CellEditSameArgs {
+    /** Defines the previous value of the cell. */
+    previousValue?: string;
+}
+
+/**
+ * @hidden
+ */
+export interface BeforeDataBoundArgs {
+    /** Defines the data. */
+    result?: Object[];
+    /** Defines the data count. */
+    count?: number;
+}
+
+/**
+ * @hidden
+ */
+export interface IEdit {
+    formObj?: FormValidator;
+    destroy?: Function;
+    closeEdit?(): void;
+    deleteRecord?(fieldname?: string, data?: Object): void;
+    startEdit?(tr?: Element): void;
+    endEdit?(): void;
+    closeEdit?(): void;
+    addRecord?(data?: Object): void;
+    deleteRow?(tr: HTMLTableRowElement): void;
+    endEdit?(data?: Object): void;
+    batchSave?(): void;
+    getBatchChanges?(): Object;
+    removeRowObjectFromUID?(uid: string): void;
+    addRowObject?(row: Row<Column>): void;
+    editCell?(index: number, field: string, isAdd?: boolean): void;
+    updateCell?(rowIndex: number, field: string, value: string | number | boolean | Date): void;
+    updateRow?(index: number, data: Object): void;
+    saveCell?(isForceSave?: boolean): void;
 }

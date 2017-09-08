@@ -1112,6 +1112,76 @@
       white-space: nowrap;
     }
 
+    &.e-device.e-bigger .e-normaledit .e-rowcell,
+    .e-normaledit .e-rowcell {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+
+    &.e-device .e-normaledit .e-rowcell {
+      padding-bottom: $grid-edit-cell-padding;
+      padding-top: $grid-edit-cell-padding;
+    }
+
+    .e-normaledit {
+      border-top: 0;
+    }
+
+    .e-gridcontent .e-normaledit .e-rowcell {
+      border-top: $grid-border-size $grid-border-type;
+    }
+
+    .e-gridcontent tr.e-row:first-child .e-rowcell {
+      border-top: 0;
+    }
+
+    &.e-device.e-bigger .e-editedbatchcell.e-rowcell,
+    .e-editedbatchcell.e-rowcell {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+
+    .e-editedbatchcell,
+    td.e-boolcell {
+      padding-left: $grid-content-right-padding;
+      padding-right: $grid-content-right-padding;
+    }
+
+    td.e-boolcell input {
+      margin: 3px 3px 3px 4px;
+    }
+
+    td.e-boolcell {
+      padding-bottom: 6px;
+      padding-top: 7px;
+    }
+
+    .e-dialog .e-gridform .e-rowcell {
+      border: 0;
+      padding: .1em;
+    }
+
+    .e-dialog table {
+      border-collapse: separate;
+      border-spacing: 11px;
+    }
+
+    .e-row .e-input-group .e-input.e-field,
+    .e-row .e-input-focus .e-input.e-field {
+      font-family: $grid-font-family;
+      font-size: $grid-font-size;
+      padding-bottom: $grid-edit-input-padding-bottom;
+      padding-top: $grid-edit-input-padding-top;
+    }
+
+    .e-row .e-input-group {
+      margin-bottom: $grid-edit-input-margin;
+    }
+
+    .e-hiddenrow {
+      display: none;
+    }
+
     &.e-rtl {
 
       & .e-headercell,

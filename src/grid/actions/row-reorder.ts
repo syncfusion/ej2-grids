@@ -140,6 +140,10 @@ export class RowDD implements IAction {
         this.parent.trigger(events.actionComplete, extend(e, { type: events.actionComplete }));
     }
 
+    private getTargetIdx(targetRow: Element): number {
+        return targetRow ? parseInt(targetRow.getAttribute('aria-rowindex'), 10) : 0;
+    }
+
     private columnDrop(e: { target: Element, droppedElement: HTMLElement }): void {
         let gObj: IGrid = this.parent;
         if (e.droppedElement.getAttribute('action') !== 'grouping') {
@@ -155,7 +159,7 @@ export class RowDD implements IAction {
                 return;
             }
             let records: Object[] = srcControl.getSelectedRecords();
-            let targetIndex: number = currentIndex = targetRow ? parseInt(targetRow.getAttribute('aria-rowindex'), 10) : 0;
+            let targetIndex: number = currentIndex = this.getTargetIdx(targetRow);
             let count: number = 0;
             if (isNaN(targetIndex)) {
                 targetIndex = currentIndex = 0;

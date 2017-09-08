@@ -117,7 +117,7 @@ export class Selection implements IAction {
         let gObj: IGrid = this.parent;
         let selectedRow: Element = gObj.getRowByIndex(index);
         let selectData: Object = gObj.getCurrentViewRecords()[index];
-        if (!this.isRowType() || !selectedRow) {
+        if (!this.isRowType() || !selectedRow || (gObj.editSettings.mode !== 'batch' && gObj.isEdit)) {
             return;
         }
         let isRowSelected: boolean = selectedRow.hasAttribute('aria-selected');
@@ -134,9 +134,9 @@ export class Selection implements IAction {
         this.clearRow();
         if (!isToogle) {
             this.updateRowSelection(selectedRow, index);
+            this.parent.selectedRowIndex = index;
         }
         this.updateRowProps(index);
-        this.parent.selectedRowIndex = index;
         if (!isToogle) {
             this.onActionComplete(
                 {
@@ -168,7 +168,7 @@ export class Selection implements IAction {
         let gObj: IGrid = this.parent;
         let selectedRow: Element = gObj.getRowByIndex(rowIndexes[0]);
         let selectedData: Object = gObj.getCurrentViewRecords()[rowIndexes[0]];
-        if (this.isSingleSel() || !this.isRowType()) {
+        if (this.isSingleSel() || !this.isRowType() || (gObj.editSettings.mode !== 'batch' && gObj.isEdit)) {
             return;
         }
         this.onActionBegin(
@@ -202,7 +202,7 @@ export class Selection implements IAction {
     public addRowsToSelection(rowIndexes: number[]): void {
         let gObj: IGrid = this.parent;
         let selectedRow: Element = gObj.getRowByIndex(rowIndexes[0]);
-        if (this.isSingleSel() || !this.isRowType()) {
+        if (this.isSingleSel() || !this.isRowType() || (gObj.editSettings.mode !== 'batch' && gObj.isEdit)) {
             return;
         }
         for (let rowIndex of rowIndexes) {
@@ -255,6 +255,7 @@ export class Selection implements IAction {
         this.clearRowSelection();
         this.selectedRowIndexes = [];
         this.selectedRecords = [];
+        this.parent.selectedRowIndex = -1;
     }
 
     private updateRowProps(startIndex: number): void {
@@ -334,7 +335,7 @@ export class Selection implements IAction {
         let selectedCell: Element = gObj.getCellFromIndex(cellIndex.rowIndex, cellIndex.cellIndex);
         this.currentIndex = cellIndex.rowIndex;
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
-        if (!selectedCell) {
+        if (!this.isCellType() || !selectedCell || (gObj.editSettings.mode !== 'batch' && gObj.isEdit)) {
             return;
         }
         let isCellSelected: boolean = selectedCell.classList.contains('e-cellselectionbackground');
@@ -386,7 +387,7 @@ export class Selection implements IAction {
         let cellIndexes: number[];
         this.currentIndex = startIndex.rowIndex;
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
-        if (this.isSingleSel()) {
+        if (this.isSingleSel() || !this.isCellType() || (gObj.editSettings.mode !== 'batch' && gObj.isEdit)) {
             return;
         }
         this.onActionBegin(
@@ -443,7 +444,7 @@ export class Selection implements IAction {
         let selectedCell: Element = gObj.getCellFromIndex(rowCellIndexes[0].rowIndex, rowCellIndexes[0].cellIndexes[0]);
         this.currentIndex = rowCellIndexes[0].rowIndex;
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
-        if (this.isSingleSel()) {
+        if (this.isSingleSel() || !this.isCellType() || (gObj.editSettings.mode !== 'batch' && gObj.isEdit)) {
             return;
         }
         this.onActionBegin(
@@ -491,7 +492,7 @@ export class Selection implements IAction {
         let index: number;
         this.currentIndex = cellIndexes[0].rowIndex;
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
-        if (this.isSingleSel()) {
+        if (this.isSingleSel() || !this.isCellType() || (gObj.editSettings.mode !== 'batch' && gObj.isEdit)) {
             return;
         }
         for (let cellIndex of cellIndexes) {
@@ -543,6 +544,10 @@ export class Selection implements IAction {
                     events.cellSelected);
             }
         }
+    }
+
+    private isEdit(): boolean {
+        return this.parent.isEdit;
     }
 
     private clearCell(): void {
