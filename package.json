@@ -13,7 +13,8 @@
 		"@syncfusion/ej2-calendars": "*",
 		"@syncfusion/ej2-dropdowns": "*",
 		"@syncfusion/ej2-popups": "*",
-		"@syncfusion/ej2-buttons": "*"
+		"@syncfusion/ej2-buttons": "*",
+		"@syncfusion/ej2-lists": "*"
 	},
 	"devDependencies": {
 		"@types/chai": "^3.4.28",

@@ -80,6 +80,8 @@ export const recordDoubleClick: string = 'recordDoubleClick';
 export const recordClick: string = 'recordClick';
 /** @hidden */
 export const beforeDataBound: string = 'beforeDataBound';
+/** @hidden */
+export const beforeOpenColumnChooser: string = 'beforeOpenColumnChooser';
 
 /**
  * Specifies grid internal events

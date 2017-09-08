@@ -23,3 +23,4 @@ export * from './actions/batch-edit';
 export * from './actions/inline-edit';
 export * from './actions/normal-edit';
 export * from './actions/dialog-edit';
+export * from './actions/column-chooser';

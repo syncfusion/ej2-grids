@@ -377,5 +377,40 @@ describe('Grid base module', () => {
         });
     });
 
+    describe('media columns testing', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+
+        it('media columns', () => {
+            (<any>gridObj).getMediaColumns();
+            window.matchMedia
+            let mediaqry: any = window.matchMedia('(min-width:500px)')
+            gridObj.mediaQueryUpdate(0, mediaqry);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
+
 });
 

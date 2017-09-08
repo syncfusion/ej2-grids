@@ -284,6 +284,21 @@ export class Column {
      */
     public isPrimaryKey: boolean;
 
+    /**
+     * column visibility can change based on its [`Media Queries`](http://cssmediaqueries.com/what-are-css-media-queries.html). 
+     * `hideAtMedia` accepts only valid Media Queries.
+     * @default undefined
+     */
+    public hideAtMedia?: string;
+
+
+    /**
+     * If `showInColumnChooser` set to false, then hide the particular column in column chooser.
+     *  By default all columns are displayed in column Chooser.
+     * @default true 
+     */
+    public showInColumnChooser?: boolean = true;
+
     /**    
      * Defines the `editType` which is used to render the element for editing the grid record.   
      * @default stringedit         
@@ -681,5 +696,19 @@ export interface ColumnModel {
      * @default null         
      */
     foreignKeyValue?: string;
+
+    /**
+     * column visibility can change based on its [`Media Queries`](http://cssmediaqueries.com/what-are-css-media-queries.html). 
+     * `hideAtMedia` accepts only valid Media Queries.
+     * @default undefined
+     */
+    hideAtMedia?: string;
+
+    /**    
+     * If `showInColumnChooser` set to false, then hide the particular column in column chooser. 
+     * By default all columns are displayed in column Chooser.
+     * @default true
+     */
+    showInColumnChooser?: boolean;
 
 }

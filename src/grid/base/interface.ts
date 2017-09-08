@@ -131,6 +131,12 @@ export interface IGrid extends Component<HTMLElement> {
     groupSettings?: GroupSettingsModel;
 
     /**
+     * if showColumnChooser is true, then column chooser will be enabled in Grid.
+     * @default false
+     */
+    showColumnChooser?: boolean;
+
+    /**
      * Specifies the editSettings for Grid.
      * @default []
      */
@@ -285,6 +291,7 @@ export interface IGrid extends Component<HTMLElement> {
     addRecord?(data?: Object): void;
     deleteRow?(tr: HTMLTableRowElement): void;
     getRowObjectFromUID?(uid: string): Row<Column>;
+    createColumnchooser(x: number, y: number, target: Element): void;
 }
 
 /** @hidden */
@@ -546,6 +553,15 @@ export interface DetailDataBoundEventArgs extends ActionEventArgs {
     detailElement?: Element;
     /** Defines the selected row data. */
     data?: Object;
+}
+
+export interface ColumnChooserEventArgs {
+    /** Defines the parent element. */
+    element?: Element;
+    /** Defines the  display columns of column chooser. */
+    columns?: Column[];
+    /** Defines the selected row data. */
+    dialogInstance?: Object;
 }
 
 export interface RowDeselectEventArgs {

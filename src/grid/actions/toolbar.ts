@@ -47,6 +47,12 @@ export class Toolbar {
                          placeholder=' + this.l10n.getConstant('Search') + '>\
                          </input></div>', tooltipText: this.l10n.getConstant('Search'), align: 'right'
         };
+        (this.predefinedItems as { columnchooser: Object }).columnchooser = {
+            id: this.gridID + '_columnchooser', template: '<div class="e-ccdiv e-cc-toolbar" >\
+                         <span id="' + this.gridID + '_e-ccbutton" class="e-columnchooser e-cctbn-icon e-icons"></span>\
+                         </div>', align: 'right'
+
+        };
         this.createToolbar();
     }
 
@@ -191,6 +197,14 @@ export class Toolbar {
                 if ((<HTMLElement>args.originalEvent.target).id === gID + '_searchbutton') {
                     this.search();
                 }
+                break;
+            case gID + '_columnchooser':
+                let tarElement: Element = this.parent.element.querySelector('.e-ccdiv');
+                let y: number = tarElement.getBoundingClientRect().top;
+                let x: number = tarElement.getBoundingClientRect().left;
+                let targetEle: Element = (<HTMLElement>args.originalEvent.target);
+                y = tarElement.getBoundingClientRect().top + (<HTMLElement>tarElement).offsetTop;
+                gObj.createColumnchooser(x, y, targetEle);
                 break;
             default:
                 gObj.trigger(events.toolbarClick, args);

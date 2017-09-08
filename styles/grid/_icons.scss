@@ -101,5 +101,21 @@
       content: $grid-searchbar-cancel-icon-content;
     }
 
+    .e-columnchooserdiv::before {
+      content: '\e714';
+    }
+
+    .e-ccsearch-icon::before {
+      content: $grid-columnchooser-search-icon-content;
+    }
+
+    .e-columnchooser::before {
+      content: '\e21e';
+    }
+
+    .e-ccsearch-icon.e-cc-cancel::before {
+      content: $grid-columnchooser-searchbar-cancel-icon-content;
+    }
+
   }
   }

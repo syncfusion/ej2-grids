@@ -14,7 +14,7 @@ import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs,
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
-import { DetailDataBoundEventArgs } from './interface';
+import { DetailDataBoundEventArgs, ColumnChooserEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
@@ -47,6 +47,7 @@ import { Toolbar } from '../actions/toolbar';
 import { AggregateRow } from '../models/aggregate';
 import { Edit } from '../actions/edit';
 import { Row } from '../models/row';
+import { ColumnChooser } from '../actions/column-chooser';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -456,6 +457,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private sortedColumns: string[] = [];
     private footerElement: Element;
     private inViewIndexes: number[] = [];
+    private mediaCol: Column[] = [];
+    private getShowHideService: ShowHide;
+    private mediaColumn: Column[];
+    private isMediaQuery: boolean = false;
 
     /** @hidden */
     public recordsCount: number;
@@ -510,7 +515,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         BatchSaveConfirm: 'Are you sure you want to save changes?',
         BatchSaveLostChanges: 'Unsaved changes will be lost. Are you sure you want to continue?',
         ConfirmDelete: 'Are you sure you want to Delete Record?',
-        CancelEdit: 'Are you sure you want to Cancel the changes?'
+        CancelEdit: 'Are you sure you want to Cancel the changes?',
+        ChooseColumns: 'Choose Column',
+        SearchColumns: 'search columns',
+        Matchs: 'No Matches Found'
     };
     private keyConfigs: { [key: string]: string } = {
         downArrow: 'downarrow',
@@ -646,6 +654,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public editModule: Edit;
 
+    /**
+     * `columnchooserModule` is used to dynamically show or hide the Grid columns.
+     * @hidden
+     */
+    public columnChooserModule: ColumnChooser;
 
     //Grid Options    
 
@@ -829,6 +842,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Collection<AggregateRowModel>([], AggregateRow)
     public aggregates: AggregateRowModel[];
+
+    /**    
+     * If `showColumnChooser` set to true, then it will allow the use to dynamically show or hide grid columns.  
+     * @default false    
+     */
+    @Property(false)
+    public showColumnChooser: boolean;
 
     /**    
      * Defines the scrollable height of the grid content.    
@@ -1188,6 +1208,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public toolbarClick: EmitType<ClickEventArgs>;
 
     /** 
+     * Triggers before the columnChooser render.
+     * @event
+     */
+    @Event()
+    public beforeOpenColumnChooser: EmitType<ColumnChooserEventArgs>;
+
+    /** 
      * Triggers when record batch add.
      * @event
      */
@@ -1274,7 +1301,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound', 'detailTemplate',
             'childGrid', 'queryString', 'toolbar', 'toolbarClick', 'editSettings',
             'batchAdd', 'batchDelete', 'beforeBatchAdd', 'beforeBatchDelete',
-            'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete', 'endEdit', 'beforeDataBound'];
+            'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete',
+            'endEdit', 'beforeDataBound', 'beforeOpenColumnChooser'];
         return this.addOnPersist(keyEntity);
     }
 
@@ -1360,6 +1388,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             });
         }
 
+        if (this.showColumnChooser) {
+            modules.push({
+                member: 'columnChooser',
+                args: [this, this.serviceLocator]
+            });
+        }
+
         return modules;
     }
 
@@ -1381,6 +1416,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.renderModule = new Render(this, this.serviceLocator);
         this.searchModule = new Search(this);
         this.scrollModule = new Scroll(this);
+        this.columnChooserModule = new ColumnChooser(this, this.serviceLocator);
         this.notify(events.initialLoad, {});
         this.trigger(events.load);
         prepareColumns(this.columns as Column[], this.enableColumnVirtualization);
@@ -1391,7 +1427,42 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.addListener();
         this.updateDefaultCursor();
         this.notify(events.initialEnd, {});
+        this.getMediaColumns();
     }
+
+    private getMediaColumns(): void {
+        let gcol: Column[] = this.getColumns();
+        this.getShowHideService = this.serviceLocator.getService<ShowHide>('showHideService');
+        for (let index: number = 0; index < gcol.length; index++) {
+            if (!isNullOrUndefined(gcol[index].hideAtMedia)) {
+                this.mediaCol.push(gcol[index]);
+                let media: MediaQueryList = window.matchMedia(gcol[index].hideAtMedia);
+                media.addListener(this.mediaQueryUpdate.bind(this, index));
+            }
+        }
+    }
+
+    /**
+     * @hidden
+     */
+    public mediaQueryUpdate(columnIndex: number, e?: MediaQueryList): void {
+        let col: Column = this.getColumns()[columnIndex];
+        let columWidth: number;
+        let browserWidth: string = e.media;
+        let stateChangeColumns: Column[] = [];
+        col.visible = e.matches;
+        stateChangeColumns.push(col);
+        this.isMediaQuery = true;
+        this.getShowHideService.setVisible(stateChangeColumns);
+    }
+
+    private refreshMediaCol(): void {
+        if (this.isMediaQuery) {
+            this.refresh();
+            this.isMediaQuery = false;
+        }
+    }
+
 
     /**
      * For internal use only - Initialize the event handler
@@ -2315,6 +2386,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.resizeModule.autoFitColumns(fieldNames);
     }
 
+    /** 
+     * @hidden
+     */
+    public createColumnchooser(x: number, y: number, target: Element): void {
+        this.columnChooserModule.renderColumnChooser(x, y, target);
+    }
+
     private initializeServices(): void {
         this.serviceLocator.register('widthService', this.widthService = new ColumnWidthService(this));
         this.serviceLocator.register('cellRendererFactory', new CellRendererFactory);
@@ -2500,6 +2578,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.on(events.dataReady, this.dataReady, this);
         this.on(events.contentReady, this.recalcIndentWidth, this);
         this.on(events.headerRefreshed, this.recalcIndentWidth, this);
+        this.addEventListener(events.dataBound, this.refreshMediaCol.bind(this));
     }
     /**
      * @hidden
@@ -2509,6 +2588,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.off(events.dataReady, this.dataReady);
         this.off(events.contentReady, this.recalcIndentWidth);
         this.off(events.headerRefreshed, this.recalcIndentWidth);
+        this.removeEventListener(events.dataBound, this.refreshMediaCol);
     }
 
     /** 
