@@ -210,3 +210,5 @@ export const dialogDestroy: string = 'dialog-destroy';
 export const crudAction: string = 'crud-Action';
 /** @hidden */
 export const addDeleteAction: string = 'add-delete-Action';
+/** @hidden */
+export const destroyForm: string = 'destroy-form';

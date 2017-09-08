@@ -128,7 +128,7 @@ export class Data implements IDataProcessor {
                 break;
             case 'add':
                 query = query ? query : this.generateQuery();
-                this.dataManager.insert(args.data, null, query);
+                this.dataManager.insert(args.data, null, query, 0);
                 break;
         }
         return this.dataManager.executeQuery(query);

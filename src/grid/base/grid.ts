@@ -387,49 +387,52 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
  */
 export class EditSettings extends ChildProperty<EditSettings> {
     /**   
-     * If `allowAdding` set to true, then the user can able to add new record on the Grid.     
+     * If `allowAdding` set to true, then you can able to add new record in grid.     
      * @default false 
      */
     @Property(false)
     public allowAdding: boolean;
 
     /**   
-     * If `allowEditing` set to true, then the user can able to update values in the existing record.     
+     * If `allowEditing` set to true, then you can able to update values in the existing record.     
      * @default false 
      */
     @Property(false)
     public allowEditing: boolean;
 
     /**   
-     * If `allowDeleting` set to true, then the user can able to delete existing record on the Grid.     
+     * If `allowDeleting` set to true, then the user can able to delete existing record in the Grid.     
      * @default false 
      */
     @Property(false)
     public allowDeleting: boolean;
 
     /**   
-     * Defines the edit mode of the Grid.   
+     * Defines the mode to perform edit. The available editing modes are
+     * normal
+     * dialog
+     * batch       
      * @default normal 
      */
     @Property('normal')
     public mode: string;
 
     /**   
-     * If `allowEditOnDblClick` set to false, then edit state not enabled while double click on the Grid record. 
+     * If `allowEditOnDblClick` set to false, then Grid will not allow to edit record on double click. 
      * @default true 
      */
     @Property(true)
     public allowEditOnDblClick: boolean;
 
     /**   
-     * If `showConfirmDialog` set to false, then the confirm dialog not shown while saving or discarding the batch changes. 
+     * In batch mode, If `showConfirmDialog` set to false, then the confirm dialog does not show while save or discard the batch changes. 
      * @default true 
      */
     @Property(true)
     public showConfirmDialog: boolean;
 
     /**   
-     * If `showDeleteConfirmDialog` set to true, then the confirm dialog has to be shown while deleting record. 
+     * If `showDeleteConfirmDialog` set to true, then confirm dialog will show at delete action. you can cancel delete command.
      * @default false 
      */
     @Property(false)
@@ -1215,63 +1218,63 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforeOpenColumnChooser: EmitType<ColumnChooserEventArgs>;
 
     /** 
-     * Triggers when record batch add.
+     * Triggers when record added in batch mode.    
      * @event
      */
     @Event()
     public batchAdd: EmitType<BatchAddArgs>;
 
     /** 
-     * Triggers when record batch delete.
+     * Triggers when record deleted in batch mode.
      * @event
      */
     @Event()
     public batchDelete: EmitType<BatchDeleteArgs>;
 
     /** 
-     * Triggered before the batch add.
+     * Triggers before record add in batch mode.
      * @event
      */
     @Event()
     public beforeBatchAdd: EmitType<BeforeBatchAddArgs>;
 
     /** 
-     * Triggered before the batch delete.
+     * Triggers before record delete in batch mode.
      * @event
      */
     @Event()
     public beforeBatchDelete: EmitType<BeforeBatchDeleteArgs>;
 
     /** 
-     * Triggered before the batch save.
+     * Triggers before records save in batch mode.
      * @event
      */
     @Event()
     public beforeBatchSave: EmitType<BeforeBatchSaveArgs>;
 
     /** 
-     * Triggered before the record is going to be edited.
+     * Triggers before the record is going to be edited.
      * @event
      */
     @Event()
     public beginEdit: EmitType<BeginEditArgs>;
 
     /** 
-     * Triggered when record cell edit.
+     * Triggers when cell edit.
      * @event
      */
     @Event()
     public cellEdit: EmitType<CellEditArgs>;
 
     /** 
-     * Triggered when record cell save.
+     * Triggers when record cell save.
      * @event
      */
     @Event()
     public cellSave: EmitType<CellSaveArgs>;
 
     /** 
-     * Triggered when data manager `then` event.
+     * Triggers before data bound to Grid.
      * @event
      */
     @Event()
@@ -2275,7 +2278,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Send an edit record request in Grid.
+     * Edit any bound record in Grid by row.
      * @param {HTMLTableRowElement} tr - Defines the table row to be edited.
      */
     public startEdit(): void {
@@ -2283,21 +2286,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Send a save request in Grid.
+     * If Grid is in editable state, then you can save a record by invoking endEdit.
      */
     public endEdit(): void {
         this.editModule.endEdit();
     }
 
     /**
-     * Send a cancel request in Grid.
+     * Cancel edited state.
      */
     public closeEdit(): void {
         this.editModule.closeEdit();
     }
 
     /**
-     * Add a new record in grid control when allowAdding is set as true.Without passing parameters it will add empty row.
+     * Add a new record in grid. 
+     * when allowAdding is set as true. Without passing parameters it will add empty row.
      * @param {Object} data - Defines the new add record data.
      */
     public addRecord(data?: Object): void {
@@ -2305,7 +2309,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Delete the row based on the given tr element in Grid.
+     * Delete a row by tr element.
      * @param {HTMLTableRowElement} tr - Defines the table row element.
      */
     public deleteRow(tr: HTMLTableRowElement): void {

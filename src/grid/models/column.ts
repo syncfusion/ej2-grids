@@ -300,31 +300,31 @@ export class Column {
     public showInColumnChooser?: boolean = true;
 
     /**    
-     * Defines the `editType` which is used to render the element for editing the grid record.   
+     * Defines the type of component for editable.
      * @default stringedit         
      */
     public editType: string;
 
     /**    
-     * Defines a value to set validation for saving data to the database.
+     * Defines rules to validate data before create and update.
      * @default null         
      */
     public validationRules: Object;
 
     /**    
-     * Defines the values which is used to display while adding a new record to the Grid.
+     * Defines the default values for component while adding a new record to the Grid.
      * @default null         
      */
     public defaultValue: string;
 
     /**    
-     * Defines the `IEditCell` object which is used to customize default edit cell and also you can create edit template cell.
+     * Defines the `IEditCell` object to customize default edit cell.
      * @default null         
      */
     public edit: IEditCell;
 
     /**    
-     * Defines a value that indicates the column has an identity in the database.
+     * Defines a value that indicates the column is an identity column in database.
      * @default false         
      */
     public isIdentity: boolean;
@@ -654,31 +654,31 @@ export interface ColumnModel {
     isPrimaryKey?: boolean;
 
     /**    
-     * Defines the `editType` which is used to render the element for editing the grid record.   
+     * Defines the type of component for editable.
      * @default stringedit         
      */
     editType?: string;
 
     /**    
-     * Defines a value to set validation for saving data to the database.
+     * Defines rules to validate data before create and update.
      * @default null         
      */
     validationRules?: Object;
 
     /**    
-     * Defines the values which is used to display while adding a new record to the Grid.
+     * Defines the default values for component while adding a new record to the Grid.
      * @default null         
      */
     defaultValue?: string;
 
     /**    
-     * Defines the `IEditCell` object which is used to customize default edit cell and also you can create edit template cell.
+     * Defines the `IEditCell` object to customize default edit cell.
      * @default null         
      */
     edit?: IEditCell;
 
     /**    
-     * Defines a value that indicates the column has an identity in the database.
+     * Defines a value that indicates the column is an identity column in database.
      * @default false         
      */
     isIdentity?: boolean;

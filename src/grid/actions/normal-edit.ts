@@ -231,6 +231,14 @@ export class NormalEdit {
         this.formObj.destroy();
     }
 
+    private destroyForm(): void {
+        if (this.formObj && !this.formObj.isDestroyed) {
+            this.parent.notify(events.tooltipDestroy, {});
+            this.formObj.destroy();
+            this.parent.notify(events.tooltipDestroy, {});
+        }
+    }
+
     protected applyFormValidation(): void {
         let gObj: IGrid = this.parent;
         let form: HTMLFormElement = gObj.element.querySelector('.e-gridform') as HTMLFormElement;
@@ -264,6 +272,7 @@ export class NormalEdit {
         this.parent.on(events.addComplete, this.editComplete, this);
         this.parent.on(events.actionComplete, this.editComplete, this);
         this.parent.on(events.crudAction, this.editHandler, this);
+        this.parent.on(events.destroyForm, this.destroyForm, this);
     }
 
     /**
@@ -276,6 +285,7 @@ export class NormalEdit {
         this.parent.off(events.deleteComplete, this.editComplete);
         this.parent.off(events.addComplete, this.editComplete);
         this.parent.off(events.crudAction, this.editHandler);
+        this.parent.off(events.destroyForm, this.destroyForm);
     }
 
     /**

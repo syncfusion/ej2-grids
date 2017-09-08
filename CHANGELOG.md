@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+- Editing feature added.
+- Column chooser feature added.
+
 ## 1.0.14-preview (2017-08-31)
 
 ### Grid

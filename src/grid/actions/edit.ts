@@ -113,7 +113,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Send an edit record request in Grid.
+     * Edit any bound record in Grid by row.
      * @param {HTMLTableRowElement} tr - Defines the table row to be edited.
      */
     public startEdit(tr?: HTMLTableRowElement): void {
@@ -138,7 +138,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Send a cancel request in grid.
+     * Cancel edited state.
      */
     public closeEdit(): void {
         if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog) {
@@ -188,7 +188,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Delete the row based on the given tr element in Grid.
+     * Delete a row by tr element.
      * @param {HTMLTableRowElement} tr - Defines the table row element.
      */
     public deleteRow(tr: HTMLTableRowElement): void {
@@ -196,7 +196,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Send a save request in Grid.
+     * If Grid is in editable state, then you can save a record by invoking endEdit.
      */
     public endEdit(): void {
         if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog) {
@@ -226,21 +226,22 @@ export class Edit implements IAction {
     }
 
     /**
-     * Cancel the modified changes in Grid control when edit mode is `batch`.
+     * Cancel added, edited and deleted changes.
      */
     public batchCancel(): void {
         this.closeEdit();
     }
 
     /**
-     * Save the modified changes to data source in Grid control when edit mode is `batch`.
+     * Save added, edited and deleted changes to data source.
      */
     public batchSave(): void {
         this.endEdit();
     }
 
     /**
-     * Edit a particular cell based on the row index and field name provided in `batch` edit mode.
+     * Change a particular cell into edited state based on the row index and field name provided.
+     * in `batch` edit mode.
      * @param {number} index - Defines row index to edit particular cell.
      * @param {string} field - Defines the field name of the column to perform batch edit.
      */
@@ -249,8 +250,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * It returns a value and if the input field values of edit form is
-     * not based on the validation rules then it will show the validation message.
+     * You can validate edited form, if validation fails it will return false otherwise it will return true.
      * @return {boolean}
      */
     public editFormValidate(): boolean {
@@ -261,7 +261,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Get the batch changes of edit, delete and add operations of Grid.
+     * Get edited, deleted and added records of Grid.
      * @return {Object}
      */
     public getBatchChanges(): Object {
@@ -269,7 +269,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Get the data of currently edited cell value in `batch` edit mode.
+     * To retrieve Edited state component value.
      */
     public getCurrentEditCellData(): void {
         let obj: Object = this.getCurrentEditedData(this.editModule.formObj.element, {});
@@ -277,7 +277,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Save the particular edited Grid cell.
+     * Saves current edited cell.
      */
     public saveCell(): void {
         this.editModule.saveCell();
@@ -464,6 +464,8 @@ export class Edit implements IAction {
      */
     public destroy(): void {
         this.removeEventListener();
+        this.dialogObj.destroy();
+        this.alertDObj.destroy();
     }
 
     private keyPressHandler(e: KeyboardEventArgs): void {

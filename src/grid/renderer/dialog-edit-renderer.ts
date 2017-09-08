@@ -64,6 +64,7 @@ export class DialogEditRender {
 
     private btnClick(e: MouseEvent): void {
         if (this.l10n.getConstant('CancelButton').toLowerCase() === (e.target as HTMLInputElement).innerText.toLowerCase()) {
+            this.parent.closeEdit();
             this.destroy();
         } else {
             this.parent.endEdit();
@@ -71,10 +72,9 @@ export class DialogEditRender {
     }
 
     private destroy(args?: { requestType: string }): void {
-        this.parent.closeEdit();
         this.parent.isEdit = false;
+        this.parent.notify(events.destroyForm, {});
         this.parent.notify(events.toolbarRefresh, {});
-        this.parent.notify(events.tooltipDestroy, {});
         if (this.dialog) {
             this.dialogObj.destroy();
             remove(this.dialog);

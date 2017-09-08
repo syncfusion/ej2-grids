@@ -323,43 +323,46 @@ export interface GroupSettingsModel {
 export interface EditSettingsModel {
 
     /**
-     * If `allowAdding` set to true, then the user can able to add new record on the Grid.     
+     * If `allowAdding` set to true, then you can able to add new record in grid.     
      * @default false 
      */
     allowAdding?: boolean;
 
     /**
-     * If `allowEditing` set to true, then the user can able to update values in the existing record.     
+     * If `allowEditing` set to true, then you can able to update values in the existing record.     
      * @default false 
      */
     allowEditing?: boolean;
 
     /**
-     * If `allowDeleting` set to true, then the user can able to delete existing record on the Grid.     
+     * If `allowDeleting` set to true, then the user can able to delete existing record in the Grid.     
      * @default false 
      */
     allowDeleting?: boolean;
 
     /**
-     * Defines the edit mode of the Grid.   
+     * Defines the mode to perform edit. The available editing modes are
+     * normal
+     * dialog
+     * batch       
      * @default normal 
      */
     mode?: string;
 
     /**
-     * If `allowEditOnDblClick` set to false, then edit state not enabled while double click on the Grid record. 
+     * If `allowEditOnDblClick` set to false, then Grid will not allow to edit record on double click. 
      * @default true 
      */
     allowEditOnDblClick?: boolean;
 
     /**
-     * If `showConfirmDialog` set to false, then the confirm dialog not shown while saving or discarding the batch changes. 
+     * In batch mode, If `showConfirmDialog` set to false, then the confirm dialog does not show while save or discard the batch changes. 
      * @default true 
      */
     showConfirmDialog?: boolean;
 
     /**
-     * If `showDeleteConfirmDialog` set to true, then the confirm dialog has to be shown while deleting record. 
+     * If `showDeleteConfirmDialog` set to true, then confirm dialog will show at delete action. you can cancel delete command.
      * @default false 
      */
     showDeleteConfirmDialog?: boolean;
@@ -861,55 +864,55 @@ export interface GridModel extends ComponentModel{
     beforeOpenColumnChooser?: EmitType<ColumnChooserEventArgs>;
 
     /**
-     * Triggers when record batch add.
+     * Triggers when record added in batch mode.    
      * @event
      */
     batchAdd?: EmitType<BatchAddArgs>;
 
     /**
-     * Triggers when record batch delete.
+     * Triggers when record deleted in batch mode.
      * @event
      */
     batchDelete?: EmitType<BatchDeleteArgs>;
 
     /**
-     * Triggered before the batch add.
+     * Triggers before record add in batch mode.
      * @event
      */
     beforeBatchAdd?: EmitType<BeforeBatchAddArgs>;
 
     /**
-     * Triggered before the batch delete.
+     * Triggers before record delete in batch mode.
      * @event
      */
     beforeBatchDelete?: EmitType<BeforeBatchDeleteArgs>;
 
     /**
-     * Triggered before the batch save.
+     * Triggers before records save in batch mode.
      * @event
      */
     beforeBatchSave?: EmitType<BeforeBatchSaveArgs>;
 
     /**
-     * Triggered before the record is going to be edited.
+     * Triggers before the record is going to be edited.
      * @event
      */
     beginEdit?: EmitType<BeginEditArgs>;
 
     /**
-     * Triggered when record cell edit.
+     * Triggers when cell edit.
      * @event
      */
     cellEdit?: EmitType<CellEditArgs>;
 
     /**
-     * Triggered when record cell save.
+     * Triggers when record cell save.
      * @event
      */
     cellSave?: EmitType<CellSaveArgs>;
 
     /**
-     * Triggered when data manager `then` event.
+     * Triggers before data bound to Grid.
      * @event
      */
     beforeDataBound?: EmitType<BeforeDataBoundArgs>;
