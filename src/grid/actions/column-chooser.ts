@@ -81,13 +81,7 @@ export class ColumnChooser implements IAction {
         if (targetElement.classList.contains('e-cctbn-icon') || targetElement.classList.contains('e-cc-toolbar')) {
             if ((this.initialOpenDlg && this.dlgObj.visible) || !this.isDlgOpen) {
                 this.isDlgOpen = true;
-                //this.initialOpenDlg = false;
                 return;
-            } else {
-                if (this.isDlgOpen) {
-                    this.initialOpenDlg = false;
-                    this.hideDialog();
-                }
             }
 
         } else if (targetElement.classList.contains('e-cc-cancel')) {
@@ -118,16 +112,14 @@ export class ColumnChooser implements IAction {
             };
             this.parent.trigger(events.beforeOpenColumnChooser, args1);
             this.refreshCheckboxState();
-            //  this.dlgObj.content = this.renderChooserList();
             this.dlgObj.dataBind();
-            this.dlgObj.element.style.top = y + 'px';
             this.dlgObj.element.style.maxHeight = '350px';
-            let dis: string = this.dlgObj.element.style.display;
+            let elementVisible: string = this.dlgObj.element.style.display;
             this.dlgObj.element.style.display = 'block';
             let newpos: { top: number, left: number } = calculateRelativeBasedPosition
-                ((<HTMLElement>target.parentElement), this.dlgObj.element);
-            this.dlgObj.element.style.display = dis;
-            this.dlgObj.element.style.top = newpos.top + target.getBoundingClientRect().height + 'px';
+                ((<HTMLElement>target.closest('.e-toolbar-item')), this.dlgObj.element);
+            this.dlgObj.element.style.display = elementVisible;
+            this.dlgObj.element.style.top = newpos.top + target.closest('.e-cc-toolbar').getBoundingClientRect().height + 'px';
             let dlgWidth: number = 250;
             if (this.parent.element.classList.contains('e-device')) {
                 this.dlgObj.position = { X: 'center', Y: 'center' };
@@ -214,7 +206,6 @@ export class ColumnChooser implements IAction {
             }],
             content: this.renderChooserList(),
             width: 250,
-            height: '350px',
             animationSettings: { effect: 'None' },
         });
         this.dlgObj.appendTo(this.dlgDiv);

@@ -251,6 +251,10 @@
       li.e-cclist {
         padding: $grid-bigger-columnchooser-li-padding;
      }
+
+      .e-toolbar .e-ccdiv {
+        margin-top: $grid-bigger-columnchooser-toolbar-div-margin-top;
+    }
   }
  }
 
@@ -1224,6 +1228,7 @@
       }
 
       .e-ccul-ele {
+        margin: $grid-columnchooser-ul-margin;
         padding: $grid-columnchooser-ul-padding;
       }
 
@@ -1233,6 +1238,10 @@
 
       .e-checkbox-wrapper .e-frame {
         margin-left: 0;
+      }
+
+      label.e-cc {
+        margin: 0;
       }
 
       .e-footer-content {
@@ -1285,12 +1294,18 @@
        }
 
       .e-cc-chbox {
+        margin: 3px;
         vertical-align: middle;
        }
+
+      .e-footer-content {
+        padding: $grid-column-chooser-dlg-footer-padding;
+      }
 
       .e-cc-lab-name {
         padding: 7px;
         text-overflow:  ellipsis;
+        vertical-align: middle;
        }
 
       .e-cc.e-input {
