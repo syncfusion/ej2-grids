@@ -1,4 +1,4 @@
-import { extend, KeyboardEventArgs } from '@syncfusion/ej2-base';
+import { extend, KeyboardEventArgs, addClass } from '@syncfusion/ej2-base';
 import { remove, classList, createElement } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
@@ -77,7 +77,7 @@ export class BatchEdit {
         if (!parentsUntil(e.target as Element, this.parent.element.id + '_add', true)) {
             this.saveCell();
             let rowCell: Element = parentsUntil(e.target as HTMLElement, 'e-rowcell');
-            if (rowCell) {
+            if (rowCell && !this.parent.isEdit) {
                 this.cellDetails.cellIndex = (e.target as HTMLTableCellElement).cellIndex;
                 this.cellDetails.rowIndex = ((e.target as Element).parentElement as HTMLTableRowElement).rowIndex;
             }
@@ -98,22 +98,23 @@ export class BatchEdit {
     }
 
     private keyPressHandler(e: KeyboardEventArgs): void {
+        let isEdit: boolean = this.parent.isEdit;
+        this.saveCell();
         if (!document.querySelectorAll('.e-popup-open').length) {
-            this.saveCell();
             switch (e.action) {
                 case 'tab':
-                    if (!this.parent.isEdit) {
+                    if (isEdit) {
                         this.editNextCell();
                     }
                     break;
                 case 'shiftTab':
-                    if (!this.parent.isEdit) {
+                    if (isEdit) {
                         this.editPrevCell();
                     }
                     break;
                 case 'enter':
                     e.preventDefault();
-                    if (!this.parent.isEdit && this.cellDetails.rowIndex + 1 < this.parent.getDataRows().length) {
+                    if (isEdit && this.cellDetails.rowIndex + 1 < this.parent.getDataRows().length) {
                         this.editCell(this.cellDetails.rowIndex + 1, this.cellDetails.column.field);
                     }
                     break;
@@ -129,14 +130,19 @@ export class BatchEdit {
         }
     }
 
+    private isAddRow(index: number): boolean {
+        let tr: Element = this.parent.getDataRows()[index];
+        return tr.classList.contains('e-insertedrow');
+    }
+
     private editNextCell(): void {
         let oldIdx: number = this.cellDetails.cellIndex;
-        let cellIdx: number = this.findNextEditableCell(this.cellDetails.cellIndex + 1);
+        let cellIdx: number = this.findNextEditableCell(this.cellDetails.cellIndex + 1, this.isAddRow(this.cellDetails.rowIndex));
         if (cellIdx > -1) {
             this.cellDetails.cellIndex = cellIdx;
         } else if (this.cellDetails.rowIndex + 1 < this.parent.getDataRows().length) {
             this.cellDetails.rowIndex++;
-            this.cellDetails.cellIndex = this.findNextEditableCell(0);
+            this.cellDetails.cellIndex = this.findNextEditableCell(0, this.isAddRow(this.cellDetails.rowIndex));
         }
         if (oldIdx !== this.cellDetails.cellIndex) {
             this.editCellFromIndex(this.cellDetails.rowIndex, this.cellDetails.cellIndex);
@@ -145,12 +151,13 @@ export class BatchEdit {
 
     private editPrevCell(): void {
         let oldIdx: number = this.cellDetails.cellIndex;
-        let cellIdx: number = this.findPrevEditableCell(this.cellDetails.cellIndex - 1);
+        let cellIdx: number = this.findPrevEditableCell(this.cellDetails.cellIndex - 1, this.isAddRow(this.cellDetails.rowIndex));
         if (cellIdx > -1) {
             this.cellDetails.cellIndex = cellIdx;
         } else if (this.cellDetails.rowIndex - 1 > -1) {
             this.cellDetails.rowIndex--;
-            this.cellDetails.cellIndex = this.findPrevEditableCell(this.parent.columns.length - 1);
+            this.cellDetails.cellIndex = this.findPrevEditableCell(
+                this.parent.columns.length - 1, this.isAddRow(this.cellDetails.rowIndex));
         }
         if (oldIdx !== this.cellDetails.cellIndex) {
             this.editCellFromIndex(this.cellDetails.rowIndex, this.cellDetails.cellIndex);
@@ -354,6 +361,7 @@ export class BatchEdit {
         let tbody: Element = gObj.getContentTable().querySelector('tbody');
         tr.classList.add('e-insertedrow');
         tbody.insertBefore(tr, tbody.firstChild);
+        addClass(tr.querySelectorAll('.e-rowcell'), ['e-updatedtd']);
         modelData[0].isDirty = true;
         modelData[0].changes = extend({}, modelData[0].data);
         modelData[0].edit = 'add';
@@ -361,7 +369,7 @@ export class BatchEdit {
         this.refreshRowIdx();
         gObj.selectRow(0);
         if (!data) {
-            index = this.findNextEditableCell(0);
+            index = this.findNextEditableCell(0, true);
             col = (gObj.columns[index] as Column);
             this.editCell(0, col.field, true);
         }
@@ -372,25 +380,34 @@ export class BatchEdit {
         gObj.trigger(events.batchAdd, args1);
     }
 
-    private findNextEditableCell(columnIndex: number): number {
+    private findNextEditableCell(columnIndex: number, isAdd: boolean): number {
         let cols: Column[] = this.parent.columns as Column[];
         let endIndex: number = cols.length;
         for (let i: number = columnIndex; i < endIndex; i++) {
-            if (!cols[i].template && cols[i].visible && !cols[i].isPrimaryKey && !cols[i].isIdentity) {
+            if (!isAdd && this.checkNPCell(cols[i])) {
+                return i;
+            } else if (isAdd && !cols[i].template && cols[i].visible) {
                 return i;
             }
         }
         return -1;
     }
 
-    private findPrevEditableCell(columnIndex: number): number {
+    private findPrevEditableCell(columnIndex: number, isAdd: boolean): number {
         let cols: Column[] = this.parent.columns as Column[];
         for (let i: number = columnIndex; i > -1; i--) {
-            if (!cols[i].template && cols[i].visible && !cols[i].isPrimaryKey && !cols[i].isIdentity) {
+            //prev
+            if (!isAdd && this.checkNPCell(cols[i])) {
+                return i;
+            } else if (isAdd && !cols[i].template && cols[i].visible) {
                 return i;
             }
         }
         return -1;
+    }
+
+    private checkNPCell(col: Column): boolean {
+        return !col.template && col.visible && !col.isPrimaryKey && !col.isIdentity;
     }
 
     private getDefaultData(): Object {
@@ -408,7 +425,7 @@ export class BatchEdit {
         let col: Column = gObj.getColumnByField(field);
         let keys: string[] = gObj.getPrimaryKeyFieldNames();
         if (gObj.editSettings.allowEditing && col.allowEditing) {
-            if (gObj.isEdit) {
+            if (gObj.isEdit && !(this.cellDetails.column.field === field && this.cellDetails.rowIndex === index)) {
                 this.saveCell();
             }
             if (gObj.isEdit) {
@@ -438,6 +455,8 @@ export class BatchEdit {
                 this.isColored = true;
                 args.cell.classList.remove('e-updatedtd');
             }
+            gObj.clearSelection();
+            gObj.selectRow(this.cellDetails.rowIndex);
             this.renderer.update(args);
             this.form = gObj.element.querySelector('#' + gObj.element.id + 'EditForm');
             this.applyFormValidation(col);

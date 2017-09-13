@@ -28,7 +28,7 @@ export class NumericEditCell implements IEditCell {
     }
 
     public read(element: Element): number {
-        return (<EJ2Intance>element).ej2_instances[0].getText();
+        return (<EJ2Intance>element).ej2_instances[0].value;
     }
 
     public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {

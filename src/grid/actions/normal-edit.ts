@@ -60,14 +60,28 @@ export class NormalEdit {
      * @hidden
      */
     public editComplete(e: NotifyArgs): void {
-        this.parent.selectRow(e.requestType as string === 'delete' ? this.lastSelIndex : 0);
-        if (e.requestType as string === 'delete') {
-            this.parent.trigger(events.actionComplete, extend(e, {
-                requestType: 'delete',
-                type: events.actionComplete
-            }));
+        switch (e.requestType as string) {
+            case 'add':
+                this.parent.selectRow(0);
+                this.parent.trigger(events.actionComplete, extend(e, {
+                    requestType: 'add',
+                    type: events.actionComplete
+                }));
+                break;
+            case 'delete':
+                this.parent.selectRow(this.lastSelIndex);
+                this.parent.trigger(events.actionComplete, extend(e, {
+                    requestType: 'delete',
+                    type: events.actionComplete
+                }));
+                break;
         }
         this.parent.element.focus();
+    }
+
+    private onActionComplete(): void {
+        this.parent.isEdit = false;
+        this.destroyForm();
     }
 
     protected startEdit(tr: Element): void {
@@ -88,6 +102,8 @@ export class NormalEdit {
         if (args.cancel) {
             return;
         }
+        this.lastSelIndex = this.parent.selectedRowIndex;
+        gObj.clearSelection();
         this.renderer.update(args);
         this.uid = tr.getAttribute('data-uid');
         this.applyFormValidation();
@@ -147,6 +163,8 @@ export class NormalEdit {
         args.type = events.actionComplete;
         this.refreshRow(args.data);
         this.parent.trigger(events.actionComplete, args);
+        this.parent.selectRow(this.parent.selectedRowIndex > -1 ? this.parent.selectedRowIndex : this.lastSelIndex);
+        this.parent.element.focus();
     }
 
     private editFailure(e: ReturnType): void {
@@ -190,6 +208,7 @@ export class NormalEdit {
             });
             return;
         }
+        this.previousData = {};
         gObj.clearSelection();
         let addData: Object = {};
         for (let col of gObj.columns as Column[]) {
@@ -213,7 +232,7 @@ export class NormalEdit {
         this.parent.notify(events.modelChanged, {
             requestType: 'delete', type: events.actionBegin, foreignKeyData: fieldname ?
                 [fieldname] : this.parent.getPrimaryKeyFieldNames(),
-            data: data ? [data] : this.parent.getSelectedRecords(), tr: this.parent.getSelectedRows[0]
+            data: data ? [data] : this.parent.getSelectedRecords(), tr: this.parent.getSelectedRows()
         });
     }
 
@@ -232,11 +251,11 @@ export class NormalEdit {
     }
 
     private destroyForm(): void {
+        this.parent.notify(events.tooltipDestroy, {});
         if (this.formObj && !this.formObj.isDestroyed) {
-            this.parent.notify(events.tooltipDestroy, {});
             this.formObj.destroy();
-            this.parent.notify(events.tooltipDestroy, {});
         }
+        this.parent.notify(events.tooltipDestroy, {});
     }
 
     protected applyFormValidation(): void {
@@ -270,7 +289,7 @@ export class NormalEdit {
         this.parent.on(events.dblclick, this.dblClickHandler, this);
         this.parent.on(events.deleteComplete, this.editComplete, this);
         this.parent.on(events.addComplete, this.editComplete, this);
-        this.parent.on(events.actionComplete, this.editComplete, this);
+        this.parent.addEventListener(events.actionComplete, this.onActionComplete.bind(this));
         this.parent.on(events.crudAction, this.editHandler, this);
         this.parent.on(events.destroyForm, this.destroyForm, this);
     }
@@ -284,6 +303,7 @@ export class NormalEdit {
         this.parent.off(events.dblclick, this.dblClickHandler);
         this.parent.off(events.deleteComplete, this.editComplete);
         this.parent.off(events.addComplete, this.editComplete);
+        this.parent.removeEventListener(events.actionComplete, this.onActionComplete);
         this.parent.off(events.crudAction, this.editHandler);
         this.parent.off(events.destroyForm, this.destroyForm);
     }

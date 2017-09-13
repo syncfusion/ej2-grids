@@ -62,7 +62,7 @@ describe('Editing module', () => {
             gridObj.appendTo('#Grid');
         });
 
-        it('dialog actions', () => {            
+        it('dialog actions', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.dataBind();
             gridObj.selectRow(0);
@@ -71,7 +71,7 @@ describe('Editing module', () => {
             //     done();
             // };
             gridObj.endEdit();
-        });        
+        });
 
         afterAll(() => {
             remove(elem);

@@ -788,6 +788,12 @@ describe('Editing module', () => {
                     (gridObj.editModule as any).editModule.editSuccess({ result: [] }, { data: {} });
                     let dd : DropDownEditCell = new DropDownEditCell();
                     (dd as any).ddActionComplete({result:[1,2,3]});
+                    gridObj.isEdit = false;
+                    (gridObj.editModule as any).valErrorPlacement(); 
+                    (gridObj.editModule as any).getValueFromType({type: 'number'}, undefined); 
+                    (gridObj.editModule as any).getValueFromType({type: 'boolean'}, undefined); 
+                    (gridObj.editModule as any).getValueFromType({type: 'date', editType: 'datepicker1'}, undefined); 
+                    (gridObj.editModule as any).keyPressHandler({action:'enter', target: gridObj.element.querySelector('.e-rowcell'), preventDefault: ()=>{}}); 
                 });
 
         afterAll(() => {

@@ -4,6 +4,7 @@
 import {  EmitType } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
+import { isActionPrevent } from '../../../src/grid/base/util';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Edit } from '../../../src/grid/actions/edit';
 import { Group } from '../../../src/grid/actions/group';
@@ -108,6 +109,7 @@ describe('Editing module', () => {
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 15;
             (gridObj.editModule as any).editModule.editNextCell();
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 15;
+            (gridObj.editModule as any).editModule.isAddRow = ()=>{return true;};
             (gridObj.editModule as any).editModule.cellDetails.rowIndex = 115;
             (gridObj.editModule as any).editModule.editNextCell();
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 1;
@@ -731,6 +733,7 @@ describe('Editing module', () => {
         it('batch actions', () => {
             (gridObj.editModule as any).editModule.saveCell = () => { };
             gridObj.isEdit = true;
+            (gridObj.editModule as any).editModule.isAddRow = ()=>{return true;};
             (gridObj.editModule as any).editModule.keyPressHandler({ action: 'tab', preventDefault: () => { } });
             (gridObj.editModule as any).editModule.keyPressHandler({ action: 'shiftTab', preventDefault: () => { } });
             (gridObj.editModule as any).editModule.keyPressHandler({ action: 'enter', preventDefault: () => { } });
@@ -775,7 +778,7 @@ describe('Editing module', () => {
                         { field: 'CustomerID', type: 'string', validationRules: { required: true } },
                         { field: 'EmployeeID', type: 'number', allowEditing: false },
                         { field: 'ShipAddress', allowFiltering: true, visible: false },
-                        { field: 'ShipCity' },
+                        { field: 'ShipCity', defaultValue: 'germany' },
                         { field: 'ShipName', isIdentity: true },
                         { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
                         { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
@@ -801,7 +804,111 @@ describe('Editing module', () => {
             (gridObj.editModule as any).validationComplete = () => { };
             (gridObj.editModule as any).valErrorPlacement = () => { };
             (gridObj.editModule as any).editModule.valComplete({});
-            (gridObj.editModule as any).editModule.customPlacement(null, null);          
+            (gridObj.editModule as any).editModule.customPlacement(null, null);    
+            (gridObj.editModule as any).editModule.getDefaultData();
+            let inst : any = { element: createElement('div').appendChild(createElement('div',{className:'e-updatedtd'})),
+              editSettings: {mode:'batch'}}
+            isActionPrevent(inst);
+        });
+
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
+    describe('Batch editing functionalities', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            let cellSave: EmitType<Object> = (args: any) => { args.cancel = true; };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    allowGrouping: true,
+                    beforeBatchAdd: cellSave,
+                    beforeBatchDelete: cellSave,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true },
+                        { field: 'CustomerID', type: 'string', validationRules: { required: true } },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'ShipAddress', allowFiltering: true, visible: false },
+                        { field: 'ShipCity', defaultValue: 'germany' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('batch actions', () => {           
+            (gridObj.editModule as any).editModule.bulkAddRow({OrderID:1342});                      
+            gridObj.selectRow(1);
+            (gridObj.editModule as any).editModule.bulkDelete();                
+        });
+
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
+    describe('Batch editing functionalities', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            let cellSave: EmitType<Object> = (args: any) => { args.cancel = true; };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    allowGrouping: true,                   
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true },
+                        { field: 'CustomerID', type: 'string', validationRules: { required: true } },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'ShipAddress', allowFiltering: true, visible: false },
+                        { field: 'ShipCity', defaultValue: 'germany' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('batch actions', () => {                       
+            gridObj.selectRow(0);
+            gridObj.element.querySelector('.e-row').classList.add('e-insertedrow');
+            (gridObj.editModule as any).editModule.bulkDelete();                
+            (gridObj.editModule as any).editModule.findPrevEditableCell(0, false);               
+            (gridObj.editModule as any).editModule.findPrevEditableCell(0, true);       
         });
 
 

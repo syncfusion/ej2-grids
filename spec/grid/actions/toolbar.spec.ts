@@ -48,9 +48,7 @@ describe('Toolbar functionalities', () => {
     });
     it('initial checck', () => {
         expect(gridObj.toolbarModule.getToolbar().firstElementChild.childElementCount).toBe(4);
-        expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toBeTruthy();
-        let items: any = gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay');
-        expect(items[0].id).toBe('Grid_edit');
+        expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toBeTruthy();      
     });
     it('check event trigger', (done: Function) => {
         gridObj.toolbarClick = (args: Object) => {

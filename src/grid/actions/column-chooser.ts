@@ -113,7 +113,7 @@ export class ColumnChooser implements IAction {
             this.parent.trigger(events.beforeOpenColumnChooser, args1);
             this.refreshCheckboxState();
             this.dlgObj.dataBind();
-            this.dlgObj.element.style.maxHeight = '350px';
+            this.dlgObj.element.style.maxHeight = '390px';
             let elementVisible: string = this.dlgObj.element.style.display;
             this.dlgObj.element.style.display = 'block';
             let newpos: { top: number, left: number } = calculateRelativeBasedPosition
@@ -124,6 +124,7 @@ export class ColumnChooser implements IAction {
             if (this.parent.element.classList.contains('e-device')) {
                 this.dlgObj.position = { X: 'center', Y: 'center' };
                 this.dlgObj.refreshPosition();
+                this.dlgObj.open = this.mOpenDlg.bind(this);
             } else {
                 if (this.parent.enableRtl) {
                     this.dlgObj.element.style.left = (<HTMLElement>target).offsetLeft + 'px';
@@ -411,6 +412,12 @@ export class ColumnChooser implements IAction {
 
     private removeCancelIcon(): void {
         this.dlgDiv.querySelector('.e-cc.e-ccsearch-icon').classList.remove('e-cc-cancel');
+    }
+
+    private mOpenDlg(): void {
+        this.dlgObj.element.querySelector('.e-cc-searchdiv').classList.remove('e-input-focus');
+        let chele: Element = this.dlgObj.element.querySelectorAll('.e-cc-chbox')[0];
+        (<HTMLElement>chele).focus();
     }
 
     // internally use

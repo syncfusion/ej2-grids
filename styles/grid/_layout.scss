@@ -1136,6 +1136,10 @@
       white-space: nowrap;
     }
 
+    .e-noselect {
+      user-select: none;
+    }
+
     &.e-device.e-bigger .e-normaledit .e-rowcell,
     .e-normaledit .e-rowcell {
       padding-bottom: 0;

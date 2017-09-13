@@ -98,7 +98,8 @@ export class DialogEditRender {
             elements[cols[i].uid].classList.remove('e-input');
             if (cols[i].editType === 'booleanedit') {
                 let elem: Element = dataCell.appendChild(elements[cols[i].uid]);
-                let lbl: Element = createElement('label', { attrs: { style: Browser.isDevice ? '' : 'vertical-align: top;' } });
+                let lbl: Element = createElement(
+                    'label', { className: 'e-noselect', attrs: { for: elem.id, style: Browser.isDevice ? '' : 'vertical-align: top;' } });
                 lbl.innerHTML = cols[i].headerText;
                 dataCell.appendChild(elem);
                 dataCell.appendChild(lbl);

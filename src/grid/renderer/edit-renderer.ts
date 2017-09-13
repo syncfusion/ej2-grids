@@ -103,7 +103,7 @@ export class EditRender {
                 id: gObj.element.id + col.field,
             });
             classList(input, ['e-input', 'e-field'], []);
-            if (col.isPrimaryKey && args.type === 'edit') {
+            if ((col.isPrimaryKey || col.isIdentity) && args.type === 'edit') { // already disabled in cell plugins
                 input.setAttribute('disabled', 'true');
             }
             elements[col.uid] = input;

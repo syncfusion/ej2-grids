@@ -118,10 +118,10 @@ export class Edit implements IAction {
      */
     public startEdit(tr?: HTMLTableRowElement): void {
         let gObj: IGrid = this.parent;
-        if (!gObj.editSettings.allowEditing || gObj.isEdit) {
+        if (!gObj.editSettings.allowEditing || gObj.isEdit || gObj.editSettings.mode === 'batch') {
             return;
         }
-        if (!gObj.getSelectedRows().length && gObj.editSettings.mode !== 'batch') {
+        if (!gObj.getSelectedRows().length) {
             if (!tr) {
                 this.showDialog('EditOperationAlert', this.alertDObj);
                 return;
@@ -141,7 +141,8 @@ export class Edit implements IAction {
      * Cancel edited state.
      */
     public closeEdit(): void {
-        if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog) {
+        if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog
+            && this.parent.element.querySelectorAll('.e-updatedtd').length) {
             this.showDialog('CancelEdit', this.dialogObj);
             return;
         }
@@ -297,7 +298,7 @@ export class Edit implements IAction {
         let val: number | string | Date | boolean = value;
         switch (col.type) {
             case 'number':
-                val = parseFloat(value as string);
+                val = !isNullOrUndefined(parseFloat(value as string)) ? parseFloat(value as string) : null;
                 break;
             case 'boolean':
                 if (col.editType !== 'booleanedit') {
@@ -358,7 +359,7 @@ export class Edit implements IAction {
             showCloseIcon: false,
             isModal: true,
             visible: false,
-            closeOnEscape: false,
+            closeOnEscape: true,
             target: this.parent.element,
             width: '320px',
             animationSettings: { effect: 'None' }
@@ -508,21 +509,29 @@ export class Edit implements IAction {
     }
 
     private valErrorPlacement(inputElement: HTMLElement, error: HTMLElement): void {
-        let td: HTMLElement = parentsUntil(inputElement, 'e-rowcell') as HTMLElement;
-        let tooltip: Tooltip = new Tooltip({
-            opensOn: 'custom', content: error, position: 'bottom center', cssClass: 'e-griderror',
-            animation: { open: { effect: 'None' }, close: { effect: 'None' } }
-        });
-        tooltip.appendTo(td);
-        tooltip.open(td);
+        if (this.parent.isEdit) {
+            let td: HTMLElement = parentsUntil(inputElement, 'e-rowcell') as HTMLElement;
+            if (!(td as EJ2Intance).ej2_instances) {
+                let tooltip: Tooltip = new Tooltip({
+                    opensOn: 'custom', content: error, position: 'bottom center', cssClass: 'e-griderror',
+                    animation: { open: { effect: 'None' }, close: { effect: 'None' } }
+                });
+                tooltip.appendTo(td);
+                tooltip.open(td);
+            } else {
+                ((td as EJ2Intance).ej2_instances[0] as Tooltip).content = error;
+            }
+        }
     }
 
     private validationComplete(args: { status: string, inputName: string, element: HTMLElement }): void {
-        let elem: Element = parentsUntil(document.getElementById(this.parent.element.id + args.inputName), 'e-rowcell');
-        if (elem && (elem as EJ2Intance).ej2_instances) {
-            let tObj: Tooltip = (elem as EJ2Intance).ej2_instances[0];
-            args.status === 'failure' ? tObj.open(parentsUntil(args.element, 'e-rowcell') as HTMLElement) : tObj.close();
-            tObj.refresh();
+        if (this.parent.isEdit) {
+            let elem: Element = parentsUntil(document.getElementById(this.parent.element.id + args.inputName), 'e-rowcell');
+            if (elem && (elem as EJ2Intance).ej2_instances && ((elem as EJ2Intance).ej2_instances as string[]).length) {
+                let tObj: Tooltip = (elem as EJ2Intance).ej2_instances[0];
+                args.status === 'failure' ? tObj.open(parentsUntil(args.element, 'e-rowcell') as HTMLElement) : tObj.close();
+                tObj.refresh();
+            }
         }
     }
 

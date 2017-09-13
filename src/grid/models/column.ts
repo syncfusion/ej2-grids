@@ -319,7 +319,7 @@ export class Column {
 
     /**    
      * Defines the `IEditCell` object to customize default edit cell.
-     * @default null         
+     * @default {}         
      */
     public edit: IEditCell;
 
@@ -673,7 +673,7 @@ export interface ColumnModel {
 
     /**    
      * Defines the `IEditCell` object to customize default edit cell.
-     * @default null         
+     * @default {}         
      */
     edit?: IEditCell;
 

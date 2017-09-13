@@ -156,7 +156,7 @@ export class Toolbar {
         for (let item of items) {
             let element: HTMLElement = <HTMLElement>this.element.querySelector('#' + item);
             if (element) {
-                this.toolbar.enableItems(element, isEnable);
+                this.toolbar.enableItems(element.parentElement, isEnable);
             }
         }
     }

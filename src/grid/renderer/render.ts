@@ -196,6 +196,7 @@ export class Render {
         gObj.trigger(events.beforeDataBound, e);
         let len: number = Object.keys(e.result).length;
         if (this.parent.isDestroyed) { return; }
+        this.parent.notify(events.tooltipDestroy, {});
         gObj.currentViewData = <Object[]>e.result;
         if (!len && e.count && gObj.allowPaging) {
             gObj.pageSettings.currentPage = Math.ceil(e.count / gObj.pageSettings.pageSize);

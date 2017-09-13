@@ -30,10 +30,6 @@ export class DropDownEditCell implements IEditCell {
         });
     }
 
-    public read(element: Element): string {
-        return (<EJ2Intance>element).ej2_instances[0].value;
-    }
-
     public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
@@ -42,9 +38,9 @@ export class DropDownEditCell implements IEditCell {
                 dataSource: this.parent.dataSource instanceof DataManager ?
                     this.parent.dataSource : new DataManager(this.parent.dataSource),
                 query: new Query().select(args.column.field), enabled: isEditable(args.column, args.type, args.element),
-                fields: { text: args.column.field }, text: args.rowData[args.column.field],
+                fields: { value: args.column.field }, value: args.rowData[args.column.field],
                 enableRtl: this.parent.enableRtl, actionComplete: this.ddActionComplete,
-                placeholder: isInline ? '' : args.column.headerText,
+                placeholder: isInline ? '' : args.column.headerText, popupHeight: '200px',
                 floatLabelType: isInline ? 'Never' : 'Always',
             },
             args.column.edit.params));
@@ -52,8 +48,13 @@ export class DropDownEditCell implements IEditCell {
         args.element.setAttribute('name', args.column.field);
     }
 
+    public read(element: Element): string {
+        return (<EJ2Intance>element).ej2_instances[0].value;
+    }
+
     private ddActionComplete(e: { result: string[] }): void {
         e.result = e.result.filter((val: string, i: number, values: string[]) => values.indexOf(val) === i);
+        e.result.sort();
     }
 
     public destroy(): void {
