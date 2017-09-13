@@ -178,7 +178,7 @@ export class ColumnChooser implements IAction {
     private renderDlgContent(): void {
         let y: number;
         this.dlgDiv = createElement('div', { className: 'e-ccdlg e-cc', id: this.parent.element.id + '_ccdlg' });
-        document.body.appendChild(this.dlgDiv);
+        this.parent.element.appendChild(this.dlgDiv);
         let xpos: number = this.parent.element.getBoundingClientRect().width - 250;
         let dialoPos: string = this.parent.enableRtl ? 'left' : 'right';
         let tarElement: Element = this.parent.element.querySelector('.e-ccdiv');
@@ -346,6 +346,8 @@ export class ColumnChooser implements IAction {
     }
 
     private refreshCheckboxState(): void {
+        (<HTMLInputElement>this.dlgObj.element.querySelector('.e-cc.e-input')).value = '';
+        this.columnChooserSearch('');
         for (let i: number = 0; i < this.parent.element.querySelectorAll('.e-cc-chbox').length; i++) {
             let element: HTMLInputElement = this.parent.element.querySelectorAll('.e-cc-chbox')[i] as HTMLInputElement;
             let column: Column = this.parent.getColumnByUid(element.id.replace('e-cc', ''));
