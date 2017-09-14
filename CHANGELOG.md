@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+- Batch editing support added.
+- Inline and dialog editing features optimized.
+
 ## 1.0.16-preview (2017-09-08)
 
 ### Grid
