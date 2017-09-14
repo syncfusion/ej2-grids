@@ -565,7 +565,6 @@ export class Edit implements IAction {
                 let tObj: Tooltip = (elem as EJ2Intance).ej2_instances[0];
                 if (args.status === 'failure') {
                     tObj.open(parentsUntil(args.element, 'e-rowcell') as HTMLElement);
-                    (tObj.element.querySelector('.e-field') as HTMLElement).focus();
                 } else {
                     tObj.close();
                 }

@@ -27,6 +27,7 @@ export class DialogEditRender {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.parent.on(events.dialogDestroy, this.destroy, this);
+        this.parent.on(events.destroy, this.destroy, this);
     }
 
     private setLocaleObj(): void {

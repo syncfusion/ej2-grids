@@ -102,6 +102,7 @@ export class BatchEdit {
         let isEdit: boolean = this.parent.isEdit;
         if (!document.querySelectorAll('.e-popup-open').length) {
             this.saveCell();
+            isEdit = isEdit && !this.validateFormObj();
             switch (e.action) {
                 case 'tab':
                     if (isEdit) {
@@ -128,6 +129,14 @@ export class BatchEdit {
                     this.cellDetails.cellIndex === this.parent.columns.length - 1)) {
                 e.preventDefault();
             }
+        }
+        this.reFocusIfError(e);
+    }
+
+    private reFocusIfError(e: KeyboardEventArgs): void {
+        if (this.validateFormObj() && (e.action === 'tab' || e.action === 'shiftTab')) {
+            (e.target as HTMLElement).focus();
+            e.preventDefault();
         }
     }
 
@@ -213,10 +222,14 @@ export class BatchEdit {
     }
 
     public endEdit(data?: Object): void {
-        if (this.parent.isEdit && this.formObj && !this.formObj.validate()) {
+        if (this.parent.isEdit && this.validateFormObj()) {
             return;
         }
         this.batchSave();
+    }
+
+    private validateFormObj(): boolean {
+        return this.formObj && !this.formObj.validate();
     }
 
     public batchSave(): void {
@@ -523,7 +536,7 @@ export class BatchEdit {
 
     public saveCell(isForceSave?: boolean): void {
         let gObj: IGrid = this.parent;
-        if (!isForceSave && (!gObj.isEdit || (this.formObj && !this.formObj.validate()))) {
+        if (!isForceSave && (!gObj.isEdit || this.validateFormObj())) {
             return;
         }
         let tr: Element = parentsUntil(this.form, 'e-row');
