@@ -5,6 +5,7 @@ import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { getScrollBarWidth } from '../base/util';
 import { scroll, contentReady, uiUpdate } from '../base/constant';
 import { ColumnWidthService } from '../services/width-controller';
+import { Grid } from '../base/grid';
 
 /**
  * `Scroll` module is used to handle scrolling behaviour.
@@ -41,6 +42,9 @@ export class Scroll implements IAction {
      */
     public setWidth(): void {
         this.parent.element.style.width = formatUnit(this.parent.width);
+        if ((<Grid>this.parent).toolbarModule) {
+            (<Grid>this.parent).toolbarModule.toolbar.refreshOverflow();
+        }
     }
     /**
      * @hidden

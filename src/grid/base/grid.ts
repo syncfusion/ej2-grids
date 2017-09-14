@@ -408,10 +408,10 @@ export class EditSettings extends ChildProperty<EditSettings> {
     public allowDeleting: boolean;
 
     /**   
-     * Defines the mode to perform edit. The available editing modes are
-     * normal
-     * dialog
-     * batch       
+     * Defines the mode to perform CRUD operations. The available modes are 
+     * * Inline
+     * * Dialog
+     * * Batch        
      * @default normal 
      */
     @Property('normal')
@@ -425,7 +425,7 @@ export class EditSettings extends ChildProperty<EditSettings> {
     public allowEditOnDblClick: boolean;
 
     /**   
-     * In batch mode, If `showConfirmDialog` set to false, then the confirm dialog does not show while save or discard the batch changes. 
+     * If showConfirmDialog set to false, then the confirm dialog does not show while save or discard the batch changes.
      * @default true 
      */
     @Property(true)
@@ -847,7 +847,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public aggregates: AggregateRowModel[];
 
     /**    
-     * If `showColumnChooser` set to true, then it will allow the use to dynamically show or hide grid columns.  
+     * If `showColumnChooser` set to true, then you can dynamically show or hide columns.  
      * @default false    
      */
     @Property(false)
@@ -1211,7 +1211,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public toolbarClick: EmitType<ClickEventArgs>;
 
     /** 
-     * Triggers before the columnChooser render.
+     * Triggers before the columnChooser open.
      * @event
      */
     @Event()
@@ -1253,7 +1253,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforeBatchSave: EmitType<BeforeBatchSaveArgs>;
 
     /** 
-     * Triggers before the record is going to be edited.
+     * Triggers before the record is going to be edit.
      * @event
      */
     @Event()
@@ -2269,7 +2269,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Delete a record in grid control when allowDeleting is set as true.
+     * Delete a record with Given options. If fieldname and data is not given then grid will delete the selected record.
+     * > `editSettings.allowDeleting` should be true.
      * @param {string} fieldname - Defines the primary key field Name of the column.
      * @param {Object} data - Defines the JSON data of record need to be delete.
      */
@@ -2278,7 +2279,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Edit any bound record in Grid by row.
+     * To edit any particular row by TR element.
      * @param {HTMLTableRowElement} tr - Defines the table row to be edited.
      */
     public startEdit(): void {
@@ -2300,8 +2301,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Add a new record in grid. 
-     * when allowAdding is set as true. Without passing parameters it will add empty row.
+     * To add a new row at top of rows with given data. If data is not passed then it will render empty row.
+     * > `editSettings.allowEditing` should be true.
      * @param {Object} data - Defines the new add record data.
      */
     public addRecord(data?: Object): void {
@@ -2309,7 +2310,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Delete a row by tr element.
+     * Delete any visible row by TR element.
      * @param {HTMLTableRowElement} tr - Defines the table row element.
      */
     public deleteRow(tr: HTMLTableRowElement): void {

@@ -14,7 +14,7 @@ export class Toolbar {
     //internal variables
     private element: HTMLElement;
     private predefinedItems: { [key: string]: ItemModel } = {};
-    private toolbar: tool;
+    public toolbar: tool;
     private searchElement: HTMLInputElement;
     private gridID: string;
     // module declarations

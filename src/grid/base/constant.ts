@@ -212,3 +212,5 @@ export const crudAction: string = 'crud-Action';
 export const addDeleteAction: string = 'add-delete-Action';
 /** @hidden */
 export const destroyForm: string = 'destroy-form';
+/** @hidden */
+export const doubleTap: string = 'double-tap';

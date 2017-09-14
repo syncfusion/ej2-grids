@@ -8,6 +8,10 @@
   .e-grid.e-bigger  {
     font-size: $grid-bigger-font-size;
 
+    .e-toolbar .e-toolbar-items .e-tbar-btn .e-icons {
+      font-size: 18px;
+    }
+
     .e-headercell {
       height: $grid-bigger-headercell-line-height;
       padding: 0 $grid-bigger-headercell-padding $grid-bigger-headercell-bootom-padding;
@@ -1163,6 +1167,7 @@
       border-top: 0;
     }
 
+    &.e-device .e-editedbatchcell.e-rowcell,
     &.e-device.e-bigger .e-editedbatchcell.e-rowcell,
     .e-editedbatchcell.e-rowcell {
       padding-bottom: 0;
@@ -1204,6 +1209,18 @@
 
     .e-row .e-input-group {
       margin-bottom: $grid-edit-input-margin;
+    }
+
+    &.e-bigger .e-row .e-input-group .e-input.e-field,
+    &.e-bigger .e-row .e-input-focus .e-input.e-field {
+      font-family: $grid-font-family;
+      font-size: $grid-font-size;
+      padding-bottom: $grid-edit-input-bigger-padding-bottom;
+      padding-top: $grid-edit-input-bigger-padding-top;
+    }
+
+    &.e-bigger .e-row .e-input-group {
+      margin-bottom: $grid-edit-input-bigger-margin;
     }
 
     .e-hiddenrow {

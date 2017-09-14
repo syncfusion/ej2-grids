@@ -90,6 +90,8 @@ export class NormalEdit {
         let primaryKeyValues: string[] = [];
         let rowIndex: number = parseInt(tr.getAttribute('aria-rowindex'), 10);
         this.previousData = gObj.getCurrentViewRecords()[rowIndex];
+        gObj.clearSelection();
+        gObj.selectRow(rowIndex);
         gObj.isEdit = true;
         for (let i: number = 0; i < primaryKeys.length; i++) {
             primaryKeyValues.push(this.previousData[primaryKeys[i]]);
@@ -192,6 +194,8 @@ export class NormalEdit {
             gObj.trigger(events.actionBegin, args);
             args.type = events.actionComplete;
             this.refreshRow(args.data);
+            gObj.selectRow(this.lastSelIndex);
+            gObj.element.focus();
             gObj.trigger(events.actionComplete, args);
             this.parent.notify(events.toolbarRefresh, {});
         }
@@ -209,6 +213,7 @@ export class NormalEdit {
             return;
         }
         this.previousData = {};
+        this.uid = '';
         gObj.clearSelection();
         let addData: Object = {};
         for (let col of gObj.columns as Column[]) {
@@ -285,13 +290,15 @@ export class NormalEdit {
      */
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.on(events.crudAction, this.editHandler, this);
+        this.parent.on(events.destroyForm, this.destroyForm, this);
+        this.parent.on(events.doubleTap, this.dblClickHandler, this);
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.dblclick, this.dblClickHandler, this);
         this.parent.on(events.deleteComplete, this.editComplete, this);
         this.parent.on(events.addComplete, this.editComplete, this);
         this.parent.addEventListener(events.actionComplete, this.onActionComplete.bind(this));
-        this.parent.on(events.crudAction, this.editHandler, this);
-        this.parent.on(events.destroyForm, this.destroyForm, this);
+
     }
 
     /**
@@ -299,13 +306,14 @@ export class NormalEdit {
      */
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.off(events.crudAction, this.editHandler);
+        this.parent.off(events.destroyForm, this.destroyForm);
+        this.parent.off(events.doubleTap, this.dblClickHandler);
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.dblclick, this.dblClickHandler);
         this.parent.off(events.deleteComplete, this.editComplete);
         this.parent.off(events.addComplete, this.editComplete);
         this.parent.removeEventListener(events.actionComplete, this.onActionComplete);
-        this.parent.off(events.crudAction, this.editHandler);
-        this.parent.off(events.destroyForm, this.destroyForm);
     }
 
     /**

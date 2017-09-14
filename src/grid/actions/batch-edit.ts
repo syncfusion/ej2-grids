@@ -49,6 +49,7 @@ export class BatchEdit {
         this.parent.on(events.dblclick, this.dblClickHandler, this);
         this.parent.on(events.keyPressed, this.keyPressHandler, this);
         this.parent.addEventListener(events.dataBound, this.dataBound.bind(this));
+        this.parent.on(events.doubleTap, this.dblClickHandler, this);
     }
 
     /**
@@ -60,6 +61,7 @@ export class BatchEdit {
         this.parent.off(events.dblclick, this.dblClickHandler);
         this.parent.off(events.keyPressed, this.keyPressHandler);
         this.parent.removeEventListener(events.dataBound, this.dataBound);
+        this.parent.off(events.doubleTap, this.dblClickHandler);
     }
 
     private dataBound(): void {
@@ -78,8 +80,7 @@ export class BatchEdit {
             this.saveCell();
             let rowCell: Element = parentsUntil(e.target as HTMLElement, 'e-rowcell');
             if (rowCell && !this.parent.isEdit) {
-                this.cellDetails.cellIndex = (e.target as HTMLTableCellElement).cellIndex;
-                this.cellDetails.rowIndex = ((e.target as Element).parentElement as HTMLTableRowElement).rowIndex;
+                this.setCellIdx(e.target as HTMLTableCellElement);
             }
         }
     }
@@ -99,8 +100,8 @@ export class BatchEdit {
 
     private keyPressHandler(e: KeyboardEventArgs): void {
         let isEdit: boolean = this.parent.isEdit;
-        this.saveCell();
         if (!document.querySelectorAll('.e-popup-open').length) {
+            this.saveCell();
             switch (e.action) {
                 case 'tab':
                     if (isEdit) {
@@ -178,6 +179,7 @@ export class BatchEdit {
         if (gObj.isEdit) {
             this.saveCell(true);
         }
+        gObj.clearSelection();
         for (let i: number = 0; i < rows.length; i++) {
             if (rows[i].isDirty) {
                 tr = gObj.getContentTable().querySelector('[data-uid=' + rows[i].uid + ']') as HTMLElement;
@@ -195,6 +197,7 @@ export class BatchEdit {
                 }
             }
         }
+        gObj.selectRow(this.cellDetails.rowIndex);
         this.refreshRowIdx();
         gObj.notify(events.toolbarRefresh, {});
         this.parent.notify(events.tooltipDestroy, {});
@@ -292,6 +295,7 @@ export class BatchEdit {
         if (args.cancel) {
             return;
         }
+        gObj.clearSelection();
         let uid: string = args.row.getAttribute('data-uid');
         if (args.row.classList.contains('e-insertedrow')) {
             this.removeRowObjectFromUID(uid);
@@ -302,7 +306,6 @@ export class BatchEdit {
             rowObj.edit = 'delete';
             classList(args.row as HTMLTableRowElement, ['e-hiddenrow', 'e-updatedtd'], []);
         }
-        gObj.clearSelection();
         this.refreshRowIdx();
         gObj.selectRow(index);
         delete args.row;
@@ -420,6 +423,15 @@ export class BatchEdit {
         return data;
     }
 
+    private setCellIdx(target: HTMLTableCellElement): void {
+        let gLen: number = 0;
+        if (this.parent.allowGrouping) {
+            gLen = this.parent.groupSettings.columns.length;
+        }
+        this.cellDetails.cellIndex = target.cellIndex - gLen;
+        this.cellDetails.rowIndex = parseInt(target.parentElement.getAttribute('aria-rowindex'), 10);
+    }
+
     public editCell(index: number, field: string, isAdd?: boolean): void {
         let gObj: IGrid = this.parent;
         let col: Column = gObj.getColumnByField(field);
@@ -448,9 +460,9 @@ export class BatchEdit {
                 return;
             }
             this.cellDetails = {
-                rowData: rowData, column: col, value: args.value, isForeignKey: args.isForeignKey, rowIndex: index,
-                cellIndex: (args.cell as HTMLTableCellElement).cellIndex
+                rowData: rowData, column: col, value: args.value, isForeignKey: args.isForeignKey,
             };
+            this.setCellIdx(args.cell as HTMLTableCellElement);
             if (args.cell.classList.contains('e-updatedtd')) {
                 this.isColored = true;
                 args.cell.classList.remove('e-updatedtd');

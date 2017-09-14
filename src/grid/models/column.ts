@@ -285,7 +285,7 @@ export class Column {
     public isPrimaryKey: boolean;
 
     /**
-     * column visibility can change based on its [`Media Queries`](http://cssmediaqueries.com/what-are-css-media-queries.html). 
+     * Column visibility can change based on [`Media Queries`](http://cssmediaqueries.com/what-are-css-media-queries.html).
      * `hideAtMedia` accepts only valid Media Queries.
      * @default undefined
      */
@@ -324,7 +324,7 @@ export class Column {
     public edit: IEditCell;
 
     /**    
-     * Defines a value that indicates the column is an identity column in database.
+     * If `isIdentity` is set to true, then this column is considered as identity column.
      * @default false         
      */
     public isIdentity: boolean;
@@ -678,7 +678,7 @@ export interface ColumnModel {
     edit?: IEditCell;
 
     /**    
-     * Defines a value that indicates the column is an identity column in database.
+     * If `isIdentity` is set to true, then this column is considered as identity column.
      * @default false         
      */
     isIdentity?: boolean;
@@ -705,7 +705,7 @@ export interface ColumnModel {
     hideAtMedia?: string;
 
     /**    
-     * If `showInColumnChooser` set to false, then hide the particular column in column chooser. 
+     * If `showInColumnChooser` set to false, then hides the particular column in column chooser.
      * By default all columns are displayed in column Chooser.
      * @default true
      */

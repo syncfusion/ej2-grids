@@ -37,6 +37,7 @@ describe('Toolbar functionalities', () => {
             {
                 dataSource: data,
                 allowGrouping: true,
+                width: "400px",
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                 { field: 'ShipCity' }],
                 toolbar: ['print', 'edit', { text: 'hello', id: 'hello' }, 'expand'],

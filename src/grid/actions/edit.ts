@@ -1,4 +1,4 @@
-import { KeyboardEventArgs, L10n } from '@syncfusion/ej2-base';
+import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs } from '@syncfusion/ej2-base';
 import { extend, getValue } from '@syncfusion/ej2-base';
 import { remove, createElement } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
@@ -36,6 +36,7 @@ export class Edit implements IAction {
     protected l10n: L10n;
     private dialogObj: Dialog;
     private alertDObj: Dialog;
+    private tapped: boolean | number = false;
     private preventObj: {
         instance: Object,
         handler: Function, arg1?: Object, arg2?: Object, arg3?: Object, arg4?: Object, arg5?: Object, arg6?: Object, arg7?: Object
@@ -112,8 +113,37 @@ export class Edit implements IAction {
         this.createConfirmDlg();
     }
 
+    private wireEvents(): void {
+        EventHandler.add(this.parent.getContent(), 'touchstart', this.tapEvent, this);
+    }
+
+    private unwireEvents(): void {
+        EventHandler.remove(this.parent.getContent(), 'touchstart', this.tapEvent);
+    }
+
+    private tapEvent(e: TouchEventArgs): void {
+        if (this.getUserAgent()) {
+            if (!this.tapped) {
+                this.tapped = setTimeout(this.timeoutHandler(), 300);
+            } else {
+                clearTimeout(this.tapped as number);
+                this.parent.notify(events.doubleTap, e);
+                this.tapped = null;
+            }
+        }
+    }
+
+    private getUserAgent(): boolean {
+        let userAgent: string = window.navigator.userAgent.toLowerCase();
+        return (/iphone|ipod|ipad/ as RegExp).test(userAgent);
+    }
+
+    private timeoutHandler(): void {
+        this.tapped = null;
+    }
+
     /**
-     * Edit any bound record in Grid by row.
+     * To edit any particular row by TR element.
      * @param {HTMLTableRowElement} tr - Defines the table row to be edited.
      */
     public startEdit(tr?: HTMLTableRowElement): void {
@@ -154,7 +184,8 @@ export class Edit implements IAction {
     }
 
     /**
-     * Add a new record in grid control when allowAdding is set as true. Without passing parameters it will add empty row.
+     * To add a new row at top of rows with given data. If data is not passed then it will render empty row.
+     * > `editSettings.allowEditing` should be true.
      * @param {Object} data - Defines the new add record data.
      */
     public addRecord(data?: Object): void {
@@ -166,7 +197,8 @@ export class Edit implements IAction {
     }
 
     /**
-     * Delete a record in grid control when allowDeleting is set as true.
+     * Delete a record with Given options. If fieldname and data is not given then grid will delete the selected record.
+     * > `editSettings.allowDeleting` should be true.
      * @param {string} fieldname - Defines the primary key field Name of the column.
      * @param {Object} data - Defines the JSON data of record need to be delete.
      */
@@ -189,7 +221,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Delete a row by tr element.
+     * Delete any visible row by TR element.
      * @param {HTMLTableRowElement} tr - Defines the table row element.
      */
     public deleteRow(tr: HTMLTableRowElement): void {
@@ -208,8 +240,8 @@ export class Edit implements IAction {
     }
 
     /**
-     * To update a cell value with given options.
-     * @param {number} rowIndex -Defines the row index.
+     * To update value of any cell without change into edit mode.
+     * @param {number} rowIndex - Defines the row index.
      * @param {string} field - Defines the column field.
      * @param {string | number | boolean | Date} value - Defines the value to change.
      */
@@ -218,8 +250,8 @@ export class Edit implements IAction {
     }
 
     /**
-     * To update a row values with given options.
-     * @param {number} index -Defines the row index.
+     * To update values of a row without changing into edit mode.
+     * @param {number} index - Defines the row index.
      * @param {Object} data - Defines the data object to update.
      */
     public updateRow(index: number, data: Object): void {
@@ -227,22 +259,21 @@ export class Edit implements IAction {
     }
 
     /**
-     * Cancel added, edited and deleted changes.
+     * To reset added, edited and deleted records in batch mode.
      */
     public batchCancel(): void {
         this.closeEdit();
     }
 
     /**
-     * Save added, edited and deleted changes to data source.
+     * To bulk Save added, edited and deleted records in batch mode.
      */
     public batchSave(): void {
         this.endEdit();
     }
 
     /**
-     * Change a particular cell into edited state based on the row index and field name provided.
-     * in `batch` edit mode.
+     * To turn any particular cell into edited state by row index and field name in batch mode.
      * @param {number} index - Defines row index to edit particular cell.
      * @param {string} field - Defines the field name of the column to perform batch edit.
      */
@@ -251,7 +282,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * You can validate edited form, if validation fails it will return false otherwise it will return true.
+     * To check current status of validation at the time of edited state. If validation passed then it will return true.
      * @return {boolean}
      */
     public editFormValidate(): boolean {
@@ -262,7 +293,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Get edited, deleted and added records of Grid.
+     * To get added, edited and deleted data before bulk save to data source in batch mode.
      * @return {Object}
      */
     public getBatchChanges(): Object {
@@ -270,7 +301,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * To retrieve Edited state component value.
+     * To get current value of edited component.
      */
     public getCurrentEditCellData(): void {
         let obj: Object = this.getCurrentEditedData(this.editModule.formObj.element, {});
@@ -278,7 +309,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * Saves current edited cell.
+     * To save current edited cell in batch. It does not save value to data source.
      */
     public saveCell(): void {
         this.editModule.saveCell();
@@ -404,6 +435,7 @@ export class Edit implements IAction {
         this.parent.on(events.tooltipDestroy, this.destroyToolTip, this);
         this.parent.on(events.preventBatch, this.preventBatch, this);
         this.parent.addEventListener(events.actionComplete, this.actionComplete.bind(this));
+        this.parent.on(events.initialEnd, this.wireEvents, this);
     }
 
     /**
@@ -418,6 +450,7 @@ export class Edit implements IAction {
         this.parent.off(events.tooltipDestroy, this.destroyToolTip);
         this.parent.off(events.preventBatch, this.preventBatch);
         this.parent.removeEventListener(events.actionComplete, this.actionComplete);
+        this.parent.off(events.initialEnd, this.unwireEvents);
     }
 
     private actionComplete(): void {
@@ -467,6 +500,7 @@ export class Edit implements IAction {
         this.removeEventListener();
         this.dialogObj.destroy();
         this.alertDObj.destroy();
+        this.unwireEvents();
     }
 
     private keyPressHandler(e: KeyboardEventArgs): void {
@@ -529,7 +563,12 @@ export class Edit implements IAction {
             let elem: Element = parentsUntil(document.getElementById(this.parent.element.id + args.inputName), 'e-rowcell');
             if (elem && (elem as EJ2Intance).ej2_instances && ((elem as EJ2Intance).ej2_instances as string[]).length) {
                 let tObj: Tooltip = (elem as EJ2Intance).ej2_instances[0];
-                args.status === 'failure' ? tObj.open(parentsUntil(args.element, 'e-rowcell') as HTMLElement) : tObj.close();
+                if (args.status === 'failure') {
+                    tObj.open(parentsUntil(args.element, 'e-rowcell') as HTMLElement);
+                    (tObj.element.querySelector('.e-field') as HTMLElement).focus();
+                } else {
+                    tObj.close();
+                }
                 tObj.refresh();
             }
         }

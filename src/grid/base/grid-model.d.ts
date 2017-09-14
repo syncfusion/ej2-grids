@@ -341,10 +341,10 @@ export interface EditSettingsModel {
     allowDeleting?: boolean;
 
     /**
-     * Defines the mode to perform edit. The available editing modes are
-     * normal
-     * dialog
-     * batch       
+     * Defines the mode to perform CRUD operations. The available modes are 
+     * * Inline
+     * * Dialog
+     * * Batch        
      * @default normal 
      */
     mode?: string;
@@ -356,7 +356,7 @@ export interface EditSettingsModel {
     allowEditOnDblClick?: boolean;
 
     /**
-     * In batch mode, If `showConfirmDialog` set to false, then the confirm dialog does not show while save or discard the batch changes. 
+     * If showConfirmDialog set to false, then the confirm dialog does not show while save or discard the batch changes.
      * @default true 
      */
     showConfirmDialog?: boolean;
@@ -531,7 +531,7 @@ export interface GridModel extends ComponentModel{
     aggregates?: AggregateRowModel[];
 
     /**
-     * If `showColumnChooser` set to true, then it will allow the use to dynamically show or hide grid columns.  
+     * If `showColumnChooser` set to true, then you can dynamically show or hide columns.  
      * @default false    
      */
     showColumnChooser?: boolean;
@@ -858,7 +858,7 @@ export interface GridModel extends ComponentModel{
     toolbarClick?: EmitType<ClickEventArgs>;
 
     /**
-     * Triggers before the columnChooser render.
+     * Triggers before the columnChooser open.
      * @event
      */
     beforeOpenColumnChooser?: EmitType<ColumnChooserEventArgs>;
@@ -894,7 +894,7 @@ export interface GridModel extends ComponentModel{
     beforeBatchSave?: EmitType<BeforeBatchSaveArgs>;
 
     /**
-     * Triggers before the record is going to be edited.
+     * Triggers before the record is going to be edit.
      * @event
      */
     beginEdit?: EmitType<BeginEditArgs>;

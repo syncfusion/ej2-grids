@@ -917,4 +917,57 @@ describe('Editing module', () => {
         });
     });
 
+    describe('Batch editing functionalities', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            let cellSave: EmitType<Object> = (args: any) => { args.cancel = true; };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    allowGrouping: true,                   
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true },
+                        { field: 'CustomerID', type: 'string', validationRules: { required: true } },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'ShipAddress', allowFiltering: true, visible: false },
+                        { field: 'ShipCity', defaultValue: 'germany' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('batch actions', () => {                       
+            gridObj.selectRow(0);
+            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
+            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
+            (gridObj.editModule as any).timeoutHandler();    
+            (gridObj.editModule as any).getUserAgent = ()=>{return true;};
+            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
+            (gridObj.editModule as any).getUserAgent = ()=>{return false;};
+            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
+        });
+
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
 });
