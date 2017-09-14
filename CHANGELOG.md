@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## 1.0.17-preview (2017-09-14)
+
 ### Grid
 
 #### New Features
