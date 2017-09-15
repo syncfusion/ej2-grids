@@ -131,6 +131,25 @@
       line-height: $grid-bigger-group-text-line-height;
     }
 
+    .e-row .e-input-group .e-input.e-field,
+    .e-row .e-input-focus .e-input.e-field {
+      font-family: $grid-font-family;
+      font-size: $grid-font-size;
+      padding-bottom: $grid-edit-input-bigger-padding-bottom;
+      padding-top: $grid-edit-input-bigger-padding-top;
+    }
+
+    &.e-device .e-row .e-input-group .e-input.e-field,
+    &.e-device .e-row .e-input-focus .e-input.e-field {
+      padding-bottom: $grid-edit-input-bigger-device-padding-bottom;
+      padding-top: $grid-edit-input-bigger-device-padding-top;
+    }
+
+    .e-row .e-input-group {
+      margin-bottom: $grid-edit-input-bigger-margin;
+      vertical-align: middle;
+    }
+
     &.e-device .e-headercell {
       padding: $grid-device-headercell-padding;
     }
@@ -176,6 +195,16 @@
 
     &.e-device .e-groupheadercell .e-ungroupbutton {
       line-height: $grid-device-ungroupbutton-line-height;
+    }
+
+    &.e-device .e-normaledit .e-rowcell {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+
+    &.e-device .e-editedbatchcell.e-rowcell {
+      padding-bottom: 0;
+      padding-top: 0;
     }
 
     .e-grouptext {
@@ -1144,7 +1173,6 @@
       user-select: none;
     }
 
-    &.e-device.e-bigger .e-normaledit .e-rowcell,
     .e-normaledit .e-rowcell {
       padding-bottom: 0;
       padding-top: 0;
@@ -1168,7 +1196,6 @@
     }
 
     &.e-device .e-editedbatchcell.e-rowcell,
-    &.e-device.e-bigger .e-editedbatchcell.e-rowcell,
     .e-editedbatchcell.e-rowcell,
     &.e-device .e-gridcontent .e-normaledit .e-rowcell {
       padding-bottom: 0;
@@ -1210,25 +1237,6 @@
 
     .e-row .e-input-group {
       margin-bottom: $grid-edit-input-margin;
-      vertical-align: middle;
-    }
-
-    &.e-bigger .e-row .e-input-group .e-input.e-field,
-    &.e-bigger .e-row .e-input-focus .e-input.e-field {
-      font-family: $grid-font-family;
-      font-size: $grid-font-size;
-      padding-bottom: $grid-edit-input-bigger-padding-bottom;
-      padding-top: $grid-edit-input-bigger-padding-top;
-    }
-
-    &.e-bigger.e-device .e-row .e-input-group .e-input.e-field,
-    &.e-bigger.e-device .e-row .e-input-focus .e-input.e-field {
-      padding-bottom: $grid-edit-input-bigger-device-padding-bottom;
-      padding-top: $grid-edit-input-bigger-device-padding-top;
-    }
-
-    &.e-bigger .e-row .e-input-group {
-      margin-bottom: $grid-edit-input-bigger-margin;
       vertical-align: middle;
     }
 
