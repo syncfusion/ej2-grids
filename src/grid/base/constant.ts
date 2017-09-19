@@ -82,6 +82,12 @@ export const recordClick: string = 'recordClick';
 export const beforeDataBound: string = 'beforeDataBound';
 /** @hidden */
 export const beforeOpenColumnChooser: string = 'beforeOpenColumnChooser';
+/** @hidden */
+export const resizeStart: string = 'resizeStart';
+/** @hidden */
+export const onResize: string = 'onResize';
+/** @hidden */
+export const resizeStop: string = 'resizeStop';
 
 /**
  * Specifies grid internal events

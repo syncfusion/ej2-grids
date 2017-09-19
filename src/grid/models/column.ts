@@ -43,7 +43,19 @@ export class Column {
     public width: string | number;
 
     /**    
-     * Define the alignment of column in both header and content cells.        
+     * Defines the minimum Width of column in pixels or percentage.    
+     * @default undefined    
+     */
+    public minWidth: string | number;
+
+    /**    
+     * Defines the maximum width of column in pixels or percentage.    
+     * @default undefined    
+     */
+    public maxWidth: string | number;
+
+    /**    
+     * Define the alignment of column in both header and content cells.    
      * @default left  
      */
 
@@ -110,6 +122,14 @@ export class Column {
     public allowSorting: boolean = true;
 
     /**    
+     * If `allowResizing` set to false, then it disables resize option of a particular column.  
+     * By default all columns can be resized. 
+     * @default true    
+     */
+
+    public allowResizing: boolean = true;
+
+    /**
      * If `allowFiltering` set to false, then it disables filtering option and filter bar element of a particular column. 
      * By default all columns are filterable.      
      * @default true    
@@ -425,6 +445,16 @@ export interface ColumnModel {
      */
     width?: string | number;
 
+    /**    
+     * Defines the minimum width of column in pixels or percentage.    
+     * @default undefined    
+     */
+    minWidth?: string | number;
+    /**    
+     * Defines the maximum width of column in pixels or percentage.    
+     * @default undefined    
+     */
+    maxWidth?: string | number;
     /**   
      * Define the alignment of column in both header and content cells.      
      * @default left 
@@ -485,6 +515,12 @@ export interface ColumnModel {
      * @default true    
      */
     allowSorting?: boolean;
+
+    /**         
+     * If `allowResizing` set to false, then it disables resize option of a particular column.  
+     * @default true    
+     */
+    allowResizing?: boolean;
 
     /**    
      * If `allowFiltering` set to false, then it disables filtering option and filter bar element of a particular column. 

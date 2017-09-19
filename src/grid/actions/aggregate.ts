@@ -32,7 +32,7 @@ export class Aggregate implements IAction {
 
     private initiateRender(): void {
         let cellFac: CellRendererFactory = this.locator.getService<CellRendererFactory>('cellRendererFactory');
-        let instance: ICellRenderer<{}> = new SummaryCellRenderer(this.locator);
+        let instance: ICellRenderer<{}> = new SummaryCellRenderer(this.parent, this.locator);
         [CellType.Summary, CellType.CaptionSummary, CellType.GroupSummary].forEach((type: CellType) =>
             cellFac.addCellRenderer(type, instance));
         this.footerRenderer = new FooterRenderer(this.parent, this.locator);

@@ -289,7 +289,8 @@ export class Sort implements IAction {
         this.popUpClickHandler(e);
         let target: Element = closest(e.target as Element, '.e-headercell');
         if (target && !(e.target as Element).classList.contains('e-grptogglebtn') &&
-            !(e.target as Element).classList.contains('e-stackedheadercell')) {
+            !(e.target as Element).classList.contains('e-stackedheadercell') &&
+            !(e.target as Element).classList.contains('e-rhandler')) {
             let gObj: IGrid = this.parent;
             let field: string = gObj.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')).field;
             let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'ascending' :

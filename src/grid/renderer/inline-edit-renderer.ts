@@ -44,7 +44,7 @@ export class InlineEditRender {
             attrs: { colspan: (gObj.getVisibleColumns().length + gLen + isDetail).toString() }
         }) as HTMLTableCellElement;
         let form: HTMLFormElement = createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
-        let table: Element = createElement('table', { className: 'e-table', attrs: { cellspacing: '0.25' } });
+        let table: Element = createElement('table', { className: 'e-table e-inline-edit', attrs: { cellspacing: '0.25' } });
         table.appendChild(gObj.getContentTable().querySelector('colgroup').cloneNode(true));
         let tbody: Element = createElement('tbody');
         let tr: Element = createElement('tr');

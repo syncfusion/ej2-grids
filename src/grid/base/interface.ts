@@ -106,6 +106,12 @@ export interface IGrid extends Component<HTMLElement> {
      */
     allowReordering?: boolean;
 
+    /**    
+     * If `allowResizing` set to true, then the Grid columns can be resized.      
+     * @default false    
+     */
+    allowResizing?: boolean;
+
     /**
      * Specifies whether the filtering is enable or not.
      * @default null
@@ -755,6 +761,16 @@ export interface BeforeBatchDeleteArgs extends BatchDeleteArgs, ICancel {
 export interface BeforeBatchSaveArgs extends ICancel {
     /** Defines the changed record object. */
     batchChanges?: Object;
+}
+
+/**
+ * @hidden
+ */
+export interface ResizeArgs extends ICancel {
+    /** Event argument of point or touch action. */
+    e?: MouseEvent | TouchEvent;
+    /** Defines the resizing column details */
+    column?: Column;
 }
 
 /**

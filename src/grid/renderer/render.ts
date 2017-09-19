@@ -262,17 +262,17 @@ export class Render {
         this.renderer.addRenderer(RenderType.Content, new ContentRender(this.parent, this.locator));
 
         let cellrender: CellRendererFactory = this.locator.getService<CellRendererFactory>('cellRendererFactory');
-        cellrender.addCellRenderer(CellType.Header, new HeaderCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.Data, new CellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.Indent, new IndentCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.GroupCaption, new GroupCaptionCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.GroupCaptionEmpty, new GroupCaptionEmptyCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.Expand, new ExpandCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.HeaderIndent, new HeaderIndentCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.DetailHeader, new DetailHeaderIndentCellRenderer(this.locator));
-        cellrender.addCellRenderer(CellType.DetailExpand, new DetailExpandCellRenderer(this.locator));
+        cellrender.addCellRenderer(CellType.Header, new HeaderCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.Data, new CellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.Indent, new IndentCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.GroupCaption, new GroupCaptionCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.GroupCaptionEmpty, new GroupCaptionEmptyCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.Expand, new ExpandCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.HeaderIndent, new HeaderIndentCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.StackedHeader, new StackedHeaderCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.DetailHeader, new DetailHeaderIndentCellRenderer(this.parent, this.locator));
+        cellrender.addCellRenderer(CellType.DetailExpand, new DetailExpandCellRenderer(this.parent, this.locator));
 
     }
 

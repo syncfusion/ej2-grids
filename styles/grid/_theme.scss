@@ -197,6 +197,39 @@
       color: $grid-drag-clone-color;
     }
 
+    & .e-rhelper {
+      background-color: $grid-resize-helper-color;
+      cursor: col-resize;
+      opacity: $grid-conent-font-opacity;
+    }
+
+    &.e-device .e-rcursor::before {
+      border-right-color: $grid-resize-helper-color;
+      opacity: $grid-conent-font-opacity;
+    }
+
+    &.e-device .e-rcursor::after {
+      border-left-color: $grid-resize-helper-color;
+      opacity: $grid-conent-font-opacity;
+    }
+
+    &.e-rlines .e-headercell .e-rhandler,
+    &.e-rlines .e-headercell .e-rsuppress {
+      border-right: 1px solid $grid-header-border-color;
+    }
+
+    &.e-rlines .e-headercell.e-stackedheadercell {
+      border-bottom: 1px solid $grid-header-border-color;
+      border-right: 1px solid $grid-header-border-color;
+    }
+
+    &.e-rtl.e-rlines .e-headercell.e-stackedheadercell,
+    &.e-rtl.e-rlines .e-headercell .e-rhandler,
+    &.e-rtl.e-rlines .e-headercell .e-rsuppress {
+      border-left: 1px solid $grid-header-border-color;
+      border-right-width: 0;
+    }
+
     .e-draganddrop {
       opacity: .5;
     }

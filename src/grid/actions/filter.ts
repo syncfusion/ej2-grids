@@ -70,7 +70,7 @@ export class Filter implements IAction {
             let rowRenderer: RowRenderer<Column> = new RowRenderer(this.serviceLocator, CellType.Filter);
             let row: Row<Column>;
             let cellrender: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
-            cellrender.addCellRenderer(CellType.Filter, new FilterCellRenderer(this.serviceLocator));
+            cellrender.addCellRenderer(CellType.Filter, new FilterCellRenderer(this.parent, this.serviceLocator));
             this.l10n = this.serviceLocator.getService<L10n>('localization');
             this.valueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
             rowRenderer.element = createElement('tr', { className: 'e-filterbar' });

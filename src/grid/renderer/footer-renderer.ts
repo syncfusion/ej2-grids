@@ -89,8 +89,9 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         this.setColGroup(<Element>headerCol);
     }
 
-    private onWidthChange(args: { index: string, width: number }): void {
+    private onWidthChange(args: { index: string, width: number, module: string }): void {
         this.getColGroup().children[args.index].style.width = formatUnit(args.width);
+        if (this.parent.allowResizing ) { this.updateFooterTableWidth(this.getTable() as HTMLElement); }
     }
 
     private onScroll(e: { left: number } = { left: (<HTMLElement>this.parent.getContent().firstChild).scrollLeft }): void {
@@ -113,6 +114,12 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         this.parent.off(columnWidthChanged, this.onWidthChange);
         this.parent.off(scroll, this.onScroll);
         this.parent.off(columnVisibilityChanged, this.columnVisibilityChanged);
+    }
+    private updateFooterTableWidth(tFoot: HTMLElement): void {
+        let tHead: HTMLTableElement = this.parent.getHeaderTable() as HTMLTableElement;
+        if (tHead && tFoot) {
+            tFoot.style.width = tHead.style.width;
+        }
     }
 }
 

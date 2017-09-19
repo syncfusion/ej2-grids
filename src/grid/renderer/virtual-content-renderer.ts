@@ -311,6 +311,11 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
             this.vgenerator.refreshColOffsets();
         }
     }
+
+    public refreshVirtualElement(): void {
+        this.vgenerator.refreshColOffsets();
+        this.setVirtualHeight();
+    }
 }
 /**
  * @hidden

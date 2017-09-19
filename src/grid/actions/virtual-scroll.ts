@@ -5,6 +5,7 @@ import { RenderType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
 import { VirtualContentRenderer, VirtualHeaderRenderer }  from '../renderer/virtual-content-renderer';
+import * as events from '../base/constant';
 /**
  * Virtual Scrolling class
  */
@@ -42,11 +43,20 @@ export class VirtualScroll implements IAction {
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(initialLoad, this.instantiateRenderer, this);
+        this.parent.on(events.columnWidthChanged, this.refreshVirtualElement, this);
     }
 
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(initialLoad, this.instantiateRenderer);
+        this.parent.off(events.columnWidthChanged, this.refreshVirtualElement);
+    }
+
+    private refreshVirtualElement(args: {module: string}): void {
+        if (this.parent.enableColumnVirtualization && args.module === 'resize') {
+            let renderer: RendererFactory = this.locator.getService<RendererFactory>('rendererFactory');
+            (renderer.getRenderer(RenderType.Content) as VirtualContentRenderer).refreshVirtualElement();
+        }
     }
 
     public destroy(): void {

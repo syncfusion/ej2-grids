@@ -962,6 +962,10 @@ describe('Editing module', () => {
             (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
             (gridObj.editModule as any).getUserAgent = ()=>{return false;};
             (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
+            (gridObj.editModule as any).editModule.validateFormObj  = ()=>{return true;};
+            (gridObj.editModule as any).editModule.reFocusIfError = ()=>{return true;};
+            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'tab', preventDefault: () => { } });
+            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'shiftTab', preventDefault: () => { } });      
         });
 
 

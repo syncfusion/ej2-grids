@@ -3,7 +3,7 @@ import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
-import { ICellRenderer, IValueFormatter, ICellFormatter, ICell } from '../base/interface';
+import { ICellRenderer, IValueFormatter, ICellFormatter, ICell, IGrid } from '../base/interface';
 import { doesImplementInterface, setStyleAndAttributes, appendChildren } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 
@@ -17,10 +17,12 @@ export class CellRenderer implements ICellRenderer<Column> {
 
     protected localizer: L10n;
     protected formatter: IValueFormatter;
+    protected parent: IGrid;
 
-    constructor(locator?: ServiceLocator) {
+    constructor(parent: IGrid, locator?: ServiceLocator) {
         this.localizer = locator.getService<L10n>('localization');
         this.formatter = locator.getService<IValueFormatter>('valueFormatter');
+        this.parent = parent;
     }
     /**
      * Function to return the wrapper for the TD content

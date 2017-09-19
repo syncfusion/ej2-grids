@@ -466,7 +466,8 @@ export class HeaderRender implements IRenderer {
                 helper: this.helper,
                 dragStart: this.dragStart,
                 drag: this.drag,
-                dragStop: this.dragStop
+                dragStop: this.dragStop,
+                abort: '.e-rhandler'
             });
         }
     }

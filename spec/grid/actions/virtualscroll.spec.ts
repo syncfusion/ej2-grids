@@ -164,6 +164,7 @@ describe('Virtualization testing', () => {
                 let generator: VirtualRowModelGenerator = <VirtualRowModelGenerator>contentModule.getModelGenerator();
                 generator.generateRows(grid.currentViewData, { virtualInfo: { blockIndexes: [1, 2, 3], page: 1, direction: 'up' } });
                 expect(grid.currentViewData.length).not.toEqual(0);
+                contentModule.refreshVirtualElement();
             });
         });
         afterAll(() => {

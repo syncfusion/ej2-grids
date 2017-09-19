@@ -31,14 +31,13 @@ export class ColumnWidthService {
         });
     }
 
-    public setColumnWidth(column: Column, index?: number): void {
+    public setColumnWidth(column: Column, index?: number, module?: string): void {
         let columnIndex: number = isNullOrUndefined(index) ? this.parent.getNormalizedColumnIndex(column.uid) : index;
-        let cWidth: string | number = column.width;
-
-        if (!isNullOrUndefined(cWidth)) {
+        let cWidth: string | number = this.getWidth(column);
+        if (cWidth !== null) {
             this.setWidth(cWidth, columnIndex);
-
-            this.parent.notify(columnWidthChanged, { index: columnIndex, width: cWidth, column: column });
+            if (this.parent.allowResizing) { this.setWidthToTable(); }
+            this.parent.notify(columnWidthChanged, { index: columnIndex, width: cWidth, column: column, module: module });
         }
     }
 
@@ -50,6 +49,10 @@ export class ColumnWidthService {
         if (headerCol) {
             headerCol.style.width = fWidth;
             (<HTMLTableColElement>content.querySelector('colgroup').children[index]).style.width = fWidth;
+        }
+        let edit: HTMLTableElement = <HTMLTableElement>content.querySelector('.e-table.e-inline-edit');
+        if (edit) {
+            (<HTMLTableColElement>edit.querySelector('colgroup').children[index]).style.width = fWidth;
         }
     }
 
@@ -69,5 +72,41 @@ export class ColumnWidthService {
         }
 
         return result;
+    }
+
+    public getWidth(column: Column): string | number {
+        if (isNullOrUndefined(column.width) && this.parent.allowResizing) {
+            column.width = 200;
+        }
+        if (!column.width) { return null; }
+        let width: number = parseInt(column.width.toString(), 10);
+        if (column.minWidth && width < parseInt(column.minWidth.toString(), 10)) {
+            return column.minWidth;
+        } else if ( (column.maxWidth && width > parseInt(column.maxWidth.toString(), 10)) ) {
+            return column.maxWidth;
+        } else {
+            return column.width;
+        }
+    }
+
+    private getTableWidth(columns: Column[]): number {
+        let tWidth: number = 0;
+        for (let column of columns){
+           let cWidth: string | number = this.getWidth(column);
+           if (column.visible !== false && cWidth !== null) {
+                tWidth += parseInt(cWidth.toString(), 10);
+           }
+        }
+        return tWidth;
+    }
+
+    private setWidthToTable(): void {
+        let tWidth: string = formatUnit(this.getTableWidth(<Column[]>this.parent.getColumns()));
+        (this.parent.getHeaderTable() as HTMLTableElement).style.width = tWidth;
+        (this.parent.getContentTable() as HTMLTableElement).style.width = tWidth;
+        let edit: HTMLTableElement = <HTMLTableElement>this.parent.element.querySelector('.e-table.e-inline-edit');
+        if (edit) {
+            edit.style.width = tWidth;
+        }
     }
 }

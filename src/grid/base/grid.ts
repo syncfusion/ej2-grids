@@ -12,7 +12,7 @@ import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventA
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
-import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from './interface';
+import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
@@ -796,6 +796,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public allowReordering: boolean;
 
     /**    
+     * If `allowResizing` set to true, then the Grid columns can be resized.      
+     * @default false    
+     */
+    @Property(false)
+    public allowResizing: boolean;
+
+    /**    
      * If `allowRowDragAndDrop` set to true, then it will allow the user to drag grid rows and drop to another grid.    
      * @default false    
      */
@@ -1274,6 +1281,27 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public cellSave: EmitType<CellSaveArgs>;
 
     /** 
+     * Triggers when column resize starts.
+     * @event
+     */
+    @Event()
+    public resizeStart: EmitType<ResizeArgs>;
+
+    /** 
+     * Triggers while column resizing
+     * @event
+     */
+    @Event()
+    public onResize: EmitType<ResizeArgs>;
+
+    /** 
+     * Triggers when column resize ends
+     * @event
+     */
+    @Event()
+    public resizeStop: EmitType<ResizeArgs>;
+
+    /** 
      * Triggers before data bound to Grid.
      * @event
      */
@@ -1304,8 +1332,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound', 'detailTemplate',
             'childGrid', 'queryString', 'toolbar', 'toolbarClick', 'editSettings',
             'batchAdd', 'batchDelete', 'beforeBatchAdd', 'beforeBatchDelete',
-            'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete',
-            'endEdit', 'beforeDataBound', 'beforeOpenColumnChooser'];
+            'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete', 'endEdit', 'beforeDataBound',
+            'beforeOpenColumnChooser', 'allowResizing'];
+
         return this.addOnPersist(keyEntity);
     }
 
@@ -1628,6 +1657,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'enableAltRow':
                 this.renderModule.refresh();
+                break;
+            case 'allowResizing':
+                this.headerModule.refreshUI();
                 break;
             case 'gridLines':
                 this.updateGridLines();

@@ -91,6 +91,11 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         if (column.allowGrouping) {
             ariaAttr.grabbed = false;
         }
+        if (this.parent.allowResizing) {
+            let handler: HTMLElement = createElement('div');
+            handler.className = column.allowResizing ? 'e-rhandler e-rcursor' : 'e-rsuppress';
+            node.appendChild ( handler );
+        }
         this.ariaService.setOptions(<HTMLElement>node, ariaAttr);
 
         if (!isNullOrUndefined(column.headerTextAlign) || !isNullOrUndefined(column.textAlign)) {

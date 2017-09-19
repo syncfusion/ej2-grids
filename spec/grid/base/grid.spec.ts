@@ -108,6 +108,85 @@ describe('Grid base module', () => {
         });
 
     });
+    
+    describe('Allow resizing test cases', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let colHeader: Element;
+        let content: Element;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    allowTextWrap: true,
+                    dataBound: dataBound, 
+                    allowResizing:true
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('handlers added', () => {
+            expect(gridObj.element.querySelectorAll('.e-rhandler').length).toBe(5);
+        });
+
+        it('property change reflect', () => {
+            gridObj.allowResizing = false;
+            gridObj.dataBind();
+            expect(gridObj.element.querySelectorAll('.e-rhandler').length).toBe(0);
+            gridObj.allowResizing = true;
+            gridObj.dataBind();
+            expect(gridObj.element.querySelectorAll('.e-rhandler').length).toBe(5);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
+    describe('Allow resizing - columns', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let colHeader: Element;
+        let content: Element;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID', allowResizing:false },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID', allowResizing:false },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    allowTextWrap: true,
+                    dataBound: dataBound, 
+                    allowResizing:true
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('Column resize suppress', () => {
+            expect(gridObj.element.querySelectorAll('.e-rhandler').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-rsuppress').length).toBe(2);
+
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
 
     describe('Method testing', () => {
         let gridObj: Grid;

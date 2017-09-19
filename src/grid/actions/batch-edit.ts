@@ -527,7 +527,7 @@ export class BatchEdit {
     }
 
     private refreshTD(td: Element, column: Column, rowObj: Row<Column>, value: string | number | boolean | Date): void {
-        let cell: CellRenderer = new CellRenderer(this.serviceLocator);
+        let cell: CellRenderer = new CellRenderer(this.parent, this.serviceLocator);
         this.setChanges(rowObj, column.field, value);
         cell.refreshTD(td, rowObj.cells[this.getCellIdx(column.uid)] as Cell<Column>, rowObj.changes);
         td.classList.add('e-updatedtd');
