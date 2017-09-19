@@ -44,9 +44,9 @@ export class Column {
 
     /**    
      * Defines the minimum Width of column in pixels or percentage.    
-     * @default undefined    
+     * @default 50    
      */
-    public minWidth: string | number;
+    public minWidth: string | number = 50;
 
     /**    
      * Defines the maximum width of column in pixels or percentage.    
@@ -447,7 +447,7 @@ export interface ColumnModel {
 
     /**    
      * Defines the minimum width of column in pixels or percentage.    
-     * @default undefined    
+     * @default 50    
      */
     minWidth?: string | number;
     /**    

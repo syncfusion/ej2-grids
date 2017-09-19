@@ -408,10 +408,18 @@
       width: 4px;
     }
 
+    &.e-device .e-gridheader .e-headercell .e-rhandler {
+      width: 7px;
+    }
+
     &.e-rtl .e-gridheader .e-headercell .e-rhandler,
     &.e-rtl .e-gridheader .e-headercell .e-rsuppress {
       left: 0;
       right: auto;
+    }
+
+    &.e-rlines .e-gridheader th.e-headercell.e-lastcell .e-rhandler {
+      border-right-width: 0;
     }
 
     & .e-rhelper {
@@ -1029,6 +1037,7 @@
     .e-gridheader .e-headercontent .e-reorderdownarrow {
       font-size: 7px;
       position: absolute;
+      z-index: 10;
     }
 
     .e-groupdroparea {

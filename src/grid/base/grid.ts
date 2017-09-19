@@ -1000,10 +1000,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * * delete - Delete the selected record.
      * * cancel - Cancel the edit state.
      * * search - Searches records by given key.
-     * * print - Print the Grid.
-     * * excelexport - Export the Grid to Excel.
-     * * pdfexport - Export the Grid to PDF.
-     * * wordexport - Export the Grid to Word.<br><br>
+     * * print - Print the Grid.<br><br>
      * The following code example implements the custom toolbar items.
      * ```html
      * <style type="text/css" class="cssStyles">

@@ -230,6 +230,11 @@
       border-right-width: 0;
     }
 
+    &.e-rlines .e-filterbarcell,
+    &.e-rtl.e-rlines .e-filterbarcell {
+      border-top: 1px solid $grid-header-border-color;
+    }
+
     .e-draganddrop {
       opacity: .5;
     }

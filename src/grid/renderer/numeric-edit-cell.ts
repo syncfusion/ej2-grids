@@ -47,7 +47,7 @@ export class NumericEditCell implements IEditCell {
     }
 
     public destroy(): void {
-        if (this.obj) {
+        if (this.obj && !this.obj.isDestroyed) {
             this.obj.destroy();
         }
     }

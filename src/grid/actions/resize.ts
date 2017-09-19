@@ -198,7 +198,8 @@ export class Resize implements IAction {
     }
 
     private wireEvents(): void {
-        this.getResizeHandlers().forEach((ele: HTMLElement) => {
+        this.getResizeHandlers().forEach((ele: HTMLElement ) => {
+            ele.style.height  = ele.parentElement.offsetHeight + 'px';
             EventHandler.add(ele, Browser.touchStartEvent, this.resizeStart, this);
             EventHandler.add(ele, events.dblclick, this.callAutoFit, this);
         });
@@ -224,9 +225,9 @@ export class Resize implements IAction {
         if (!this.helper) {
             this.element = e.target as HTMLElement;
             this.appendHelper();
+            this.column = this.getTargetColumn(e);
+            this.pageX = this.getPointX(e);
         }
-        this.column = this.getTargetColumn(e);
-        this.pageX = this.getPointX(e);
         if (Browser.isDevice && !this.helper.classList.contains(resizeClassList.icon)) {
             this.helper.classList.add(resizeClassList.icon);
             EventHandler.add(document, Browser.touchStartEvent, this.removeHelper, this);

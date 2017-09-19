@@ -314,16 +314,18 @@ export class HeaderRender implements IRenderer {
         let cols: Column[] = this.parent.enableColumnVirtualization ? this.parent.getColumns() : this.parent.columns as Column[];
 
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
-            rows = this.appendCells(cols[i], rows, 0, i === 0, false);
+            rows = this.appendCells(cols[i], rows, 0, i === 0, false, i === (len - 1));
         }
         return rows;
     }
 
-    private appendCells(cols: Column, rows: Row<Column>[], index: number, isFirstObj: boolean, isFirstCol: boolean): Row<Column>[] {
+    private appendCells(
+        cols: Column, rows: Row<Column>[], index: number, isFirstObj: boolean, isFirstCol: boolean, isLastCol: boolean): Row<Column>[] {
+        let lastCol: string = isLastCol ? 'e-lastcell' : '' ;
         if (!cols.columns) {
             rows[index].cells.push(this.generateCell(
                 cols, CellType.Header, this.colDepth - index,
-                (isFirstObj ? '' : (isFirstCol ? 'e-firstcell' : '')), index, this.parent.getColumnIndexByUid(cols.uid)));
+                (isFirstObj ? '' : (isFirstCol ? 'e-firstcell' : '')) + lastCol, index, this.parent.getColumnIndexByUid(cols.uid)));
         } else {
             let colSpan: number = this.getCellCnt(cols, 0);
             if (colSpan) {
@@ -332,7 +334,9 @@ export class HeaderRender implements IRenderer {
                 }));
             }
             for (let i: number = 0, len: number = cols.columns.length; i < len; i++) {
-                rows = this.appendCells((cols.columns as Column[])[i], rows, index + 1, isFirstObj, i === 0);
+                rows = this.appendCells(
+                    (cols.columns as Column[])[i], rows, index + 1, isFirstObj,
+                    i === 0, i === (len - 1) && isLastCol);
             }
         }
         return rows;
