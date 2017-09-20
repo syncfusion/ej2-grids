@@ -472,7 +472,8 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
-                    dataBound: dataBound
+                    dataBound: dataBound,
+                    showColumnChooser: true
                 });
             gridObj.appendTo('#Grid');
         });

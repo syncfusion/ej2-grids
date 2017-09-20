@@ -1445,7 +1445,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.renderModule = new Render(this, this.serviceLocator);
         this.searchModule = new Search(this);
         this.scrollModule = new Scroll(this);
-        this.columnChooserModule = new ColumnChooser(this, this.serviceLocator);
+        if (this.showColumnChooser) {
+           this.columnChooserModule = new ColumnChooser(this, this.serviceLocator);
+        }
         this.notify(events.initialLoad, {});
         this.trigger(events.load);
         prepareColumns(this.columns as Column[], this.enableColumnVirtualization);
