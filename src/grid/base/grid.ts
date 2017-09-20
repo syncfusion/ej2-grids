@@ -2366,7 +2366,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (perPixel >= 1) {
             indentWidth = (30 / perPixel);
         }
-        if (this.enableColumnVirtualization) { indentWidth = 30; }
+        if (this.enableColumnVirtualization || indentWidth < 30) { indentWidth = 30; }
         while (i < this.groupSettings.columns.length) {
             headerCol[i].style.width = indentWidth + 'px';
             contentCol[i].style.width = indentWidth + 'px';

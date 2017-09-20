@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+- Grid Resize feature added.
+
 ## 1.0.17-preview (2017-09-14)
 
 ### Grid
