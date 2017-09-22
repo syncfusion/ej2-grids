@@ -1446,7 +1446,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.searchModule = new Search(this);
         this.scrollModule = new Scroll(this);
         if (this.showColumnChooser) {
-           this.columnChooserModule = new ColumnChooser(this, this.serviceLocator);
+            this.columnChooserModule = new ColumnChooser(this, this.serviceLocator);
         }
         this.notify(events.initialLoad, {});
         this.trigger(events.load);
@@ -1537,19 +1537,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public onPropertyChanged(newProp: GridModel, oldProp: GridModel): void {
         let requireRefresh: boolean = false;
+        let requireGridRefresh: boolean = false;
         let checkCursor: boolean;
         let args: Object = { requestType: 'refresh' };
         if (this.isDestroyed) { return; }
         for (let prop of Object.keys(newProp)) {
             switch (prop) {
-                case 'enableHover':
-                    let action: Function = newProp.enableHover ? addClass : removeClass;
-                    (<Function>action)([this.element], 'e-gridhover');
-                    break;
-                case 'dataSource':
-                    this.notify(events.dataSourceModified, {});
-                    this.renderModule.refresh();
-                    break;
                 case 'allowPaging':
                     this.notify(events.uiUpdate, { module: 'pager', enable: this.allowPaging });
                     requireRefresh = true;
@@ -1619,9 +1612,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     }
                     this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings });
                     break;
-
                 case 'aggregates':
                     this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
+                    break;
+                case 'columns':
+                    this.updateColumnObject();
+                    requireGridRefresh = true;
                     break;
                 default:
                     this.extendedPropertyChange(prop, newProp);
@@ -1630,7 +1626,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (checkCursor) {
             this.updateDefaultCursor();
         }
-        if (requireRefresh) {
+        if (requireGridRefresh) {
+            this.refresh();
+        } else if (requireRefresh) {
             this.notify(events.modelChanged, args);
             requireRefresh = false;
         }
@@ -1684,6 +1682,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 } else {
                     this.removeTextWrap();
                 }
+                break;
+            case 'dataSource':
+                this.notify(events.dataSourceModified, {});
+                this.renderModule.refresh();
+                break;
+            case 'enableHover':
+                let action: Function = newProp.enableHover ? addClass : removeClass;
+                (<Function>action)([this.element], 'e-gridhover');
                 break;
         }
     }
@@ -2709,6 +2715,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public setInjectedModules(modules: Function[]): void {
         this.injectedModules = modules;
     }
+
+    private updateColumnObject(): void {
+        prepareColumns(this.columns, this.enableColumnVirtualization);
+        if (this.editSettings.allowEditing || this.editSettings.allowAdding || this.editSettings.allowDeleting) {
+            this.notify(events.autoCol, {});
+        }
+    }
+
+    /**
+     * Refreshes the Grid column changes
+     */
+    public refreshColumns(): void {
+        this.updateColumnObject();
+        this.refresh();
+    }
+
 }
 
 Grid.Inject(Selection);

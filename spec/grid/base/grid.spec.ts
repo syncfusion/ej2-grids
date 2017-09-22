@@ -491,6 +491,75 @@ describe('Grid base module', () => {
         });
     });
 
+    describe('Dynamic columns change testing', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+
+        it('Change Columns', (done: Function) => {
+            gridObj.dataBound = () => {
+                expect(gridObj.columns.length).toBe(3);
+                expect(gridObj.getRows()[0].children.length).toBe(3);
+                done();
+            };
+            expect (gridObj.columns.length).toBe(5);
+            gridObj.columns =  [
+                { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
+                { headerText: 'CustomerID', field: 'CustomerID' },
+                { headerText: 'EmployeeID', field: 'EmployeeID' },
+            ];
+            gridObj.dataBind();
+        });
+        
+        it('Change Columns using push method', (done: Function) => {
+            gridObj.dataBound = () => {
+                expect(gridObj.columns.length).toBe(5);
+                expect(gridObj.getRows()[0].children.length).toBe(5);
+                done();
+            };
+            expect (gridObj.columns.length).toBe(3);
+            let newcol: Column[]= <Column[]>[{ headerText: 'ShipCountry', field: 'ShipCountry' },
+            { headerText: 'ShipCity', field: 'ShipCity' },];
+            (<any>gridObj.columns).push(...newcol);
+            gridObj.dataBind();
+            gridObj.refreshColumns();
+            expect(gridObj.columns.length).toBe(5);
+        });
+
+        it('Change Columns using pop method', (done: Function) => {
+            gridObj.dataBound = () => {
+                expect(gridObj.columns.length).toBe(4);
+                expect(gridObj.getRows()[0].children.length).toBe(4);
+                done();
+            };
+            expect (gridObj.columns.length).toBe(5);
+            (<any>gridObj.columns).pop();
+            gridObj.dataBind();
+            gridObj.refreshColumns();
+            expect(gridObj.columns.length).toBe(4);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
 
 });
 
