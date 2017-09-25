@@ -215,3 +215,17 @@ export type AggregateType =
     'falsecount' |
     /** Specifies custom aggregate type */
     'custom';
+
+/**
+ * Defines the wrap mode.
+ * * both -  Wraps both header and content.
+ * * header - Wraps header alone.
+ * * content - Wraps content alone.
+ */
+export type WrapMode =
+    /** Wraps both header and content */
+    'both' |
+    /** Wraps  header alone */
+    'header' |
+    /** Wraps  content alone */
+    'content';

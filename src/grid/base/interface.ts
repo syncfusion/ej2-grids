@@ -2,7 +2,8 @@ import { Component, NumberFormatOptions, DateFormatOptions } from '@syncfusion/e
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { ItemModel } from '@syncfusion/ej2-navigations';
 import { Column, ColumnModel } from '../models/column';
-import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel } from './grid-model';
+import { SortSettingsModel, TextWrapSettingsModel, SelectionSettingsModel,
+     FilterSettingsModel, SearchSettingsModel } from './grid-model';
 import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel } from './grid-model';
 import { Cell } from '../models/cell';
@@ -53,6 +54,12 @@ export interface IGrid extends Component<HTMLElement> {
      * @default null
      */
     allowTextWrap?: boolean;
+
+    /**
+     * Specifies the 'textWrapSettings' for Grid.
+     * @default []
+     */
+    textWrapSettings?: TextWrapSettingsModel;
 
     /**
      * Specifies whether the paging is enable or not.

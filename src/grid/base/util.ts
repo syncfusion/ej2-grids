@@ -326,3 +326,12 @@ export function isActionPrevent(inst: IGrid): boolean {
         (inst.element.querySelectorAll('.e-updatedtd').length) &&
         (dlg ? dlg.classList.contains('e-popup-close') : true);
 }
+
+/** @hidden */
+export function wrap(elem: any, action: boolean): void {
+    let clName: string = 'e-wrap';
+    elem = elem instanceof Array ? elem : [elem];
+    for (let i: number = 0; i < elem.length; i++) {
+        action ? elem[i].classList.add(clName) : elem[i].classList.remove(clName);
+    }
+}

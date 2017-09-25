@@ -6,7 +6,7 @@ import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@sync
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { GridModel } from './grid-model';
-import { iterateArrayOrObject, prepareColumns, parentsUntil } from './util';
+import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap } from './util';
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
@@ -19,6 +19,7 @@ import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './int
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
+import { WrapMode } from './enum';
 import { Data } from '../actions/data';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { ServiceLocator } from '../services/service-locator';
@@ -27,7 +28,7 @@ import { RendererFactory } from '../services/renderer-factory';
 import { ColumnWidthService } from '../services/width-controller';
 import { AriaService } from '../services/aria-service';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel, EditSettingsModel } from './grid-model';
-import { SortDescriptorModel, PredicateModel, RowDropSettingsModel, GroupSettingsModel } from './grid-model';
+import { SortDescriptorModel, PredicateModel, RowDropSettingsModel, GroupSettingsModel, TextWrapSettingsModel } from './grid-model';
 import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { PageSettings } from '../models/page-settings';
 import { Sort } from '../actions/sort';
@@ -329,6 +330,23 @@ export class RowDropSettings extends ChildProperty<RowDropSettings> {
     public targetID: string;
 
 }
+
+/**   
+ * Configures the text wrap settings of the Grid.   
+ */
+export class TextWrapSettings extends ChildProperty<TextWrapSettings> {
+    /**   
+     * Defines the `wrapMode` of grid. The available modes are   
+     * * `both` - Wraps both header and content. 
+     * * `content` -Wraps  header alone.
+     * * `header` - Wraps  content alone. 
+     * @default both
+     */
+    @Property('both')
+    public wrapMode: WrapMode;
+
+}
+
 /**   
  * Configures the group behavior of the Grid.    
  */
@@ -702,6 +720,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property(false)
     public allowTextWrap: boolean;
+
+    /**     
+     * Configures the text wrap in the Grid.  
+     * @default textWrapSettings{wrapMode:"both"}     
+     */
+    @Complex<TextWrapSettingsModel>({}, TextWrapSettings)
+    public textWrapSettings: TextWrapSettingsModel;
 
     /**    
      * If `allowPaging` set to true, then the pager renders at the footer of Grid. It is used to handle page navigation in Grid.   
@@ -1323,7 +1348,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'selectionSettings', 'allowFiltering', 'filterSettings', 'gridLines',
             'created', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
             'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound', 'groupSettings', 'columns', 'allowKeyboard',
-            'enableAltRow', 'enableHover', 'allowTextWrap', 'searchSettings', 'selectedRowIndex', 'allowReordering',
+            'enableAltRow', 'enableHover', 'allowTextWrap', 'textWrapSettings', 'searchSettings', 'selectedRowIndex', 'allowReordering',
             'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
             'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
             'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound', 'detailTemplate',
@@ -1677,6 +1702,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.notify(events.inBoundModelChanged, { module: 'edit', properties: newProp.editSettings });
                 break;
             case 'allowTextWrap':
+            case 'textWrapSettings':
                 if (this.allowTextWrap) {
                     this.applyTextWrap();
                 } else {
@@ -2569,7 +2595,23 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public applyTextWrap(): void {
         if (this.allowTextWrap) {
-            this.element.classList.add('e-wrap');
+            let headerRows: Element[] = [].slice.call(this.element.querySelectorAll('.e-columnheader'));
+            switch (this.textWrapSettings.wrapMode) {
+                case 'header':
+                    wrap(this.element, false);
+                    wrap(this.getContent(), false);
+                    wrap(headerRows, true);
+                    break;
+                case 'content':
+                    wrap(this.getContent(), true);
+                    wrap(this.element, false);
+                    wrap(headerRows, false);
+                    break;
+                default:
+                    wrap(this.element, true);
+                    wrap(this.getContent(), false);
+                    wrap(headerRows, false);
+            }
         }
     }
 
@@ -2579,7 +2621,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public removeTextWrap(): void {
-        this.element.classList.remove('e-wrap');
+        wrap(this.element, false);
+        let headerRows: Element[] = [].slice.call(this.element.querySelectorAll('.e-columnheader'));
+        wrap(headerRows, false);
+        wrap(this.getContent(), false);
     }
 
     /**

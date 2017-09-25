@@ -27,14 +27,16 @@ export class StackedHeaderCellRenderer extends CellRenderer implements ICellRend
     public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
 
         let node: Element = this.element.cloneNode() as Element;
-        node.innerHTML = cell.column.headerText;
+        let div : Element = createElement('div', {className: 'e-stackedheadercelldiv'});
+        node.appendChild(div);
+        div.innerHTML = cell.column.headerText;
 
         if (cell.column.toolTip) {
             node.setAttribute('title', cell.column.toolTip);
         }
 
         if (isNullOrUndefined(cell.column.textAlign)) {
-            (node as HTMLElement).style.textAlign = cell.column.textAlign;
+            (div as HTMLElement).style.textAlign = cell.column.textAlign;
         }
 
         node.setAttribute('colspan', cell.colSpan.toString());

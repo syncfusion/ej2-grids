@@ -11,7 +11,7 @@ import { ServiceLocator } from '../services/service-locator';
 import * as events from '../base/constant';
 import { MouseEventArgs, Draggable, Droppable, DropEventArgs } from '@syncfusion/ej2-base';
 import { ColumnWidthService } from '../services/width-controller';
-import { parentsUntil } from '../base/util';
+import { parentsUntil, wrap } from '../base/util';
 import { AriaService } from '../services/aria-service';
 
 /**
@@ -416,6 +416,10 @@ export class HeaderRender implements IRenderer {
         this.widthService.setWidthToColumns();
         this.initializeHeaderDrag();
         this.parent.notify(events.headerRefreshed, {});
+        let rows: Element[] = [].slice.call(headerDiv.querySelectorAll('tr.e-columnheader'));
+        if (this.parent.allowTextWrap && this.parent.textWrapSettings.wrapMode === 'header') {
+            wrap(rows, true);
+        }
     }
 
     public appendContent(table?: Element): void {
