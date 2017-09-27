@@ -180,7 +180,7 @@ export class Data implements IDataProcessor {
         let nextDate: Date;
         let prevObj: PredicateModel = extend({}, getActualProperties(filterObject)) as PredicateModel;
         let nextObj: PredicateModel = extend({}, getActualProperties(filterObject)) as PredicateModel;
-        let value: Date = new Date(filterObject.value);
+        let value: Date = new Date(filterObject.value as string);
         prevDate = new Date(value.setDate(value.getDate() - 1));
         nextDate = new Date(value.setDate(value.getDate() + 2));
         prevObj.value = prevDate;

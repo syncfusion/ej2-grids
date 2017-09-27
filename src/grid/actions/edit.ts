@@ -17,7 +17,7 @@ import { DialogEdit } from './dialog-edit';
 import { Dialog } from '@syncfusion/ej2-popups';
 import { parentsUntil } from '../base/util';
 import { Tooltip } from '@syncfusion/ej2-popups';
-import { FormValidator } from '@syncfusion/ej2-base';
+import { FormValidator } from '@syncfusion/ej2-inputs';
 
 /**
  * `Edit` module is used to handle editing actions.
@@ -343,7 +343,7 @@ export class Edit implements IAction {
                 break;
             case 'date':
                 if (col.editType !== 'datepicker') {
-                    val = new Date(value);
+                    val = new Date(value as string);
                 }
                 break;
         }

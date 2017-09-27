@@ -1,6 +1,6 @@
 import { extend, KeyboardEventArgs, addClass } from '@syncfusion/ej2-base';
 import { remove, classList, createElement } from '@syncfusion/ej2-base';
-import { FormValidator } from '@syncfusion/ej2-base';
+import { FormValidator } from '@syncfusion/ej2-inputs';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from '../base/interface';
 import { BatchAddArgs, CellEditArgs, CellSaveArgs } from '../base/interface';

@@ -16,7 +16,7 @@ import { SentinelType, Offsets } from './type';
 import { Edit } from '../actions/edit';
 import { DropDownListModel } from '@syncfusion/ej2-dropdowns';
 import { NumericTextBoxModel } from '@syncfusion/ej2-inputs';
-import { FormValidator } from '@syncfusion/ej2-base';
+import { FormValidator } from '@syncfusion/ej2-inputs';
 
 /**
  * Specifies grid interfaces.

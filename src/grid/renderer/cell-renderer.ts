@@ -117,7 +117,7 @@ export class CellRenderer implements ICellRenderer<Column> {
         let value: Object = this.getValue(column.field, data, column);
 
         if (column.type === 'date') {
-            value = new Date(value);
+            value = new Date(value as string);
         }
 
         value = this.format(column, value, data);

@@ -9,7 +9,7 @@ import { Row } from '../models/row';
 import { ServiceLocator } from '../services/service-locator';
 import { Column } from '../models/column';
 import { ReturnType } from '../base/type';
-import { FormValidator } from '@syncfusion/ej2-base';
+import { FormValidator } from '@syncfusion/ej2-inputs';
 
 /**
  * `NormalEdit` module is used to handle normal('inline, dialog, external') editing actions.
