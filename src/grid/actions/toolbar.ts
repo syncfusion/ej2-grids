@@ -1,10 +1,11 @@
-import { L10n, EventHandler } from '@syncfusion/ej2-base';
+import { L10n, EventHandler, extend } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Toolbar as tool, ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { IGrid, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { ServiceLocator } from '../services/service-locator';
 import { EditSettingsModel } from '../base/grid-model';
+import { templateCompiler } from '../base/util';
 
 /**
  * `Toolbar` module used to handle toolbar actions.
@@ -88,11 +89,18 @@ export class Toolbar {
             enableRtl: this.parent.enableRtl
         });
         this.element = createElement('div', { id: this.gridID + '_toolbarItems' });
-        this.parent.element.insertBefore(this.element, this.parent.getHeaderContent());
         if (!Array.isArray(this.parent.toolbar)) {
-            this.element.appendChild(document.querySelector(this.parent.toolbar));
+            if (typeof (this.parent.toolbar) === 'string') {
+                this.toolbar.appendTo(this.parent.toolbar);
+                this.element = this.toolbar.element;
+                this.parent.element.insertBefore(this.element, this.parent.getHeaderContent());
+            } else {
+                this.parent.element.insertBefore(templateCompiler(this.parent.toolbar)()[1], this.parent.getHeaderContent());
+            }
+        } else {
+            this.toolbar.appendTo(this.element);
+            this.parent.element.insertBefore(this.element, this.parent.getHeaderContent());
         }
-        this.toolbar.appendTo(this.element);
         this.searchElement = (<HTMLInputElement>this.element.querySelector('#' + this.gridID + '_searchbar'));
         this.wireEvent();
         this.refreshToolbarItems();
@@ -136,9 +144,19 @@ export class Toolbar {
             return [];
         }
         for (let item of this.parent.toolbar) {
-            typeof (item) === 'string' ? items.push(this.getItemObject(item)) : items.push(item);
+            typeof (item) === 'string' ? items.push(this.getItemObject(item)) : items.push(this.getItem(item));
         }
         return items;
+    }
+
+    private getItem(itemObject: ItemModel): ItemModel {
+        let item: ItemModel = this.predefinedItems[itemObject.text];
+        if (item) {
+            extend(item, item, itemObject);
+        } else {
+            item = itemObject;
+        }
+        return item;
     }
 
     private getItemObject(itemName: string): ItemModel {

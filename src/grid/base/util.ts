@@ -1,4 +1,4 @@
-import { ChildProperty } from '@syncfusion/ej2-base';
+import { ChildProperty, compile as baseTemplateComplier } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
 import { setStyleAttribute, addClass, attributes, createElement, remove } from '@syncfusion/ej2-base';
 import { IPosition, IGrid } from './interface';
@@ -60,6 +60,22 @@ export function iterateArrayOrObject<T, U>(collection: U[], predicate: (item: Ob
     }
     return result;
 }
+
+/** @hidden */
+export function templateCompiler(template: string): Function {
+    if (template) {
+        let e: Object;
+        try {
+            if (document.querySelectorAll(template).length) {
+                return baseTemplateComplier(document.querySelector(template).innerHTML.trim());
+            }
+        } catch (e) {
+            return baseTemplateComplier(template);
+        }
+    }
+    return undefined;
+}
+
 /** @hidden */
 export function setStyleAndAttributes(node: Element, customAttributes: { [x: string]: Object }): void {
     let copyAttr: { [x: string]: Object } = {}; let literals: string[] = ['style', 'class'];

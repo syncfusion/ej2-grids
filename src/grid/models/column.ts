@@ -1,10 +1,10 @@
 import { merge } from '@syncfusion/ej2-base';
-import { NumberFormatOptions, DateFormatOptions, compile as templateCompiler } from '@syncfusion/ej2-base';
+import { NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
 import { ICellFormatter, IFilterUI, IEditCell } from '../base/interface';
 import { TextAlign } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
 import { ValueAccessor } from '../base/type';
-import { getUid } from '../base/util';
+import { getUid, templateCompiler } from '../base/util';
 
 /**
  * Represents Grid `Column` model class.
@@ -371,14 +371,7 @@ export class Column {
             this.allowSorting = false;
         }
         if (this.template) {
-            let e: Object;
-            try {
-                if (document.querySelectorAll(this.template).length) {
-                    this.templateFn = templateCompiler(document.querySelector(this.template).innerHTML.trim());
-                }
-            } catch (e) {
-                this.templateFn = templateCompiler(this.template);
-            }
+            this.templateFn = templateCompiler(this.template);
         }
     }
 

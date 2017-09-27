@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, ChildProperty, compile as templateComplier, Browser } from '@syncfusion/ej2-base';
+import { Component, ModuleDeclaration, ChildProperty, Browser } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
@@ -6,7 +6,7 @@ import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@sync
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { GridModel } from './grid-model';
-import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap } from './util';
+import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler } from './util';
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
@@ -1613,11 +1613,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
                     break;
                 case 'rowTemplate':
-                    this.rowTemplateFn = this.templateComplier(this.rowTemplate);
+                    this.rowTemplateFn = templateCompiler(this.rowTemplate);
                     requireRefresh = true;
                     break;
                 case 'detailTemplate':
-                    this.detailTemplateFn = this.templateComplier(this.detailTemplate);
+                    this.detailTemplateFn = templateCompiler(this.detailTemplate);
                     requireRefresh = true;
                     break;
                 case 'allowGrouping':
@@ -2504,27 +2504,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 }
             }
         }
-        this.rowTemplateFn = this.templateComplier(this.rowTemplate);
-        this.detailTemplateFn = this.templateComplier(this.detailTemplate);
+        this.rowTemplateFn = templateCompiler(this.rowTemplate);
+        this.detailTemplateFn = templateCompiler(this.detailTemplate);
         if (!isNullOrUndefined(this.parentDetails)) {
             let value: string = isNullOrUndefined(this.parentDetails.parentKeyFieldValue) ? 'undefined' :
                 this.parentDetails.parentKeyFieldValue;
             this.query.where(this.queryString, 'equal', value, true);
         }
-    }
-
-    private templateComplier(template: string): Function {
-        if (template) {
-            let e: Object;
-            try {
-                if (document.querySelectorAll(template).length) {
-                    return templateComplier(document.querySelector(template).innerHTML.trim());
-                }
-            } catch (e) {
-                return templateComplier(template);
-            }
-        }
-        return undefined;
     }
 
     private gridRender(): void {

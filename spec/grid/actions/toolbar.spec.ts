@@ -95,7 +95,7 @@ describe('Toolbar functionalities', () => {
         document.body.appendChild(createElement('div', { innerHTML: templete, id: 'search' }));
         gridObj.toolbar = '#search';
         gridObj.dataBind();
-        expect(gridObj.toolbarModule.getToolbar().firstElementChild.id).toBe('search');
+        expect(gridObj.toolbarModule.getToolbar().id).toBe('search');
     });
     it('remove toolbar', () => {
         gridObj.toolbar = '';
