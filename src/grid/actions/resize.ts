@@ -39,6 +39,9 @@ export class Resize implements IAction {
     private column: Column;
     private element: HTMLElement;
     private helper: HTMLElement;
+    private tapped: boolean | number = false;
+    private isDblClk: boolean | number = true;
+    private minMove: number;
     //Module declarations
     private parent: IGrid;
     private widthService: ColumnWidthService;
@@ -95,18 +98,23 @@ export class Resize implements IAction {
         let result: Boolean;
         let width: string = (wHeader > wContent) ? columnbyindex.width = formatUnit(wHeader) : columnbyindex.width = formatUnit(wContent);
         this.widthService.setColumnWidth(gObj.getColumns()[index] as Column);
-        result = gObj.getColumns().some((x: Column) => x.width === null || x.width === undefined || (x.width as string).length <= 0);
-        if (result === false) {
-            (gObj.getColumns() as Column[]).forEach((element: Column) => {
-                tWidth = tWidth + parseInt(element.width as string, 10);
-            });
+        if (!this.parent.allowResizing) {
+            result = gObj.getColumns().some((x: Column) => x.width === null || x.width === undefined || (x.width as string).length <= 0);
+            if (result === false) {
+                (gObj.getColumns() as Column[]).forEach((element: Column) => {
+                    if (element.visible) {
+                        tWidth = tWidth + parseInt(element.width as string, 10);
+                    }
+                });
+            }
+            let tableWidth: number = tWidth + indentWidth;
+            if (tWidth > 0) {
+                ( < HTMLTableElement > headerTable).style.width = formatUnit(tableWidth);
+                ( < HTMLTableElement > contentTable).style.width = formatUnit(tableWidth);
+            }
         }
+        let tableWidth: number = (headerTable as HTMLElement).offsetWidth;
         let contentwidth: number = (gObj.getContent().scrollWidth);
-        let tableWidth: number = tWidth + indentWidth;
-        if (tWidth > 0) {
-            ( < HTMLTableElement > headerTable).style.width = formatUnit(tableWidth);
-            ( < HTMLTableElement > contentTable).style.width = formatUnit(tableWidth);
-        }
         if (contentwidth > tableWidth) {
             headerTable.classList.add('e-tableborder');
             contentTable.classList.add('e-tableborder');
@@ -195,10 +203,11 @@ export class Resize implements IAction {
         if (!(this.parent.gridLines === 'vertical' || this.parent.gridLines === 'both')) {
             this.parent.element.classList.add(resizeClassList.lines);
         }
+        this.setHandlerHeight();
     }
 
     private wireEvents(): void {
-        this.getResizeHandlers().forEach((ele: HTMLElement ) => {
+        this.getResizeHandlers().forEach((ele: HTMLElement) => {
             ele.style.height  = ele.parentElement.offsetHeight + 'px';
             EventHandler.add(ele, Browser.touchStartEvent, this.resizeStart, this);
             EventHandler.add(ele, events.dblclick, this.callAutoFit, this);
@@ -216,7 +225,13 @@ export class Resize implements IAction {
         return [].slice.call(this.parent.getHeaderTable().querySelectorAll('.' + resizeClassList.root));
     }
 
-    private callAutoFit(e: PointerEvent): void {
+    private setHandlerHeight(): void {
+        [].slice.call(this.parent.getHeaderTable().querySelectorAll('.' + resizeClassList.suppress)).forEach((ele: HTMLElement) => {
+            ele.style.height  = ele.parentElement.offsetHeight + 'px';
+        });
+    }
+
+    private callAutoFit(e: PointerEvent | TouchEvent): void {
         let col: Column = this.getTargetColumn(e);
         this.resizeColumn(col.field, this.parent.getNormalizedColumnIndex(col.uid), col.uid);
     }
@@ -227,6 +242,14 @@ export class Resize implements IAction {
             this.appendHelper();
             this.column = this.getTargetColumn(e);
             this.pageX = this.getPointX(e);
+            if ( this.parent.enableRtl ) {
+                this.minMove = parseInt(this.column.width.toString(), 10)
+                    - (this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : 0);
+            } else {
+                this.minMove = (this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : 0)
+                    - parseInt(this.column.width.toString(), 10);
+            }
+            this.minMove += this.pageX;
         }
         if (Browser.isDevice && !this.helper.classList.contains(resizeClassList.icon)) {
             this.helper.classList.add(resizeClassList.icon);
@@ -262,23 +285,46 @@ export class Resize implements IAction {
         this.refresh();
     }
 
+    private getWidth(width: number, minWidth: number, maxWidth: number): number {
+        if (minWidth && width < minWidth) {
+            return minWidth;
+        } else if ( (maxWidth && width > maxWidth) ) {
+            return maxWidth;
+        } else {
+            return width;
+        }
+    }
+
     private resizing(e: PointerEvent | TouchEvent): void {
         let pageX: number = this.getPointX(e);
         let mousemove: number = this.parent.enableRtl ? -(pageX - this.pageX) : (pageX - this.pageX);
-        this.column.width = formatUnit(parseInt(this.widthService.getWidth(this.column).toString(), 10) + mousemove);
-        this.pageX = pageX;
-        let args: ResizeArgs = {
-            e: e,
-            column: this.column
+        let colData: { [key: string]: number } = {
+            width: parseInt(this.widthService.getWidth(this.column).toString(), 10) + mousemove,
+            minWidth: this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : null,
+            maxWidth: this.column.maxWidth ? parseInt(this.column.maxWidth.toString(), 10) : null
         };
-        this.parent.trigger(events.onResize, args);
-        if (args.cancel) {
-            this.cancelResizeAction(true);
-            return;
+        let width: number = this.getWidth(colData.width, colData.minWidth, colData.maxWidth);
+        if ((!this.parent.enableRtl && this.minMove >= pageX) || (this.parent.enableRtl && this.minMove <= pageX) ) {
+            width = this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : 0;
+            this.pageX = pageX = this.minMove;
         }
-        this.updateColGroup(this.column);
-        this.widthService.setColumnWidth(this.column, null, 'resize');
-        this.updateHelper();
+        if (width !==  parseInt(this.column.width.toString(), 10)) {
+            this.pageX = pageX;
+            this.column.width = formatUnit(width);
+            let args: ResizeArgs = {
+                e: e,
+                column: this.column
+            };
+            this.parent.trigger(events.onResize, args);
+            if (args.cancel) {
+                this.cancelResizeAction(true);
+                return;
+            }
+            this.updateColGroup(this.column);
+            this.widthService.setColumnWidth(this.column, null, 'resize');
+            this.updateHelper();
+        }
+        this.isDblClk = false;
     }
 
     private resizeEnd(e: PointerEvent): void {
@@ -293,6 +339,8 @@ export class Resize implements IAction {
         };
         this.parent.trigger(events.resizeStop, args);
         this.refresh();
+        this.doubleTapEvent(e);
+        this.isDblClk = true;
     }
 
     private getPointX(e: PointerEvent | TouchEvent): number {
@@ -379,7 +427,7 @@ export class Resize implements IAction {
         let offsetParent: Node = elem.offsetParent || doc.documentElement;
         while (offsetParent &&
             (offsetParent === doc.body || offsetParent === doc.documentElement) &&
-            ( < HTMLElement > offsetParent).style.position === 'static' || '') {
+            ( < HTMLElement > offsetParent).style.position === 'static') {
             offsetParent = offsetParent.parentNode;
         }
         if (offsetParent && offsetParent !== elem && offsetParent.nodeType === 1) {
@@ -389,5 +437,26 @@ export class Resize implements IAction {
             top: offset.top - parentOffset.top,
             left: offset.left - parentOffset.left
         };
+    }
+
+    private doubleTapEvent(e: TouchEvent | PointerEvent ): void {
+        if (this.getUserAgent() && this.isDblClk) {
+            if (!this.tapped) {
+                this.tapped = setTimeout(this.timeoutHandler(), 300);
+            } else {
+                clearTimeout(this.tapped as number);
+                this.callAutoFit(e);
+                this.tapped = null;
+            }
+        }
+    }
+
+    private getUserAgent(): boolean {
+        let userAgent: string = Browser.userAgent.toLowerCase();
+        return (/iphone|ipod|ipad/ as RegExp).test(userAgent);
+    }
+
+    private timeoutHandler(): void {
+        this.tapped = null;
     }
 }
