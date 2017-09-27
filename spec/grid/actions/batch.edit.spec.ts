@@ -111,6 +111,7 @@ describe('Editing module', () => {
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 15;
             (gridObj.editModule as any).editModule.isAddRow = ()=>{return true;};
             (gridObj.editModule as any).editModule.cellDetails.rowIndex = 115;
+            (gridObj.editModule as any).editModule.editCell = ()=>{};
             (gridObj.editModule as any).editModule.editNextCell();
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 1;
             (gridObj.editModule as any).editModule.editPrevCell();
@@ -964,8 +965,10 @@ describe('Editing module', () => {
             (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
             (gridObj.editModule as any).editModule.validateFormObj  = ()=>{return true;};
             (gridObj.editModule as any).editModule.reFocusIfError = ()=>{return true;};
-            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'tab', preventDefault: () => { } });
-            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'shiftTab', preventDefault: () => { } });      
+            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'tab', preventDefault: () => { }, target: gridObj.element });
+            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'shiftTab', preventDefault: () => { }, target: gridObj.element });      
+            gridObj.isEdit=false;
+            (gridObj.editModule as any).validationComplete();      
         });
 
 

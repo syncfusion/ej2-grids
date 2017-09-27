@@ -100,7 +100,11 @@ export class CellRenderer implements ICellRenderer<Column> {
      */
     public refreshTD(td: Element, cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): void {
         let node: Element = this.refreshCell(cell, data, attributes);
-        td.innerHTML = node.innerHTML;
+        td.innerHTML = '';
+        let elements: Element[] = [].slice.call(node.childNodes);
+        for (let elem of elements) {
+            td.appendChild(elem);
+        }
     }
 
     private refreshCell(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {

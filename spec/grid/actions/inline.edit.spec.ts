@@ -207,7 +207,7 @@ describe('Editing module', () => {
                         { field: 'EmployeeID', type: 'number', allowEditing: false },
                         { field: 'ShipAddress', allowFiltering: true, visible: false },
                         { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
-                        { field: 'ShipCity' }, { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'ShipCity' }, { field: 'Verified', type: 'boolean', editType: 'booleanedit', allowEditing: false },
                         { field: 'ShipName', isIdentity: true },
                         { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
                         { field: 'ShipRegion', type: 'string', editType: 'booleanedit', isIdentity: true },
@@ -639,7 +639,7 @@ describe('Editing module', () => {
 
         it('inline grouping actions', () => {
             gridObj.selectRow(0);
-            (gridObj.editModule as any).startEdit()
+            (gridObj.editModule as any).startEdit();
         });
 
         afterAll(() => {
@@ -752,7 +752,7 @@ describe('Editing module', () => {
             (gridObj.sortModule as any).sortColumn('OrderID', 'any', false);
             (gridObj.sortModule as any).clearSorting('OrderID', 'any', false);
             (gridObj.sortModule as any).removeSortColumn('OrderID');
-            (gridObj.selectionModule as any).isEdit();
+            (gridObj.selectionModule as any).isEditing();
             (gridObj.reorderModule as any).isActionPrevent = () => { return true; };
             (gridObj.reorderModule as any).moveColumns('OrderID', 'CustomerID');
             (gridObj.renderModule as any).dataManagerSuccess = () => { };
@@ -794,6 +794,128 @@ describe('Editing module', () => {
                     (gridObj.editModule as any).getValueFromType({type: 'boolean'}, undefined); 
                     (gridObj.editModule as any).getValueFromType({type: 'date', editType: 'datepicker1'}, undefined); 
                     (gridObj.editModule as any).keyPressHandler({action:'enter', target: gridObj.element.querySelector('.e-rowcell'), preventDefault: ()=>{}}); 
+                });
+
+        afterAll(() => {
+            gridObj.notify('tooltip-destroy', {});
+            remove(elem);
+        });
+    });
+
+    
+
+    describe('Inline editing functionalities13', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            let actionBegin: EmitType<Object> = (args: any) => { args.cancel = true; };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: new DataManager(filterData as any),
+                    allowFiltering: true,
+                    allowReordering: true,
+                    allowSorting: true,
+                    allowGrouping: true,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'inline', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', textAlign: 'right', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID', type: 'string' },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'ShipAddress', allowFiltering: true, visible: false },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit1' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'ShipRegion', type: 'string', editType: 'booleanedit1', isIdentity: true },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'booleanedit1', }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('inline grouping actions', () => {
+            gridObj.selectRow(0);
+            gridObj.editModule.addRecord();
+            gridObj.editModule.endEdit();
+                });
+
+        afterAll(() => {
+            gridObj.notify('tooltip-destroy', {});
+            remove(elem);
+        });
+    });
+
+
+    
+    describe('Inline editing functionalities13', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            let actionBegin: EmitType<Object> = (args: any) => { args.cancel = true; };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: new DataManager(filterData as any),
+                    allowFiltering: true,
+                    allowReordering: true,
+                    allowSorting: true,
+                    allowGrouping: true,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'inline', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', textAlign: 'right', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID', type: 'string' },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'ShipAddress', allowFiltering: true, visible: false },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit1' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'ShipRegion', type: 'string', editType: 'booleanedit1', isIdentity: true },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'booleanedit1', }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('inline grouping actions', () => {
+            
+            gridObj.trigger = ()=>{};
+            gridObj.notify = ()=>{};
+            (gridObj.editModule as any).editModule.editComplete({requestType:'save'});
+            let content  = gridObj.element.querySelector('.e-gridcontent');
+            let cell = createElement('td');
+            content.appendChild(cell);
+            (gridObj.editModule as any).editModule.clickHandler({target: cell});
+            (gridObj.editModule as any).editModule.addRecord({target: cell});
+            (gridObj.renderModule as any).data.dataManager.remove=()=>{};
+            (gridObj.renderModule as any).data.dataManager.insert=()=>{};
+            (gridObj.renderModule as any).data.dataManager.executeQuery=()=>{};
+            (gridObj.renderModule as any).data.getData({foreignKeyData:{'1':1}});  
+            (gridObj.renderModule as any).data.getData({requestType:'delete', data:[{}]},null);  
+            (gridObj.renderModule as any).data.getData({requestType:'save', data:[{}]},null);  
+            (gridObj.editModule as any).editModule.deleteRecord('OrderID',{});
+            gridObj.isEdit=true;
+            gridObj.selectRow(0);
+            (gridObj.editModule as any).getCurrentEditedData=()=>{};
+            (gridObj.editModule as any).editModule.stopEditStatus=()=>{};
+            (gridObj.editModule as any).formObj={};
+            (gridObj.editModule as any).formObj.validate=()=>{return true};
+            (gridObj.editModule as any).editModule.endEdit();
                 });
 
         afterAll(() => {

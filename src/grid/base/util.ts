@@ -306,7 +306,7 @@ export function getRowHeight(element?: HTMLElement): number {
 export function isEditable(col: Column, type: string, elem: Element): boolean {
     let row: Element = parentsUntil(elem, 'e-row');
     let isOldRow: boolean = !row ? true : row && !row.classList.contains('e-insertedrow');
-    if (type === 'edit' && isOldRow) {
+    if (type === 'beginEdit' && isOldRow) {
         if (col.isIdentity || col.isPrimaryKey || !col.allowEditing) {
             return false;
         }

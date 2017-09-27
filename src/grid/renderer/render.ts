@@ -80,6 +80,9 @@ export class Render {
     public refresh(e: NotifyArgs = { requestType: 'refresh' }): void {
         this.parent.notify(`${e.requestType}-begin`, e);
         this.parent.trigger(events.actionBegin, e);
+        if (e.cancel) {
+            return;
+        }
         this.refreshDataManager(e);
     }
 

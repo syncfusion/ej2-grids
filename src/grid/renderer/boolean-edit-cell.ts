@@ -16,7 +16,7 @@ export class BooleanEditCell implements IEditCell {
         this.parent = parent;
     }
 
-    public create(args: { column: Column, value: string, type: string, element: Element }): Element {
+    public create(args: { column: Column, value: string, requestType: string, element: Element }): Element {
         let col: Column = args.column;
         let input: Element = createElement('input', {
             className: 'e-field e-boolcell', attrs: {
@@ -24,7 +24,7 @@ export class BooleanEditCell implements IEditCell {
                 id: this.parent.element.id + col.field, name: col.field
             }
         });
-        if (!isEditable(args.column, args.type, args.element)) {
+        if (!isEditable(args.column, args.requestType, args.element)) {
             input.setAttribute('disabled', 'true');
         }
         if (args.value) {
@@ -37,7 +37,7 @@ export class BooleanEditCell implements IEditCell {
         return (<HTMLInputElement>element).checked;
     }
 
-    public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
+    public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         (args.element as HTMLElement).style.width = 'auto';
     }
 

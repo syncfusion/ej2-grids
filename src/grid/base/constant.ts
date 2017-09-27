@@ -205,6 +205,8 @@ export const addBegin: string = 'add-begin';
 /** @hidden */
 export const addComplete: string = 'add-complete';
 /** @hidden */
+export const saveComplete: string = 'save-complete';
+/** @hidden */
 export const deleteBegin: string = 'delete-begin';
 /** @hidden */
 export const deleteComplete: string = 'delete-complete';

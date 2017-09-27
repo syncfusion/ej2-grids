@@ -7,6 +7,7 @@ import { Query, DataManager, ODataV4Adaptor } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { extend } from '../../../src/grid/base/util';
 import { Page } from '../../../src/grid/actions/page';
+import { Data } from '../../../src/grid/actions/data';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
@@ -180,6 +181,7 @@ describe('Data module', () => {
             expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
             //for coverage
             gridObj.isDestroyed = true;
+            let data = new Data(gridObj);
             (gridObj.renderModule as any).data.destroy();
             gridObj.isDestroyed = false;
         });

@@ -30,14 +30,14 @@ export class DropDownEditCell implements IEditCell {
         });
     }
 
-    public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
+    public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
         this.obj = new DropDownList(extend(
             {
                 dataSource: this.parent.dataSource instanceof DataManager ?
                     this.parent.dataSource : new DataManager(this.parent.dataSource),
-                query: new Query().select(args.column.field), enabled: isEditable(args.column, args.type, args.element),
+                query: new Query().select(args.column.field), enabled: isEditable(args.column, args.requestType, args.element),
                 fields: { value: args.column.field }, value: args.rowData[args.column.field],
                 enableRtl: this.parent.enableRtl, actionComplete: this.ddActionComplete,
                 placeholder: isInline ? '' : args.column.headerText, popupHeight: '200px',

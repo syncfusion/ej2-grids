@@ -17,14 +17,18 @@ import { DialogEdit } from './dialog-edit';
 import { Dialog } from '@syncfusion/ej2-popups';
 import { parentsUntil } from '../base/util';
 import { Tooltip } from '@syncfusion/ej2-popups';
+import { FormValidator } from '@syncfusion/ej2-base';
 
 /**
  * `Edit` module is used to handle editing actions.
  */
 export class Edit implements IAction {
     //Internal variables                  
+    private edit: Edit;
     protected renderer: EditRender;
     private editModule: IEdit;
+    /** @hidden */
+    public formObj: FormValidator;
     private editCellType: Object = {
         'dropdownedit': DropDownEditCell,
         'numericedit': NumericEditCell, 'booleanedit': BooleanEditCell, 'default': DefaultEditCell
@@ -177,6 +181,7 @@ export class Edit implements IAction {
             return;
         }
         this.editModule.closeEdit();
+        this.refreshToolbar();
     }
 
     protected refreshToolbar(): void {
@@ -286,8 +291,8 @@ export class Edit implements IAction {
      * @return {boolean}
      */
     public editFormValidate(): boolean {
-        if (this.editModule.formObj) {
-            return this.editModule.formObj.validate();
+        if (this.formObj) {
+            return this.formObj.validate();
         }
         return false;
     }
@@ -304,7 +309,7 @@ export class Edit implements IAction {
      * To get current value of edited component.
      */
     public getCurrentEditCellData(): void {
-        let obj: Object = this.getCurrentEditedData(this.editModule.formObj.element, {});
+        let obj: Object = this.getCurrentEditedData(this.formObj.element, {});
         return obj[Object.keys(obj)[0]];
     }
 
@@ -434,6 +439,8 @@ export class Edit implements IAction {
         this.parent.on(events.autoCol, this.updateColTypeObj, this);
         this.parent.on(events.tooltipDestroy, this.destroyToolTip, this);
         this.parent.on(events.preventBatch, this.preventBatch, this);
+        this.parent.on(events.destroyForm, this.destroyForm, this);
+        this.parent.addEventListener(events.actionBegin, this.onActionBegin.bind(this));
         this.parent.addEventListener(events.actionComplete, this.actionComplete.bind(this));
         this.parent.on(events.initialEnd, this.wireEvents, this);
     }
@@ -449,12 +456,16 @@ export class Edit implements IAction {
         this.parent.off(events.autoCol, this.updateColTypeObj);
         this.parent.off(events.tooltipDestroy, this.destroyToolTip);
         this.parent.off(events.preventBatch, this.preventBatch);
+        this.parent.off(events.destroyForm, this.destroyForm);
         this.parent.removeEventListener(events.actionComplete, this.actionComplete);
+        this.parent.removeEventListener(events.actionBegin, this.onActionBegin);
         this.parent.off(events.initialEnd, this.unwireEvents);
     }
 
-    private actionComplete(): void {
-        this.parent.isEdit = false;
+    private actionComplete(e: NotifyArgs): void {
+        if (e.requestType as string !== 'add' && e.requestType as string !== 'beginEdit' && e.requestType as string !== 'delete') {
+            this.parent.isEdit = false;
+        }
         this.refreshToolbar();
     }
 
@@ -482,6 +493,16 @@ export class Edit implements IAction {
     /**
      * @hidden
      */
+    public onActionBegin(e: NotifyArgs): void {
+        if (this.parent.editSettings.mode !== 'batch' && this.formObj && !this.formObj.isDestroyed && !e.cancel) {
+            this.destroyForm();
+            this.destroyWidgets();
+        }
+    }
+
+    /**
+     * @hidden
+     */
     public destroyWidgets(cols?: Column[]): void {
         cols = cols ? cols : this.parent.columns as Column[];
         for (let col of cols) {
@@ -489,6 +510,17 @@ export class Edit implements IAction {
                 col.edit.destroy();
             }
         }
+    }
+
+    /**
+     * @hidden
+     */
+    public destroyForm(): void {
+        this.parent.notify(events.tooltipDestroy, {});
+        if (this.formObj && !this.formObj.isDestroyed) {
+            this.formObj.destroy();
+        }
+        this.parent.notify(events.tooltipDestroy, {});
     }
 
     /**
@@ -542,10 +574,34 @@ export class Edit implements IAction {
             this.preventObj.arg5, this.preventObj.arg6, this.preventObj.arg7);
     }
 
+    /**
+     * @hidden
+     */
+    public applyFormValidation(cols?: Column[]): void {
+        let gObj: IGrid = this.parent;
+        let form: HTMLFormElement = gObj.element.querySelector('.e-gridform') as HTMLFormElement;
+        let rules: Object = {};
+        cols = cols ? cols : gObj.columns as Column[];
+        for (let col of cols) {
+            if (col.validationRules && form.querySelectorAll('#' + gObj.element.id + col.field).length) {
+                rules[col.field] = col.validationRules;
+            }
+        }
+        this.parent.editModule.formObj = new FormValidator(form, {
+            rules: rules as { [name: string]: { [rule: string]: Object } },
+            validationComplete: (args: { status: string, inputName: string, element: HTMLElement }) => {
+                this.validationComplete(args);
+            },
+            customPlacement: (inputElement: HTMLElement, error: HTMLElement) => {
+                this.valErrorPlacement(inputElement, error);
+            }
+        });
+    }
+
     private valErrorPlacement(inputElement: HTMLElement, error: HTMLElement): void {
         if (this.parent.isEdit) {
             let td: HTMLElement = parentsUntil(inputElement, 'e-rowcell') as HTMLElement;
-            if (!(td as EJ2Intance).ej2_instances) {
+            if (!(td as EJ2Intance).ej2_instances || !((td as EJ2Intance).ej2_instances as Object[]).length) {
                 let tooltip: Tooltip = new Tooltip({
                     opensOn: 'custom', content: error, position: 'bottom center', cssClass: 'e-griderror',
                     animation: { open: { effect: 'None' }, close: { effect: 'None' } }

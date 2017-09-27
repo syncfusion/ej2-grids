@@ -223,6 +223,11 @@ describe('Reorder module', () => {
             gridObj.reorderModule.destroy();
             gridObj.reorderModule = new Reorder(gridObj);
             expect(1).toBe(1);
+            let cols = [];
+            cols.push(gridObj.columns[0]);
+            cols.push(gridObj.columns[1]);
+            cols[1]['columns'] = gridObj.columns[2];
+            (<any>gridObj.reorderModule).getColumnsModel(cols);
         });
 
         afterAll(() => {

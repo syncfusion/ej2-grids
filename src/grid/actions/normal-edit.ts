@@ -1,7 +1,6 @@
 import { extend } from '@syncfusion/ej2-base';
 import { remove, classList } from '@syncfusion/ej2-base';
-import { FormValidator } from '@syncfusion/ej2-base';
-import { IGrid, NotifyArgs, BeginEditArgs } from '../base/interface';
+import { IGrid, NotifyArgs, EditEventArgs, AddEventArgs, SaveEventArgs } from '../base/interface';
 import { parentsUntil } from '../base/util';
 import * as events from '../base/constant';
 import { EditRender } from '../renderer/edit-renderer';
@@ -9,22 +8,21 @@ import { RowRenderer } from '../renderer/row-renderer';
 import { Row } from '../models/row';
 import { ServiceLocator } from '../services/service-locator';
 import { Column } from '../models/column';
-import { InlineEdit } from './inline-edit';
 import { ReturnType } from '../base/type';
-
+import { FormValidator } from '@syncfusion/ej2-base';
 
 /**
  * `NormalEdit` module is used to handle normal('inline, dialog, external') editing actions.
  * @hidden
  */
 export class NormalEdit {
-    protected edit: InlineEdit;
     protected parent: IGrid;
     protected serviceLocator: ServiceLocator;
     protected renderer: EditRender;
     public formObj: FormValidator;
     protected previousData: Object;
-    private lastSelIndex: number;
+    private editRowIndex: number;
+    private rowIndex: number;
     private uid: string;
     private args: { data?: Object, requestType: string, previousData: Object, selectedRow: Number, type: string };
 
@@ -36,21 +34,19 @@ export class NormalEdit {
     }
 
     protected clickHandler(e: MouseEvent): void {
+        let target: Element = e.target as Element;
         let gObj: IGrid = this.parent;
-        if (parentsUntil(e.target as Element, 'e-gridcontent')) {
-            if (this.parent.isEdit) {
+        if (parentsUntil(target, 'e-gridcontent')) {
+            this.rowIndex = parentsUntil(target, 'e-rowcell') ? parseInt(target.parentElement.getAttribute('aria-rowindex'), 10) : -1;
+            if (gObj.isEdit) {
                 gObj.editModule.endEdit();
             }
         }
     }
 
     protected dblClickHandler(e: MouseEvent): void {
-        let target: Element = e.target as Element;
-        if (parentsUntil(target, 'e-grid').id !== this.parent.element.id || !this.parent.editSettings.allowEditOnDblClick) {
-            return;
-        }
-        if (parentsUntil(target, 'e-rowcell')) {
-            this.parent.editModule.startEdit(parentsUntil(target, 'e-row') as HTMLTableRowElement);
+        if (parentsUntil(e.target as Element, 'e-rowcell') && this.parent.editSettings.allowEditOnDblClick) {
+            this.parent.editModule.startEdit(parentsUntil(e.target as Element, 'e-row') as HTMLTableRowElement);
         }
     }
 
@@ -61,15 +57,15 @@ export class NormalEdit {
      */
     public editComplete(e: NotifyArgs): void {
         switch (e.requestType as string) {
-            case 'add':
+            case 'save':
                 this.parent.selectRow(0);
                 this.parent.trigger(events.actionComplete, extend(e, {
-                    requestType: 'add',
+                    requestType: 'save',
                     type: events.actionComplete
                 }));
                 break;
             case 'delete':
-                this.parent.selectRow(this.lastSelIndex);
+                this.parent.selectRow(this.editRowIndex);
                 this.parent.trigger(events.actionComplete, extend(e, {
                     requestType: 'delete',
                     type: events.actionComplete
@@ -79,61 +75,60 @@ export class NormalEdit {
         this.parent.element.focus();
     }
 
-    private onActionComplete(): void {
-        this.parent.isEdit = false;
-        this.destroyForm();
-    }
-
     protected startEdit(tr: Element): void {
         let gObj: IGrid = this.parent;
         let primaryKeys: string[] = gObj.getPrimaryKeyFieldNames();
         let primaryKeyValues: string[] = [];
-        let rowIndex: number = parseInt(tr.getAttribute('aria-rowindex'), 10);
-        this.previousData = gObj.getCurrentViewRecords()[rowIndex];
-        gObj.clearSelection();
-        gObj.selectRow(rowIndex);
-        gObj.isEdit = true;
+        this.rowIndex = this.editRowIndex = parseInt(tr.getAttribute('aria-rowindex'), 10);
+        this.previousData = gObj.getCurrentViewRecords()[this.rowIndex];
         for (let i: number = 0; i < primaryKeys.length; i++) {
             primaryKeyValues.push(this.previousData[primaryKeys[i]]);
         }
-        let args: BeginEditArgs = {
-            row: tr, primaryKey: primaryKeys, primaryKeyValue: primaryKeyValues,
-            rowData: this.previousData, rowIndex: rowIndex, type: 'edit', cancel: false
+        let args: EditEventArgs = {
+            row: tr, primaryKey: primaryKeys, primaryKeyValue: primaryKeyValues, requestType: 'beginEdit',
+            rowData: this.previousData, rowIndex: this.rowIndex, type: 'edit', cancel: false
         };
         gObj.trigger(events.beginEdit, args);
+        args.type = 'actionBegin';
+        gObj.trigger(events.actionBegin, args);
         if (args.cancel) {
             return;
         }
-        this.lastSelIndex = this.parent.selectedRowIndex;
         gObj.clearSelection();
+        gObj.isEdit = true;
         this.renderer.update(args);
         this.uid = tr.getAttribute('data-uid');
-        this.applyFormValidation();
+        gObj.editModule.applyFormValidation();
+        args.type = 'actionComplete';
+        gObj.trigger(events.actionComplete, args);
     }
 
     protected endEdit(): void {
         let gObj: IGrid = this.parent;
-        if (!this.parent.isEdit || !this.formObj.validate()) {
+        if (!this.parent.isEdit || !gObj.editModule.formObj.validate()) {
             return;
         }
-        let formElement: Element = gObj.element.querySelector('.e-gridform');
         let editedData: Object = extend({}, this.previousData);
-        editedData = gObj.editModule.getCurrentEditedData(formElement, editedData);
-        gObj.editModule.destroyWidgets();
+        let args: SaveEventArgs = {
+            requestType: 'save', type: events.actionBegin, data: editedData, cancel: false,
+            previousData: this.previousData, selectedRow: gObj.selectedRowIndex, foreignKeyData: {}
+        };
+        editedData = gObj.editModule.getCurrentEditedData(gObj.element.querySelector('.e-gridform'), editedData);
         if (gObj.element.querySelectorAll('.e-editedrow').length) {
-            let args: { data?: Object, requestType: string, previousData: Object, selectedRow: Number, type: string } = {
-                requestType: 'save', type: events.actionBegin, data: editedData,
-                previousData: this.previousData, selectedRow: gObj.selectedRowIndex
-            };
+            args.action = 'edit';
             gObj.trigger(events.actionBegin, args);
-            gObj.notify(events.updateData, { requestType: 'save', data: editedData });
+            if (args.cancel) {
+                return;
+            }
+            gObj.notify(events.updateData, args);
         } else {
-            gObj.notify(events.modelChanged, {
-                requestType: 'add', type: events.actionComplete, data: editedData,
-                previousData: this.previousData, selectedRow: gObj.selectedRowIndex
-            });
+            args.action = 'add';
+            args.selectedRow = 0;
+            gObj.notify(events.modelChanged, args);
+            if (args.cancel) {
+                return;
+            }
         }
-        this.parent.notify(events.tooltipDestroy, {});
         this.parent.notify(events.dialogDestroy, {});
         this.stopEditStatus();
     }
@@ -165,7 +160,7 @@ export class NormalEdit {
         args.type = events.actionComplete;
         this.refreshRow(args.data);
         this.parent.trigger(events.actionComplete, args);
-        this.parent.selectRow(this.parent.selectedRowIndex > -1 ? this.parent.selectedRowIndex : this.lastSelIndex);
+        this.parent.selectRow(this.rowIndex > -1 ? this.rowIndex : this.editRowIndex);
         this.parent.element.focus();
     }
 
@@ -183,22 +178,19 @@ export class NormalEdit {
     }
 
     protected closeEdit(): void {
-        if (this.parent.isEdit) {
-            let gObj: IGrid = this.parent;
-            this.parent.editModule.destroyWidgets();
-            this.parent.notify(events.tooltipDestroy, {});
-            this.stopEditStatus();
-            let args: { data: Object, requestType: string, selectedRow: Number, type: string } = {
-                requestType: 'cancel', type: events.actionBegin, data: this.previousData, selectedRow: gObj.selectedRowIndex
-            };
-            gObj.trigger(events.actionBegin, args);
-            args.type = events.actionComplete;
+        let gObj: IGrid = this.parent;
+        let args: { data: Object, requestType: string, selectedRow: Number, type: string } = {
+            requestType: 'cancel', type: events.actionBegin, data: this.previousData, selectedRow: gObj.selectedRowIndex
+        };
+        gObj.trigger(events.actionBegin, args);
+        this.stopEditStatus();
+        args.type = events.actionComplete;
+        if (gObj.editSettings.mode !== 'dialog') {
             this.refreshRow(args.data);
-            gObj.selectRow(this.lastSelIndex);
-            gObj.element.focus();
-            gObj.trigger(events.actionComplete, args);
-            this.parent.notify(events.toolbarRefresh, {});
         }
+        gObj.selectRow(this.rowIndex);
+        gObj.element.focus();
+        gObj.trigger(events.actionComplete, args);
     }
 
     protected addRecord(data?: Object): void {
@@ -214,30 +206,31 @@ export class NormalEdit {
         }
         this.previousData = {};
         this.uid = '';
-        gObj.clearSelection();
-        let addData: Object = {};
         for (let col of gObj.columns as Column[]) {
-            addData[col.field] = data && data[col.field] ? data[col.field] : col.defaultValue;
+            this.previousData[col.field] = data && data[col.field] ? data[col.field] : col.defaultValue;
         }
-        let args: { cancel: boolean, requestType: string, rowData: Object, type: string } = {
-            cancel: false,
-            requestType: 'add', rowData: addData, type: events.actionComplete
+        let args: AddEventArgs = {
+            cancel: false, foreignKeyData: {}, //foreign key support
+            requestType: 'add', data: this.previousData, type: events.actionBegin
         };
         gObj.trigger(events.actionBegin, args);
         if (args.cancel) {
             return;
         }
-        this.renderer.addNew({ rowData: args.rowData, type: 'add' });
-        this.applyFormValidation();
+        gObj.clearSelection();
         gObj.isEdit = true;
+        this.renderer.addNew({ rowData: args.data, requestType: 'add' });
+        gObj.editModule.applyFormValidation();
+        args.type = events.actionComplete;
+        args.row = gObj.element.querySelector('.e-addedrow');
+        gObj.trigger(events.actionComplete, args);
     }
 
     protected deleteRecord(fieldname?: string, data?: Object): void {
-        this.lastSelIndex = this.parent.selectedRowIndex;
+        this.editRowIndex = this.parent.selectedRowIndex;
         this.parent.notify(events.modelChanged, {
-            requestType: 'delete', type: events.actionBegin, foreignKeyData: fieldname ?
-                [fieldname] : this.parent.getPrimaryKeyFieldNames(),
-            data: data ? [data] : this.parent.getSelectedRecords(), tr: this.parent.getSelectedRows()
+            requestType: 'delete', type: events.actionBegin, foreignKeyData: {}, //foreign key support
+            data: data ? [data] : this.parent.getSelectedRecords(), tr: this.parent.getSelectedRows(), cancel: false
         });
     }
 
@@ -252,37 +245,6 @@ export class NormalEdit {
         if (elem) {
             elem.classList.remove('e-editedrow');
         }
-        this.formObj.destroy();
-    }
-
-    private destroyForm(): void {
-        this.parent.notify(events.tooltipDestroy, {});
-        if (this.formObj && !this.formObj.isDestroyed) {
-            this.formObj.destroy();
-        }
-        this.parent.notify(events.tooltipDestroy, {});
-    }
-
-    protected applyFormValidation(): void {
-        let gObj: IGrid = this.parent;
-        let form: HTMLFormElement = gObj.element.querySelector('.e-gridform') as HTMLFormElement;
-        let rules: Object = {};
-        for (let col of gObj.columns as Column[]) {
-            if (col.validationRules && form.querySelectorAll('#' + gObj.element.id + col.field).length) {
-                rules[col.field] = col.validationRules;
-            }
-        }
-        this.formObj = new FormValidator(form, {
-            rules: rules as { [name: string]: { [rule: string]: Object } },
-            validationComplete: (args: { status: string, inputName: string, element: HTMLElement }) => {
-                let edit: { validationComplete: Function } | Object = (this.parent.editModule as Object);
-                (edit as { validationComplete: Function }).validationComplete(args);
-            },
-            customPlacement: (inputElement: HTMLElement, error: HTMLElement) => {
-                let edit: { valErrorPlacement: Function } | Object = (this.parent.editModule as Object);
-                (edit as { valErrorPlacement: Function }).valErrorPlacement(inputElement, error);
-            }
-        });
     }
 
     /**
@@ -291,14 +253,11 @@ export class NormalEdit {
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.crudAction, this.editHandler, this);
-        this.parent.on(events.destroyForm, this.destroyForm, this);
         this.parent.on(events.doubleTap, this.dblClickHandler, this);
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.dblclick, this.dblClickHandler, this);
         this.parent.on(events.deleteComplete, this.editComplete, this);
-        this.parent.on(events.addComplete, this.editComplete, this);
-        this.parent.addEventListener(events.actionComplete, this.onActionComplete.bind(this));
-
+        this.parent.on(events.saveComplete, this.editComplete, this);
     }
 
     /**
@@ -307,13 +266,11 @@ export class NormalEdit {
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.crudAction, this.editHandler);
-        this.parent.off(events.destroyForm, this.destroyForm);
         this.parent.off(events.doubleTap, this.dblClickHandler);
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.dblclick, this.dblClickHandler);
         this.parent.off(events.deleteComplete, this.editComplete);
-        this.parent.off(events.addComplete, this.editComplete);
-        this.parent.removeEventListener(events.actionComplete, this.onActionComplete);
+        this.parent.off(events.saveComplete, this.editComplete);
     }
 
     /**

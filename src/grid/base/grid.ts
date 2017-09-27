@@ -14,7 +14,7 @@ import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs,
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
-import { DetailDataBoundEventArgs, ColumnChooserEventArgs } from './interface';
+import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
@@ -1084,19 +1084,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Event()
     public queryCellInfo: EmitType<QueryCellInfoEventArgs>;
+
+    /* tslint:disable */
     /** 
      * Triggers when Grid actions such as Sorting, Filtering, Paging and Grouping etc., starts. 
      * @event
      */
-    @Event()
-    public actionBegin: EmitType<PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs>;
+    @Event()    
+    public actionBegin: EmitType<PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs | AddEventArgs | SaveEventArgs | EditEventArgs | DeleteEventArgs>;
 
     /** 
      * Triggers when Grid actions such as Sorting, Filtering, Paging and Grouping etc., completed. 
      * @event 
      */
-    @Event()
-    public actionComplete: EmitType<PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs>;
+    @Event()    
+    public actionComplete: EmitType<PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs | AddEventArgs | SaveEventArgs | EditEventArgs | DeleteEventArgs>;
+    /* tslint:enable */
 
     /** 
      * Triggers when any Grid actions failed to achieve desired results. 
@@ -2713,6 +2716,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private dblClickHandler(e: MouseEvent): void {
+        if (parentsUntil(e.target as Element, 'e-grid').id !== this.element.id) {
+            return;
+        }
         this.notify(events.dblclick, e);
     }
 

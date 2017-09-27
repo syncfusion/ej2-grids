@@ -73,8 +73,8 @@ export class DialogEditRender {
     }
 
     private destroy(args?: { requestType: string }): void {
-        this.parent.isEdit = false;
         this.parent.notify(events.destroyForm, {});
+        this.parent.isEdit = false;
         this.parent.notify(events.toolbarRefresh, {});
         if (this.dialog && !this.dialogObj.isDestroyed) {
             this.dialogObj.destroy();

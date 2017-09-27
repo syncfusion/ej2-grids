@@ -109,7 +109,7 @@ export class Selection implements IAction {
     }
 
     private isEditing(): boolean {
-        return (this.parent.editSettings.mode !== 'batch' && this.parent.isEdit);
+        return this.parent.editSettings.mode !== 'batch' && this.parent.isEdit;
     }
 
 
@@ -123,9 +123,9 @@ export class Selection implements IAction {
         let selectedRow: Element = gObj.getRowByIndex(index);
         let selectData: Object = gObj.getCurrentViewRecords()[index];
         if (!this.isRowType() || !selectedRow || this.isEditing()) {
-            if (this.isEditing()) {
-                gObj.selectedRowIndex = index;
-            }
+            // if (this.isEditing()) {
+            //     gObj.selectedRowIndex = index;
+            // }
             return;
         }
         let isRowSelected: boolean = selectedRow.hasAttribute('aria-selected');
@@ -552,10 +552,6 @@ export class Selection implements IAction {
                     events.cellSelected);
             }
         }
-    }
-
-    private isEdit(): boolean {
-        return this.parent.isEdit;
     }
 
     private clearCell(): void {

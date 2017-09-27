@@ -16,7 +16,7 @@ export class DefaultEditCell implements IEditCell {
         this.parent = parent;
     }
 
-    public create(args: { column: Column, value: string, type: string }): Element {
+    public create(args: { column: Column, value: string, requestType: string }): Element {
         let col: Column = args.column;
         let input: Element = createElement('input', {
             className: 'e-field e-input e-defaultcell', attrs: {
@@ -31,13 +31,13 @@ export class DefaultEditCell implements IEditCell {
         return (<HTMLInputElement>element).value;
     }
 
-    public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
+    public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
         Input.createInput({
             element: args.element as HTMLInputElement, floatLabelType: this.parent.editSettings.mode !== 'dialog' ? 'Never' : 'Always',
             properties: {
-                enableRtl: this.parent.enableRtl, enabled: isEditable(args.column, args.type, args.element),
+                enableRtl: this.parent.enableRtl, enabled: isEditable(args.column, args.requestType, args.element),
                 placeholder: isInline ? '' : args.column.headerText
             }
         });

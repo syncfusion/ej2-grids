@@ -120,13 +120,15 @@ export class Data implements IDataProcessor {
         } =
             { requestType: '' },
         query?: Query): Promise<Object> {
-        let key: string = this.getKey(args.foreignKeyData ? args.foreignKeyData : this.parent.getPrimaryKeyFieldNames());
+        let key: string = this.getKey(args.foreignKeyData &&
+            Object.keys(args.foreignKeyData).length ?
+            args.foreignKeyData : this.parent.getPrimaryKeyFieldNames());
         switch (args.requestType) {
             case 'delete':
                 query = query ? query : this.generateQuery();
                 this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
                 break;
-            case 'add':
+            case 'save':
                 query = query ? query : this.generateQuery();
                 this.dataManager.insert(args.data, null, query, 0);
                 break;
@@ -140,7 +142,9 @@ export class Data implements IDataProcessor {
         this.generateQuery();
         let promise: Promise<Object> = null;
         let pr: string = 'promise';
-        let key: string = this.getKey(args.foreignKeyData ? args.foreignKeyData : this.parent.getPrimaryKeyFieldNames());
+        let key: string = this.getKey(args.foreignKeyData &&
+            Object.keys(args.foreignKeyData).length ? args.foreignKeyData :
+            this.parent.getPrimaryKeyFieldNames());
         switch (args.requestType) {
             case 'save':
                 promise = this.dataManager.update(key, args.data, null, this.generateQuery()) as Promise<Object>;

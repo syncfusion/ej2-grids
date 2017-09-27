@@ -2,8 +2,10 @@ import { Component, NumberFormatOptions, DateFormatOptions } from '@syncfusion/e
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { ItemModel } from '@syncfusion/ej2-navigations';
 import { Column, ColumnModel } from '../models/column';
-import { SortSettingsModel, TextWrapSettingsModel, SelectionSettingsModel,
-     FilterSettingsModel, SearchSettingsModel } from './grid-model';
+import {
+    SortSettingsModel, TextWrapSettingsModel, SelectionSettingsModel,
+    FilterSettingsModel, SearchSettingsModel
+} from './grid-model';
 import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel } from './grid-model';
 import { Cell } from '../models/cell';
@@ -442,6 +444,7 @@ export interface NotifyArgs {
     enable?: boolean;
     properties?: Object;
     virtualInfo?: VirtualInfo;
+    cancel?: boolean;
 }
 
 /**
@@ -668,7 +671,7 @@ export interface RowDragEventArgs {
  * @hidden
  */
 export interface EJ2Intance extends HTMLElement {
-    ej2_instances: Object;
+    ej2_instances: Object | Object[];
 }
 
 /**
@@ -812,6 +815,53 @@ export interface BeginEditArgs extends ICancel, IPrimaryKey {
     /** Defines the primary key value. */
     primaryKeyValue?: string[];
 }
+
+export interface DeleteEventArgs {
+    /** Defines the cancel option value. */
+    cancel?: boolean;
+    /** Defines the request type. */
+    requestType?: string;
+    /** Defines the foreign key record object (JSON). @hidden */
+    foreignKeyData?: Object;
+    /** Defines the record objects. */
+    data?: Object[];
+    /** Defines the selected rows for delete. */
+    tr?: Element[];
+    /** Defines the name of the event. */
+    type?: string;
+}
+
+export interface AddEventArgs {
+    /** Defines the cancel option value. */
+    cancel?: boolean;
+    /** Defines the request type. */
+    requestType?: string;
+    /** Defines the foreign key record object (JSON). @hidden */
+    foreignKeyData?: Object;
+    /** Defines the record objects. */
+    data?: Object;
+    /** Defines the name of the event. */
+    type?: string;
+    /** Defines the previous data. */
+    previousData?: Object;
+    /** Defines the added row. */
+    row?: Object;
+}
+
+export interface SaveEventArgs extends AddEventArgs {
+    /** Defines the previous data. */
+    previousData?: Object;
+    /** Defines the selected row index. */
+    selectedRow?: number;
+    /** Defines the current action. */
+    action?: string;
+}
+
+export interface EditEventArgs extends BeginEditArgs {
+    /** Defines the request type. */
+    requestType?: string;
+}
+
 
 /**
  * @hidden

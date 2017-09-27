@@ -56,7 +56,11 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         }
         let node: Element = this.parent.getContent().querySelector('[data-uid=' + row.uid + ']');
         let tr: Element = this.refreshRow(row, columns, attributes, rowTemplate);
-        node.innerHTML = tr.innerHTML;
+        let cells: HTMLTableDataCellElement[] = [].slice.call((tr as HTMLTableRowElement).cells);
+        node.innerHTML = '';
+        for (let cell of cells) {
+            node.appendChild(cell);
+        }
     }
 
     private refreshRow(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string): Element {

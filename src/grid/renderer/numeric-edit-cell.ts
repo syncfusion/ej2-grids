@@ -31,14 +31,14 @@ export class NumericEditCell implements IEditCell {
         return (<EJ2Intance>element).ej2_instances[0].value;
     }
 
-    public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
+    public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
         this.obj = new NumericTextBox(extend(
             {
                 value: parseFloat(args.rowData[col.field]), enableRtl: this.parent.enableRtl,
                 placeholder: isInline ? '' : args.column.headerText,
-                enabled: isEditable(args.column, args.type, args.element),
+                enabled: isEditable(args.column, args.requestType, args.element),
                 floatLabelType: this.parent.editSettings.mode !== 'dialog' ? 'Never' : 'Always',
             },
             col.edit.params));

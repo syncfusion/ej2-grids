@@ -21,7 +21,6 @@ import { Column } from '../models/column';
  * @hidden
  */
 export class BatchEdit {
-
     private parent: IGrid;
     private serviceLocator: ServiceLocator;
     private form: Element;
@@ -78,8 +77,7 @@ export class BatchEdit {
     protected clickHandler(e: MouseEvent): void {
         if (!parentsUntil(e.target as Element, this.parent.element.id + '_add', true)) {
             this.saveCell();
-            let rowCell: Element = parentsUntil(e.target as HTMLElement, 'e-rowcell');
-            if (rowCell && !this.parent.isEdit) {
+            if (parentsUntil(e.target as HTMLElement, 'e-rowcell') && !this.parent.isEdit) {
                 this.setCellIdx(e.target as HTMLTableCellElement);
             }
         }
@@ -87,9 +85,6 @@ export class BatchEdit {
 
     protected dblClickHandler(e: MouseEvent): void {
         let target: Element = e.target as Element;
-        if (parentsUntil(target, 'e-grid').id !== this.parent.element.id) {
-            return;
-        }
         let tr: Element = parentsUntil(e.target as Element, 'e-row');
         if ((parentsUntil(target, 'e-rowcell')) && tr) {
             this.editCell(
@@ -130,10 +125,10 @@ export class BatchEdit {
                 e.preventDefault();
             }
         }
-        this.reFocusIfError(e);
+        this.reFocusOnError(e);
     }
 
-    private reFocusIfError(e: KeyboardEventArgs): void {
+    private reFocusOnError(e: KeyboardEventArgs): void {
         if (this.validateFormObj() && (e.action === 'tab' || e.action === 'shiftTab')) {
             (e.target as HTMLElement).focus();
             e.preventDefault();
@@ -141,8 +136,7 @@ export class BatchEdit {
     }
 
     private isAddRow(index: number): boolean {
-        let tr: Element = this.parent.getDataRows()[index];
-        return tr.classList.contains('e-insertedrow');
+        return this.parent.getDataRows()[index].classList.contains('e-insertedrow');
     }
 
     private editNextCell(): void {
@@ -208,7 +202,6 @@ export class BatchEdit {
         }
         gObj.selectRow(this.cellDetails.rowIndex);
         this.refreshRowIdx();
-        gObj.notify(events.toolbarRefresh, {});
         this.parent.notify(events.tooltipDestroy, {});
     }
 
@@ -229,12 +222,15 @@ export class BatchEdit {
     }
 
     private validateFormObj(): boolean {
-        return this.formObj && !this.formObj.validate();
+        return this.parent.editModule.formObj && !this.parent.editModule.formObj.validate();
     }
 
     public batchSave(): void {
         let gObj: IGrid = this.parent;
         this.saveCell();
+        if (gObj.isEdit) {
+            return;
+        }
         let changes: Object = this.getBatchChanges();
         let args: BeforeBatchSaveArgs = { batchChanges: changes, cancel: false };
         gObj.trigger(events.beforeBatchSave, args);
@@ -242,7 +238,6 @@ export class BatchEdit {
             return;
         }
         gObj.notify(events.bulkSave, { changes: changes });
-        this.parent.notify(events.tooltipDestroy, {});
     }
 
     public getBatchChanges(): Object {
@@ -324,6 +319,7 @@ export class BatchEdit {
         delete args.row;
         gObj.trigger(events.batchDelete, args);
         gObj.notify(events.toolbarRefresh, {});
+        gObj.element.focus();
     }
 
     private refreshRowIdx(): void {
@@ -402,7 +398,7 @@ export class BatchEdit {
         for (let i: number = columnIndex; i < endIndex; i++) {
             if (!isAdd && this.checkNPCell(cols[i])) {
                 return i;
-            } else if (isAdd && !cols[i].template && cols[i].visible) {
+            } else if (isAdd && !cols[i].template && cols[i].visible && cols[i].allowEditing) {
                 return i;
             }
         }
@@ -415,7 +411,7 @@ export class BatchEdit {
             //prev
             if (!isAdd && this.checkNPCell(cols[i])) {
                 return i;
-            } else if (isAdd && !cols[i].template && cols[i].visible) {
+            } else if (isAdd && !cols[i].template && cols[i].visible && cols[i].allowEditing) {
                 return i;
             }
         }
@@ -423,7 +419,7 @@ export class BatchEdit {
     }
 
     private checkNPCell(col: Column): boolean {
-        return !col.template && col.visible && !col.isPrimaryKey && !col.isIdentity;
+        return !col.template && col.visible && !col.isPrimaryKey && !col.isIdentity && col.allowEditing;
     }
 
     private getDefaultData(): Object {
@@ -482,11 +478,10 @@ export class BatchEdit {
             }
             gObj.clearSelection();
             gObj.selectRow(this.cellDetails.rowIndex);
+            gObj.isEdit = true;
             this.renderer.update(args);
             this.form = gObj.element.querySelector('#' + gObj.element.id + 'EditForm');
-            this.applyFormValidation(col);
-            gObj.isEdit = true;
-            gObj.notify(events.toolbarRefresh, {});
+            gObj.editModule.applyFormValidation([col]);
             (this.parent.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
         }
     }
@@ -558,10 +553,8 @@ export class BatchEdit {
         if (args.cancel) {
             return;
         }
+        gObj.editModule.destroyForm();
         gObj.editModule.destroyWidgets([column]);
-        if (this.formObj) {
-            this.formObj.destroy();
-        }
         this.parent.notify(events.tooltipDestroy, {});
         this.refreshTD(args.cell, column, gObj.getRowObjectFromUID(tr.getAttribute('data-uid')), args.value);
         classList(tr, [], ['e-editedrow', 'e-batchrow']);
@@ -578,18 +571,6 @@ export class BatchEdit {
     protected getDataByIndex(index: number): Object {
         let row: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getDataRows()[index].getAttribute('data-uid'));
         return row.changes ? row.changes : row.data;
-    }
-
-    private applyFormValidation(col: Column): void {
-        let rules: Object = {};
-        if (col.validationRules && this.form.querySelectorAll('#' + this.parent.element.id + col.field).length) {
-            rules[col.field] = col.validationRules;
-            this.formObj = new FormValidator(this.form as HTMLFormElement, {
-                rules: rules as { [name: string]: { [rule: string]: Object } },
-                validationComplete: this.valComplete.bind(this),
-                customPlacement: this.customPlacement.bind(this)
-            });
-        }
     }
 
     private valComplete(args: { status: string, inputName: string, element: HTMLElement }): void {

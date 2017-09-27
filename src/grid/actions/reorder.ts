@@ -1,7 +1,7 @@
 import { extend } from '@syncfusion/ej2-base';
 import { closest as closestElement, removeClass, classList, createElement, remove } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
-import { getElementIndex, inArray, iterateArrayOrObject, parentsUntil, getPosition, isActionPrevent } from '../base/util';
+import { getElementIndex, inArray, parentsUntil, getPosition, isActionPrevent } from '../base/util';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 
@@ -10,7 +10,7 @@ import * as events from '../base/constant';
  * `Reorder` module is used to handle columns reorder.
  */
 export class Reorder implements IAction {
-    //Internal variable    
+    //Internal variable
     private element: HTMLElement;
     private upArrow: HTMLElement;
     private downArrow: HTMLElement;
@@ -142,7 +142,6 @@ export class Reorder implements IAction {
         return parents[parents.length - 1];
     }
 
-
     /** 
      * Changes the Grid column positions by field names. 
      * @param  {string} fromFName - Defines the origin field name. 
@@ -150,12 +149,12 @@ export class Reorder implements IAction {
      * @return {void} 
      */
     public reorderColumns(fromFName: string, toFName: string): void {
-        let column: Column = this.getColumnByField(toFName);
+        let column: Column = this.parent.getColumnByField(toFName);
         let parent: Column = this.getColParent(column, this.parent.columns as Column[]);
         let columns: Column[] = parent ? parent.columns as Column[] : this.parent.columns as Column[];
         let destIndex: number = inArray(column, columns);
         if (destIndex > -1) {
-            this.moveColumns(destIndex, this.getColumnByField(fromFName));
+            this.moveColumns(destIndex, this.parent.getColumnByField(fromFName));
         }
     }
 
@@ -208,8 +207,7 @@ export class Reorder implements IAction {
         let cloneElement: HTMLElement = gObj.element.querySelector('.e-cloneproperties') as HTMLElement;
         let isLeft: boolean = this.x > getPosition(e.event).x + gObj.getContent().firstElementChild.scrollLeft;
         removeClass(gObj.getHeaderTable().querySelectorAll('.e-reorderindicate'), ['e-reorderindicate']);
-        this.upArrow.style.display = 'none';
-        this.downArrow.style.display = 'none';
+        this.setDisplay('none');
         this.stopTimer();
         classList(cloneElement, ['e-defaultcur'], ['e-notallowedcur']);
         this.updateScrollPostion(e.event);
@@ -243,8 +241,7 @@ export class Reorder implements IAction {
         let scrollLeft: number = scrollElem.scrollLeft;
         scrollElem.scrollLeft = scrollElem.scrollLeft + (isLeft ? -5 : 5);
         if (scrollLeft !== scrollElem.scrollLeft) {
-            this.upArrow.style.display = 'none';
-            this.downArrow.style.display = 'none';
+            this.setDisplay('none');
         }
     }
 
@@ -261,8 +258,7 @@ export class Reorder implements IAction {
         this.upArrow.style.top = cliRect.top + cliRect.height - cliRectBase.top + 'px';
         this.downArrow.style.top = cliRect.top - cliRectBase.top - 4 + 'px';
         this.upArrow.style.left = this.downArrow.style.left = (isLeft ? cliRect.left : cliRect.right) - cliRectBase.left - 4 + 'px';
-        this.upArrow.style.display = '';
-        this.downArrow.style.display = '';
+        this.setDisplay('');
     }
 
     private dragStart(e: { target: Element, column: Column, event: MouseEvent }): void {
@@ -278,13 +274,17 @@ export class Reorder implements IAction {
 
     private dragStop(e: { target: Element, event: MouseEvent, column: Column, cancel: boolean }): void {
         let gObj: IGrid = this.parent;
-        this.upArrow.style.display = 'none';
-        this.downArrow.style.display = 'none';
+        this.setDisplay('none');
         this.stopTimer();
         if (!e.cancel) {
             gObj.trigger(events.columnDrop, { target: e.target, draggableType: 'headercell', column: e.column });
         }
         removeClass(gObj.getHeaderTable().querySelectorAll('.e-reorderindicate'), ['e-reorderindicate']);
+    }
+
+    private setDisplay(display: string): void {
+        this.upArrow.style.display = display;
+        this.downArrow.style.display = display;
     }
 
     /**
@@ -293,17 +293,6 @@ export class Reorder implements IAction {
      */
     protected getModuleName(): string {
         return 'reorder';
-    }
-
-    private getColumnByField(field: string): Column {
-        return iterateArrayOrObject<Column, Column>(
-            <Column[]>this.getColumnsModel(this.parent.columns as Column[]),
-            (item: Column, index: number) => {
-                if (item.field === field) {
-                    return item;
-                }
-                return undefined;
-            })[0];
     }
 
 }
