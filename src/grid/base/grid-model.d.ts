@@ -694,7 +694,10 @@ export interface GridModel extends ComponentModel{
      * * delete - Delete the selected record.
      * * cancel - Cancel the edit state.
      * * search - Searches records by given key.
-     * * print - Print the Grid.<br><br>
+     * * print - Print the Grid.
+     * * excelexport - Export the Grid to Excel.
+     * * pdfexport - Export the Grid to PDF.
+     * * csvexport - Export the Grid to CSV.<br><br>
      * The following code example implements the custom toolbar items.
      * ```html
      * <style type="text/css" class="cssStyles">

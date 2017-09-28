@@ -37,7 +37,7 @@ describe('Column chooser module', () => {
         });
         it('Column chooser testing', (done: Function) => {
             beforeOpenColumnChooser = (args?: { element: Element }): void => {
-                expect(args.element.querySelectorAll('.e-cctbn-icon').length).toBe(1);
+                expect(args.element.querySelectorAll('.e-columnchooser-btn').length).toBe(1);
                 done();
             };
             beforeOpenColumnChooser = (args?: { element: Element }): void => {
@@ -48,7 +48,7 @@ describe('Column chooser module', () => {
 
             gridObj.element.classList.add('e-device');
             setTimeout(() => {
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_e-ccbutton')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
                 (<any>gridObj).isDestroyed = true;
                 (<any>gridObj).columnChooserModule.addEventListener();
                 (<any>gridObj).columnChooserModule.destroy();
@@ -96,9 +96,9 @@ describe('Column chooser module', () => {
 
             gridObj.beforeOpenColumnChooser = beforeOpenColumnChooser;
             setTimeout(() => {
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_e-ccbutton')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
                 (<any>gridObj).columnChooserModule.isDlgOpen = true;
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_e-ccbutton')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
                 (<any>gridObj).columnChooserModule.destroy();
                 (<any>gridObj).destroy();
             }, 500);
@@ -143,6 +143,7 @@ describe('Column chooser module', () => {
 
             setTimeout(() => {
                 gridObj.columnChooserModule.openColumnChooser();
+                (<HTMLElement>gridObj.element.querySelectorAll('.e-rowcell')[0]).click();
                 (<any>gridObj).columnChooserModule.destroy();
                 (<any>gridObj).destroy();
                 done();
@@ -331,13 +332,12 @@ describe('Column chooser module', () => {
             let y: number = 100;
             let target: HTMLElement;
             let e: Object;
-
+            gridObj.element.classList.add('e-bigger');
             setTimeout(() => {
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_e-ccbutton')).click();
-                // (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_e-ccbutton')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
                 (<any>gridObj).columnChooserModule.openColumnChooser(x, y);
                 (<any>gridObj).columnChooserModule.openColumnChooser();
-                let sel: HTMLElement = (<any>gridObj).element.querySelector('.e-cctbn-icon')
+                let sel: HTMLElement = (<any>gridObj).element.querySelector('.e-columnchooser-btn');
                 e = { target: sel };
                 (<any>gridObj).initialOpenDlg = false;
                 (<any>gridObj).isDlgOpen = true;
@@ -345,17 +345,18 @@ describe('Column chooser module', () => {
                 (<any>gridObj).columnChooserModule.clickHandler(e);
                 (<any>gridObj).columnChooserModule.openColumnChooser();
                 let ele: HTMLElement = (<any>gridObj).element.querySelectorAll('.e-cc-chbox')[0];
-                e = { target: ele };
+                e = { event: { target: ele }, value: true };
                 (<any>gridObj).columnChooserModule.checkstatecolumn(e);
                 let ele1: HTMLElement = (<any>gridObj).element.querySelectorAll('.e-cc-chbox')[3];
-                e = { target: ele1 };
+                e = { event: { target: ele1 }, value: true };
                 (<any>gridObj).columnChooserModule.checkstatecolumn(e);
                 ele.click();
-                e = { target: ele };
+                e = { event: { target: ele }, value: false };
                 (<any>gridObj).columnChooserModule.checkstatecolumn(e);
                 ele1.click();
-                e = { target: ele1 };
+                e = { event: { target: ele }, value: false };
                 (<any>gridObj).columnChooserModule.checkstatecolumn(e);
+
                 (<any>gridObj).columnChooserModule.destroy();
                 (<any>gridObj).destroy();
                 done();

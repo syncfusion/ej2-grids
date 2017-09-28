@@ -73,7 +73,7 @@
     }
 
     .e-gridfooter {
-      background-color: $group-row-bg-color;
+      background-color: $grid-summary-row-bg-color;
     }
 
     .e-headercontent {
@@ -103,7 +103,13 @@
     }
 
     .e-summarycell {
-      background-color: $group-row-bg-color;
+      background-color: $grid-summary-template-row-bg-color;
+      border-color: $grid-header-border-color;
+    }
+
+    .e-summaryrow .e-summarycell,
+    .e-summaryrow .e-templatecell {
+      background-color: $grid-summary-row-bg-color;
       border-color: $grid-header-border-color;
       color: $grid-header-color;
     }
@@ -313,10 +319,6 @@
       .e-footer-content {
         border-color: $grid-columnchooser-footer-border-color;
         opacity: $grid-columnchooser-footer-border-opacity;
-
-        .e-btn.e-flat.e-cc.e-cc-cnbtn {
-          color: $grid-columnchooser-cancel-btn-color;
-      }
        }
 
       .e-cc-searchdiv {
@@ -327,14 +329,6 @@
         border-color: $grid-columnchooser-search-border-fcolor;
       }
 
-    }
-
-    .e-toolbar .e-ccdiv:hover {
-      background-color: $grid-columnchooser-hover-bg-color;
-    }
-
-    .e-toolbar .e-ccdiv:active {
-      background-color: $grid-columnchooser-active-bg-color;
     }
 
     &.e-rtl {

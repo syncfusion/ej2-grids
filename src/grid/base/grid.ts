@@ -482,7 +482,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private getShowHideService: ShowHide;
     private mediaColumn: Column[];
     private isMediaQuery: boolean = false;
-
+    private isInitialLoad: boolean = false;
     /** @hidden */
     public recordsCount: number;
     /**
@@ -523,6 +523,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         Pdfexport: 'PDF Export',
         Excelexport: 'Excel Export',
         Wordexport: 'Word Export',
+        Csvexport: 'CSV Export',
         Search: 'Search',
         Item: 'item',
         Items: 'items',
@@ -1025,7 +1026,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * * delete - Delete the selected record.
      * * cancel - Cancel the edit state.
      * * search - Searches records by given key.
-     * * print - Print the Grid.<br><br>
+     * * print - Print the Grid.
+     * * excelexport - Export the Grid to Excel.
+     * * pdfexport - Export the Grid to PDF.
+     * * csvexport - Export the Grid to CSV.<br><br>
      * The following code example implements the custom toolbar items.
      * ```html
      * <style type="text/css" class="cssStyles">
@@ -1090,14 +1094,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Triggers when Grid actions such as Sorting, Filtering, Paging and Grouping etc., starts. 
      * @event
      */
-    @Event()    
+    @Event()
     public actionBegin: EmitType<PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs | AddEventArgs | SaveEventArgs | EditEventArgs | DeleteEventArgs>;
 
     /** 
      * Triggers when Grid actions such as Sorting, Filtering, Paging and Grouping etc., completed. 
      * @event 
      */
-    @Event()    
+    @Event()
     public actionComplete: EmitType<PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs | AddEventArgs | SaveEventArgs | EditEventArgs | DeleteEventArgs>;
     /* tslint:enable */
 
@@ -1445,13 +1449,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             });
         }
 
-        if (this.showColumnChooser) {
-            modules.push({
-                member: 'columnChooser',
-                args: [this, this.serviceLocator]
-            });
-        }
-
         return modules;
     }
 
@@ -1471,6 +1468,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     protected render(): void {
         this.ariaService.setOptions(this.element, { role: 'grid' });
         this.renderModule = new Render(this, this.serviceLocator);
+        this.getMediaColumns();
         this.searchModule = new Search(this);
         this.scrollModule = new Scroll(this);
         if (this.showColumnChooser) {
@@ -1486,17 +1484,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.addListener();
         this.updateDefaultCursor();
         this.notify(events.initialEnd, {});
-        this.getMediaColumns();
     }
 
     private getMediaColumns(): void {
-        let gcol: Column[] = this.getColumns();
-        this.getShowHideService = this.serviceLocator.getService<ShowHide>('showHideService');
-        for (let index: number = 0; index < gcol.length; index++) {
-            if (!isNullOrUndefined(gcol[index].hideAtMedia)) {
-                this.mediaCol.push(gcol[index]);
-                let media: MediaQueryList = window.matchMedia(gcol[index].hideAtMedia);
-                media.addListener(this.mediaQueryUpdate.bind(this, index));
+        if (!this.enableColumnVirtualization) {
+            let gcol: Column[] = this.getColumns();
+            this.getShowHideService = this.serviceLocator.getService<ShowHide>('showHideService');
+            if (!isNullOrUndefined(gcol)) {
+                for (let index: number = 0; index < gcol.length; index++) {
+                    if (!isNullOrUndefined(gcol[index].hideAtMedia)) {
+                        this.mediaCol.push(gcol[index]);
+                        let media: MediaQueryList = window.matchMedia(gcol[index].hideAtMedia);
+                        this.mediaQueryUpdate(index, media);
+                        media.addListener(this.mediaQueryUpdate.bind(this, index));
+                    }
+                }
             }
         }
     }
@@ -1505,23 +1507,25 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public mediaQueryUpdate(columnIndex: number, e?: MediaQueryList): void {
-        let col: Column = this.getColumns()[columnIndex];
-        let columWidth: number;
-        let browserWidth: string = e.media;
-        let stateChangeColumns: Column[] = [];
-        col.visible = e.matches;
-        stateChangeColumns.push(col);
         this.isMediaQuery = true;
-        this.getShowHideService.setVisible(stateChangeColumns);
+        let col: Column = this.getColumns()[columnIndex];
+        col.visible = e.matches;
+        if (this.isInitialLoad) {
+            if (col.visible) {
+                this.showHider.show(col.headerText, 'headerText');
+            } else {
+                this.showHider.hide(col.headerText, 'headerText');
+            }
+        }
     }
-
     private refreshMediaCol(): void {
         if (this.isMediaQuery) {
             this.refresh();
             this.isMediaQuery = false;
         }
-    }
+        this.isInitialLoad = true;
 
+    }
 
     /**
      * For internal use only - Initialize the event handler
@@ -2173,6 +2177,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public getSelectedRecords(): Object[] {
         return (<Row<Column>[]>this.contentModule.getRows()).filter((row: Row<Column>) => row.isSelected)
             .map((m: Row<Column>) => m.data);
+    }
+
+    /**
+     * Gets the Grid's data. 
+     * @return {Data}
+     */
+    public getDataModule(): Data {
+        return this.renderModule.data;
     }
 
     /** 

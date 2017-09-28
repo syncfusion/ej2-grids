@@ -39,7 +39,7 @@ export class Render {
     private headerRenderer: HeaderRender;
     private contentRenderer: ContentRender;
     private l10n: L10n;
-    private data: Data;
+    public data: Data;
     private ariaService: AriaService;
     private renderer: RendererFactory;
 

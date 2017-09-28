@@ -6,7 +6,7 @@
     color: $pager-color;
     opacity: $pager-content-opacity;
 
-    .e-icons {
+    div.e-icons {
       color: $pager-icon-color;
     }
 
@@ -16,8 +16,12 @@
       opacity: $pager-content-opacity;
     }
 
+    .e-parentmsgbar {
+      font-weight: $pager-pagermessage-weight;
+    }
+
     .e-spacing {
-      color: $pager-color;
+      color: $page-content-color;
       opacity: $pager-content-opacity;
     }
 
@@ -34,6 +38,7 @@
     .e-numericitem {
       background: $pager-bg-color;
       border-right-color: $pager-border-color;
+      color: $page-content-color;
     }
 
     .e-prevpagedisabled,

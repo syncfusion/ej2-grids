@@ -32,7 +32,8 @@ export class Toolbar {
 
     private render(): void {
         this.l10n = this.serviceLocator.getService<L10n>('localization');
-        let preItems: string[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print', 'pdfexport', 'excelexport', 'wordexport'];
+        let preItems: string[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print',
+         'pdfexport', 'excelexport', 'wordexport', 'csvexport'];
         for (let item of preItems) {
             let localeName: string = item[0].toUpperCase() + item.slice(1);
             this.predefinedItems[item] = {
@@ -49,10 +50,8 @@ export class Toolbar {
                          </input></div>', tooltipText: this.l10n.getConstant('Search'), align: 'right'
         };
         (this.predefinedItems as { columnchooser: Object }).columnchooser = {
-            id: this.gridID + '_columnchooser', template: '<div class="e-ccdiv e-cc-toolbar" >\
-                         <span id="' + this.gridID + '_e-ccbutton" class="e-columnchooser e-cctbn-icon e-icons"></span>\
-                         </div>', align: 'right'
-
+            id: this.gridID + '_' + 'columnchooser', cssClass: 'e-cc e-ccdiv e-cc-toolbar', suffixIcon: 'e-' + 'columnchooser-btn',
+            text: 'Columns', tooltipText: 'columns', align: 'right',
         };
         this.createToolbar();
     }
@@ -210,6 +209,8 @@ export class Toolbar {
             // case gID + '_wordexport':
             //     break;
             // case gID + '_excelexport':
+            //     break;
+            // case gID + '_csvexport':
             //     break;
             case gID + '_search':
                 if ((<HTMLElement>args.originalEvent.target).id === gID + '_searchbutton') {

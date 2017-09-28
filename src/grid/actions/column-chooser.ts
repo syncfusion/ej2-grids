@@ -1,7 +1,8 @@
 import { createElement, remove, classList, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
-import { EventHandler, L10n } from '@syncfusion/ej2-base';
+import { EventHandler, L10n, closest } from '@syncfusion/ej2-base';
+import { CheckBox } from '@syncfusion/ej2-buttons';
 import { ServiceLocator } from '../services/service-locator';
 import { IGrid, IAction } from '../base/interface';
 import * as events from '../base/constant';
@@ -78,16 +79,23 @@ export class ColumnChooser implements IAction {
 
     private clickHandler(e: MouseEvent): void {
         let targetElement: Element = e.target as Element;
-        if (targetElement.classList.contains('e-cctbn-icon') || targetElement.classList.contains('e-cc-toolbar')) {
-            if ((this.initialOpenDlg && this.dlgObj.visible) || !this.isDlgOpen) {
-                this.isDlgOpen = true;
-                return;
-            }
+        if (!isNullOrUndefined(closest(targetElement, '.e-cc')) || !isNullOrUndefined(closest(targetElement, '.e-cc-toolbar'))) {
+            if (targetElement.classList.contains('e-columnchooser-btn') || targetElement.classList.contains('e-cc-toolbar')) {
+                if ((this.initialOpenDlg && this.dlgObj.visible) || !this.isDlgOpen) {
+                    this.isDlgOpen = true;
+                    return;
+                }
 
-        } else if (targetElement.classList.contains('e-cc-cancel')) {
-            (<HTMLInputElement>targetElement.parentElement.querySelector('.e-ccsearch')).value = '';
-            this.columnChooserSearch('');
-            this.removeCancelIcon();
+            } else if (targetElement.classList.contains('e-cc-cancel')) {
+                (<HTMLInputElement>targetElement.parentElement.querySelector('.e-ccsearch')).value = '';
+                this.columnChooserSearch('');
+                this.removeCancelIcon();
+            }
+        } else {
+            if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.visible) {
+                this.dlgObj.hide();
+                this.isDlgOpen = false;
+            }
         }
     }
 
@@ -113,7 +121,7 @@ export class ColumnChooser implements IAction {
             this.parent.trigger(events.beforeOpenColumnChooser, args1);
             this.refreshCheckboxState();
             this.dlgObj.dataBind();
-            this.dlgObj.element.style.maxHeight = '390px';
+            this.dlgObj.element.style.maxHeight = '430px';
             let elementVisible: string = this.dlgObj.element.style.display;
             this.dlgObj.element.style.display = 'block';
             let newpos: { top: number, left: number } = calculateRelativeBasedPosition
@@ -121,7 +129,11 @@ export class ColumnChooser implements IAction {
             this.dlgObj.element.style.display = elementVisible;
             this.dlgObj.element.style.top = newpos.top + target.closest('.e-cc-toolbar').getBoundingClientRect().height + 'px';
             let dlgWidth: number = 250;
+            if (!isNullOrUndefined(closest(target, '.e-bigger'))) {
+                this.dlgObj.width = 253;
+            }
             if (this.parent.element.classList.contains('e-device')) {
+                this.dlgObj.target = document.body;
                 this.dlgObj.position = { X: 'center', Y: 'center' };
                 this.dlgObj.refreshPosition();
                 this.dlgObj.open = this.mOpenDlg.bind(this);
@@ -129,7 +141,7 @@ export class ColumnChooser implements IAction {
                 if (this.parent.enableRtl) {
                     this.dlgObj.element.style.left = (<HTMLElement>target).offsetLeft + 'px';
                 } else {
-                    this.dlgObj.element.style.left = (newpos.left - dlgWidth) + 42 + 'px';
+                    this.dlgObj.element.style.left = ((newpos.left - dlgWidth) + target.closest('.e-cc-toolbar').clientWidth) + 2 + 'px';
                 }
             }
             this.removeCancelIcon();
@@ -143,12 +155,14 @@ export class ColumnChooser implements IAction {
         }
     }
 
+
     /** 
      * Column chooser can be displayed on screen by given position(X and Y axis). 
      * @param  {number} X - Defines the X axis.
      * @param  {number} Y - Defines the Y axis. 
      * @return {void} 
      */
+
     public openColumnChooser(X?: number, Y?: number): void {
         if (this.dlgObj.visible) {
             this.hideDialog();
@@ -198,8 +212,8 @@ export class ColumnChooser implements IAction {
             buttons: [{
                 click: this.confirmDlgBtnClick.bind(this),
                 buttonModel: {
-                    content: this.l10n.getConstant('OKButton'),
-                    cssClass: 'e-flat e-cc e-cc_okbtn', isPrimary: true
+                    content: this.l10n.getConstant('OKButton'), isPrimary: true,
+                    cssClass: 'e-cc e-cc_okbtn',
                 }
             },
             {
@@ -208,6 +222,7 @@ export class ColumnChooser implements IAction {
             }],
             content: this.renderChooserList(),
             width: 250,
+            cssClass: 'e-cc',
             animationSettings: { effect: 'None' },
         });
         this.dlgObj.appendTo(this.dlgDiv);
@@ -275,10 +290,13 @@ export class ColumnChooser implements IAction {
         this.addcancelIcon();
     }
 
-    private checkstatecolumn(e: MouseEvent): void {
-        let targetEle: HTMLInputElement = e.target as HTMLInputElement;
+    private checkstatecolumn(e: { checked: boolean, event: MouseEvent }): void {
+        // let targetEle: HTMLInputElement = e.target as HTMLInputElement;
+        // let uncheckColumn: string = targetEle.id;
+        let targetEle: Element = e.event.target as Element;
         let uncheckColumn: string = targetEle.id;
-        if (targetEle.checked) {
+
+        if (e.checked) {
             if (this.hideColumn.indexOf(uncheckColumn) !== -1) {
                 this.hideColumn.splice(this.hideColumn.indexOf(uncheckColumn), 1);
             }
@@ -365,26 +383,25 @@ export class ColumnChooser implements IAction {
         let cclist: HTMLElement;
         let hideColState: boolean;
         let showColState: boolean;
+        let checkBoxObj: CheckBox;
         if (column.showInColumnChooser) {
             cclist = createElement('li', { className: 'e-cclist e-cc', styles: 'list-style:None', id: 'e-ccli_' + column.uid });
             let cclabe: HTMLElement = createElement('label', { className: 'e-cc' });
-            let cccheckboxlist: HTMLInputElement = document.createElement('input');
-            cccheckboxlist.type = 'CheckBox';
-            cccheckboxlist.className = 'e-cc e-cc-chbox ';
-            cccheckboxlist.id = 'e-cc' + column.uid;
-            cccheckboxlist.onchange = this.checkstatecolumn.bind(this);
-            let labElement: HTMLElement = createElement('label', { className: 'e-cc e-cc-lab-name', attrs: { for: 'e-cc' + column.uid } });
-            labElement.textContent = column.headerText;
+            let cccheckboxlist: HTMLElement = createElement('input', {
+                className: 'e-cc e-cc-chbox ',
+                id: 'e-cc' + column.uid, attrs: { type: 'checkbox' }
+            });
             cclabe.appendChild(cccheckboxlist);
-            cclabe.appendChild(labElement);
             hideColState = this.hideColumn.indexOf('e-cc' + column.uid) === -1 ? false : true;
             showColState = this.showColumn.indexOf('e-cc' + column.uid) === -1 ? false : true;
-
+            checkBoxObj = new CheckBox({ label: column.headerText, checked: true, change: this.checkstatecolumn.bind(this) });
             if ((column.visible && !hideColState) || showColState) {
-                cccheckboxlist.checked = true;
+                checkBoxObj.checked = true;
             } else {
-                cccheckboxlist.checked = false;
+                checkBoxObj.checked = false;
             }
+
+            checkBoxObj.appendTo(cccheckboxlist);
             cclist.appendChild(cclabe);
             this.ulElement.appendChild(cclist);
         }

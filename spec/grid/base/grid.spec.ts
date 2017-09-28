@@ -108,7 +108,7 @@ describe('Grid base module', () => {
         });
 
     });
-    
+
     describe('Allow resizing test cases', () => {
         let gridObj: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
@@ -128,8 +128,8 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
                     allowTextWrap: true,
-                    dataBound: dataBound, 
-                    allowResizing:true
+                    dataBound: dataBound,
+                    allowResizing: true
                 });
             gridObj.appendTo('#Grid');
         });
@@ -164,15 +164,15 @@ describe('Grid base module', () => {
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
-                        { headerText: 'OrderID', field: 'OrderID', allowResizing:false },
+                        { headerText: 'OrderID', field: 'OrderID', allowResizing: false },
                         { headerText: 'CustomerID', field: 'CustomerID' },
-                        { headerText: 'EmployeeID', field: 'EmployeeID', allowResizing:false },
+                        { headerText: 'EmployeeID', field: 'EmployeeID', allowResizing: false },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
                     allowTextWrap: true,
-                    dataBound: dataBound, 
-                    allowResizing:true
+                    dataBound: dataBound,
+                    allowResizing: true
                 });
             gridObj.appendTo('#Grid');
         });
@@ -472,8 +472,7 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
-                    dataBound: dataBound,
-                    showColumnChooser: true
+                    dataBound: dataBound
                 });
             gridObj.appendTo('#Grid');
         });
@@ -481,9 +480,11 @@ describe('Grid base module', () => {
 
         it('media columns', () => {
             (<any>gridObj).getMediaColumns();
-            window.matchMedia
-            let mediaqry: any = window.matchMedia('(min-width:500px)')
+            (<any>gridObj).isInitialLoad = true;
+            let mediaqry: any = window.matchMedia('(min-width:500px)');
             gridObj.mediaQueryUpdate(0, mediaqry);
+            let mediaqry1: any = window.matchMedia('(max-width:1300px)');
+            gridObj.mediaQueryUpdate(1, mediaqry);
         });
 
         afterAll(() => {
@@ -519,23 +520,23 @@ describe('Grid base module', () => {
                 expect(gridObj.getRows()[0].children.length).toBe(3);
                 done();
             };
-            expect (gridObj.columns.length).toBe(5);
-            gridObj.columns =  [
+            expect(gridObj.columns.length).toBe(5);
+            gridObj.columns = [
                 { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
                 { headerText: 'CustomerID', field: 'CustomerID' },
                 { headerText: 'EmployeeID', field: 'EmployeeID' },
             ];
             gridObj.dataBind();
         });
-        
+
         it('Change Columns using push method', (done: Function) => {
             gridObj.dataBound = () => {
                 expect(gridObj.columns.length).toBe(5);
                 expect(gridObj.getRows()[0].children.length).toBe(5);
                 done();
             };
-            expect (gridObj.columns.length).toBe(3);
-            let newcol: Column[]= <Column[]>[{ headerText: 'ShipCountry', field: 'ShipCountry' },
+            expect(gridObj.columns.length).toBe(3);
+            let newcol: Column[] = <Column[]>[{ headerText: 'ShipCountry', field: 'ShipCountry' },
             { headerText: 'ShipCity', field: 'ShipCity' },];
             (<any>gridObj.columns).push(...newcol);
             gridObj.dataBind();
@@ -549,11 +550,42 @@ describe('Grid base module', () => {
                 expect(gridObj.getRows()[0].children.length).toBe(4);
                 done();
             };
-            expect (gridObj.columns.length).toBe(5);
+            expect(gridObj.columns.length).toBe(5);
             (<any>gridObj.columns).pop();
             gridObj.dataBind();
             gridObj.refreshColumns();
             expect(gridObj.columns.length).toBe(4);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
+    describe('media columns testing', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+
+        it('getDataModule tets', () => {
+           let gdata = gridObj.getDataModule();
         });
 
         afterAll(() => {

@@ -7,6 +7,7 @@
 
     .e-icons {
       font-size: $pager-bigger-icon-font-size;
+      vertical-align: $pager-bigger-icons-align;
     }
 
     div.e-parentmsgbar {
@@ -169,7 +170,7 @@
 
     .e-pagercontainer .e-lastpage,
     .e-pagercontainer .e-lastpagedisabled {
-      border-right: 0;
+      border-right: $pager-last-border-size;
     }
 
     .e-firstpage:hover,
@@ -249,7 +250,8 @@
     .e-pp:hover,
     .e-np:hover {
       font-size: $pager-tripledot-font-size;
-      letter-spacing: -.1em;
+      font-weight: $pager-numeric-font-weight;
+      letter-spacing: $pager-letter-spacing;
       padding: $pager-tripledot-padding;
     }
 

@@ -202,6 +202,7 @@ export class BatchEdit {
         }
         gObj.selectRow(this.cellDetails.rowIndex);
         this.refreshRowIdx();
+        gObj.notify(events.toolbarRefresh, {});
         this.parent.notify(events.tooltipDestroy, {});
     }
 

@@ -4,11 +4,11 @@
   .e-grid {
 
     .e-icon-ascending::before {
-      content: '\e840';
+      content: $grid-grouped-sort-icon;
     }
 
     .e-icon-descending::before {
-      content: '\e83f';
+      content: $grid-descending-icon-content;
     }
 
     .e-icon-hide::before {
@@ -113,9 +113,18 @@
       content: '\e21e';
     }
 
+    .e-columnchooser-btn::before {
+      content: '\e969';
+    }
+
+    .e-cc-icon::before {
+      content: '\e82e';
+    }
+
+
     .e-ccsearch-icon.e-cc-cancel::before {
       content: $grid-columnchooser-searchbar-cancel-icon-content;
     }
 
   }
-  }
+}

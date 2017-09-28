@@ -33,13 +33,30 @@
       font-size: $grid-bigger-grightarrow-icon-font-size;
     }
 
+    .e-toolbar .e-btn-icon.e-icons.e-columnchooser-btn {
+      font-size: $grid-bigger-columnchooser-btn-font-size;
+    }
+
+    .e-toolbar .e-toolbar-items .e-cc.e-toolbar-item button.e-btn .e-tbar-btn-text,
+    .e-toolbar .e-toolbar-items .e-toolbar-item .e-tbar-btn.e-btn.e-control .e-tbar-btn-text {
+      padding: $grid-bigger-columnchooser-toolbartxt-padding;
+    }
+
     .e-gridheader {
       & tr th:last-child  {
         padding-right: $grid-bigger-header-first-last-cell-padding;
       }
 
+      & tr th:last-child.e-filterbarcell {
+        padding-left: $grid-filterbarcell-first-last-child-padding-left;
+      }
+
       & tr th:first-child  {
         padding-left: $grid-bigger-header-first-last-cell-padding;
+      }
+
+      & tr th:first-child.e-filterbarcell {
+        padding-left: $grid-filterbarcell-first-last-child-padding-left;
       }
     }
 
@@ -120,7 +137,9 @@
     }
 
     .e-groupheadercell span {
+      height: $grid-bigger-groupcell-span-line-height;
       line-height: $grid-bigger-groupcell-span-line-height;
+      padding: $grid-bigger-groupcell-span-padding;
     }
 
     .e-groupheadercell .e-ungroupbutton {
@@ -221,15 +240,18 @@
     span.e-ungroupbutton,
     .e-toggleungroup {
       margin-left: $grid-bigger-groupedcell-icons-marign-left;
+      margin-top: $grid-bigger-sorticon-margin-top;
     }
 
     span.e-ungroupbutton.e-icons {
       font-size: $grid-bigger-ungroupbutton-icons-font-size;
+      margin-left: $grid-bigger-ungroupbutton-icon-margin-left;
       margin-top: $grid-bigger-ungroupbutton-icon-margin-top;
     }
 
     .e-groupsort {
       margin-right: $group-bigger-sorticon-margin-right;
+      margin-top: $grid-bigger-sorticon-margin-top;
     }
 
     &.e-rtl .e-groupheadercell,
@@ -267,12 +289,6 @@
     }
 
     .e-ccdlg {
-      top: 0;
-
-      .e-dlg-header-content {
-        padding: $grid-bigger-columnchooser-header-padding;
-      }
-
       .e-dlg-content {
         padding: $grid-bigger-columnchooser-content-padding;
       }
@@ -292,6 +308,7 @@
  }
 
   .e-grid {
+    border-radius: $grid-border-radius;
     border-style: none $grid-border-type $grid-border-type;
     border-width: $grid-border-size;
     display: block;
@@ -483,7 +500,7 @@
       line-height: $grid-headercelldiv-line-height;
       margin: $grid-headercelldiv-margin;
       overflow: hidden;
-      padding: 0 .6em;
+      padding: $grid-headercell-div-padding;
       text-align: left;
       user-select: none;
     }
@@ -513,6 +530,10 @@
         border-top: 0 none;
       }
 
+      & tr th:last-child.e-filterbarcell  {
+        padding-right:  $grid-filterbarcell-first-last-child-padding-left;
+      }
+
       & tr th:last-child  {
         padding-right:  $grid-header-first-last-cell-padding;
       }
@@ -520,11 +541,15 @@
       & tr th:first-child  {
         padding-left: $grid-header-first-last-cell-padding;
       }
+
+      & tr th:first-child.e-filterbarcell {
+        padding-left: $grid-filterbarcell-first-last-child-padding-left;
+      }
     }
 
     .e-gridheader {
       border-bottom-style: $grid-border-type;
-      border-bottom-width: $grid-border-size;
+      border-bottom-width: $grid-bottom-border-size;
       border-top-style: $grid-border-type;
       border-top-width: $grid-border-size;
     }
@@ -805,9 +830,12 @@
       border-width: 0 0  $grid-border-size  $grid-border-size;
     }
 
-    &.e-horizontallines .e-rowcell,
-    &.e-horizontallines .e-filterbarcell {
+    &.e-horizontallines .e-rowcell {
       border-width: $grid-border-size 0 0;
+    }
+
+    &.e-horizontallines .e-filterbarcell {
+      border-width: $grid-bottom-border-size 0 0;
     }
 
     &.e-horizontallines,
@@ -866,8 +894,9 @@
     }
 
     .e-filterbarcell input {
+      border-radius: $grid-filterbar-border-radius;
       border-style: solid;
-      border-width: $grid-filterbar-input-border-width ;
+      border-width: $grid-filterbar-input-border-width;
       font-family: $grid-font-family;
       font-size: $grid-font-size;
       font-weight: normal;
@@ -980,8 +1009,8 @@
       font-weight: $grid-header-font-weight;
       opacity: $grid-drag-clone-opacity;
       overflow: hidden;
-      padding: 4px 5px;
-      text-align: center;
+      padding: $grid-clone-padding;
+      text-align: $grid-group-clone-text-align;
       user-select: none;
       vertical-align: middle;
       white-space: nowrap;
@@ -1124,8 +1153,9 @@
     .e-groupheadercell span {
       display: inline-block;
       float: left;
-      height: $grid-headecell-height;
+      height:  $grid-headecell-span-height;
       line-height: $grid-group-headercell-line-height;
+      padding: $grid-grouped-headercell-span-padding;
       vertical-align: middle;
     }
 
@@ -1163,10 +1193,13 @@
 
     .e-groupsort {
       margin-right: $group-sorticon-margin-right;
+      margin-top: $group-sorticon-margin-top;
+
     }
 
     span.e-ungroupbutton.e-icons {
       margin-left: $group-unpgrouicon-margin-left;
+      margin-top: $grid-group-unpgroupicon-margin-top;
     }
 
     .e-grptogglebtn {
@@ -1234,6 +1267,21 @@
     .e-noselect {
       user-select: none;
     }
+
+    .e-toolbar .e-btn-icon.e-icons.e-columnchooser-btn {
+      font-size: $grid-columnchooser-btn-font-size;
+      line-height: $grid-columnchooser-btn-line-height;
+    }
+
+    .e-toolbar-item.e-cc.e-ccdiv.e-cc-toolbar {
+      margin-top: $grid-columnchooser-toolbardiv-margin-top;
+      padding: $grid-columnchooser-toolbardiv-padding;
+    }
+
+    .e-toolbar .e-cc .e-tbar-btn-text {
+      padding: $grid-columnchooser-toolbartxt-padding;
+    }
+
 
     .e-normaledit .e-rowcell {
       padding-bottom: 0;
@@ -1317,7 +1365,7 @@
       }
 
       .e-dlg-content {
-        margin: 22px 0 0;
+        margin: $grid-columnchooser-content-margin;
         overflow: visible;
         padding: $grid-columnchooser-content-padding;
       }
@@ -1397,10 +1445,6 @@
         margin: 3px;
         vertical-align: middle;
        }
-
-      .e-footer-content {
-        padding: $grid-column-chooser-dlg-footer-padding;
-      }
 
       .e-cc-lab-name {
         padding: 7px;
@@ -1679,7 +1723,7 @@
 
       & span.e-ungroupbutton.e-icons {
         margin-left: 0;
-        margin-right: 6px;
+        margin-right: $grid-ungroup-rtl-padding-right;
         padding-top: $grid-ungroup-rtl-padding-top;
     }
 
@@ -1721,10 +1765,14 @@
         border-width: 0;
       }
 
-      &.e-horizontallines .e-rowcell,
-      &.e-horizontallines .e-filterbarcell {
+      &.e-horizontallines .e-rowcell {
         border-width: $grid-border-size 0 0;
       }
+
+      &.e-horizontallines .e-filterbarcell {
+        border-width: $grid-bottom-border-size 0 0;
+     }
+
 
       &.e-horizontallines,
       &.e-verticallines,
