@@ -90,13 +90,6 @@ describe('Toolbar functionalities', () => {
         gridObj.dataBind();
         //expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(1);
     });
-    it('add toolbar template', () => {
-        let templete: string = '<div><div style="padding: 12px" title="search" ><input id="txt" type="search" style="padding: 0 5px"placeholder="search"></input><span id="searchbutton" class="e-search e-icons"></span></div></div>';
-        document.body.appendChild(createElement('div', { innerHTML: templete, id: 'search' }));
-        gridObj.toolbar = '#search';
-        gridObj.dataBind();
-        expect(gridObj.toolbarModule.getToolbar().id).toBe('search');
-    });
     it('remove toolbar', () => {
         gridObj.toolbar = '';
         gridObj.dataBind();
@@ -171,4 +164,40 @@ describe('Toolbar functionalities', () => {
     afterAll(() => {
         remove(elem);
     });
+
+    describe('Toolbar functionalities', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: (e?: Object) => void;
+        let actionComplete: (e?: Object) => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            let templete: string = '<div><div style="padding: 12px" title="search" ><input id="txt" type="search" style="padding: 0 5px"placeholder="search"></input><span id="searchbutton" class="e-search e-icons"></span></div></div>';
+            document.body.appendChild(createElement('div', { innerHTML: templete, id: 'search' }));
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data,
+                    allowGrouping: true,
+                    width: "400px",
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }],
+                    toolbarTemplate: '#search',
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('add toolbar template', () => {
+            expect(gridObj.toolbarModule.getToolbar().id).toBe('search');
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+
+    });
+
 });

@@ -426,7 +426,7 @@
     }
 
     &.e-device .e-gridheader .e-headercell .e-rhandler {
-      width: 7px;
+      width: 14px;
     }
 
     &.e-rtl .e-gridheader .e-headercell .e-rhandler,
@@ -451,10 +451,10 @@
       content: '';
       display: block;
       height: 0;
-      left: -9px;
+      left: -29px;
       position: absolute;
       top: 4px;
-      width: 0;
+      width: 20px;
     }
 
     &.e-device .e-ricon::after {
@@ -467,7 +467,7 @@
       left: 4px;
       position: absolute;
       top: 4px;
-      width: 0;
+      width: 20px;
       z-index: 3;
     }
 

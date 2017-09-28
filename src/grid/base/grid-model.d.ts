@@ -721,6 +721,13 @@ export interface GridModel extends ComponentModel{
     toolbar?: string | string[] | ItemModel[];
 
     /**
+     * @hidden
+     * It used to render toolbar template
+     * @default null
+     */
+    toolbarTemplate?: string;
+
+    /**
      * Triggers when the component is created.
      * @event 
      */

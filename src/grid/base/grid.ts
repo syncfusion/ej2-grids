@@ -1053,6 +1053,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property()
     public toolbar: string | string[] | ItemModel[];
 
+    /**
+     * @hidden
+     * It used to render toolbar template
+     * @default null
+     */
+    @Property()
+    public toolbarTemplate: string;
+
     /** 
      * Triggers when the component is created.
      * @event 
@@ -1430,7 +1438,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this]
             });
         }
-        if (this.toolbar) {
+        if (this.toolbar || this.toolbarTemplate) {
             modules.push({
                 member: 'toolbar',
                 args: [this, this.serviceLocator]

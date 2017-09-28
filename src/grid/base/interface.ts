@@ -246,6 +246,13 @@ export interface IGrid extends Component<HTMLElement> {
      */
     toolbar?: string | string[] | ItemModel[];
 
+    /**
+     * @hidden
+     * It used to render toolbar template
+     * @default null
+     */
+    toolbarTemplate?: string;
+
     isEdit?: boolean;
 
     editModule?: Edit;

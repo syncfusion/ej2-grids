@@ -42,7 +42,7 @@ export class Scroll implements IAction {
      */
     public setWidth(): void {
         this.parent.element.style.width = formatUnit(this.parent.width);
-        if ((<Grid>this.parent).toolbarModule) {
+        if ((<Grid>this.parent).toolbarModule && (<Grid>this.parent).toolbarModule.toolbar.element) {
             (<Grid>this.parent).toolbarModule.toolbar.refreshOverflow();
         }
     }

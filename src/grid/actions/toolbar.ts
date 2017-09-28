@@ -33,7 +33,7 @@ export class Toolbar {
     private render(): void {
         this.l10n = this.serviceLocator.getService<L10n>('localization');
         let preItems: string[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print',
-         'pdfexport', 'excelexport', 'wordexport', 'csvexport'];
+            'pdfexport', 'excelexport', 'wordexport', 'csvexport'];
         for (let item of preItems) {
             let localeName: string = item[0].toUpperCase() + item.slice(1);
             this.predefinedItems[item] = {
@@ -88,18 +88,17 @@ export class Toolbar {
             enableRtl: this.parent.enableRtl
         });
         this.element = createElement('div', { id: this.gridID + '_toolbarItems' });
-        if (!Array.isArray(this.parent.toolbar)) {
-            if (typeof (this.parent.toolbar) === 'string') {
-                this.toolbar.appendTo(this.parent.toolbar);
+        if (this.parent.toolbarTemplate) {
+            if (typeof (this.parent.toolbarTemplate) === 'string') {
+                this.toolbar.appendTo(this.parent.toolbarTemplate);
                 this.element = this.toolbar.element;
-                this.parent.element.insertBefore(this.element, this.parent.getHeaderContent());
             } else {
-                this.parent.element.insertBefore(templateCompiler(this.parent.toolbar)()[1], this.parent.getHeaderContent());
+                this.element = templateCompiler(this.parent.toolbarTemplate)()[1];
             }
         } else {
             this.toolbar.appendTo(this.element);
-            this.parent.element.insertBefore(this.element, this.parent.getHeaderContent());
         }
+        this.parent.element.insertBefore(this.element, this.parent.getHeaderContent());
         this.searchElement = (<HTMLInputElement>this.element.querySelector('#' + this.gridID + '_searchbar'));
         this.wireEvent();
         this.refreshToolbarItems();
@@ -139,10 +138,11 @@ export class Toolbar {
 
     private getItems(): ItemModel[] {
         let items: ItemModel[] = [];
+        let toolbarItems: string | string[] | ItemModel[] = this.parent.toolbar || [];
         if (typeof (this.parent.toolbar) === 'string') {
             return [];
         }
-        for (let item of this.parent.toolbar) {
+        for (let item of toolbarItems) {
             typeof (item) === 'string' ? items.push(this.getItemObject(item)) : items.push(this.getItem(item));
         }
         return items;
