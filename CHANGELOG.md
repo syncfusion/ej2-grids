@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+- Bootstrap theme added.
+- Exporting feature added.
+- Autowrap feature improved.
+- Dynamic columns support added.
+
+#### Bug Fixes
+- Editing events issue fixed.
+- Resizing at faster mouse move bug fixed.
+
 ## 1.0.18-preview (2017-09-20)
 
 ### Grid

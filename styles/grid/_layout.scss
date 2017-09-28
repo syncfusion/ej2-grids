@@ -451,10 +451,10 @@
       content: '';
       display: block;
       height: 0;
-      left: -29px;
+      left: -9px;
       position: absolute;
       top: 4px;
-      width: 20px;
+      width: 0;
     }
 
     &.e-device .e-ricon::after {
@@ -467,7 +467,7 @@
       left: 4px;
       position: absolute;
       top: 4px;
-      width: 20px;
+      width: 0;
       z-index: 3;
     }
 
@@ -1128,7 +1128,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      width: 57px;
+      width: $grid-group-text-width;
    }
 
     .e-grid-icon {
