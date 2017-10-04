@@ -34,89 +34,33 @@ require.config({
         },
 
         {
-            name: '@syncfusion/ej2-inputs/src/button',
-            location: 'node_modules/@syncfusion/ej2-inputs/src/button',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-inputs/src/checkbox',
-            location: 'node_modules/@syncfusion/ej2-inputs/src/checkbox',
-            main: 'index.js'
-        },
-        {
             name: '@syncfusion/ej2-inputs',
             location: 'node_modules/@syncfusion/ej2-inputs',
             main: 'index.js'
         },
-        {
-            name: '@syncfusion/ej2-inputs/src/input',
-            location: 'node_modules/@syncfusion/ej2-inputs/src/input',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-inputs/src/numerictextbox',
-            location: 'node_modules/@syncfusion/ej2-inputs/src/numerictextbox',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-inputs/src/maskedtextbox',
-            location: 'node_modules/@syncfusion/ej2-inputs/src/maskedtextbox',
-            main: 'index.js'
-        },
+
         {
             name: '@syncfusion/ej2-popups',
             location: 'node_modules/@syncfusion/ej2-popups',
             main: 'index.js'
         },
+
         {
-            name: '@syncfusion/ej2-popups/src/popup',
-            location: 'node_modules/@syncfusion/ej2-popups/src/popup',
+            name: '@syncfusion/ej2-lists',
+            location: 'node_modules/@syncfusion/ej2-lists',
             main: 'index.js'
         },
-        {
-            name: '@syncfusion/ej2-popups/src/tooltip',
-            location: 'node_modules/@syncfusion/ej2-popups/src/tooltip',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-popups/src/dialog',
-            location: 'node_modules/@syncfusion/ej2-popups/src/dialog',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-lists/src/common',
-            location: 'node_modules/@syncfusion/ej2-lists/src/common',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-popups/src/common',
-            location: 'node_modules/@syncfusion/ej2-popups/src/common',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-popups/src/dialog',
-            location: 'node_modules/@syncfusion/ej2-popups/src/dialog',
-            main: 'index.js'
-        },
-        {
-            name: '@syncfusion/ej2-popups/src/popup',
-            location: 'node_modules/@syncfusion/ej2-popups/src/popup',
-            main: 'index.js'
-        },
+       
         {
             name: '@syncfusion/ej2-dropdowns',
             location: 'node_modules/@syncfusion/ej2-dropdowns',
-            main: 'src/drop-down-base/index.js'
+            main: 'index.js'
         },
-        {
-            name: '@syncfusion/ej2-dropdowns',
-            location: 'node_modules/@syncfusion/ej2-dropdowns',
-            main: 'src/drop-down-list/index.js'
-        },
+
         {
             name: '@syncfusion/ej2-navigations',
             location: 'node_modules/@syncfusion/ej2-navigations',
-            main: 'src/toolbar/index.js'
+            main: 'index.js'
         }
         // Include dependent packages
     ],
