@@ -440,7 +440,7 @@ export interface ColumnModel {
 
     /**    
      * Defines the minimum width of column in pixels or percentage.    
-     * @default 50    
+     * @default undefined    
      */
     minWidth?: string | number;
     /**    
