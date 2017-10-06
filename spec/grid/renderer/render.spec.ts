@@ -77,6 +77,9 @@ describe('Render module', () => {
             expect(gridObj.element.querySelectorAll('.e-row')[0].childNodes.length).toBe(cols.length);
             cols = [];
             (<any>gridObj.renderModule).dataManagerSuccess({ result: {}, count: 0 });//for coverage
+			gridObj.isDestroyed = true;
+			(<any>gridObj.renderModule).addEventListener();
+			gridObj.isDestroyed = false;
         });
 
         afterAll(() => {

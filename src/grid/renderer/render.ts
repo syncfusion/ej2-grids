@@ -213,7 +213,7 @@ export class Render {
             this.updatesOnInitialRender(e);
         }
         if (!this.isColTypeDef) {
-            this.updateColumnType(e.result[0]);
+            this.updateColumnType(gObj.getCurrentViewRecords()[0]);
         }
         this.parent.notify(events.dataReady, extend({ count: e.count, result: e.result, aggregates: e.aggregates }, args));
         if (gObj.groupSettings.columns.length || (args && args.requestType === 'ungrouping')) {
