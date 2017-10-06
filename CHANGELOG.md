@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+- Exporting feature added.
+- Page size dropdown feature added.
+
+#### Bug Fixes
+- Offline mode issue fixed.
+
 ## 1.0.19-preview (2017-09-28)
 
 ### Grid
