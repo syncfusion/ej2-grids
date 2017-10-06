@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, ChildProperty, Browser } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager } from '@syncfusion/ej2-data';import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';import { Render } from '../renderer/render';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { WrapMode } from './enum';import { Data } from '../actions/data';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { PageSettingsModel, AggregateRowModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Resize } from '../actions/resize';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';import { DetailRow } from '../actions/detail-row';import { Toolbar } from '../actions/toolbar';import { AggregateRow } from '../models/aggregate';import { Edit } from '../actions/edit';import { Row } from '../models/row';import { ColumnChooser } from '../actions/column-chooser';
+import { Component, ModuleDeclaration, ChildProperty, Browser } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager } from '@syncfusion/ej2-data';import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';import { Render } from '../renderer/render';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { WrapMode } from './enum';import { Data } from '../actions/data';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { PageSettingsModel, AggregateRowModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Resize } from '../actions/resize';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';import { DetailRow } from '../actions/detail-row';import { Toolbar } from '../actions/toolbar';import { AggregateRow } from '../models/aggregate';import { Edit } from '../actions/edit';import { Row } from '../models/row';import { ColumnChooser } from '../actions/column-chooser';import { ExcelExport } from '../actions/excel-export';import { PdfExport } from '../actions/pdf-export';
 import {ComponentModel} from '@syncfusion/ej2-base';
 
 /**
@@ -468,6 +468,18 @@ export interface GridModel extends ComponentModel{
     allowSorting?: boolean;
 
     /**
+     * If `allowExcelExport` set to true, then it will allow the user to export grid to Excel file.
+     * @default false    
+     */
+    allowExcelExport?: boolean;
+
+    /**
+     * If `allowPdfExport` set to true, then it will allow the user to export grid to Pdf file.
+     * @default false    
+     */
+    allowPdfExport?: boolean;
+
+    /**
      * Configures the sort settings.  
      * @default {columns:[]}    
      */
@@ -695,9 +707,9 @@ export interface GridModel extends ComponentModel{
      * * cancel - Cancel the edit state.
      * * search - Searches records by given key.
      * * print - Print the Grid.
-     * * excelexport - Export the Grid to Excel.
-     * * pdfexport - Export the Grid to PDF.
-     * * csvexport - Export the Grid to CSV.<br><br>
+     * * excelexport - Export the Grid to Excel(excelExport() method manually to make export.)
+     * * pdfexport - Export the Grid to PDF(pdfExport() method manually to make export.)
+     * * csvexport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
      * The following code example implements the custom toolbar items.
      * ```html
      * <style type="text/css" class="cssStyles">
@@ -860,6 +872,18 @@ export interface GridModel extends ComponentModel{
      * @event 
      */
     beforePrint?: EmitType<PrintEventArgs>;
+
+    /**
+     * Triggers before exporting each cell to PDF document.
+     * @event 
+     */
+    pdfQueryCellInfo?: EmitType<PdfQueryCellInfoEventArgs>;
+
+    /**
+     * Triggers before exporting each cell to Excel file.
+     * @event
+     */
+    excelQueryCellInfo?: EmitType<ExcelQueryCellInfoEventArgs>;
 
     /**
      * Triggers after detail row expanded.

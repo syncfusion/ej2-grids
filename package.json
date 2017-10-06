@@ -14,7 +14,11 @@
 		"@syncfusion/ej2-dropdowns": "*",
 		"@syncfusion/ej2-popups": "*",
 		"@syncfusion/ej2-buttons": "*",
-		"@syncfusion/ej2-lists": "*"
+		"@syncfusion/ej2-lists": "*",
+		"@syncfusion/ej2-excel-export": "*",
+		"@syncfusion/ej2-pdf": "*",
+		"@syncfusion/ej2-file-utils": "*",
+		"@syncfusion/ej2-compression": "*"
 	},
 	"devDependencies": {
 		"@types/chai": "^3.4.28",

@@ -10,6 +10,7 @@ import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompi
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
+import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
@@ -49,6 +50,8 @@ import { AggregateRow } from '../models/aggregate';
 import { Edit } from '../actions/edit';
 import { Row } from '../models/row';
 import { ColumnChooser } from '../actions/column-chooser';
+import { ExcelExport } from '../actions/excel-export';
+import { PdfExport } from '../actions/pdf-export';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -659,6 +662,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * `printModule` is used to manipulate printing feature in the Grid.
      */
     public printModule: Print;
+    /**
+     * `excelExportModule` is used to manipulate Excel exporting feature in the Grid.
+     */
+    public excelExportModule: ExcelExport;
+    /**
+     * `pdfExportModule` is used to manipulate PDF exporting feature in the Grid.
+     */
+    public pdfExportModule: PdfExport;
 
     /**
      * `detailRowModule` is used to handle detail rows rendering in the Grid.
@@ -774,6 +785,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property(false)
     public allowSorting: boolean;
 
+    /**    
+     * If `allowExcelExport` set to true, then it will allow the user to export grid to Excel file.
+     * @default false    
+     */
+    @Property(false)
+    public allowExcelExport: boolean;
+    /**    
+     * If `allowPdfExport` set to true, then it will allow the user to export grid to Pdf file.
+     * @default false    
+     */
+    @Property(false)
+    public allowPdfExport: boolean;
     /**    
      * Configures the sort settings.  
      * @default {columns:[]}    
@@ -1027,9 +1050,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * * cancel - Cancel the edit state.
      * * search - Searches records by given key.
      * * print - Print the Grid.
-     * * excelexport - Export the Grid to Excel.
-     * * pdfexport - Export the Grid to PDF.
-     * * csvexport - Export the Grid to CSV.<br><br>
+     * * excelexport - Export the Grid to Excel(excelExport() method manually to make export.)
+     * * pdfexport - Export the Grid to PDF(pdfExport() method manually to make export.)
+     * * csvexport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
      * The following code example implements the custom toolbar items.
      * ```html
      * <style type="text/css" class="cssStyles">
@@ -1219,6 +1242,19 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforePrint: EmitType<PrintEventArgs>;
 
     /** 
+     * Triggers before exporting each cell to PDF document.
+     * @event 
+     */
+    @Event()
+    public pdfQueryCellInfo: EmitType<PdfQueryCellInfoEventArgs>;
+
+    /** 
+     * Triggers before exporting each cell to Excel file.
+     * @event
+     */
+    @Event()
+    public excelQueryCellInfo: EmitType<ExcelQueryCellInfoEventArgs>;
+    /** 
      * Triggers after detail row expanded.
      * > This event triggers at initial expand. 
      * @event 
@@ -1370,7 +1406,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'childGrid', 'queryString', 'toolbar', 'toolbarClick', 'editSettings',
             'batchAdd', 'batchDelete', 'beforeBatchAdd', 'beforeBatchDelete',
             'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete', 'endEdit', 'beforeDataBound',
-            'beforeOpenColumnChooser', 'allowResizing'];
+            'beforeOpenColumnChooser', 'allowResizing', 'ExcelExport', 'PdfExport',
+            'allowExcelExport', 'allowPdfExport',
+            'pdfQueryCellInfo', 'excelQueryCellInfo'];
 
         return this.addOnPersist(keyEntity);
     }
@@ -1386,6 +1424,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             modules.push({
                 member: 'filter',
                 args: [this, this.filterSettings, this.serviceLocator]
+            });
+        }
+        if (this.allowExcelExport) {
+            modules.push({
+                member: 'ExcelExport',
+                args: [this]
+            });
+        }
+        if (this.allowPdfExport) {
+            modules.push({
+                member: 'PdfExport',
+                args: [this]
             });
         }
         if (this.allowSorting) {
@@ -2787,7 +2837,40 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.updateColumnObject();
         this.refresh();
     }
+    /**
+     * Export Grid data to Excel file(.xlsx).
+     * @param  {exportProperties} exportProperties - Defines the export properties of the Grid.
+     * @param  {isMultipleExport} isMultipleExport - Define to enable multiple export.
+     * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
+     * @return {Promise<any>} 
+     */
+    /* tslint:disable-next-line:no-any */
+    public excelExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any> {
+        return this.excelExportModule.Map(this, exportProperties, isMultipleExport, workbook, false);
+    }
 
+    /**
+     * Export Grid data to CSV file.
+     * @param  {exportProperties} exportProperties - Defines the export properties of the Grid.
+     * @param  {isMultipleExport} isMultipleExport - Define to enable multiple export.
+     * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
+     * @return {Promise<any>} 
+     */
+    /* tslint:disable-next-line:no-any */
+    public csvExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any> {
+        return this.excelExportModule.Map(this, exportProperties, isMultipleExport, workbook, true);
+    }
+    /**
+     * Export Grid data to PDF document.
+     * @param  {exportProperties} exportProperties - Defines the export properties of the Grid.
+     * @param  {isMultipleExport} isMultipleExport - Define to enable multiple export.
+     * @param  {pdfDoc} pdfDoc - Defined the Pdf Document if multiple export is enabled.
+     * @return {Promise<any>} 
+     */
+    /* tslint:disable-next-line:no-any */
+    public pdfExport(exportProperties?: any, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object> {
+        return this.pdfExportModule.Map(this, exportProperties, isMultipleExport, pdfDoc);
+    }
 }
 
 Grid.Inject(Selection);

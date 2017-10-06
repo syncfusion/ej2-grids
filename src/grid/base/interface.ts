@@ -92,6 +92,17 @@ export interface IGrid extends Component<HTMLElement> {
     sortSettings?: SortSettingsModel;
 
     /**
+     * Specifies whether the Excel exporting is enable or not.
+     * @default null
+     */
+    allowExcelExport?: boolean;
+    /**
+     * Specifies whether the Pdf exporting is enable or not.
+     * @default null
+     */
+    allowPdfExport?: boolean;
+
+    /**
      * Specifies whether the selection is enable or not.
      * @default null
      */
@@ -304,8 +315,14 @@ export interface IGrid extends Component<HTMLElement> {
     refreshHeader?(): void;
     getDataRows?(): Element[];
     getPrimaryKeyFieldNames?(): string[];
-    print?(): void;
-    search?(searchString: string): void;
+    print(): void;
+    /* tslint:disable-next-line:no-any */
+    excelExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any>;
+    /* tslint:disable-next-line:no-any */
+    csvExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any>;
+    /* tslint:disable-next-line:no-any */
+    pdfExport(exportProperties?: any, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object>;
+    search(searchString: string): void;
     deleteRecord?(fieldname?: string, data?: Object): void;
     startEdit?(): void;
     endEdit?(): void;
@@ -661,6 +678,23 @@ export interface QueryCellInfoEventArgs {
     cell?: Element;
     /** Defines the column object associated with this cell. */
     column?: Column;
+}
+
+export interface PdfQueryCellInfoEventArgs {
+    column?: Column;
+    /* tslint:disable:no-any */
+    style?: any;
+    /* tslint:disable:no-any */
+    value?: any;
+}
+
+export interface ExcelQueryCellInfoEventArgs {
+    /* tslint:disable:no-any */
+    column: any;
+    /* tslint:disable:no-any */
+    value?: any;
+    /* tslint:disable:no-any */
+    style?: any;
 }
 
 export interface RowDragEventArgs {

@@ -229,3 +229,12 @@ export type WrapMode =
     'header' |
     /** Wraps  content alone */
     'content';
+
+/**
+ * Defines Multiple Export Type.
+ */
+export type MultipleExportType =
+/**  Multiple Grids are exported to same Worksheet. */
+'appendtosheet' |
+/**  Multiple Grids are exported to separate Worksheet. */
+'newsheet'; 

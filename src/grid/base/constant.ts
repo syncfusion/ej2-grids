@@ -222,3 +222,15 @@ export const addDeleteAction: string = 'add-delete-Action';
 export const destroyForm: string = 'destroy-form';
 /** @hidden */
 export const doubleTap: string = 'double-tap';
+/** @hidden */
+export const beforeExcelExport: string = 'beforeExcelExport';
+/** @hidden */
+export const excelExportComplete: string = 'excelExportComplete';
+/** @hidden */
+export const excelQueryCellInfo: string = 'excelQueryCellInfo';
+/** @hidden */
+export const beforePdfExport: string = 'beforePdfExport';
+/** @hidden */
+export const pdfExportComplete: string = 'pdfExportComplete';
+/** @hidden */
+export const pdfQueryCellInfo: string = 'pdfQueryCellInfo';
