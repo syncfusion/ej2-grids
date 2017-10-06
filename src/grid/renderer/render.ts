@@ -95,13 +95,16 @@ export class Render {
      * @return {void}
      */
     private refreshDataManager(args?: NotifyArgs): void {
+        let ready: Promise<Object> = this.data.dataManager.ready;
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
         let dataManager: Promise<Object> = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount());
-        if (this.parent.groupSettings.disablePageWiseAggregates && this.parent.groupSettings.columns.length) {
-            dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
+        if (!ready) {
+            if (this.parent.groupSettings.disablePageWiseAggregates && this.parent.groupSettings.columns.length) {
+                dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
+            }
+            dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))
+                .catch((e: ReturnType) => this.dataManagerFailure(e));
         }
-        dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))
-            .catch((e: ReturnType) => this.dataManagerFailure(e));
     }
 
     private sendBulkRequest(args?: { changes: Object }): void {

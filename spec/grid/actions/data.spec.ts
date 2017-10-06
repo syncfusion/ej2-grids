@@ -112,7 +112,7 @@ describe('Data module', () => {
             remove(gridObj.element);
             jasmine.Ajax.uninstall();
         });
-    });
+    });    
 
     describe('actionFailure after control destroyed', () => {
         let actionFailedFunction: () => void = jasmine.createSpy('actionFailure');
@@ -185,6 +185,86 @@ describe('Data module', () => {
             (gridObj.renderModule as any).data.destroy();
             gridObj.isDestroyed = false;
         });
+
+        afterAll(() => {
+            remove(elem);
+        });
+
+    });
+
+    describe('datamanager offline - success testing', () => {
+        let gridObj: Grid;
+        let dataManager: any = new DataManager(data as JSON[]);
+        dataManager.ready ={then: (args: any)=>{
+            args.call(this,{result: data.slice(0,5)});
+            return {catch: (args:any)=>{{           
+            }}};
+        }};
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionComplete: (e?: Object) => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };           
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: dataManager, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],                   
+                    dataBound: dataBound,
+                    actionComplete: actionComplete,                  
+                });
+            gridObj.appendTo('#Grid');
+        });
+      
+        it('Row count testing', () => {
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(5);
+        });      
+
+        afterAll(() => {
+            remove(elem);
+        });
+
+    });
+
+    describe('datamanager offline - failure testing', () => {
+        let gridObj: Grid;
+        let dataManager: any = new DataManager(data as JSON[]);
+        dataManager.ready ={then: (args: any)=>{        
+            return {catch: (args:any)=>{{
+                args.call(this, {});
+            }}};
+        }};
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionComplete: (e?: Object) => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            let actionFailure: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: dataManager, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],                   
+                    dataBound: dataBound,
+                    actionComplete: actionComplete,
+                    actionFailure: actionFailure
+                });
+            gridObj.appendTo('#Grid');
+        });
+      
+        it('Row count testing', () => {
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
+        });      
 
         afterAll(() => {
             remove(elem);

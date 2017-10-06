@@ -5,7 +5,7 @@
     font-size: $pager-bigger-font-size;
     padding: $pager-bigger-padding;
 
-    .e-icons {
+    div.e-icons {
       font-size: $pager-bigger-icon-font-size;
       vertical-align: $pager-bigger-icons-align;
     }
@@ -64,6 +64,13 @@
       margin: $pager-bigger-numeric-item-margin;
     }
 
+    .e-pp.e-spacing,
+    .e-np.e-spacing,
+    .e-pp.e-spacing:hover,
+    .e-np.e-spacing:hover {
+      padding: $pager-bigger-letter-spacing;
+    }
+
     .e-spacing,
     .e-numericitem:hover,
     .e-currentitem {
@@ -95,7 +102,6 @@
     border-style: $pager-border-type;
     border-width: 1px;
     display: inline-block;
-    font-family: $pager-font-family;
     font-size: $pager-font-size;
     padding: $pager-padding;
     white-space: normal;

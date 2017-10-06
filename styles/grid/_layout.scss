@@ -37,11 +37,6 @@
       font-size: $grid-bigger-columnchooser-btn-font-size;
     }
 
-    .e-toolbar .e-toolbar-items .e-cc.e-toolbar-item button.e-btn .e-tbar-btn-text,
-    .e-toolbar .e-toolbar-items .e-toolbar-item .e-tbar-btn.e-btn.e-control .e-tbar-btn-text {
-      padding: $grid-bigger-columnchooser-toolbartxt-padding;
-    }
-
     .e-gridheader {
       & tr th:last-child  {
         padding-right: $grid-bigger-header-first-last-cell-padding;
@@ -643,10 +638,13 @@
     }
 
     td.e-rowcell.e-checkbox input[type='checkbox'] {
-      margin-top: 5px;
+      margin-top: $grid-td-checkbox-margin-top;
    }
 
-    &.e-default .e-rowcell.e-lastrowcell,
+    &.e-default .e-rowcell.e-lastrowcell {
+      border-bottom-width: 0;
+    }
+
     &.e-bothlines .e-rowcell.e-lastrowcell {
       border-bottom-width: $border-size;
     }
@@ -1278,11 +1276,6 @@
       padding: $grid-columnchooser-toolbardiv-padding;
     }
 
-    .e-toolbar .e-cc .e-tbar-btn-text {
-      padding: $grid-columnchooser-toolbartxt-padding;
-    }
-
-
     .e-normaledit .e-rowcell {
       padding-bottom: 0;
       padding-top: 0;
@@ -1347,6 +1340,7 @@
 
     .e-row .e-input-group {
       margin-bottom: $grid-edit-input-margin;
+      margin-top: $grid-edit-input-margin-top;
       vertical-align: middle;
     }
 
@@ -1360,9 +1354,6 @@
     }
 
     .e-ccdlg {
-      .e-dlg-header-content {
-        padding: $grid-columnchooser-header-padding;
-      }
 
       .e-dlg-content {
         margin: $grid-columnchooser-content-margin;

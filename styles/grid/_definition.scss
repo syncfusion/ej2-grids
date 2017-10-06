@@ -151,6 +151,7 @@ $grid-summary-cell-font-size: 12px;
 $grid-summary-cell-line-height: 18px;
 $grid-summary-template-row-bg-color: $group-row-bg-color;
 $grid-grouptext-margin-right: 4px;
+$grid-td-checkbox-margin-top: 5px;
 $grid-groupdroparea-rtl-text-align: center;
 $grid-rtl-th-firstcell-border-left: 1px;
 $grid-gd-clone-border-radius: 0;
@@ -212,7 +213,7 @@ $grid-columnchooser-toolbar-icon-font-size: 15px;
 $grid-columnchooser-btn-font-size: 9px;
 $grid-columnchooser-btn-line-height: 3;
 $grid-columnchooser-content-margin: 22px 0 0;
-$grid-bigger-columnchooser-btn-font-size: 13px;
+$grid-bigger-columnchooser-btn-font-size: 12px;
 $grid-columnchooser-toolbardiv-padding: 3px 0 0;
 $grid-columnchooser-toolbardiv-margin-top: 0;
 $grid-bigger-columnchooser-toolbartxt-padding: 0 6px 0;
@@ -330,4 +331,7 @@ $grid-edit-input-bigger-margin: 0;
 $grid-edit-input-bigger-device-padding-bottom: 0;
 $grid-edit-input-bigger-device-padding-top: 0;
 $grid-edit-cell-padding: 4px;
+$grid-edit-input-margin-top: 0;
+$grid-edit-input-margin: 2px;
+
 

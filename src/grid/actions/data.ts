@@ -4,6 +4,7 @@ import { IDataProcessor, IGrid } from '../base/interface';
 import { SearchSettingsModel, PredicateModel, SortDescriptorModel } from '../base/grid-model';
 import { getActualProperties } from '../base/util';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
+import { ReturnType } from '../base/type';
 import * as events from '../base/constant';
 
 /**
@@ -132,6 +133,15 @@ export class Data implements IDataProcessor {
                 query = query ? query : this.generateQuery();
                 this.dataManager.insert(args.data, null, query, 0);
                 break;
+        }
+        if (this.dataManager.ready) {
+            let ready: Promise<Object> = this.dataManager.ready;
+            ready.then((e: ReturnType) => {
+                this.dataManager = new DataManager(e.result as JSON[]);
+                this.parent.refresh();
+            }).catch((e: ReturnType) => {
+                this.parent.trigger(events.actionFailure, { error: e });
+            });
         }
         return this.dataManager.executeQuery(query);
     }
