@@ -3,6 +3,7 @@ import { createElement, remove, classList } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';
 import { PagerModel } from './pager-model';
+import { PagerDropDown } from './pager-dropdown';
 import { NumericContainer } from './numeric-container';
 import { PagerMessage } from './pager-message';
 import { ExternalMessage } from './external-message';
@@ -40,7 +41,8 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
         nextPageTooltip: 'Go to next page',
         previousPageTooltip: 'Go to previous page',
         nextPagerTooltip: 'Go to next pager',
-        previousPagerTooltip: 'Go to previous pager'
+        previousPagerTooltip: 'Go to previous pager',
+        pagerDropDown: 'Items per page'
     };
 
     //Module declarations
@@ -58,6 +60,11 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      * `externalMessageModule` is used to manipulate external message of Pager.
      */
     public externalMessageModule: ExternalMessage;
+    /**
+     * `pagerdropdownModule` is used to manipulate pageSizes of Pager.
+     *  @hidden
+     */
+    public pagerdropdownModule: PagerDropDown;
 
     //Pager Options    
     /**   
@@ -117,6 +124,14 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     @Property()
     public externalMessage: string;
 
+    /**
+     * If `pageSizes` set to true or Array of values,
+     * It renders DropDownList in the pager which allow us to select pageSize from DropDownList.    
+     * @default false    
+     */
+    @Property(false)
+    public pageSizes: boolean | number[];
+
     /**  
      * Defines the customized text to append with numeric items.  
      * @default null  
@@ -130,6 +145,13 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      */
     @Event()
     public click: EmitType<Object>;
+
+    /**  
+     * Triggers after pageSize is selected in DropDownList.   
+     * @default null  
+     */
+    @Event()
+    public dropDownChanged: EmitType<Object>;
 
     /**  
      * Triggers when Pager is created.   
@@ -158,6 +180,12 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
                 args: [this]
             });
         }
+        if (this.checkpagesizes()) {
+            modules.push({
+                member: 'pagerdropdown',
+                args: [this]
+            });
+        }
         return modules;
     }
 
@@ -183,6 +211,9 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
             this.pagerMessageModule.render();
         }
         this.renderNextLastDivForDevice();
+        if (this.checkpagesizes()) {
+            this.pagerdropdownModule.render();
+        }
         this.addAriaLabel();
         if (this.enableExternalMessage && this.externalMessageModule) {
             this.externalMessageModule.render();
@@ -196,8 +227,8 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      * @hidden
      */
     public getPersistData(): string {
-        let keyEntity: string[] = ['enableExternalMessage', 'enablePagerMessage', 'currentPage', 'enableQueryString',
-            'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created'];
+        let keyEntity: string[] = ['enableExternalMessage', 'enablePagerMessage', 'currentPage', 'enableQueryString', 'pageSizes',
+            'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created', 'dropDownChanged'];
         return this.addOnPersist(keyEntity);
     }
 
@@ -241,6 +272,13 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
                 case 'pageSize':
                 case 'totalRecordsCount':
                 case 'customText':
+                    this.refresh();
+                    break;
+                case 'pageSizes':
+                    if (this.checkpagesizes()) {
+                        this.pagerdropdownModule.destroy();
+                        this.pagerdropdownModule.render();
+                    }
                     this.refresh();
                     break;
                 case 'locale':
@@ -290,6 +328,13 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
             this.currentPage = pageNo;
             this.dataBind();
         }
+    }
+
+    private checkpagesizes(): Boolean {
+        if (this.pageSizes === true || (<number[]>this.pageSizes).length) {
+            return true;
+        }
+        return false;
     }
 
     private checkGoToPage(newPageNo: number, oldPageNo?: number): boolean {

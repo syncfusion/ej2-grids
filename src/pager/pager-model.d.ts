@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, L10n, EmitType, Browser } from '@syncfusion/ej2-base';import { createElement, remove, classList } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base';import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';import { NumericContainer } from './numeric-container';import { PagerMessage } from './pager-message';import { ExternalMessage } from './external-message';
+import { Component, ModuleDeclaration, L10n, EmitType, Browser } from '@syncfusion/ej2-base';import { createElement, remove, classList } from '@syncfusion/ej2-base';import { isNullOrUndefined } from '@syncfusion/ej2-base';import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';import { PagerDropDown } from './pager-dropdown';import { NumericContainer } from './numeric-container';import { PagerMessage } from './pager-message';import { ExternalMessage } from './external-message';
 import {ComponentModel} from '@syncfusion/ej2-base';
 
 /**
@@ -56,6 +56,13 @@ export interface PagerModel extends ComponentModel{
     externalMessage?: string;
 
     /**
+     * If `pageSizes` set to true or Array of values,
+     * It renders DropDownList in the pager which allow us to select pageSize from DropDownList.    
+     * @default false    
+     */
+    pageSizes?: boolean | number[];
+
+    /**
      * Defines the customized text to append with numeric items.  
      * @default null  
      */
@@ -66,6 +73,12 @@ export interface PagerModel extends ComponentModel{
      * @default null  
      */
     click?: EmitType<Object>;
+
+    /**
+     * Triggers after pageSize is selected in DropDownList.   
+     * @default null  
+     */
+    dropDownChanged?: EmitType<Object>;
 
     /**
      * Triggers when Pager is created.   

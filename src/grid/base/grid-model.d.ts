@@ -437,7 +437,7 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Configures the pager in the Grid.  
-     * @default PageSettings{currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false}     
+     * @default PageSettings{currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false, pageSizes: false}     
      */
     pageSettings?: PageSettingsModel;
 

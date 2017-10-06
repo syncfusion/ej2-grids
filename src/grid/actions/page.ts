@@ -2,12 +2,13 @@ import { KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { extend } from '@syncfusion/ej2-base';
 import { remove, createElement } from '@syncfusion/ej2-base';
 import { Pager } from '../../pager/pager';
+import { PagerDropDown } from '../../pager/pager-dropdown';
 import { ExternalMessage } from '../../pager/external-message';
 import { PageSettingsModel } from '../models/page-settings-model';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { extend as gridExtend, getActualProperties, isActionPrevent } from '../base/util';
 import * as events from '../base/constant';
-Pager.Inject(ExternalMessage);
+Pager.Inject(ExternalMessage, PagerDropDown);
 
 /**
  * `Page` module is used to render pager and handle paging action.
@@ -63,11 +64,17 @@ export class Page implements IAction {
             extend({}, getActualProperties(this.pageSettings)),
             {
                 click: this.clickHandler.bind(this),
+                dropDownChanged: this.onSelect.bind(this),
                 enableRtl: gObj.enableRtl, locale: gObj.locale,
                 created: this.addAriaAttr.bind(this)
             },
             ['parentObj', 'propName']);
         this.pagerObj = new Pager(pagerObj);
+    }
+
+    private onSelect(e: Pager): void {
+        this.pageSettings.pageSize = e.pageSize;
+        this.pageSettings.currentPage = 1;
     }
 
     private addAriaAttr(): void {

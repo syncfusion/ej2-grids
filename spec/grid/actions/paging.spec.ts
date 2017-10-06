@@ -254,6 +254,47 @@ describe('Paging module', () => {
         });
     });
 
+    describe('dropDownEvent test', () => {
+        let gridObj: Grid;
+        let dropDownChanged: () => void;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    allowPaging: true,
+                    dataSource: data, dataBound: dataBound,
+                    allowSorting: true,
+                    height: 300,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }],
+                      pageSettings: {
+                        currentPage: 2, pageCount: 4,
+                        totalRecordsCount: 10, enableQueryString: true, pageSizes: [10, 20, 30, 40]
+                    },
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('dropDownChanged event testing', () => {
+            expect(gridObj.pageSettings.pageSize).toEqual(10);
+            expect(gridObj.pageSettings.currentPage).toBe(1);
+        });
+        it('pagesizes value changed to 30 and check currentpage', (done: Function) => {
+            dropDownChanged = (args?: any): void => {
+                expect(gridObj.pageSettings.pageSize).toEqual(30);
+                expect(gridObj.pageSettings.currentPage).toEqual(1);
+                done();
+            };
+            gridObj.dataBound = dropDownChanged;
+            (<any> gridObj.pagerModule).pagerObj.element.querySelector('.e-dropdownlist').ej2_instances[0].value = 30;
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
     describe('Paging & Scrolling - PageDown case', () => {
         let grid: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });

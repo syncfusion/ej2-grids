@@ -40,4 +40,12 @@ export class PageSettings extends ChildProperty<PageSettings> {
     @Property(false)
     public enableQueryString: boolean;
 
+    /**
+     * If `pageSizes` set to true or Array of values,
+     * It renders DropDownList in the pager which allow us to select pageSize from DropDownList.      
+     * @default false    
+     */
+    @Property(false)
+    public pageSizes: boolean|number[];
+
 }
