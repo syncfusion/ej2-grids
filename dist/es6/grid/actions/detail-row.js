@@ -1,0 +1,158 @@
+import { createElement, closest, classList } from '@syncfusion/ej2-base';
+import { Grid } from '../base/grid';
+import { parents, getUid, appendChildren } from '../base/util';
+import * as events from '../base/constant';
+import { AriaService } from '../services/aria-service';
+var DetailRow = (function () {
+    function DetailRow(parent) {
+        this.aria = new AriaService();
+        this.parent = parent;
+        if (this.parent.isDestroyed) {
+            return;
+        }
+        this.parent.on(events.click, this.clickHandler, this);
+        this.parent.on(events.destroy, this.destroy, this);
+        this.parent.on(events.keyPressed, this.keyPressHandler, this);
+    }
+    DetailRow.prototype.clickHandler = function (e) {
+        this.toogleExpandcollapse(closest(e.target, 'td'));
+    };
+    DetailRow.prototype.toogleExpandcollapse = function (target) {
+        var gObj = this.parent;
+        var parent = 'parentDetails';
+        if (target && (target.classList.contains('e-detailrowcollapse') || target.classList.contains('e-detailrowexpand'))) {
+            var tr = target.parentElement;
+            var nextRow = this.parent.getContentTable().querySelector('tbody').children[tr.rowIndex + 1];
+            if (target.classList.contains('e-detailrowcollapse')) {
+                var key = 'records';
+                var currentViewData = gObj.allowGrouping && gObj.groupSettings.columns.length ?
+                    gObj.currentViewData[key] : gObj.currentViewData;
+                var data = currentViewData[tr.getAttribute('aria-rowindex')];
+                if (this.isDetailRow(nextRow)) {
+                    nextRow.style.display = '';
+                }
+                else if (gObj.getDetailTemplate() || gObj.childGrid) {
+                    var detailRow = createElement('tr', { className: 'e-detailrow' });
+                    var detailCell = createElement('td', { className: 'e-detailcell' });
+                    detailCell.setAttribute('colspan', this.parent.getVisibleColumns().length.toString());
+                    for (var i = 0, len = gObj.groupSettings.columns.length; i < len; i++) {
+                        detailRow.appendChild(createElement('td', { className: 'e-indentcell' }));
+                    }
+                    detailRow.appendChild(createElement('td', { className: 'e-detailindentcell' }));
+                    if (gObj.detailTemplate) {
+                        appendChildren(detailCell, gObj.getDetailTemplate()(data));
+                    }
+                    else {
+                        gObj.childGrid[parent] = {
+                            parentID: gObj.element.id,
+                            parentPrimaryKeys: gObj.getPrimaryKeyFieldNames(),
+                            parentKeyField: gObj.childGrid.queryString,
+                            parentKeyFieldValue: data[gObj.childGrid.queryString],
+                            parentRowData: data
+                        };
+                        var grid = new Grid(gObj.childGrid);
+                        var modules = grid.getInjectedModules();
+                        var injectedModues = gObj.getInjectedModules();
+                        if (!modules || modules.length !== injectedModues.length) {
+                            grid.setInjectedModules(injectedModues);
+                        }
+                        var gridElem = createElement('div', {
+                            id: 'child' + parents(tr, 'e-grid').length +
+                                '_grid' + tr.rowIndex + getUid('')
+                        });
+                        grid.appendTo(gridElem);
+                        detailCell.appendChild(gridElem);
+                    }
+                    detailRow.appendChild(detailCell);
+                    tr.parentNode.insertBefore(detailRow, tr.nextSibling);
+                    gObj.getRows().splice(tr.rowIndex + 1, 0, detailRow);
+                    gObj.trigger(events.detailDataBound, { detailElement: detailCell, data: data });
+                }
+                classList(target, ['e-detailrowexpand'], ['e-detailrowcollapse']);
+                classList(target.firstElementChild, ['e-dtdiagonaldown', 'e-icon-gdownarrow'], ['e-dtdiagonalright', 'e-icon-grightarrow']);
+                this.aria.setExpand(target, true);
+            }
+            else {
+                if (this.isDetailRow(nextRow)) {
+                    nextRow.style.display = 'none';
+                }
+                classList(target, ['e-detailrowcollapse'], ['e-detailrowexpand']);
+                classList(target.firstElementChild, ['e-dtdiagonalright', 'e-icon-grightarrow'], ['e-dtdiagonaldown', 'e-icon-gdownarrow']);
+                this.aria.setExpand(target, false);
+            }
+        }
+    };
+    DetailRow.prototype.isDetailRow = function (row) {
+        return row && row.classList.contains('e-detailrow');
+    };
+    DetailRow.prototype.destroy = function () {
+        if (this.parent.isDestroyed) {
+            return;
+        }
+        this.parent.off(events.click, this.clickHandler);
+        this.parent.off(events.destroy, this.destroy);
+        this.parent.off(events.keyPressed, this.keyPressHandler);
+    };
+    DetailRow.prototype.getTDfromIndex = function (index, className) {
+        var tr = this.parent.getDataRows()[index];
+        if (tr && tr.querySelector(className)) {
+            return tr.querySelector(className);
+        }
+        return null;
+    };
+    DetailRow.prototype.expand = function (target) {
+        if (!isNaN(target)) {
+            target = this.getTDfromIndex(target, '.e-detailrowcollapse');
+        }
+        if (target && target.classList.contains('e-detailrowcollapse')) {
+            this.toogleExpandcollapse(target);
+        }
+    };
+    DetailRow.prototype.collapse = function (target) {
+        if (!isNaN(target)) {
+            target = this.getTDfromIndex(target, '.e-detailrowexpand');
+        }
+        if (target && target.classList.contains('e-detailrowexpand')) {
+            this.toogleExpandcollapse(target);
+        }
+    };
+    DetailRow.prototype.expandAll = function () {
+        this.expandCollapse(true);
+    };
+    DetailRow.prototype.collapseAll = function () {
+        this.expandCollapse(false);
+    };
+    DetailRow.prototype.expandCollapse = function (isExpand) {
+        var td;
+        var rows = this.parent.getDataRows();
+        for (var i = 0, len = rows.length; i < len; i++) {
+            td = rows[i].querySelector('.e-detailrowcollapse, .e-detailrowexpand');
+            isExpand ? this.expand(td) : this.collapse(td);
+        }
+    };
+    DetailRow.prototype.keyPressHandler = function (e) {
+        var gObj = this.parent;
+        switch (e.action) {
+            case 'ctrlDownArrow':
+                this.expandAll();
+                break;
+            case 'ctrlUpArrow':
+                this.collapseAll();
+                break;
+            case 'altUpArrow':
+            case 'altDownArrow':
+                var selected = gObj.allowSelection ? gObj.getSelectedRowIndexes() : [];
+                if (selected.length) {
+                    var dataRow = gObj.getDataRows()[selected[selected.length - 1]];
+                    var td = dataRow.querySelector('.e-detailrowcollapse, .e-detailrowexpand');
+                    e.action === 'altDownArrow' ? this.expand(td) : this.collapse(td);
+                }
+                break;
+        }
+    };
+    DetailRow.prototype.getModuleName = function () {
+        return 'detailRow';
+    };
+    return DetailRow;
+}());
+export { DetailRow };
