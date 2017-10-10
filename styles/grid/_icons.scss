@@ -70,11 +70,15 @@
     }
 
     .e-pdfexport::before {
-      content: '\e7c8';
+      content: '\e240';
+    }
+
+    .e-csvexport::before {
+      content: '\e241';
     }
 
     .e-excelexport::before {
-      content: '\e887';
+      content: '\e242';
     }
 
     .e-edit::before {

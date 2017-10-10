@@ -17,6 +17,7 @@ import { Edit } from '../actions/edit';
 import { DropDownListModel } from '@syncfusion/ej2-dropdowns';
 import { NumericTextBoxModel } from '@syncfusion/ej2-inputs';
 import { FormValidator } from '@syncfusion/ej2-inputs';
+import { Data } from '../actions/data';
 
 /**
  * Specifies grid interfaces.
@@ -331,6 +332,7 @@ export interface IGrid extends Component<HTMLElement> {
     deleteRow?(tr: HTMLTableRowElement): void;
     getRowObjectFromUID?(uid: string): Row<Column>;
     createColumnchooser(x: number, y: number, target: Element): void;
+    getDataModule?(): Data;
 }
 
 /** @hidden */
