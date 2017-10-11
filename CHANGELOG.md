@@ -7,10 +7,12 @@
 ### Grid
 
 #### New Features
+
 - Exporting feature added.
 - Page size dropdown feature added.
 
 #### Bug Fixes
+
 - Offline mode issue fixed.
 
 ## 1.0.19-preview (2017-09-28)
@@ -18,12 +20,14 @@
 ### Grid
 
 #### New Features
+
 - Bootstrap theme added.
 - Exporting feature added.
-- Autowrap feature improved.
+- Auto wrap feature improved.
 - Dynamic columns support added.
 
 #### Bug Fixes
+
 - Editing events issue fixed.
 - Resizing at faster mouse move bug fixed.
 
@@ -32,6 +36,7 @@
 ### Grid
 
 #### New Features
+
 - Grid Resize feature added.
 
 ## 1.0.17-preview (2017-09-14)
@@ -39,6 +44,7 @@
 ### Grid
 
 #### New Features
+
 - Batch editing support added.
 - Inline and dialog editing features optimized.
 
@@ -47,6 +53,7 @@
 ### Grid
 
 #### New Features
+
 - Editing feature added.
 - Column chooser feature added.
 
@@ -55,9 +62,11 @@
 ### Grid
 
 #### New Features
+
 - UI Virtualization added.
 
 #### Bug Fixes
+
 - Hierarchy feature in Angular issue fixed.
 - Rollup bundling issue fixed.
 
@@ -66,10 +75,12 @@
 ### Grid
 
 #### New Features
+
 - Aggregates added.
 - Improved Grid web accessibility.
 
 #### Bug Fixes
+
 - `recalcIndentWidth` method improved.
 - Grouping `items` locale issue fixed.
 
@@ -78,5 +89,6 @@
 ### Grid
 
 #### New Features
+
 - Detail Template added.
 - Hierarchy Grid added.
