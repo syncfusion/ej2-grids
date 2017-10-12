@@ -1322,7 +1322,7 @@
 
     .e-dialog .e-gridform .e-rowcell {
       border: 0;
-      padding: .1em;
+      padding: 0;
     }
 
     .e-dialog table {
@@ -1342,6 +1342,10 @@
       margin-bottom: $grid-edit-input-margin;
       margin-top: $grid-edit-input-margin-top;
       vertical-align: middle;
+    }
+
+    .e-editedrow .e-defaultcell.e-ralign {
+      padding-right: 10px;
     }
 
     .e-hiddenrow {
@@ -1814,6 +1818,10 @@
         border-style: $grid-border-type;
         border-width: 0 0 0 $grid-border-size;
       }
+
+      & .e-row .e-input.e-defaultcell.e-ralign {
+        padding-left: 10px;
+    }
 
       & .e-detailindentcell {
         border-left-style: $grid-border-type;

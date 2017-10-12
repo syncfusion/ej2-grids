@@ -103,6 +103,9 @@ export class EditRender {
                 id: gObj.element.id + col.field,
             });
             classList(input, ['e-input', 'e-field'], []);
+            if (col.textAlign === 'right') {
+                input.classList.add('e-ralign');
+            }
             if ((col.isPrimaryKey || col.isIdentity) && args.requestType === 'beginEdit') { // already disabled in cell plugins
                 input.setAttribute('disabled', 'true');
             }

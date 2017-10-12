@@ -58,11 +58,11 @@
     }
 
     .e-print::before {
-      content: '\e813';
+      content: $grid-print-icon;
     }
 
     .e-add::before {
-      content: '\e7f9';
+      content: $grid-add-icon;
     }
 
     .e-wordexport::before {
@@ -82,7 +82,7 @@
     }
 
     .e-edit::before {
-      content: '\e81e';
+      content: $grid-edit-icon;
     }
 
     .e-delete::before {
