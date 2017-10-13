@@ -1344,6 +1344,7 @@
       vertical-align: middle;
     }
 
+    .e-defaultcell.e-ralign,
     .e-editedrow .e-defaultcell.e-ralign {
       padding-right: 10px;
     }
@@ -1819,6 +1820,7 @@
         border-width: 0 0 0 $grid-border-size;
       }
 
+      & .e-defaultcell.e-ralign,
       & .e-row .e-input.e-defaultcell.e-ralign {
         padding-left: 10px;
     }

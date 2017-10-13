@@ -149,7 +149,7 @@
       display: inline-block;
       line-height: 1;
       margin-right: $pager-numericitem-margin-right;
-      min-width: 26px;
+      min-width: $pager-numericitem-min-width;
       padding: $pager-numericitem-padding;
       text-align: center;
     }

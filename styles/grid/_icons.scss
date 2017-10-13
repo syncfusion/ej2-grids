@@ -86,7 +86,7 @@
     }
 
     .e-delete::before {
-      content: '\e84e';
+      content: $grid-delete-icon;
     }
 
     .e-cancel::before {
