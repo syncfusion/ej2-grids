@@ -683,18 +683,24 @@ export interface QueryCellInfoEventArgs {
 }
 
 export interface PdfQueryCellInfoEventArgs {
+    /** Defines the column of the current cell. */
     column?: Column;
+    /** Defines the style of the current cell. */
     /* tslint:disable:no-any */
     style?: any;
+    /** Defines the value of the current cell. */
     /* tslint:disable:no-any */
     value?: any;
 }
 
 export interface ExcelQueryCellInfoEventArgs {
+    /** Defines the column of the current cell. */
     /* tslint:disable:no-any */
     column: any;
+    /** Defines the value of the current cell. */
     /* tslint:disable:no-any */
     value?: any;
+    /** Defines the style of the current cell. */
     /* tslint:disable:no-any */
     style?: any;
 }
