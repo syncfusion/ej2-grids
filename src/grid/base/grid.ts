@@ -2354,10 +2354,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /** 
      * Selects a row by given index. 
      * @param  {number} index - Defines the row index. 
+     * @param  {boolean} isToggle - If set to true, then it toggles the selection.
      * @return {void} 
      */
-    public selectRow(index: number): void {
-        this.selectionModule.selectRow(index);
+    public selectRow(index: number, isToggle?: boolean): void {
+        this.selectionModule.selectRow(index, isToggle);
     }
 
     /** 
@@ -2380,10 +2381,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**
      * Selects a cell by given index.
      * @param  {IIndex} cellIndex - Defines the row and column index. 
+     * @param  {boolean} isToggle - If set to true, then it toggles the selection.
      * @return {void}
      */
-    public selectCell(cellIndex: IIndex): void {
-        this.selectionModule.selectCell(cellIndex);
+    public selectCell(cellIndex: IIndex, isToggle?: boolean): void {
+        this.selectionModule.selectCell(cellIndex, isToggle);
     }
 
     /** 

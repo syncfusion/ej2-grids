@@ -321,7 +321,7 @@ describe('Virtualization testing', () => {
             });
             it('check selection by selectRow method in first page', (done: Function) => {
                 grid.rowSelected = <EmitType<{}>>done;
-                grid.selectRow(2);
+                grid.selectRow(2, true);
                 expect(grid.getSelectedRowIndexes()[0]).toEqual(2);
             });
             afterAll(() => {
@@ -358,7 +358,7 @@ describe('Virtualization testing', () => {
                 let row: HTMLTableRowElement = <HTMLTableRowElement>(<HTMLTableElement>grid.getContentTable()).rows[5];
                 let index: number = parseInt(row.getAttribute('aria-rowindex'), 10);
                 grid.rowSelected = <EmitType<{}>>done;
-                grid.selectRow(index);
+                grid.selectRow(index, true);
                 expect(grid.getSelectedRowIndexes()[0]).toEqual(index);
             });
             afterAll(() => {
@@ -380,7 +380,7 @@ describe('Virtualization testing', () => {
                     },
                     () => {
                         if (oneTime) {
-                            oneTime = false; grid.selectRow(0);
+                            oneTime = false; grid.selectRow(0, true);
                             (<HTMLElement>grid.getContent().firstChild).scrollTop = 500;
                             setTimeout(done, 200);
                         }

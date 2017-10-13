@@ -181,7 +181,7 @@ describe('Detail template module', () => {
 
         it('Alt Down shortcut testing', () => {
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.selectRow(2);
+            gridObj.selectRow(2, true);
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(3);
             expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toBe(1);
@@ -204,7 +204,7 @@ describe('Detail template module', () => {
 
         it('ctrlDownArrow shortcut testing', () => {
             let args: any = { action: 'ctrlDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.selectRow(3);
+            gridObj.selectRow(3, true);
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(12);
             expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailrowexpand').length).toBe(1);
@@ -254,7 +254,7 @@ describe('Detail template module', () => {
         it('Alt Down shortcut with grouping testing', () => {
             gridObj.allowSelection = true;
             gridObj.dataBind();
-            gridObj.selectRow(1);
+            gridObj.selectRow(1, true);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toBe('');
@@ -428,7 +428,7 @@ describe('Detail template module', () => {
 
         it('Alt Down shortcut testing', () => {
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.selectRow(2);
+            gridObj.selectRow(2, true);
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(3);
             expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toBe(1);
@@ -453,7 +453,7 @@ describe('Detail template module', () => {
 
         it('ctrlDownArrow shortcut testing', () => {
             let args: any = { action: 'ctrlDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.selectRow(3);
+            gridObj.selectRow(3, true);
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(9);
             expect(gridObj.getDataRows()[3].querySelectorAll('.e-detailrowexpand').length).toBe(1);
@@ -505,7 +505,7 @@ describe('Detail template module', () => {
         it('Alt Down shortcut with grouping testing', () => {
             gridObj.allowSelection = true;
             gridObj.dataBind();
-            gridObj.selectRow(1);
+            gridObj.selectRow(1, true);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toBe('');

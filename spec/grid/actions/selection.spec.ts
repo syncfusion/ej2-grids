@@ -116,7 +116,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('rightArrow shortcut next row testing', () => {
         let args: any = { action: 'rightArrow', preventDefault: preventDefault };
-        selectionModule.selectCell({ rowIndex: 0, cellIndex: 4 });
+        selectionModule.selectCell({ rowIndex: 0, cellIndex: 4 }, true);
         gridObj.keyboardModule.keyAction(args);
         expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
         expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(0);
@@ -169,7 +169,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('shiftUp row shortcut testing', () => {
         let args: any = { action: 'shiftUp', preventDefault: preventDefault };
-        gridObj.selectRow(3);
+        gridObj.selectRow(3, true);
         gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toBe('2');
         expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[1].getAttribute('aria-rowindex')).toBe('3');
@@ -202,7 +202,7 @@ describe('Selection Shortcuts testing', () => {
 
     it('shiftLeft cell shortcut testing', () => {
         let args: any = { action: 'shiftLeft', preventDefault: preventDefault };
-        selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 });
+        selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 }, true);
         gridObj.keyboardModule.keyAction(args);
         expect(rows[1].querySelectorAll('.e-rowcell')[1].classList.contains('e-cellselectionbackground')).toBeTruthy();
         expect(rows[1].querySelectorAll('.e-rowcell')[0].classList.contains('e-cellselectionbackground')).toBeTruthy();
@@ -311,7 +311,7 @@ describe('Grid Selection module', () => {
         it('single row - selectRow testing', () => {
             selectionModule = gridObj.selectionModule;
             rows = gridObj.getRows();
-            selectionModule.selectRow(0);
+            selectionModule.selectRow(0, true);
             expect(rows[0].hasAttribute('aria-selected')).toBeTruthy();
             expect(rows[0].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
             expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(5);
@@ -320,7 +320,7 @@ describe('Grid Selection module', () => {
         });
 
         it('single row testing', () => {
-            selectionModule.selectRow(2);
+            selectionModule.selectRow(2, true);
             expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
             expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
             expect(selectionModule.selectedRecords.length).toBe(1);
@@ -357,7 +357,7 @@ describe('Grid Selection module', () => {
         });
 
         it('clear row selection testing', () => {
-            selectionModule.selectRow(1);
+            selectionModule.selectRow(1, true);
             selectionModule.clearRowSelection();
             expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(0);
             expect(selectionModule.selectedRecords.length).toBe(0);
@@ -367,13 +367,13 @@ describe('Grid Selection module', () => {
         });
 
         it('single cell - selectCell testing', () => {
-            gridObj.selectCell({ rowIndex: 0, cellIndex: 0 });
+            gridObj.selectCell({ rowIndex: 0, cellIndex: 0 }, true);
             expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(0);
             expect(selectionModule.selectedRowCellIndexes.length).toBe(1);
         });
 
         it('single cell testing', () => {
-            selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 });
+            selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 }, true);
             expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(1);
             expect(selectionModule.selectedRowCellIndexes.length).toBe(1);
             expect(rows[0].querySelectorAll('.e-cellselectionbackground').length).toBe(0);
@@ -410,7 +410,7 @@ describe('Grid Selection module', () => {
         });
 
         it('clear cell selection testing', () => {
-            selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 });
+            selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 }, true);
             selectionModule.clearCellSelection();
             expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toBe(0);
             expect(selectionModule.selectedRecords.length).toBe(0);
@@ -486,7 +486,7 @@ describe('Grid Selection module', () => {
         });
 
         it('single row testing', () => {
-            selectionModule.selectRow(2);
+            selectionModule.selectRow(2, true);
             expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
             expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
             expect(selectionModule.selectedRecords.length).toBe(1);
@@ -570,14 +570,14 @@ describe('Grid Selection module', () => {
         it('rowSelecting event call', () => {
             let spyFn: (e?: Object) => void = jasmine.createSpy('begin');
             gridObj.rowSelecting = spyFn;
-            selectionModule.selectRow(2);
+            selectionModule.selectRow(2, true);
             expect(spyFn).toHaveBeenCalled();
         });
 
         it('rowSelected event call', () => {
             let spyFn: (e?: Object) => void = jasmine.createSpy('begin');
             gridObj.rowSelected = spyFn;
-            selectionModule.selectRow(3);
+            selectionModule.selectRow(3, true);
             expect(spyFn).toHaveBeenCalled();
         });
 
@@ -682,7 +682,7 @@ describe('Grid Selection module', () => {
         });
 
         it('single cell testing', () => {
-            selectionModule.selectCell({ rowIndex: 2, cellIndex: 2 });
+            selectionModule.selectCell({ rowIndex: 2, cellIndex: 2 }, true);
             expect(rows[2].querySelectorAll('.e-rowcell')[2].classList.contains('e-cellselectionbackground')).toBeTruthy();
             expect(selectionModule.selectedRowCellIndexes.length).toBe(1);
             expect(rows[0].querySelectorAll('.e-rowcell')[0].classList.contains('e-cellselectionbackground')).toBeFalsy();
@@ -773,14 +773,14 @@ describe('Grid Selection module', () => {
         it('cellSelecting event call', () => {
             let spyFn: (e?: Object) => void = jasmine.createSpy('begin');
             gridObj.cellSelecting = spyFn;
-            selectionModule.selectCell({ rowIndex: 0, cellIndex: 0 });
+            selectionModule.selectCell({ rowIndex: 0, cellIndex: 0 }, true);
             expect(spyFn).toHaveBeenCalled();
         });
 
         it('cellSelected event call', () => {
             let spyFn: (e?: Object) => void = jasmine.createSpy('begin');
             gridObj.cellSelected = spyFn;
-            selectionModule.selectCell({ rowIndex: 0, cellIndex: 1 });
+            selectionModule.selectCell({ rowIndex: 0, cellIndex: 1 }, true);
             expect(spyFn).toHaveBeenCalled();
         });
 
@@ -834,7 +834,7 @@ describe('Grid Selection module', () => {
             selectionModule = gridObj.selectionModule;
             rows = gridObj.getRows();
             cell = rows[0].firstChild as HTMLElement;
-            selectionModule.selectCell({ rowIndex: 1, cellIndex: 0 });
+            selectionModule.selectCell({ rowIndex: 1, cellIndex: 0 }, true);
             expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeFalsy();
             expect(rows[1].firstElementChild.classList.contains('e-cellselectionbackground')).toBeTruthy();
             cell.click();
@@ -913,17 +913,17 @@ describe('Grid Selection module', () => {
             (<any>gridObj.selectionModule).mouseDownHandler({ target: gridObj.element, preventDefault: () => { } });
             gridObj.isDestroyed = true;
             (<any>gridObj.selectionModule).addEventListener();
-            gridObj.selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 });
+            gridObj.selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 }, true);
             (<any>gridObj.selectionModule).isTrigger = true;
             gridObj.selectionModule.clearCellSelection();
             (<any>gridObj.selectionModule).isTrigger = false;
-            gridObj.selectRow(1);
+            gridObj.selectRow(1, true);
             (<any>gridObj.selectionModule).isRowSelected = true;
             (<any>gridObj.selectionModule).isTrigger = true;
             gridObj.selectionModule.clearRowSelection();
             (<any>gridObj.selectionModule).isTrigger = false;
             (<any>gridObj.selectionModule).prevECIdxs = undefined;
-            gridObj.selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 });
+            gridObj.selectionModule.selectCell({ rowIndex: 1, cellIndex: 1 }, true);
             (<any>gridObj.selectionModule).prevECIdxs = undefined;
             gridObj.selectionModule.selectCellsByRange({ rowIndex: 0, cellIndex: 0 }, { rowIndex: 1, cellIndex: 1 });
             (<any>gridObj.selectionModule).prevECIdxs = undefined;
@@ -1008,7 +1008,7 @@ describe('Grid Selection module', () => {
             expect(cell.classList.contains('e-cellselectionbackground')).toBeFalsy();
         });
         it('select a row with wrong row index', () => {
-            gridObj.selectRow(20);
+            gridObj.selectRow(20, true);
             gridObj.dataBind();
             expect(gridObj.getContent().querySelectorAll('.e-selectionbackground').length).toBe(0);
         });
@@ -1028,7 +1028,7 @@ describe('Grid Selection module', () => {
             expect(gridObj.getContent().querySelectorAll('.e-selectionbackground').length).toBe(0);
         })
         it('select a cell with wrong object ', () => {
-            gridObj.selectionModule.selectCell({ rowIndex: 0, cellIndex: 12 });
+            gridObj.selectionModule.selectCell({ rowIndex: 0, cellIndex: 12 }, true);
             gridObj.dataBind();
             expect(gridObj.getContent().querySelectorAll('.e-cellselectionbackground').length).toBe(0);
         });
@@ -1241,14 +1241,14 @@ describe('Grid Touch Selection', () => {
             };
             gridObj.rowDeselecting = rowDeSelecting;
             gridObj.rowDeselected = rowDeSelected;
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
         });
 
         //key board handling with grouping in row selection
         it('press up arrow', () => {
             gridObj.rowDeselecting = undefined;
             gridObj.rowDeselected = undefined;
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             let args: any = { action: 'upArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getRows()[0].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
@@ -1361,7 +1361,7 @@ describe('Grid Touch Selection', () => {
             gridObj.cellSelected = cellSelected;
             gridObj.cellSelecting = cellSelecting;
             gridObj.dataBind();
-            gridObj.selectCell({ rowIndex: 0, cellIndex: 0 });
+            gridObj.selectCell({ rowIndex: 0, cellIndex: 0 }, true);
         });
 
         it('DeSelect a cell', (done: Function) => {
@@ -1378,12 +1378,12 @@ describe('Grid Touch Selection', () => {
                 expect(args['cellIndexes'][0]['cellIndexes'][0]).toEqual(0);
                 expect(args['cellIndexes'][0]['rowIndex']).toEqual(0);
                 expect(args['cells'][0]).toEqual(gridObj.getRows()[0].children[2]);
-                gridObj.selectCell({ rowIndex: 0, cellIndex: 0 });
+                gridObj.selectCell({ rowIndex: 0, cellIndex: 0 }, true);
                 done();
             };
             gridObj.cellDeselecting = cellDeSelecting;
             gridObj.cellDeselected = cellDeSelected;
-            gridObj.selectCell({ rowIndex: 0, cellIndex: 0 });
+            gridObj.selectCell({ rowIndex: 0, cellIndex: 0 }, true);
         });
 
         //key board handling with grouping in cell selection
@@ -1589,7 +1589,7 @@ describe('Grid Touch Selection', () => {
                 done();
             };
             gridObj.cellSelected = cellSelected;
-            gridObj.selectCell({ rowIndex: 0, cellIndex: 1 });
+            gridObj.selectCell({ rowIndex: 0, cellIndex: 1 }, true);
             gridObj.dataBind();
         });
 

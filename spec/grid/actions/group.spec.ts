@@ -124,7 +124,7 @@ describe('Grouping module', () => {
         });
 
         it('Expandcollase row shortcut testing', () => {
-            gridObj.selectRow(1);
+            gridObj.selectRow(1, true);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altUpArrow', preventDefault: () => { } });
             expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(13);
             (<any>gridObj.groupModule).keyPressHandler({ action: 'altUpArrow', preventDefault: () => { } });
@@ -946,7 +946,7 @@ describe('Grouping module', () => {
             expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
             expect(gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell').length).toBe(2);
             expect(gridObj.getContent().querySelectorAll('.e-indentcell').length > 0).toBe(true)
-          //  expect(gridObj.getContent().querySelectorAll('.e-rowcell')[0].innerHTML).toBe('10258');
+            //  expect(gridObj.getContent().querySelectorAll('.e-rowcell')[0].innerHTML).toBe('10258');
             expect(gridObj.groupSettings.columns.length).toBe(1);
         });
         it('disable Grouping', (done: Function) => {

@@ -70,37 +70,37 @@ describe('Editing module', () => {
         // });
 
         it('inline actions1', () => {
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_edit' } });
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_update' } });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_edit' } });
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_cancel' } });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_delete' } });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_add' } });
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_cancel' } });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_add' } });
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_update' } });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).keyPressHandler({ action: 'f2' });
             (<any>gridObj.editModule).editModule.clickHandler({ target: gridObj.getCellFromIndex(0, 0) });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).editModule.clickHandler({ target: gridObj.getCellFromIndex(0, 0) });
             gridObj.isEdit = false;
             (<any>gridObj.editModule).editModule.clickHandler({ target: gridObj.getCellFromIndex(0, 0) });
             gridObj.isEdit = true;
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.getCellFromIndex(0, 0) });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.element });
             (<any>gridObj.editModule).editModule.dblClickHandler({ target: createElement('div', { id: '3', className: 'e-grid' }) });
             (<any>gridObj.editModule).editModule.clickHandler({ target: gridObj.element });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).editModule.editComplete({ requestType: 'delete' });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).editModule.editComplete({ requestType: 'add' });
             (<any>gridObj.editModule).editModule.addRecord(gridObj.currentViewData[0]);
             gridObj.isEdit = true;
@@ -115,19 +115,19 @@ describe('Editing module', () => {
 
 
         it('inline key actions2', () => {
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).keyPressHandler({ action: 'insert' });
             (<any>gridObj.editModule).keyPressHandler({ action: 'cancel' });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).keyPressHandler({ action: 'f2' });
             (<any>gridObj.editModule).keyPressHandler({ action: 'cancel' });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).keyPressHandler({ action: 'f2' });
             (<any>gridObj.editModule).keyPressHandler({ action: 'enter' });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).keyPressHandler({ action: 'f2' });
             (<any>gridObj.editModule).keyPressHandler({ action: 'escape' });
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.editModule).keyPressHandler({ action: 'delete' });
             expect(1).toBe(1);
         });
@@ -135,7 +135,7 @@ describe('Editing module', () => {
         it('inlline On property change3', () => {
             gridObj.editSettings.allowEditOnDblClick = false;
             gridObj.dataBind();
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_edit' } });
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: 'Grid_cancel' } });
             gridObj.editSettings.allowEditOnDblClick = true;
@@ -237,17 +237,17 @@ describe('Editing module', () => {
         });
 
         it('inline grouping actions2', () => {
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             gridObj.startEdit();
             gridObj.endEdit();
             gridObj.allowGrouping = false;
             gridObj.dataBind();
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             gridObj.startEdit();
             gridObj.endEdit();
             gridObj.childGrid = {};
             gridObj.dataBind();
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             gridObj.startEdit();
             gridObj.endEdit();
         });
@@ -762,39 +762,43 @@ describe('Editing module', () => {
             (gridObj.renderModule as any).dataManagerFailure = () => { };
             (gridObj.renderModule as any).data.dataManager.dataSource.offline = false;
             let promise: any = {
-                then: (args:any) => {
+                then: (args: any) => {
                     args.call(this);
-                    return { catch: (args:any) => {args.call(this); } }}};
-                    (gridObj.renderModule as any).data.saveChanges = () => { return promise };
-                    (gridObj.renderModule as any).sendBulkRequest({ changes: {} });
-                    promise.then(() => { return false; });
-                    promise.then(() => { return false; }).catch(() => { return false; });
-                    (gridObj.editModule as any).editModule.editFailure();
-                    (gridObj.editModule as any).editModule.refreshRow = () => { };
-                    (gridObj.editModule as any).editModule.editSuccess({result:[]}, {data:[], type: null});
-                    (gridObj.editModule as any).editModule.editSuccess = () => { };
-                    (gridObj.editModule as any).editModule.edSucc();
-                    (gridObj.editModule as any).editModule.editFailure = () => { };
-                    (gridObj.editModule as any).editModule.edFail();        
-                    let promise1: any = {
-                        then: (args:any) => {
-                            args.call(this);
-                            return { catch: (args:any) => {args.call(this); } }}};    
-                    let args: any = { promise: promise1 };
-                    (gridObj.editModule as any).editModule.editHandler(args);
-                    promise.then(() => { return false; });
-                    promise.then(() => { return false; }).catch(() => { return false; });
-                    (gridObj.editModule as any).editModule.refreshRow = () => { };
-                    (gridObj.editModule as any).editModule.editSuccess({ result: [] }, { data: {} });
-                    let dd : DropDownEditCell = new DropDownEditCell();
-                    (dd as any).ddActionComplete({result:[1,2,3]});
-                    gridObj.isEdit = false;
-                    (gridObj.editModule as any).valErrorPlacement(); 
-                    (gridObj.editModule as any).getValueFromType({type: 'number'}, undefined); 
-                    (gridObj.editModule as any).getValueFromType({type: 'boolean'}, undefined); 
-                    (gridObj.editModule as any).getValueFromType({type: 'date', editType: 'datepicker1'}, undefined); 
-                    (gridObj.editModule as any).keyPressHandler({action:'enter', target: gridObj.element.querySelector('.e-rowcell'), preventDefault: ()=>{}}); 
-                });
+                    return { catch: (args: any) => { args.call(this); } }
+                }
+            };
+            (gridObj.renderModule as any).data.saveChanges = () => { return promise };
+            (gridObj.renderModule as any).sendBulkRequest({ changes: {} });
+            promise.then(() => { return false; });
+            promise.then(() => { return false; }).catch(() => { return false; });
+            (gridObj.editModule as any).editModule.editFailure();
+            (gridObj.editModule as any).editModule.refreshRow = () => { };
+            (gridObj.editModule as any).editModule.editSuccess({ result: [] }, { data: [], type: null });
+            (gridObj.editModule as any).editModule.editSuccess = () => { };
+            (gridObj.editModule as any).editModule.edSucc();
+            (gridObj.editModule as any).editModule.editFailure = () => { };
+            (gridObj.editModule as any).editModule.edFail();
+            let promise1: any = {
+                then: (args: any) => {
+                    args.call(this);
+                    return { catch: (args: any) => { args.call(this); } }
+                }
+            };
+            let args: any = { promise: promise1 };
+            (gridObj.editModule as any).editModule.editHandler(args);
+            promise.then(() => { return false; });
+            promise.then(() => { return false; }).catch(() => { return false; });
+            (gridObj.editModule as any).editModule.refreshRow = () => { };
+            (gridObj.editModule as any).editModule.editSuccess({ result: [] }, { data: {} });
+            let dd: DropDownEditCell = new DropDownEditCell();
+            (dd as any).ddActionComplete({ result: [1, 2, 3] });
+            gridObj.isEdit = false;
+            (gridObj.editModule as any).valErrorPlacement();
+            (gridObj.editModule as any).getValueFromType({ type: 'number' }, undefined);
+            (gridObj.editModule as any).getValueFromType({ type: 'boolean' }, undefined);
+            (gridObj.editModule as any).getValueFromType({ type: 'date', editType: 'datepicker1' }, undefined);
+            (gridObj.editModule as any).keyPressHandler({ action: 'enter', target: gridObj.element.querySelector('.e-rowcell'), preventDefault: () => { } });
+        });
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
@@ -802,7 +806,7 @@ describe('Editing module', () => {
         });
     });
 
-    
+
 
     describe('Inline editing functionalities13', () => {
         let gridObj: Grid;
@@ -845,7 +849,7 @@ describe('Editing module', () => {
             gridObj.selectRow(0);
             gridObj.editModule.addRecord();
             gridObj.editModule.endEdit();
-                });
+        });
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
@@ -854,7 +858,7 @@ describe('Editing module', () => {
     });
 
 
-    
+
     describe('Inline editing functionalities13', () => {
         let gridObj: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
@@ -893,30 +897,30 @@ describe('Editing module', () => {
         });
 
         it('inline grouping actions', () => {
-            
-            gridObj.trigger = ()=>{};
-            gridObj.notify = ()=>{};
-            (gridObj.editModule as any).editModule.editComplete({requestType:'save'});
-            let content  = gridObj.element.querySelector('.e-gridcontent');
+
+            gridObj.trigger = () => { };
+            gridObj.notify = () => { };
+            (gridObj.editModule as any).editModule.editComplete({ requestType: 'save' });
+            let content = gridObj.element.querySelector('.e-gridcontent');
             let cell = createElement('td');
             content.appendChild(cell);
-            (gridObj.editModule as any).editModule.clickHandler({target: cell});
-            (gridObj.editModule as any).editModule.addRecord({target: cell});
-            (gridObj.renderModule as any).data.dataManager.remove=()=>{};
-            (gridObj.renderModule as any).data.dataManager.insert=()=>{};
-            (gridObj.renderModule as any).data.dataManager.executeQuery=()=>{};
-            (gridObj.renderModule as any).data.getData({foreignKeyData:{'1':1}});  
-            (gridObj.renderModule as any).data.getData({requestType:'delete', data:[{}]},null);  
-            (gridObj.renderModule as any).data.getData({requestType:'save', data:[{}]},null);  
-            (gridObj.editModule as any).editModule.deleteRecord('OrderID',{});
-            gridObj.isEdit=true;
+            (gridObj.editModule as any).editModule.clickHandler({ target: cell });
+            (gridObj.editModule as any).editModule.addRecord({ target: cell });
+            (gridObj.renderModule as any).data.dataManager.remove = () => { };
+            (gridObj.renderModule as any).data.dataManager.insert = () => { };
+            (gridObj.renderModule as any).data.dataManager.executeQuery = () => { };
+            (gridObj.renderModule as any).data.getData({ foreignKeyData: { '1': 1 } });
+            (gridObj.renderModule as any).data.getData({ requestType: 'delete', data: [{}] }, null);
+            (gridObj.renderModule as any).data.getData({ requestType: 'save', data: [{}] }, null);
+            (gridObj.editModule as any).editModule.deleteRecord('OrderID', {});
+            gridObj.isEdit = true;
             gridObj.selectRow(0);
-            (gridObj.editModule as any).getCurrentEditedData=()=>{};
-            (gridObj.editModule as any).editModule.stopEditStatus=()=>{};
-            (gridObj.editModule as any).formObj={};
-            (gridObj.editModule as any).formObj.validate=()=>{return true};
+            (gridObj.editModule as any).getCurrentEditedData = () => { };
+            (gridObj.editModule as any).editModule.stopEditStatus = () => { };
+            (gridObj.editModule as any).formObj = {};
+            (gridObj.editModule as any).formObj.validate = () => { return true };
             (gridObj.editModule as any).editModule.endEdit();
-                });
+        });
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});

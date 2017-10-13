@@ -49,7 +49,7 @@ describe('Toolbar functionalities', () => {
     });
     it('initial checck', () => {
         expect(gridObj.toolbarModule.getToolbar().firstElementChild.childElementCount).toBe(4);
-        expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toBeTruthy();      
+        expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toBeTruthy();
     });
     it('check event trigger', (done: Function) => {
         gridObj.toolbarClick = (args: Object) => {
@@ -140,7 +140,7 @@ describe('Toolbar functionalities', () => {
 
         keyup.target = gridObj.toolbarModule.getToolbar();
         EventHandler.trigger(gridObj.toolbarModule.getToolbar() as HTMLElement, 'keyup', keyup);
-        (<any>gridObj.toolbarModule).removeEventListener();        
+        (<any>gridObj.toolbarModule).removeEventListener();
         (<any>gridObj.toolbarModule).unWireEvent();
         gridObj.isDestroyed = true;
         (<any>gridObj.toolbarModule).addEventListener();
@@ -150,10 +150,10 @@ describe('Toolbar functionalities', () => {
     });
 
     it('for coverage', () => {
-        gridObj.selectRow(1);
-        gridObj.selectRow(1);
-        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
-        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 });
+        gridObj.selectRow(1, true);
+        gridObj.selectRow(1, true);
+        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 }, true);
+        gridObj.selectCell({ cellIndex: 0, rowIndex: 0 }, true);
         (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: '' } });
         gridObj.isDestroyed = true;
         (<any>gridObj.toolbarModule).destroy();

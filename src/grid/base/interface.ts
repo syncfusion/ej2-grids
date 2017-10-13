@@ -283,7 +283,7 @@ export interface IGrid extends Component<HTMLElement> {
     getPager?(): Element;
     setGridPager?(value: Element): void;
     getRowByIndex?(index: number): Element;
-    selectRow?(index: number): void;
+    selectRow?(index: number, isToggle?: boolean): void;
     getColumnHeaderByIndex?(index: number): Element;
     getColumnByField?(field: string): Column;
     getColumnIndexByField?(field: string): number;

@@ -1,7 +1,7 @@
 /**
  * Grid Filtering spec document
  */
-import {  EmitType } from '@syncfusion/ej2-base';
+import { EmitType } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { isActionPrevent } from '../../../src/grid/base/util';
@@ -14,7 +14,7 @@ import { Selection } from '../../../src/grid/actions/selection';
 import { filterData } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
-Grid.Inject(Filter, Page, Selection, Group, Edit,  Toolbar);
+Grid.Inject(Filter, Page, Selection, Group, Edit, Toolbar);
 
 describe('Editing module', () => {
 
@@ -29,9 +29,9 @@ describe('Editing module', () => {
             gridObj = new Grid(
                 {
                     dataSource: filterData,
-                   allowFiltering: false,
-                   allowGrouping: true,
-                   editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    allowFiltering: false,
+                    allowGrouping: true,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: true,
                     columns: [
@@ -109,9 +109,9 @@ describe('Editing module', () => {
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 15;
             (gridObj.editModule as any).editModule.editNextCell();
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 15;
-            (gridObj.editModule as any).editModule.isAddRow = ()=>{return true;};
+            (gridObj.editModule as any).editModule.isAddRow = () => { return true; };
             (gridObj.editModule as any).editModule.cellDetails.rowIndex = 115;
-            (gridObj.editModule as any).editModule.editCell = ()=>{};
+            (gridObj.editModule as any).editModule.editCell = () => { };
             (gridObj.editModule as any).editModule.editNextCell();
             (gridObj.editModule as any).editModule.cellDetails.cellIndex = 1;
             (gridObj.editModule as any).editModule.editPrevCell();
@@ -197,7 +197,7 @@ describe('Editing module', () => {
 
 
         afterAll(() => {
-          //  gridObj.editModule.destroy();
+            //  gridObj.editModule.destroy();
             remove(elem);
         });
     });
@@ -404,7 +404,7 @@ describe('Editing module', () => {
         });
 
 
-        afterAll(() => {          
+        afterAll(() => {
             remove(elem);
         });
     });
@@ -451,7 +451,7 @@ describe('Editing module', () => {
         });
 
 
-        afterAll(() => {        
+        afterAll(() => {
             remove(elem);
         });
     });
@@ -497,7 +497,7 @@ describe('Editing module', () => {
         });
 
 
-        afterAll(() => {           
+        afterAll(() => {
             remove(elem);
         });
     });
@@ -544,7 +544,7 @@ describe('Editing module', () => {
 
 
         afterAll(() => {
-           
+
             remove(elem);
         });
     });
@@ -606,7 +606,7 @@ describe('Editing module', () => {
             elem1.appendChild(elem2);
             elem.appendChild(elem1);
             (gridObj.editModule as any).dialogObj = { element: elem, hide: () => { }, show: () => { } };
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (gridObj.editModule as any).dlgOk({});
         });
 
@@ -620,7 +620,7 @@ describe('Editing module', () => {
             elem1.appendChild(elem2);
             elem.appendChild(elem1);
             (gridObj.editModule as any).dialogObj = { element: elem, hide: () => { }, show: () => { } };
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (gridObj.editModule as any).dlgOk({});
         });
 
@@ -634,7 +634,7 @@ describe('Editing module', () => {
             elem1.appendChild(elem2);
             elem.appendChild(elem1);
             (gridObj.editModule as any).dialogObj = { element: elem, hide: () => { }, show: () => { } };
-            gridObj.selectRow(0);
+            gridObj.selectRow(0, true);
             (gridObj.editModule as any).dlgOk({});
         });
 
@@ -734,7 +734,7 @@ describe('Editing module', () => {
         it('batch actions', () => {
             (gridObj.editModule as any).editModule.saveCell = () => { };
             gridObj.isEdit = true;
-            (gridObj.editModule as any).editModule.isAddRow = ()=>{return true;};
+            (gridObj.editModule as any).editModule.isAddRow = () => { return true; };
             (gridObj.editModule as any).editModule.keyPressHandler({ action: 'tab', preventDefault: () => { } });
             (gridObj.editModule as any).editModule.keyPressHandler({ action: 'shiftTab', preventDefault: () => { } });
             (gridObj.editModule as any).editModule.keyPressHandler({ action: 'enter', preventDefault: () => { } });
@@ -805,10 +805,12 @@ describe('Editing module', () => {
             (gridObj.editModule as any).validationComplete = () => { };
             (gridObj.editModule as any).valErrorPlacement = () => { };
             (gridObj.editModule as any).editModule.valComplete({});
-            (gridObj.editModule as any).editModule.customPlacement(null, null);    
+            (gridObj.editModule as any).editModule.customPlacement(null, null);
             (gridObj.editModule as any).editModule.getDefaultData();
-            let inst : any = { element: createElement('div').appendChild(createElement('div',{className:'e-updatedtd'})),
-              editSettings: {mode:'batch'}}
+            let inst: any = {
+                element: createElement('div').appendChild(createElement('div', { className: 'e-updatedtd' })),
+                editSettings: { mode: 'batch' }
+            }
             isActionPrevent(inst);
         });
 
@@ -856,10 +858,10 @@ describe('Editing module', () => {
             gridObj.appendTo('#Grid');
         });
 
-        it('batch actions', () => {           
-            (gridObj.editModule as any).editModule.bulkAddRow({OrderID:1342});                      
+        it('batch actions', () => {
+            (gridObj.editModule as any).editModule.bulkAddRow({ OrderID: 1342 });
             gridObj.selectRow(1);
-            (gridObj.editModule as any).editModule.bulkDelete();                
+            (gridObj.editModule as any).editModule.bulkDelete();
         });
 
 
@@ -881,7 +883,7 @@ describe('Editing module', () => {
                 {
                     dataSource: filterData,
                     allowFiltering: true,
-                    allowGrouping: true,                   
+                    allowGrouping: true,
                     editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: true,
@@ -904,12 +906,12 @@ describe('Editing module', () => {
             gridObj.appendTo('#Grid');
         });
 
-        it('batch actions', () => {                       
+        it('batch actions', () => {
             gridObj.selectRow(0);
             gridObj.element.querySelector('.e-row').classList.add('e-insertedrow');
-            (gridObj.editModule as any).editModule.bulkDelete();                
-            (gridObj.editModule as any).editModule.findPrevEditableCell(0, false);               
-            (gridObj.editModule as any).editModule.findPrevEditableCell(0, true);       
+            (gridObj.editModule as any).editModule.bulkDelete();
+            (gridObj.editModule as any).editModule.findPrevEditableCell(0, false);
+            (gridObj.editModule as any).editModule.findPrevEditableCell(0, true);
         });
 
 
@@ -931,7 +933,7 @@ describe('Editing module', () => {
                 {
                     dataSource: filterData,
                     allowFiltering: true,
-                    allowGrouping: true,                   
+                    allowGrouping: true,
                     editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: true,
@@ -954,21 +956,21 @@ describe('Editing module', () => {
             gridObj.appendTo('#Grid');
         });
 
-        it('batch actions', () => {                       
+        it('batch actions', () => {
             gridObj.selectRow(0);
-            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
-            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
-            (gridObj.editModule as any).timeoutHandler();    
-            (gridObj.editModule as any).getUserAgent = ()=>{return true;};
-            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
-            (gridObj.editModule as any).getUserAgent = ()=>{return false;};
-            (gridObj.editModule as any).tapEvent({target: gridObj.element.querySelector('.e-rowcell')});                
-            (gridObj.editModule as any).editModule.validateFormObj  = ()=>{return true;};
-            (gridObj.editModule as any).editModule.reFocusIfError = ()=>{return true;};
+            (gridObj.editModule as any).tapEvent({ target: gridObj.element.querySelector('.e-rowcell') });
+            (gridObj.editModule as any).tapEvent({ target: gridObj.element.querySelector('.e-rowcell') });
+            (gridObj.editModule as any).timeoutHandler();
+            (gridObj.editModule as any).getUserAgent = () => { return true; };
+            (gridObj.editModule as any).tapEvent({ target: gridObj.element.querySelector('.e-rowcell') });
+            (gridObj.editModule as any).getUserAgent = () => { return false; };
+            (gridObj.editModule as any).tapEvent({ target: gridObj.element.querySelector('.e-rowcell') });
+            (gridObj.editModule as any).editModule.validateFormObj = () => { return true; };
+            (gridObj.editModule as any).editModule.reFocusIfError = () => { return true; };
             (gridObj.editModule as any).editModule.keyPressHandler({ action: 'tab', preventDefault: () => { }, target: gridObj.element });
-            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'shiftTab', preventDefault: () => { }, target: gridObj.element });      
-            gridObj.isEdit=false;
-            (gridObj.editModule as any).validationComplete();      
+            (gridObj.editModule as any).editModule.keyPressHandler({ action: 'shiftTab', preventDefault: () => { }, target: gridObj.element });
+            gridObj.isEdit = false;
+            (gridObj.editModule as any).validationComplete();
         });
 
 
