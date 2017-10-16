@@ -238,6 +238,7 @@ export class BatchEdit {
         if (args.cancel) {
             return;
         }
+        gObj.showSpinner();
         gObj.notify(events.bulkSave, { changes: changes });
     }
 

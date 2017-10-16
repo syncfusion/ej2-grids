@@ -120,6 +120,7 @@ export class NormalEdit {
             if (args.cancel) {
                 return;
             }
+            gObj.showSpinner();
             gObj.notify(events.updateData, args);
         } else {
             args.action = 'add';

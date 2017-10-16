@@ -241,7 +241,6 @@ export class Edit implements IAction {
             this.showDialog('BatchSaveConfirm', this.dialogObj);
             return;
         }
-        this.parent.showSpinner();
         this.endEditing();
     }
 
