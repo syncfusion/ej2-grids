@@ -91,7 +91,7 @@ describe('Toolbar functionalities', () => {
         //expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-overlay').length).toBe(1);
     });
     it('remove toolbar', () => {
-        gridObj.toolbar = '';
+        gridObj.toolbar = undefined;
         gridObj.dataBind();
         expect(gridObj.toolbarModule).toBe(undefined);
     });

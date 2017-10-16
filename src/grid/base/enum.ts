@@ -237,4 +237,33 @@ export type MultipleExportType =
 /**  Multiple Grids are exported to same Worksheet. */
 'appendtosheet' |
 /**  Multiple Grids are exported to separate Worksheet. */
-'newsheet'; 
+'newsheet';
+
+/**
+ * Defines Predefined toolbar items.
+ */
+export type ToolbarItems =
+/** Add new record */
+'add' |
+/** Delete selected record */
+'delete' |
+/** Update edited record */
+'update' |
+/** Cancel the edited state */
+'cancel' |
+/** Edit the selected record */
+'edit' |
+/** Searches the grid records by given key */
+'search' |
+/** ColumnChooser used show/gird columns */
+'columnchooser' |
+/** Print the Grid */
+'print' |
+/** Export the Grid to PDF format */
+'pdfexport' |
+/** Export the Grid to Excel format */
+'excelexport' |
+/** Export the Grid to CSV format */
+'csvexport' |
+/** Export the Grid to word fromat */
+'wordexport';

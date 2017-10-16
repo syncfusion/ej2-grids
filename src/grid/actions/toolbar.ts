@@ -6,6 +6,7 @@ import * as events from '../base/constant';
 import { ServiceLocator } from '../services/service-locator';
 import { EditSettingsModel } from '../base/grid-model';
 import { templateCompiler } from '../base/util';
+import { ToolbarItems } from '../base/enum';
 
 /**
  * `Toolbar` module used to handle toolbar actions.
@@ -32,7 +33,7 @@ export class Toolbar {
 
     private render(): void {
         this.l10n = this.serviceLocator.getService<L10n>('localization');
-        let preItems: string[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print',
+        let preItems: ToolbarItems[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print',
             'pdfexport', 'excelexport', 'wordexport', 'csvexport'];
         for (let item of preItems) {
             let localeName: string = item[0].toUpperCase() + item.slice(1);

@@ -21,7 +21,7 @@ import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './int
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
-import { WrapMode } from './enum';
+import { WrapMode, ToolbarItems } from './enum';
 import { Data } from '../actions/data';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { ServiceLocator } from '../services/service-locator';
@@ -1075,7 +1075,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @default null
      */
     @Property()
-    public toolbar: string | string[] | ItemModel[];
+    public toolbar: ToolbarItems[] | string[] | ItemModel[];
 
     /**
      * @hidden
@@ -1401,15 +1401,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'created', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
             'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound', 'groupSettings', 'columns', 'allowKeyboard',
             'enableAltRow', 'enableHover', 'allowTextWrap', 'textWrapSettings', 'searchSettings', 'selectedRowIndex', 'allowReordering',
-            'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'rowTemplate', 'printMode',
+            'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'printMode',
             'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
-            'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound', 'detailTemplate',
+            'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound',
             'childGrid', 'queryString', 'toolbar', 'toolbarClick', 'editSettings',
             'batchAdd', 'batchDelete', 'beforeBatchAdd', 'beforeBatchDelete',
             'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete', 'endEdit', 'beforeDataBound',
             'beforeOpenColumnChooser', 'allowResizing', 'ExcelExport', 'PdfExport',
             'allowExcelExport', 'allowPdfExport',
             'pdfQueryCellInfo', 'excelQueryCellInfo'];
+
+        for (let col of this.columns) {
+            if ((<Column>col).template) {
+                delete (<Column>col).template;
+            }
+        }
 
         return this.addOnPersist(keyEntity);
     }

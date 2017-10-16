@@ -10,7 +10,7 @@ import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel } from './grid-model';
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
-import { GridLine, Action, CellType, SortDirection, PrintMode } from './enum';
+import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
 import { Edit } from '../actions/edit';
@@ -256,7 +256,7 @@ export interface IGrid extends Component<HTMLElement> {
      * Specifies the toolbar for Grid.
      * @default null
      */
-    toolbar?: string | string[] | ItemModel[];
+    toolbar?: ToolbarItems[] | string[] | ItemModel[];
 
     /**
      * @hidden
