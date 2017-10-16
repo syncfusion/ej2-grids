@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+
+- `selectRow` and `selectCell` toggle option added.
+- Show loader on Grid actions feature added.
+
+#### Bug Fixes
+
+- Validation tooltip is not destroyed issue fixed.
+- `ng-template` with state maintenance circular reference issue fixed.
+
 ## 1.0.21-preview (2017-10-06)
 
 ### Grid
