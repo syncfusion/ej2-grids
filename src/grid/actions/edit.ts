@@ -521,6 +521,7 @@ export class Edit implements IAction {
         if (this.formObj && !this.formObj.isDestroyed) {
             this.formObj.destroy();
         }
+        this.destroyToolTip();
     }
 
     /**
