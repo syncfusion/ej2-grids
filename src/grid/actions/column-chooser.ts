@@ -125,9 +125,9 @@ export class ColumnChooser implements IAction {
             let elementVisible: string = this.dlgObj.element.style.display;
             this.dlgObj.element.style.display = 'block';
             let newpos: { top: number, left: number } = calculateRelativeBasedPosition
-                ((<HTMLElement>target.closest('.e-toolbar-item')), this.dlgObj.element);
+                ((<HTMLElement>closest(target, '.e-toolbar-item')), this.dlgObj.element);
             this.dlgObj.element.style.display = elementVisible;
-            this.dlgObj.element.style.top = newpos.top + target.closest('.e-cc-toolbar').getBoundingClientRect().height + 'px';
+            this.dlgObj.element.style.top = newpos.top + closest(target, '.e-cc-toolbar').getBoundingClientRect().height + 'px';
             let dlgWidth: number = 250;
             if (!isNullOrUndefined(closest(target, '.e-bigger'))) {
                 this.dlgObj.width = 253;
@@ -141,7 +141,7 @@ export class ColumnChooser implements IAction {
                 if (this.parent.enableRtl) {
                     this.dlgObj.element.style.left = (<HTMLElement>target).offsetLeft + 'px';
                 } else {
-                    this.dlgObj.element.style.left = ((newpos.left - dlgWidth) + target.closest('.e-cc-toolbar').clientWidth) + 2 + 'px';
+                    this.dlgObj.element.style.left = ((newpos.left - dlgWidth) + closest(target, '.e-cc-toolbar').clientWidth) + 2 + 'px';
                 }
             }
             this.removeCancelIcon();

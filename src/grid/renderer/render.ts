@@ -94,8 +94,10 @@ export class Render {
      * The function is used to refresh the dataManager
      * @return {void}
      */
-    private refreshDataManager(args?: NotifyArgs): void {
-        this.parent.showSpinner();
+    private refreshDataManager(args: NotifyArgs = {}): void {
+        if (args.requestType !== 'virtualscroll') {
+            this.parent.showSpinner();
+        }
         let ready: Promise<Object> = this.data.dataManager.ready;
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
         let dataManager: Promise<Object> = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount());

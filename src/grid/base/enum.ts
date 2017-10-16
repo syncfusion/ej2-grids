@@ -32,7 +32,9 @@ export type Action =
     /**  Defines current Action as UnGrouping */
     'ungrouping' |
     /**  Defines current Action as Batch Save */
-    'batchsave';
+    'batchsave' |
+    /** Defines current Action as Virtual Scroll */
+    'virtualscroll';
 
 
 /** 
