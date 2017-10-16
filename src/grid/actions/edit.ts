@@ -15,7 +15,7 @@ import { InlineEdit } from './inline-edit';
 import { BatchEdit } from './batch-edit';
 import { DialogEdit } from './dialog-edit';
 import { Dialog } from '@syncfusion/ej2-popups';
-import { parentsUntil } from '../base/util';
+import { parentsUntil, changeButtonType } from '../base/util';
 import { Tooltip } from '@syncfusion/ej2-popups';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 
@@ -403,6 +403,7 @@ export class Edit implements IAction {
         (options as { buttons: Object[] }).buttons = btnOptions;
         let obj: Dialog = new Dialog(options);
         obj.appendTo(div);
+        changeButtonType(obj.element);
         return obj;
     }
 

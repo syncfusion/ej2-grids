@@ -8,6 +8,7 @@ import { IGrid, IAction } from '../base/interface';
 import * as events from '../base/constant';
 import { ShowHide } from './show-hide';
 import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
+import { changeButtonType } from '../base/util';
 
 /**
  * 
@@ -226,6 +227,7 @@ export class ColumnChooser implements IAction {
             animationSettings: { effect: 'None' },
         });
         this.dlgObj.appendTo(this.dlgDiv);
+        changeButtonType(this.dlgObj.element);
     }
 
     private renderChooserList(): HTMLElement {

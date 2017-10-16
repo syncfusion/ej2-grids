@@ -351,3 +351,10 @@ export function wrap(elem: any, action: boolean): void {
         action ? elem[i].classList.add(clName) : elem[i].classList.remove(clName);
     }
 }
+
+export function changeButtonType(target: Element): void {
+    let elements: Element[] = [].slice.call(target.querySelectorAll('button'));
+    for (let button of elements) {
+        attributes(button, { type: 'button' });
+    }
+}

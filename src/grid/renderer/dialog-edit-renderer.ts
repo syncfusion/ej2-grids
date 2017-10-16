@@ -5,6 +5,7 @@ import { remove, createElement, Browser } from '@syncfusion/ej2-base';
 import { L10n } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import * as events from '../base/constant';
+import { changeButtonType } from '../base/util';
 
 /**
  * Edit render module is used to render grid edit row.
@@ -61,6 +62,7 @@ export class DialogEditRender {
             { click: this.btnClick.bind(this), buttonModel: { cssClass: 'e-flat', content: this.l10n.getConstant('CancelButton') } }]
         });
         this.dialogObj.appendTo(this.dialog);
+        changeButtonType(this.dialogObj.element);
     }
 
     private btnClick(e: MouseEvent): void {
