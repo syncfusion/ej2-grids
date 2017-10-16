@@ -37,7 +37,8 @@ describe('ValueFormatter Service', () => {
             dataSource: data,
             dataBound: dataBound
         }, options));
-        grid.appendTo(createElement('div', { id: 'Grid' }));
+        document.body.appendChild(createElement('div', { id: 'Grid' }));
+        grid.appendTo('#Grid');
         return grid;
     };
 
@@ -180,7 +181,7 @@ describe('ValueFormatter Service', () => {
         });
 
         afterAll(() => {
-            destroy(this.grid);
+            destroy(grid);
         });
     });
 });

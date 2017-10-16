@@ -28,7 +28,8 @@ describe('ShowHide module testing', () => {
                 options
             )
         );
-        grid.appendTo(createElement('div', { id: 'Grid' }));
+        document.body.appendChild(createElement('div', { id: 'Grid' }));
+        grid.appendTo('#Grid');
         return grid;
     };
 

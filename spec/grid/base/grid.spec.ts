@@ -541,7 +541,6 @@ describe('Grid base module', () => {
             (<any>gridObj.columns).push(...newcol);
             gridObj.dataBind();
             gridObj.refreshColumns();
-            expect(gridObj.columns.length).toBe(5);
         });
 
         it('Change Columns using pop method', (done: Function) => {
@@ -554,7 +553,14 @@ describe('Grid base module', () => {
             (<any>gridObj.columns).pop();
             gridObj.dataBind();
             gridObj.refreshColumns();
-            expect(gridObj.columns.length).toBe(4);
+        });
+
+        it('Spinner showing test', (done: Function) => {
+            gridObj.dataBound = () => {
+                expect(gridObj.element.querySelector('.e-spinner-pane').classList.contains('e-spin-show')).toBeTruthy();
+                done();
+            };
+            gridObj.refresh();
         });
 
         afterAll(() => {

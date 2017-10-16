@@ -4533,8 +4533,8 @@ describe('Multiple Grouping export testing', () => {
         }, 500);
     });
     afterAll(() => {
-        // remove(elem);
-        // gridObj.destroy();
+        remove(elem);
+        gridObj.destroy();
     });
 });
 describe('PDF export Grid.isDestroyed-true', () => {
@@ -4568,8 +4568,12 @@ describe('PDF export Grid.isDestroyed-true', () => {
             done();
         }, 500);
     });
-    afterAll(() => {
+    afterAll((done) => {
         remove(elem);
         gridObj.destroy();
+        setTimeout(function () {
+            done();
+        }, 1000);
+
     });
 });

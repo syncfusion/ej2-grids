@@ -55,6 +55,8 @@ export class DetailRow {
                         detailRow.appendChild(createElement('td', { className: 'e-indentcell' }));
                     }
                     detailRow.appendChild(createElement('td', { className: 'e-detailindentcell' }));
+                    detailRow.appendChild(detailCell);
+                    tr.parentNode.insertBefore(detailRow, tr.nextSibling);
                     if (gObj.detailTemplate) {
                         appendChildren(detailCell, gObj.getDetailTemplate()(data));
                     } else {
@@ -75,11 +77,9 @@ export class DetailRow {
                             id: 'child' + parents(tr, 'e-grid').length +
                             '_grid' + tr.rowIndex + getUid('')
                         });
-                        grid.appendTo(gridElem);
                         detailCell.appendChild(gridElem);
+                        grid.appendTo(gridElem);
                     }
-                    detailRow.appendChild(detailCell);
-                    tr.parentNode.insertBefore(detailRow, tr.nextSibling);
                     gObj.getRows().splice(tr.rowIndex + 1, 0, detailRow);
                     gObj.trigger(events.detailDataBound, { detailElement: detailCell, data: data });
                 }

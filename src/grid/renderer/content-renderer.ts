@@ -37,8 +37,8 @@ export class ContentRender implements IRenderer {
         if (this.args) {
             let action: string = (this.args.requestType || '').toLowerCase() + '-complete';
             this.parent.notify(action, this.args);
-
         }
+        this.parent.hideSpinner();
     }
     //Module declarations
     protected parent: IGrid;

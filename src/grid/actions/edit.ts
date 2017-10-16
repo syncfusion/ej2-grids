@@ -241,6 +241,7 @@ export class Edit implements IAction {
             this.showDialog('BatchSaveConfirm', this.dialogObj);
             return;
         }
+        this.parent.showSpinner();
         this.endEditing();
     }
 
@@ -351,7 +352,7 @@ export class Edit implements IAction {
     }
 
     private destroyToolTip(): void {
-        let elements: Element[] = [].slice.call(this.parent.element.getElementsByClassName('e-tooltip'));
+        let elements: Element[] = [].slice.call(this.parent.element.querySelectorAll('td.e-tooltip'));
         for (let elem of elements) {
             (elem as EJ2Intance).ej2_instances[0].destroy();
             //remove(elem);
@@ -516,11 +517,10 @@ export class Edit implements IAction {
      * @hidden
      */
     public destroyForm(): void {
-        this.parent.notify(events.tooltipDestroy, {});
+        this.destroyToolTip();
         if (this.formObj && !this.formObj.isDestroyed) {
             this.formObj.destroy();
         }
-        this.parent.notify(events.tooltipDestroy, {});
     }
 
     /**
@@ -529,6 +529,7 @@ export class Edit implements IAction {
      * @hidden
      */
     public destroy(): void {
+        this.destroyForm();
         this.removeEventListener();
         this.dialogObj.destroy();
         this.alertDObj.destroy();

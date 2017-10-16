@@ -5,6 +5,7 @@ import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPro
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
+import { createSpinner, hideSpinner, showSpinner } from '@syncfusion/ej2-popups';
 import { GridModel } from './grid-model';
 import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler } from './util';
 import * as events from '../base/constant';
@@ -735,7 +736,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**     
      * Configures the text wrap in the Grid.  
-     * @default textWrapSettings{wrapMode:"both"}     
+     * @default {wrapMode:"both"}     
      */
     @Complex<TextWrapSettingsModel>({}, TextWrapSettings)
     public textWrapSettings: TextWrapSettingsModel;
@@ -749,7 +750,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**     
      * Configures the pager in the Grid.  
-     * @default PageSettings{currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false, pageSizes: false}     
+     * @default {currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false, pageSizes: false}     
      */
     @Complex<PageSettingsModel>({}, PageSettings)
     public pageSettings: PageSettingsModel;
@@ -773,7 +774,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**    
      * Configures the search behavior in the Grid. 
-     * @default SearchSettings{ ignoreCase: true, fields: [], operator: 'contains', key: '' }    
+     * @default { ignoreCase: true, fields: [], operator: 'contains', key: '' }    
      */
     @Complex<SearchSettingsModel>({}, SearchSettings)
     public searchSettings: SearchSettingsModel;
@@ -1525,6 +1526,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     protected render(): void {
         this.ariaService.setOptions(this.element, { role: 'grid' });
+        createSpinner({ target: this.element });
         this.renderModule = new Render(this, this.serviceLocator);
         this.getMediaColumns();
         this.searchModule = new Search(this);
@@ -1541,7 +1543,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.wireEvents();
         this.addListener();
         this.updateDefaultCursor();
+        this.showSpinner();
         this.notify(events.initialEnd, {});
+    }
+
+    /**
+     * Method used to show the spinner.
+     */
+    public showSpinner(): void {
+        showSpinner(this.element);
+    }
+    /**
+     * Method used to hide the spinner.
+     */
+    public hideSpinner(): void {
+        hideSpinner(this.element);
     }
 
     private getMediaColumns(): void {

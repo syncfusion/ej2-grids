@@ -162,10 +162,12 @@ export class NormalEdit {
         this.parent.trigger(events.actionComplete, args);
         this.parent.selectRow(this.rowIndex > -1 ? this.rowIndex : this.editRowIndex);
         this.parent.element.focus();
+        this.parent.hideSpinner();
     }
 
     private editFailure(e: ReturnType): void {
         this.parent.trigger(events.actionFailure, e);
+        this.parent.hideSpinner();
     }
 
     private refreshRow(data: Object): void {

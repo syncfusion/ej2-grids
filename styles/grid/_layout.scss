@@ -285,12 +285,21 @@
 
     .e-ccdlg {
       .e-dlg-content {
+        margin: $grid-bigger-columnchooser-content-margin;
         padding: $grid-bigger-columnchooser-content-padding;
       }
 
       .e-ccul-ele {
         padding: $grid-bigger-columnchooser-ul-padding;
       }
+
+      .e-cc-searchdiv {
+        padding-left: $grid-bigger-searchdiv-padding-left;
+      }
+
+      .e-checkbox-wrapper.e-control.e-keyboard {
+        padding-left: $grid-bigger-cc-checkbox-padding-left;
+     }
 
       li.e-cclist {
         padding: $grid-bigger-columnchooser-li-padding;
@@ -895,7 +904,6 @@
       border-radius: $grid-filterbar-border-radius;
       border-style: solid;
       border-width: $grid-filterbar-input-border-width;
-      font-family: $grid-font-family;
       font-size: $grid-font-size;
       font-weight: normal;
       height: $grid-filterbarcell-text-input;
@@ -1345,7 +1353,9 @@
     }
 
     .e-defaultcell.e-ralign,
-    .e-editedrow .e-defaultcell.e-ralign {
+    .e-editedrow .e-defaultcell.e-ralign,
+    .e-defaultcell.e-ralign:focus,
+    .e-editedrow .e-defaultcell.e-ralign:focus {
       padding-right: 10px;
     }
 
@@ -1365,6 +1375,10 @@
         overflow: visible;
         padding: $grid-columnchooser-content-padding;
       }
+
+      .e-checkbox-wrapper.e-control.e-keyboard {
+        padding-left: $grid-cc-checkbox-padding-left;
+    }
 
       .e-main-div {
         box-sizing: border-box;
@@ -1401,7 +1415,7 @@
       .e-cc-searchdiv {
         border-style: solid;
         border-width: $grid-column-chooser-searchdiv;
-        left: 0;
+        left: $grid-column-chooser-searchdiv-left;
         opacity: $grid-column-chosser-searchdiv-opactiy;
         position: absolute;
         right: 0;
@@ -1448,10 +1462,12 @@
         vertical-align: middle;
        }
 
-      .e-cc.e-input {
+      .e-cc.e-input,
+      .e-cc.e-input:focus {
         border: $grid-columnchooser-input-border;
-        padding-bottom: $grid-columnchooser-padding-bottom;
-        padding-top: $grid-columnchooser-padding-top;
+        padding-bottom: $grid-columnchooser-input-padding-bottom;
+        padding-left: $grid-columnchooser-input-padding-left;
+        padding-top: $grid-columnchooser-input-padding-top;
        }
   }
 
@@ -1821,7 +1837,9 @@
       }
 
       & .e-defaultcell.e-ralign,
-      & .e-row .e-input.e-defaultcell.e-ralign {
+      & .e-row .e-input.e-defaultcell.e-ralign,
+      & .e-defaultcell.e-ralign:focus,
+      & .e-editedrow .e-defaultcell.e-ralign:focus {
         padding-left: 10px;
     }
 

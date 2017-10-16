@@ -256,10 +256,14 @@ describe('multiple grid csv exporting with header', () => {
         gridObj3.appendTo('#Grid3');
     });
     
-    afterAll(() => {
+    afterAll((done) => {
         remove(elem1);
         remove(elem2);
         remove(elem3);
+        setTimeout(function () {
+            done();
+        }, 1000);
+
     });
     let gBook: any;
     it('multiexport without saving the book', (done) => {

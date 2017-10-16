@@ -95,6 +95,7 @@ export class Render {
      * @return {void}
      */
     private refreshDataManager(args?: NotifyArgs): void {
+        this.parent.showSpinner();
         let ready: Promise<Object> = this.data.dataManager.ready;
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
         let dataManager: Promise<Object> = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount());
@@ -233,6 +234,7 @@ export class Render {
                 let action: string = (args.requestType || '').toLowerCase() + '-complete';
                 this.parent.notify(action, args);
             }
+            this.parent.hideSpinner();
         }
     }
 
@@ -241,6 +243,7 @@ export class Render {
         this.parent.trigger(events.actionFailure, { error: e });
         this.parent.currentViewData = [];
         this.renderEmptyRow();
+        this.parent.hideSpinner();
     }
 
     private updatesOnInitialRender(e: { result: Object, count: number }): void {

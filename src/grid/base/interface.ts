@@ -312,6 +312,8 @@ export interface IGrid extends Component<HTMLElement> {
     getColumnHeaderByField?(field: string): Element;
     showColumns?(keys: string | string[], showBy?: string): void;
     hideColumns?(keys: string | string[], hideBy?: string): void;
+    showSpinner?(): void;
+    hideSpinner?(): void;
     getVisibleColumns?(): Column[];
     refreshHeader?(): void;
     getDataRows?(): Element[];

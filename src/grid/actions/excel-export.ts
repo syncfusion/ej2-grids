@@ -42,7 +42,7 @@ export class ExcelExport {
      * @hidden
      */
     constructor(parent?: IGrid) {
-        this.init(parent);
+        this.parent = parent;
     }
     /**
      * For internal use only - Get the module name.
@@ -51,6 +51,9 @@ export class ExcelExport {
         return 'ExcelExport';
     }
     private init(gObj: IGrid): void {
+        if (gObj.element !== null && gObj.element.id === '') {
+            gObj.element.id = new Date().toISOString();
+        }
         this.parent = gObj;
         if (this.parent.isDestroyed) { return; }
         this.isExporting = undefined;
@@ -63,7 +66,6 @@ export class ExcelExport {
         this.columns = [];
         /* tslint:disable-next-line:no-any */
         this.styles = [];
-        this.data = new Data(this.parent);
         this.rowLength = 1;
         /* tslint:disable-next-line:no-any */
         this.footer = undefined;
@@ -84,6 +86,7 @@ export class ExcelExport {
     /* tslint:disable-next-line:no-any */
     public Map(grid: IGrid, exportProperties: any, isMultipleExport: boolean, workbook: any, isCsv: boolean): Promise<any> {
         let gObj: IGrid = grid;
+        this.data = new Data(gObj);
         this.isExporting = true;
         if (isCsv) {
             this.isCsvExport = isCsv;
