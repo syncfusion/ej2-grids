@@ -1418,28 +1418,46 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public getPersistData(): string {
-        let keyEntity: string[] = ['allowPaging', 'pageSettings', 'allowSorting', 'sortSettings', 'allowSelection',
-            'selectionSettings', 'allowFiltering', 'filterSettings', 'gridLines',
-            'created', 'destroyed', 'load', 'actionBegin', 'actionComplete', 'actionFailure', 'rowSelecting', 'rowSelected',
-            'columnSelecting', 'columnSelected', 'cellSelecting', 'cellSelected', 'dataBound', 'groupSettings', 'columns', 'allowKeyboard',
-            'enableAltRow', 'enableHover', 'allowTextWrap', 'textWrapSettings', 'searchSettings', 'selectedRowIndex', 'allowReordering',
-            'allowRowDragAndDrop', 'rowDropSettings', 'allowGrouping', 'height', 'width', 'printMode',
-            'rowDataBound', 'queryCellInfo', 'rowDeselecting', 'rowDeselected', 'cellDeselecting', 'cellDeselected',
-            'columnDragStart', 'columnDrag', 'columnDrop', 'printComplete', 'beforePrint', 'detailDataBound',
-            'childGrid', 'queryString', 'toolbar', 'toolbarClick', 'editSettings',
-            'batchAdd', 'batchDelete', 'beforeBatchAdd', 'beforeBatchDelete',
-            'beforeBatchSave', 'beginEdit', 'cellEdit', 'cellSave', 'endAdd', 'endDelete', 'endEdit', 'beforeDataBound',
-            'beforeOpenColumnChooser', 'allowResizing', 'ExcelExport', 'PdfExport',
-            'allowExcelExport', 'allowPdfExport',
-            'pdfQueryCellInfo', 'excelQueryCellInfo'];
-
-        for (let col of this.columns) {
-            if ((<Column>col).template) {
-                delete (<Column>col).template;
+        let keyEntity: string[] = ['pageSettings', 'sortSettings',
+            'filterSettings', 'groupSettings', 'columns', 'searchSettings', 'selectedRowIndex'];
+        let ignoreOnPersist: { [x: string]: string[] } = {
+            pageSettings: ['template', 'pageSizes', 'enableQueryString', 'totalRecordsCount', 'pageCount'],
+            filterSettings: ['type', 'mode', 'showFilterBarStatus', 'immediateModeDelay'],
+            groupSettings: ['showDropArea', 'showToggleButton', 'showGroupedColumn', 'showUngroupButton',
+                'disablePageWiseAggregates', 'hideCaptionCount'],
+            searchSettings: ['fields', 'operator', 'ignoreCase'],
+            sortSettings: [], columns: [], selectedRowIndex: []
+        };
+        let ignoreOnColumn: string[] = ['foreignKeyValue', 'isIdentity', 'edit', 'defaultValue',
+            'validationRules', 'editType', 'showInColumnChooser', 'hideAtMedia', 'isPrimaryKey', 'toolTip', 'filterBarTemplate',
+            'valueAccessor', 'formatter', 'dataSource', 'displayAsCheckBox', 'customAttributes', 'allowEditing', 'allowGrouping',
+            'allowFiltering', 'allowResizing', 'allowSorting', 'headerTemplate', 'template', 'format', 'type', 'disableHtmlEncode',
+            'headerTextAlign', 'clipMode', 'textAlign', 'maxWidth', 'minWidth', 'headerText', 'uid', 'field'];
+        keyEntity.forEach((value: string) => {
+            let currentObject: Object = this[value];
+            for (let val of ignoreOnPersist[value]) {
+                delete currentObject[val];
             }
-        }
-
+        });
+        this.ignoreInArrays(ignoreOnColumn, <Column[]>this.columns);
         return this.addOnPersist(keyEntity);
+    }
+
+    private ignoreInArrays(ignoreOnColumn: string[], columns: Column[]): void {
+        columns.forEach((column: Column) => {
+            if (column.columns) {
+                this.ignoreInColumn(ignoreOnColumn, column);
+                this.ignoreInArrays(ignoreOnColumn, <Column[]>column.columns);
+            } else {
+                this.ignoreInColumn(ignoreOnColumn, column);
+            }
+        });
+    }
+
+    private ignoreInColumn(ignoreOnColumn: string[], column: Column): void {
+        ignoreOnColumn.forEach((val: string) => {
+            delete column[val];
+        });
     }
 
     /**

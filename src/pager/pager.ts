@@ -240,8 +240,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      * @hidden
      */
     public getPersistData(): string {
-        let keyEntity: string[] = ['enableExternalMessage', 'enablePagerMessage', 'currentPage', 'enableQueryString', 'pageSizes',
-        'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created', 'dropDownChanged', 'template'];
+        let keyEntity: string[] = ['currentPage', 'pageSize'];
         return this.addOnPersist(keyEntity);
     }
 
