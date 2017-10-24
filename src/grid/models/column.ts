@@ -1,7 +1,7 @@
 import { merge } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
 import { ICellFormatter, IFilterUI, IEditCell } from '../base/interface';
-import { TextAlign } from '../base/enum';
+import { TextAlign, ClipMode } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
 import { ValueAccessor } from '../base/type';
 import { getUid, templateCompiler } from '../base/util';
@@ -60,6 +60,16 @@ export class Column {
      */
 
     public textAlign: TextAlign;
+
+    /**
+     * Defines the cell content's overflow mode. The available modes are
+     * * `clip` -  Truncates the cell content when it overflows its area. 
+     * * `ellipsis` -  Displays ellipsis when the cell content overflows its area.
+     * * `ellipsiswithtooltip` - Displays ellipsis when the cell content overflows its area 
+     * also it will display tooltip while hover on ellipsis applied cell.
+     * @default ellipsis
+     */
+    public clipMode: ClipMode;
 
     /**   
      * Define the alignment of column header which is used to align the text of column header.       
@@ -453,6 +463,16 @@ export interface ColumnModel {
      * @default left 
      */
     textAlign?: string | TextAlign; //Should be enum
+
+    /**   
+     * Defines the cell content's overflow mode. The available modes are
+     * * `clip` -  Truncates the cell content when it overflows its area. 
+     * * `ellipsis` -  Displays ellipsis when the cell content overflows its area.
+     * * `ellipsiswithtooltip` - Displays ellipsis when the cell content overflows its area 
+     * also it will display tooltip while hover on ellipsis applied cell.
+     * @default ellipsis 
+     */
+    clipMode?: ClipMode;
 
     /**   
      * Define the alignment of column header which is used to align the text of column header.       

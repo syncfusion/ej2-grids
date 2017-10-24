@@ -342,6 +342,7 @@ export interface IGrid extends Component<HTMLElement> {
     getRowObjectFromUID?(uid: string): Row<Column>;
     createColumnchooser(x: number, y: number, target: Element): void;
     getDataModule?(): Data;
+    refreshTooltip?(): void;
 }
 
 /** @hidden */
@@ -991,4 +992,23 @@ export interface IEdit {
     updateCell?(rowIndex: number, field: string, value: string | number | boolean | Date): void;
     updateRow?(index: number, data: Object): void;
     saveCell?(isForceSave?: boolean): void;
+}
+
+export interface RecordClickEventArgs {
+    /** Defines the row data. */
+    data?: Object;
+    /** Defines the row index. */
+    rowIndex?: number;
+    /** Defines the row element. */
+    row?: Element;
+    /** Defines the cell element. */
+    cell?: HTMLTableCellElement;
+    /** Defines the cell index. */
+    cellIndex?: number;
+    /** Defines the column Object. */
+    column?: Column;
+    /** Defines the cell's value. */
+    cellValue?: string;
+    /** Defines type of event. */
+    type?: string;
 }

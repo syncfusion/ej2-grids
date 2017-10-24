@@ -1,11 +1,11 @@
 import { Component, ModuleDeclaration, ChildProperty, Browser } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, closest } from '@syncfusion/ej2-base';
 import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
-import { createSpinner, hideSpinner, showSpinner } from '@syncfusion/ej2-popups';
+import { createSpinner, hideSpinner, showSpinner, Tooltip } from '@syncfusion/ej2-popups';
 import { GridModel } from './grid-model';
 import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler } from './util';
 import * as events from '../base/constant';
@@ -17,7 +17,7 @@ import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEv
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
-import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
+import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, RecordClickEventArgs } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
@@ -1390,6 +1390,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Event()
     public beforeDataBound: EmitType<BeforeDataBoundArgs>;
 
+    /** 
+     * Triggers when click on the grid records.
+     * @event
+     */
+    @Event()
+    public recordClick: EmitType<RecordClickEventArgs>;
+
+    /** 
+     * Triggers when double click on the grid records.
+     * @event
+     */
+    @Event()
+    public recordDoubleClick: EmitType<RecordClickEventArgs>;
+
     /**
      * Constructor for creating the component
      * @hidden
@@ -2719,6 +2733,64 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
+     * The function is used to add Tooltip to the grid cell that has ellipsiswithtooltip clip mode.
+     * @return {void}
+     * @hidden
+     */
+    public refreshTooltip(): void {
+        let width: number;
+        let headerTable: Element = this.getHeaderTable();
+        let contentTable: Element = this.getContentTable();
+        let headerDivTag: string = 'e-gridheader';
+        let contentDivTag: string = 'e-gridcontent';
+        let htable: HTMLDivElement = this.createTable(headerTable, headerDivTag, 'header');
+        let ctable: HTMLDivElement = this.createTable(headerTable, headerDivTag, 'content');
+        let all: NodeListOf<Element> = this.element.querySelectorAll('.e-ellipsistooltip');
+        let allele: HTMLElement[] = [];
+        for (let i: number = 0; i < all.length; i++) {
+            allele[i] = all[i] as HTMLElement;
+        }
+        allele.forEach((element: HTMLElement) => {
+            let td: HTMLElement = element;
+            let table: HTMLDivElement = headerTable.contains(element) ? htable : ctable;
+            let ele: string = headerTable.contains(element) ? 'th' : 'tr';
+            table.querySelector(ele).className = element.className;
+            table.querySelector(ele).innerHTML = element.innerHTML;
+            width = table.querySelector(ele).getBoundingClientRect().width;
+            if (width > element.getBoundingClientRect().width && !element.classList.contains('e-tooltip')) {
+                let tooltip: Tooltip = new Tooltip({ content: element.innerHTML }, element);
+            } else if (width < element.getBoundingClientRect().width && element.classList.contains('e-tooltip')) {
+                (<EJ2Intance>element).ej2_instances[0].destroy();
+            }
+        });
+        document.body.removeChild(htable);
+        document.body.removeChild(ctable);
+    }
+    /**
+     * To create table for ellipsiswithtooltip 
+     * @hidden
+     */
+    protected createTable(table: Element, tag: string, type: string): HTMLDivElement {
+        let myTableDiv: HTMLDivElement = createElement('div') as HTMLDivElement;
+        myTableDiv.className = this.element.className;
+        myTableDiv.style.cssText = 'display: inline-block;visibility:hidden;position:absolute';
+        let mySubDiv: HTMLDivElement = createElement('div') as HTMLDivElement;
+        mySubDiv.className = tag;
+        let myTable: HTMLTableElement = createElement('table') as HTMLTableElement;
+        myTable.className = table.className;
+        myTable.style.cssText = 'table-layout: auto;width: auto';
+        let ele: string = (type === 'header') ? 'th' : 'td';
+        let myTr: HTMLTableRowElement = createElement('tr') as HTMLTableRowElement;
+        let mytd: HTMLElement = createElement(ele) as HTMLElement;
+        myTr.appendChild(mytd);
+        myTable.appendChild(myTr);
+        mySubDiv.appendChild(myTable);
+        myTableDiv.appendChild(mySubDiv);
+        document.body.appendChild(myTableDiv);
+        return myTableDiv;
+    }
+
+    /**
      * Binding events to the element while component creation.
      * @hidden
      */
@@ -2755,6 +2827,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.isDestroyed) { return; }
         this.on(events.dataReady, this.dataReady, this);
         this.on(events.contentReady, this.recalcIndentWidth, this);
+        [events.updateData, events.modelChanged, events.contentReady, events.columnWidthChanged].forEach((event: string) =>
+            this.on(event, this.refreshTooltip, this));
         this.on(events.headerRefreshed, this.recalcIndentWidth, this);
         this.addEventListener(events.dataBound, this.refreshMediaCol.bind(this));
     }
@@ -2765,6 +2839,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.isDestroyed) { return; }
         this.off(events.dataReady, this.dataReady);
         this.off(events.contentReady, this.recalcIndentWidth);
+        [events.updateData, events.modelChanged, events.contentReady, events.columnWidthChanged].forEach((event: string) =>
+            this.off(event, this.refreshTooltip));
         this.off(events.headerRefreshed, this.recalcIndentWidth);
         this.removeEventListener(events.dataBound, this.refreshMediaCol);
     }
@@ -2792,7 +2868,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (parentsUntil(e.target as Element, 'e-gridheader') && this.allowRowDragAndDrop) {
             e.preventDefault();
         }
+        this.processRecordClick(e, events.recordClick);
         this.notify(events.click, e);
+    }
+
+    private processRecordClick(e: Event, type: string): void {
+        let cell: HTMLTableCellElement = <HTMLTableCellElement>closest(<Element>e.target, 'td');
+        if (cell && !parentsUntil(cell, 'e-editedrow') && parentsUntil(cell, 'e-row') && !parentsUntil(cell, 'e-addedrow')) {
+            let cellIndex: number = parseInt(cell.getAttribute('aria-colindex'), 10);
+            let rowIndex: number = parseInt(cell.parentElement.getAttribute('aria-rowindex'), 10);
+            let args: RecordClickEventArgs = {
+                cell: cell, cellIndex: cellIndex,
+                cellValue: cell.innerText, type: type, column: <Column>this.columns[cellIndex], row: cell.parentElement,
+                rowIndex: rowIndex, data: this.getCurrentViewRecords()[rowIndex]
+            };
+            this.trigger(type, args);
+        }
     }
 
     private checkEdit(e: MouseEvent): boolean {
@@ -2807,6 +2898,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (parentsUntil(e.target as Element, 'e-grid').id !== this.element.id) {
             return;
         }
+        this.processRecordClick(e, events.recordDoubleClick);
         this.notify(events.dblclick, e);
     }
 

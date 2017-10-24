@@ -177,6 +177,12 @@ export class CellRenderer implements ICellRenderer<Column> {
         if (column.textAlign) {
             node.style.textAlign = column.textAlign;
         }
+
+        if (column.clipMode === 'clip') {
+            node.classList.add('e-gridclip');
+        }else if (column.clipMode === 'ellipsiswithtooltip') {
+            node.classList.add('e-ellipsistooltip');
+        }
     }
 
     public buildAttributeFromCell<Column>(node: HTMLElement, cell: Cell<Column>): void {

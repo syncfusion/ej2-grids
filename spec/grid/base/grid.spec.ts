@@ -6,7 +6,7 @@ import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Query } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
-import { GridLine } from '../../../src/grid/base/enum';
+import { RecordClickEventArgs } from '../../../src/grid/base/interface';
 import { Column } from '../../../src/grid/models/column';
 import { Page } from '../../../src/grid/actions/page';
 import { data, filterData } from '../base/datasource.spec';
@@ -537,7 +537,7 @@ describe('Grid base module', () => {
             };
             expect(gridObj.columns.length).toBe(3);
             let newcol: Column[] = <Column[]>[{ headerText: 'ShipCountry', field: 'ShipCountry' },
-            { headerText: 'ShipCity', field: 'ShipCity' },];
+            { headerText: 'ShipCity', field: 'ShipCity' }];
             (<any>gridObj.columns).push(...newcol);
             gridObj.dataBind();
             gridObj.refreshColumns();
@@ -561,6 +561,20 @@ describe('Grid base module', () => {
                 done();
             };
             gridObj.refresh();
+        });
+
+        it('Record click event test', (done) => {
+            gridObj.recordClick = (args: RecordClickEventArgs) => {
+                expect(args.cell).not.toBeUndefined();
+                expect(args.cellIndex).toBe(0);
+                expect(args.cellValue).toBe('10248');
+                expect(args.column).not.toBeUndefined();
+                expect(JSON.stringify(args.data)).toBe(JSON.stringify(gridObj.currentViewData[0]));
+                expect(args.row).not.toBeUndefined();
+                expect(args.rowIndex).toBe(0);
+                done();
+            };
+            (<any>gridObj).processRecordClick({target: gridObj.getRows()[0].firstElementChild}, 'recordClick');
         });
 
         afterAll(() => {

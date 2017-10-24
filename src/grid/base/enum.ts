@@ -269,3 +269,18 @@ export type ToolbarItems =
 'csvexport' |
 /** Export the Grid to word fromat */
 'wordexport';
+
+/** 
+ * Defines the cell content's overflow mode. The available modes are   
+ * * `clip` -  Truncates the cell content when it overflows its area. 
+ * * `ellipsis` -  Displays ellipsis when the cell content overflows its area.
+ * * `ellipsiswithtooltip` - Displays ellipsis when the cell content overflows its area 
+ * also it will display tooltip while hover on ellipsis applied cell.
+ */
+export type ClipMode =
+    /**  Truncates the cell content when it overflows its area */
+    'clip' |
+    /** Displays ellipsis when the cell content overflows its area */
+    'ellipsis' |
+    /** Displays ellipsis when the cell content overflows its area also it will display tooltip while hover on ellipsis applied cell. */
+    'ellipsiswithtooltip';

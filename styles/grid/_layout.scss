@@ -1891,5 +1891,11 @@
     &.e-wrap .e-columnheader .e-icon-group::before {
       display: inline-block;
     }
+
+    &.e-responsive .e-rowcell.e-gridclip,
+    &.e-responsive .e-gridclip .e-headercelldiv,
+    &.e-responsive .e-stackedheadercelldiv.e-gridclip {
+      text-overflow: clip;
+    }
   }
 }

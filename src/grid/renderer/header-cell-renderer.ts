@@ -105,6 +105,12 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
                 node.classList.add(alignment === 'right' ? 'e-rightalign' : 'e-leftalign');
             }
         }
+
+        if (column.clipMode === 'clip') {
+            node.classList.add('e-gridclip');
+        }else if (column.clipMode === 'ellipsiswithtooltip') {
+            node.classList.add('e-ellipsistooltip');
+        }
         node.setAttribute('aria-rowspan', (!isNullOrUndefined(cell.rowSpan) ? cell.rowSpan : 1).toString());
         node.setAttribute('aria-colspan', '1');
         return node;
