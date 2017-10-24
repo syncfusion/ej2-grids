@@ -103,8 +103,9 @@
     }
 
     .e-summarycell {
-      background-color: $grid-summary-template-row-bg-color;
+      background-color: $group-row-bg-color;
       border-color: $grid-header-border-color;
+      color: $grid-header-color;
     }
 
     .e-summaryrow .e-summarycell,
