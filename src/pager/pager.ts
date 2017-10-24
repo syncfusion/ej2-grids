@@ -1,5 +1,5 @@
 import { Component, ModuleDeclaration, L10n, EmitType, Browser } from '@syncfusion/ej2-base';
-import { createElement, remove, classList } from '@syncfusion/ej2-base';
+import { createElement, remove, classList, compile as templateCompiler } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';
 import { PagerModel } from './pager-model';
@@ -7,6 +7,7 @@ import { PagerDropDown } from './pager-dropdown';
 import { NumericContainer } from './numeric-container';
 import { PagerMessage } from './pager-message';
 import { ExternalMessage } from './external-message';
+import { appendChildren } from '../grid/base/util';
 
 /** @hidden */
 export interface IRender {
@@ -31,6 +32,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     //Internal variables     
     /*** @hidden */
     public totalPages: number;
+    private templateFn: Function;
     /*** @hidden */
     public previousPageNo: number;
     private defaultConstants: Object = {
@@ -132,6 +134,13 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     @Property(false)
     public pageSizes: boolean | number[];
 
+    /**    
+     *  Defines the template as string or HTML element ID which renders customized elements in pager instead of default elements.    
+     * @default null    
+     */
+    @Property()
+    public template: string;
+
     /**  
      * Defines the customized text to append with numeric items.  
      * @default null  
@@ -202,24 +211,28 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      * To Initialize the component rendering
      */
     protected render(): void {
-        this.initLocalization();
-        this.updateRTL();
-        this.totalRecordsCount = this.totalRecordsCount || 0;
-        this.renderFirstPrevDivForDevice();
-        this.containerModule.render();
-        if (this.enablePagerMessage) {
-            this.pagerMessageModule.render();
+        if (this.template) {
+            this.pagerTemplate();
+        } else {
+            this.initLocalization();
+            this.updateRTL();
+            this.totalRecordsCount = this.totalRecordsCount || 0;
+            this.renderFirstPrevDivForDevice();
+            this.containerModule.render();
+            if (this.enablePagerMessage) {
+                this.pagerMessageModule.render();
+            }
+            this.renderNextLastDivForDevice();
+            if (this.checkpagesizes()) {
+                this.pagerdropdownModule.render();
+            }
+            this.addAriaLabel();
+            if (this.enableExternalMessage && this.externalMessageModule) {
+                this.externalMessageModule.render();
+            }
+            this.refresh();
+            this.trigger('created', { 'currentPage': this.currentPage, 'totalRecordsCount': this.totalRecordsCount });
         }
-        this.renderNextLastDivForDevice();
-        if (this.checkpagesizes()) {
-            this.pagerdropdownModule.render();
-        }
-        this.addAriaLabel();
-        if (this.enableExternalMessage && this.externalMessageModule) {
-            this.externalMessageModule.render();
-        }
-        this.refresh();
-        this.trigger('created', { 'currentPage': this.currentPage, 'totalRecordsCount': this.totalRecordsCount });
     }
 
     /**
@@ -228,7 +241,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      */
     public getPersistData(): string {
         let keyEntity: string[] = ['enableExternalMessage', 'enablePagerMessage', 'currentPage', 'enableQueryString', 'pageSizes',
-            'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created', 'dropDownChanged'];
+        'pageSize', 'pageCount', 'totalRecordsCount', 'externalMessage', 'customText', 'click', 'created', 'dropDownChanged', 'template'];
         return this.addOnPersist(keyEntity);
     }
 
@@ -279,6 +292,10 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
                         this.pagerdropdownModule.destroy();
                         this.pagerdropdownModule.render();
                     }
+                    this.refresh();
+                    break;
+                case 'template':
+                    this.templateFn = this.compile(this.template);
                     this.refresh();
                     break;
                 case 'locale':
@@ -361,18 +378,61 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
         }
     }
 
+    private pagerTemplate(): void {
+        let result: Element[];
+        this.element.classList.add('e-pagertemplate');
+        this.compile(this.template);
+        let data: object = {
+            currentPage: this.currentPage, pageSize: this.pageSize, pageCount: this.pageCount,
+            totalRecordsCount: this.totalRecordsCount, totalPages: this.totalPages
+        };
+        result = this.getPagerTemplate()(data) as Element[];
+        appendChildren(this.element, result);
+    }
+
+    /** @hidden */
+    public updateTotalPages(): void {
+        this.totalPages = (this.totalRecordsCount % this.pageSize === 0) ? (this.totalRecordsCount / this.pageSize) :
+            (parseInt((this.totalRecordsCount / this.pageSize).toString(), 10) + 1);
+    }
+
+    /** @hidden */
+    public getPagerTemplate(): Function {
+        return this.templateFn;
+    }
+
+    private compile(template: string): Function {
+        if (template) {
+            let e: Object;
+            try {
+                if (document.querySelectorAll(template).length) {
+                    this.templateFn = templateCompiler(document.querySelector(template).innerHTML.trim());
+                }
+            } catch (e) {
+                this.templateFn = templateCompiler(template);
+            }
+        }
+        return undefined;
+    }
+
     /** 
      * Refreshes page count, pager information and external message.  
      * @return {void} 
      */
     public refresh(): void {
-        this.updateRTL();
-        this.containerModule.refresh();
-        if (this.enablePagerMessage) {
-            this.pagerMessageModule.refresh();
-        }
-        if (this.enableExternalMessage && this.externalMessageModule) {
-            this.externalMessageModule.refresh();
+        if (this.template) {
+            this.element.innerHTML = '';
+            this.updateTotalPages();
+            this.pagerTemplate();
+        } else {
+            this.updateRTL();
+            this.containerModule.refresh();
+            if (this.enablePagerMessage) {
+                this.pagerMessageModule.refresh();
+            }
+            if (this.enableExternalMessage && this.externalMessageModule) {
+                this.externalMessageModule.refresh();
+            }
         }
     }
 

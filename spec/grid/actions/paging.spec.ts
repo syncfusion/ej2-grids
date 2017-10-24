@@ -295,6 +295,33 @@ describe('Paging module', () => {
         });
     });
 
+    describe('pagerTemplate test', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    allowPaging: true,
+                    dataSource: data, dataBound: dataBound,
+                    allowSorting: true,
+                    pagerTemplate:'<span class ="e-pagenomsg">${currentPage} of ${totalPages} pages</span>',
+                    height: 300,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }],
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('check pagesettings template property', () => {
+            expect(gridObj.pageSettings.template.length).toBeGreaterThan(0);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
     describe('Paging & Scrolling - PageDown case', () => {
         let grid: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });

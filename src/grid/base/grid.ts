@@ -750,7 +750,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**     
      * Configures the pager in the Grid.  
-     * @default {currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false, pageSizes: false}     
+     * @default {currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false, pageSizes: false, template: null}     
      */
     @Complex<PageSettingsModel>({}, PageSettings)
     public pageSettings: PageSettingsModel;
@@ -1084,6 +1084,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property()
     public toolbarTemplate: string;
+
+    /**
+     * @hidden
+     * It used to render pager template
+     * @default null
+     */
+    @Property()
+    public pagerTemplate: string;
 
     /** 
      * Triggers when the component is created.

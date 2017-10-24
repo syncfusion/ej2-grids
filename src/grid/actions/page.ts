@@ -1,6 +1,6 @@
 import { KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { extend } from '@syncfusion/ej2-base';
-import { remove, createElement } from '@syncfusion/ej2-base';
+import { remove, createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Pager } from '../../pager/pager';
 import { PagerDropDown } from '../../pager/pager-dropdown';
 import { ExternalMessage } from '../../pager/external-message';
@@ -58,6 +58,9 @@ export class Page implements IAction {
     public render(): void {
         let gObj: IGrid = this.parent;
         let pagerObj: Pager;
+        if (!isNullOrUndefined(this.parent.pagerTemplate)) {
+            this.pageSettings.template = this.parent.pagerTemplate;
+        }
         this.element = createElement('div', { className: 'e-gridpager' });
         pagerObj = <Pager>gridExtend(
             {},
@@ -78,20 +81,22 @@ export class Page implements IAction {
     }
 
     private addAriaAttr(): void {
-        let numericContainer: Element = this.element.querySelector('.e-numericcontainer');
-        let links: NodeList = numericContainer.querySelectorAll('a');
-        for (let i: number = 0; i < links.length; i++) {
-            if (this.parent.getContentTable()) {
-                (<Element>links[i]).setAttribute('aria-owns', this.parent.getContentTable().id);
+        if (!(this.pageSettings.template)) {
+            let numericContainer: Element = this.element.querySelector('.e-numericcontainer');
+            let links: NodeList = numericContainer.querySelectorAll('a');
+            for (let i: number = 0; i < links.length; i++) {
+                if (this.parent.getContentTable()) {
+                    (<Element>links[i]).setAttribute('aria-owns', this.parent.getContentTable().id);
+                }
             }
+            let classList: string[] = ['.e-mfirst', '.e-mprev', '.e-first', '.e-prev', '.e-next', '.e-last', '.e-mnext', '.e-mlast'];
+            classList.forEach((value: string) => {
+                let element: Element = this.element.querySelector(value);
+                if (this.parent.getContentTable()) {
+                    element.setAttribute('aria-owns', this.parent.getContentTable().id);
+                }
+            });
         }
-        let classList: string[] = ['.e-mfirst', '.e-mprev', '.e-first', '.e-prev', '.e-next', '.e-last', '.e-mnext', '.e-mlast'];
-        classList.forEach((value: string) => {
-            let element: Element = this.element.querySelector(value);
-            if (this.parent.getContentTable()) {
-                element.setAttribute('aria-owns', this.parent.getContentTable().id);
-            }
-        });
     }
 
     private dataReady(e?: NotifyArgs): void {

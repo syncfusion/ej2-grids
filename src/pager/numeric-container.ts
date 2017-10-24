@@ -45,9 +45,7 @@ export class NumericContainer implements IRender {
      * Refreshes the numeric container of Pager. 
      */
     public refresh(): void {
-        let pagerObj: Pager = this.pagerModule;
-        pagerObj.totalPages = (pagerObj.totalRecordsCount % pagerObj.pageSize === 0) ? (pagerObj.totalRecordsCount / pagerObj.pageSize) :
-            (parseInt((pagerObj.totalRecordsCount / pagerObj.pageSize).toString(), 10) + 1);
+        this.pagerModule.updateTotalPages();
         if (this.links.length) {
             this.updateLinksHtml();
         }

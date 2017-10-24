@@ -437,7 +437,7 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Configures the pager in the Grid.  
-     * @default {currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false, pageSizes: false}     
+     * @default {currentPage: 1, pageSize: 12, pageCount: 8, enableQueryString: false, pageSizes: false, template: null}     
      */
     pageSettings?: PageSettingsModel;
 
@@ -738,6 +738,13 @@ export interface GridModel extends ComponentModel{
      * @default null
      */
     toolbarTemplate?: string;
+
+    /**
+     * @hidden
+     * It used to render pager template
+     * @default null
+     */
+    pagerTemplate?: string;
 
     /**
      * Triggers when the component is created.

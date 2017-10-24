@@ -337,4 +337,77 @@ describe('Pager base module', () => {
 
     });
 
+    describe('pager template refresh', () => {
+        let pagerObj: Pager;
+        let elem: HTMLElement = createElement('div', { id: 'Pager' });
+
+        beforeAll((done: Function) => {
+            let created: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            pagerObj = new Pager({
+                template: '', totalRecordsCount: 100, created: created
+            });
+            pagerObj.appendTo('#Pager');
+        });
+        it('pager template refresh testing', () => {
+            pagerObj.template = '<span class ="e-pagenomsg">${currentPage} of ${totalPages} pages</span>';
+            pagerObj.dataBind();
+            expect(pagerObj.element.querySelectorAll('.e-pagenomsg')[0].textContent).toBe('1 of 9 pages');
+        });
+
+        afterAll(() => {
+            pagerObj.destroy();
+            elem.remove();
+        });
+
+    });
+    describe('pager template render', () => {
+        let pagerObj: Pager;
+        let elem: HTMLElement = createElement('div', { id: 'Pager' });
+        beforeAll((done: Function) => {
+            let created: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            pagerObj = new Pager({
+                template: '<span class ="e-pagenomsg">${currentPage} of ${totalPages} pages</span>', totalRecordsCount: 100, created: created
+            });
+            pagerObj.appendTo('#Pager');
+        });
+        it('pager template render testing', () => {
+            pagerObj.totalRecordsCount = 200;
+            pagerObj.dataBind();
+            expect(pagerObj.element.querySelectorAll('.e-pagenomsg')[0].textContent).toBe('1 of 17 pages');
+        });
+
+        afterAll(() => {
+            pagerObj.destroy();
+            elem.remove();
+        });
+
+    });
+    describe('pager template create', () => {
+        let pagerObj: Pager;
+        let elem: HTMLElement = createElement('div', { id: 'Pager' });
+        let element: HTMLElement = createElement('div', { id: 'pagertemplate' });
+        element.innerHTML = '<span class ="e-pagenomsg">${currentPage} of ${totalPages} pages</span>'
+        beforeAll((done: Function) => {
+            let created: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            elem.appendChild(element)
+            pagerObj = new Pager({
+                template: '#pagertemplate', totalRecordsCount: 100, created: created
+            });
+            pagerObj.appendTo('#Pager');
+        });
+        it('pager template create testing', () => {
+            pagerObj.totalRecordsCount = 200;
+            pagerObj.dataBind();
+            expect(pagerObj.element.querySelectorAll('.e-pagenomsg')[0].textContent).toBe('1 of 17 pages');
+        });
+
+        afterAll(() => {
+            pagerObj.destroy();
+            elem.remove();
+        });
+
+    });
 });

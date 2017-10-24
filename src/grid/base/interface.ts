@@ -265,6 +265,13 @@ export interface IGrid extends Component<HTMLElement> {
      */
     toolbarTemplate?: string;
 
+    /**
+     * @hidden
+     * It used to render pager template
+     * @default null
+     */
+    pagerTemplate?: string;
+
     isEdit?: boolean;
 
     editModule?: Edit;

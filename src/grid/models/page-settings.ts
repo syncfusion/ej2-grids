@@ -46,6 +46,13 @@ export class PageSettings extends ChildProperty<PageSettings> {
      * @default false    
      */
     @Property(false)
-    public pageSizes: boolean|number[];
+    public pageSizes: boolean | number[];
+
+    /**    
+     * Defines the template as string or HTML element ID which renders customized elements in pager instead of default elements.    
+     * @default null    
+     */
+    @Property(null)
+    public template: string;
 
 }

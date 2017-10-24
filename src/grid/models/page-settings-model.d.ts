@@ -41,6 +41,12 @@ export interface PageSettingsModel {
      * It renders DropDownList in the pager which allow us to select pageSize from DropDownList.      
      * @default false    
      */
-    pageSizes?: boolean|number[];
+    pageSizes?: boolean | number[];
+
+    /**
+     * Defines the template as string or HTML element ID which renders customized elements in pager instead of default elements.    
+     * @default null    
+     */
+    template?: string;
 
 }
