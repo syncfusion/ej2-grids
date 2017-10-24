@@ -36,7 +36,9 @@ export class ColumnWidthService {
         let cWidth: string | number = this.getWidth(column);
         if (cWidth !== null) {
             this.setWidth(cWidth, columnIndex);
-            if (this.parent.allowResizing) { this.setWidthToTable(); }
+            if (this.parent.allowResizing && module === 'resize') {
+                this.setWidthToTable();
+            }
             this.parent.notify(columnWidthChanged, { index: columnIndex, width: cWidth, column: column, module: module });
         }
     }
@@ -89,18 +91,18 @@ export class ColumnWidthService {
         }
     }
 
-    private getTableWidth(columns: Column[]): number {
+    public getTableWidth(columns: Column[]): number {
         let tWidth: number = 0;
-        for (let column of columns){
-           let cWidth: string | number = this.getWidth(column);
-           if (column.visible !== false && cWidth !== null) {
+        for (let column of columns) {
+            let cWidth: string | number = this.getWidth(column);
+            if (column.visible !== false && cWidth !== null) {
                 tWidth += parseInt(cWidth.toString(), 10);
-           }
+            }
         }
         return tWidth;
     }
 
-    private setWidthToTable(): void {
+    public setWidthToTable(): void {
         let tWidth: string = formatUnit(this.getTableWidth(<Column[]>this.parent.getColumns()));
         (this.parent.getHeaderTable() as HTMLTableElement).style.width = tWidth;
         (this.parent.getContentTable() as HTMLTableElement).style.width = tWidth;

@@ -289,6 +289,18 @@ describe('Resize functionalities for Hidden columns', () => {
             off = gridObj.resizeModule.getWidth(400, 100, 300);
             expect(300).toBe(off);
         });   
+        it('refreshColumnWidth method', () => {
+            let columns: Column[] = gridObj.getColumns();
+            for (let ele of [].slice.apply(gridObj.getHeaderTable().querySelectorAll('th.e-headercell'))) {
+                for (let column of columns) {
+                    if (ele.querySelector('[e-mappinguid]') &&
+                        ele.querySelector('[e-mappinguid]').getAttribute('e-mappinguid') === column.uid && column.visible) {
+                        expect(column.width === ele.getBoundingClientRect().width);
+                        break;
+                    }
+                }
+            }
+        }); 
 
         afterAll(() => {
                 remove(elem);
@@ -472,6 +484,8 @@ describe('Resize functionalities for Hidden columns', () => {
             setTimeout(function() {
                 gridObj.resizeModule.tapped = true;
                 gridObj.resizeModule.resizeStart(args);
+                gridObj.resizeModule.pageX = 100;
+                gridObj.resizeModule.resizing(args);
                 gridObj.resizeModule.resizeEnd(args);
                 expect(twidth).not.toBe(gridObj.getHeaderTable().offsetWidth);
                 done();
@@ -507,8 +521,9 @@ describe('Resize functionalities for Hidden columns', () => {
                 options,
             )
         );
-        document.body.appendChild(createElement('div', { id: 'Grid' }));
-        grid.appendTo('#Grid');
+        let gridDiv = createElement('div', { id: 'Grid' });
+        document.body.appendChild(gridDiv)
+        grid.appendTo(gridDiv);
         return grid;
     };
 

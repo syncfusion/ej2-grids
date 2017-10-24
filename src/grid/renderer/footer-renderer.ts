@@ -91,7 +91,7 @@ export class FooterRenderer extends ContentRender implements IRenderer {
 
     private onWidthChange(args: { index: string, width: number, module: string }): void {
         this.getColGroup().children[args.index].style.width = formatUnit(args.width);
-        if (this.parent.allowResizing ) { this.updateFooterTableWidth(this.getTable() as HTMLElement); }
+        if (this.parent.allowResizing && args.module === 'resize') { this.updateFooterTableWidth(this.getTable() as HTMLElement); }
     }
 
     private onScroll(e: { left: number } = { left: (<HTMLElement>this.parent.getContent().firstChild).scrollLeft }): void {
