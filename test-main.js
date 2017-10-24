@@ -74,8 +74,8 @@ require.config({
             main: 'index.js'
         },
         {
-            name: '@syncfusion/ej2-pdf',
-            location: 'node_modules/@syncfusion/ej2-pdf',
+            name: '@syncfusion/ej2-pdf-export',
+            location: 'node_modules/@syncfusion/ej2-pdf-export',
             main: 'index.js'
         }
         // Include dependent packages
