@@ -15,7 +15,7 @@ import { InlineEdit } from './inline-edit';
 import { BatchEdit } from './batch-edit';
 import { DialogEdit } from './dialog-edit';
 import { Dialog } from '@syncfusion/ej2-popups';
-import { parentsUntil, changeButtonType, getScrollBarWidth } from '../base/util';
+import { parentsUntil, changeButtonType } from '../base/util';
 import { Tooltip } from '@syncfusion/ej2-popups';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 
@@ -444,8 +444,6 @@ export class Edit implements IAction {
         this.parent.addEventListener(events.actionBegin, this.onActionBegin.bind(this));
         this.parent.addEventListener(events.actionComplete, this.actionComplete.bind(this));
         this.parent.on(events.initialEnd, this.wireEvents, this);
-        this.parent.on(events.scroll, this.refreshTooltipPos, this);
-        this.parent.on(events.refreshToolTip, this.refreshTooltipPos, this);
     }
 
     /**
@@ -463,8 +461,6 @@ export class Edit implements IAction {
         this.parent.removeEventListener(events.actionComplete, this.actionComplete);
         this.parent.removeEventListener(events.actionBegin, this.onActionBegin);
         this.parent.off(events.initialEnd, this.unwireEvents);
-        this.parent.off(events.scroll, this.refreshTooltipPos);
-        this.parent.off(events.refreshToolTip, this.refreshTooltipPos);
     }
 
     private actionComplete(e: NotifyArgs): void {
@@ -472,45 +468,6 @@ export class Edit implements IAction {
             this.parent.isEdit = false;
         }
         this.refreshToolbar();
-    }
-
-    private refreshTooltipPos(fromValidate?: boolean): void {
-        let gObj: IGrid = this.parent;
-        if (gObj.isEdit) {
-            if (!(fromValidate === true)) {
-                this.editFormValidate();
-                return;
-            }
-
-            let isDlg: boolean = gObj.editSettings.mode === 'dialog';
-            let contentElem: Element = isDlg ?
-                gObj.element.querySelector('#' + gObj.element.id + '_dialogEdit_wrapper').querySelector('.e-dlg-content') :
-                gObj.getContent();
-            let clientRect: ClientRect = contentElem.getBoundingClientRect();
-            let scrollWidth: number = getScrollBarWidth();
-            let hHeight: number = (isDlg ?
-                contentElem.parentElement.clientWidth < contentElem.scrollWidth :
-                gObj.element.clientWidth < gObj.getContent().firstElementChild.scrollWidth) ? scrollWidth : 0;
-            let vWidth: number = (isDlg ?
-                contentElem.parentElement.clientHeight < contentElem.scrollHeight :
-                gObj.element.clientHeight < gObj.getContent().firstElementChild.scrollHeight) ? scrollWidth : 0;
-            let editRow: Element = gObj.element.querySelector('.e-editedrow') || gObj.element.querySelector('.e-addedrow');
-            let elements: Element[] = [].slice.call(this.parent.element.querySelectorAll('td.e-tooltip'));
-
-            for (let td of elements) {
-                if ((td as EJ2Intance).ej2_instances) {
-                    let tdClientRect: ClientRect = td.getBoundingClientRect();
-                    let tObj: Tooltip = (td as EJ2Intance).ej2_instances[0] as Tooltip;
-                    tObj.refresh(td as HTMLElement);
-                    if (tdClientRect.top < clientRect.top
-                        || tdClientRect.bottom > clientRect.bottom - hHeight
-                        || tdClientRect.left < clientRect.left
-                        || tdClientRect.right > clientRect.right - vWidth) {
-                        tObj.close();
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -669,7 +626,7 @@ export class Edit implements IAction {
                 } else {
                     tObj.close();
                 }
-                this.refreshTooltipPos(true);
+                tObj.refresh();
             }
         }
     }

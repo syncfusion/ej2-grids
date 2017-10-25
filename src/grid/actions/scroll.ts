@@ -130,13 +130,13 @@ export class Scroll implements IAction {
             let sLimit: number = target.scrollWidth;
             let isFooter: boolean = target.classList.contains('e-summarycontent');
 
-            this.parent.notify(scroll, { left: left });
             if (this.previousValues.left === left) {
                 this.previousValues.top = !isHeader ? this.previousValues.top : target.scrollTop;
                 return;
             }
 
             element.scrollLeft = left;
+            if (isFooter) { this.header.scrollLeft = left; }
             this.previousValues.left = left;
             this.parent.notify(scroll, { left: left });
         };

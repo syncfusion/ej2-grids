@@ -234,5 +234,3 @@ export const beforePdfExport: string = 'beforePdfExport';
 export const pdfExportComplete: string = 'pdfExportComplete';
 /** @hidden */
 export const pdfQueryCellInfo: string = 'pdfQueryCellInfo';
-/** @hidden */
-export const refreshToolTip: string = 'refreshToolTip';

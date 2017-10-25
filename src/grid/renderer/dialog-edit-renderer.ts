@@ -2,7 +2,7 @@ import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
 import { Dialog } from '@syncfusion/ej2-popups';
 import { remove, createElement, Browser } from '@syncfusion/ej2-base';
-import { L10n, EventHandler } from '@syncfusion/ej2-base';
+import { L10n } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import * as events from '../base/constant';
 import { changeButtonType } from '../base/util';
@@ -62,12 +62,7 @@ export class DialogEditRender {
             { click: this.btnClick.bind(this), buttonModel: { cssClass: 'e-flat', content: this.l10n.getConstant('CancelButton') } }]
         });
         this.dialogObj.appendTo(this.dialog);
-        EventHandler.add(this.dialogObj.element.querySelector('.e-dlg-content'), 'scroll', this.refreshTooltip, this);
         changeButtonType(this.dialogObj.element);
-    }
-
-    private refreshTooltip(): void {
-        this.parent.notify(events.refreshToolTip, {});
     }
 
     private btnClick(e: MouseEvent): void {
@@ -84,7 +79,6 @@ export class DialogEditRender {
         this.parent.isEdit = false;
         this.parent.notify(events.toolbarRefresh, {});
         if (this.dialog && !this.dialogObj.isDestroyed) {
-            EventHandler.remove(this.dialogObj.element.querySelector('.e-dlg-content'), 'scroll', this.refreshTooltip);
             this.dialogObj.destroy();
             remove(this.dialog);
         }
