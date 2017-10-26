@@ -1,5 +1,5 @@
 import { Component, ModuleDeclaration, ChildProperty, Browser } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, closest } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
@@ -17,7 +17,7 @@ import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEv
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
-import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, RecordClickEventArgs } from './interface';
+import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
@@ -1389,20 +1389,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Event()
     public beforeDataBound: EmitType<BeforeDataBoundArgs>;
-
-    /** 
-     * Triggers when click on the grid records.
-     * @event
-     */
-    @Event()
-    public recordClick: EmitType<RecordClickEventArgs>;
-
-    /** 
-     * Triggers when double click on the grid records.
-     * @event
-     */
-    @Event()
-    public recordDoubleClick: EmitType<RecordClickEventArgs>;
 
     /**
      * Constructor for creating the component
@@ -2886,22 +2872,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (parentsUntil(e.target as Element, 'e-gridheader') && this.allowRowDragAndDrop) {
             e.preventDefault();
         }
-        this.processRecordClick(e, events.recordClick);
         this.notify(events.click, e);
-    }
-
-    private processRecordClick(e: Event, type: string): void {
-        let cell: HTMLTableCellElement = <HTMLTableCellElement>closest(<Element>e.target, 'td');
-        if (cell && !parentsUntil(cell, 'e-editedrow') && parentsUntil(cell, 'e-row') && !parentsUntil(cell, 'e-addedrow')) {
-            let cellIndex: number = parseInt(cell.getAttribute('aria-colindex'), 10);
-            let rowIndex: number = parseInt(cell.parentElement.getAttribute('aria-rowindex'), 10);
-            let args: RecordClickEventArgs = {
-                cell: cell, cellIndex: cellIndex,
-                cellValue: cell.innerText, type: type, column: <Column>this.columns[cellIndex], row: cell.parentElement,
-                rowIndex: rowIndex, data: this.getCurrentViewRecords()[rowIndex]
-            };
-            this.trigger(type, args);
-        }
     }
 
     private checkEdit(e: MouseEvent): boolean {
@@ -2916,7 +2887,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (parentsUntil(e.target as Element, 'e-grid').id !== this.element.id) {
             return;
         }
-        this.processRecordClick(e, events.recordDoubleClick);
         this.notify(events.dblclick, e);
     }
 
