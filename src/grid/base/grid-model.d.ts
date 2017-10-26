@@ -747,6 +747,12 @@ export interface GridModel extends ComponentModel{
     pagerTemplate?: string;
 
     /**
+     * @hidden
+     * @default ['columns']
+     */
+    deepMerge?: string[];
+
+    /**
      * Triggers when the component is created.
      * @event 
      */

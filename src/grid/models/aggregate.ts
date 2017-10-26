@@ -13,7 +13,7 @@ import { ValueFormatter } from '../services/value-formatter';
 export class AggregateColumn extends ChildProperty<AggregateColumn> {
 
     private formatFn: Function;
-    private templateFn: { [x: string]:  Function } = {};
+    private templateFn: { [x: string]: { fn: Function, property: string } } = {};
 
     /**
      * Defines the aggregate type of a particular column.
@@ -205,19 +205,25 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
      */
     public setTemplate(helper: Object = {}): void {
         if (this.footerTemplate !== undefined) {
-            this.templateFn[getEnumValue(CellType, CellType.Summary)] = compile(this.footerTemplate, helper);
+            this.templateFn[getEnumValue(CellType, CellType.Summary)] = { fn: compile(this.footerTemplate, helper),
+                property: 'footerTemplate' };
+
         }
         if (this.groupFooterTemplate !== undefined) {
-            this.templateFn[getEnumValue(CellType, CellType.GroupSummary)] = compile(this.groupFooterTemplate, helper);
+            this.templateFn[getEnumValue(CellType, CellType.GroupSummary)] = {fn: compile(this.groupFooterTemplate, helper),
+                property: 'groupFooterTemplate'};
+
         }
         if (this.groupCaptionTemplate !== undefined) {
-            this.templateFn[getEnumValue(CellType, CellType.CaptionSummary)] = compile(this.groupCaptionTemplate, helper);
+            this.templateFn[getEnumValue(CellType, CellType.CaptionSummary)] = {fn: compile(this.groupCaptionTemplate, helper),
+                property: 'groupCaptionTemplate'};
+
         }
     }
     /**
      * @hidden
      */
-    public getTemplate(type: CellType): Function {
+    public getTemplate(type: CellType): { fn: Function, property: string } {
         return this.templateFn[getEnumValue(CellType, type)];
     }
 }

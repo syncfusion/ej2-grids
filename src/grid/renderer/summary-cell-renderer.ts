@@ -26,8 +26,8 @@ export class SummaryCellRenderer extends CellRenderer implements ICellRenderer<A
         if (!(column.footerTemplate || column.groupFooterTemplate || column.groupCaptionTemplate)) {
             return true;
         }
-        let fn: Function = column.getTemplate(cell.cellType);
-        appendChildren(node, fn(data[column.columnName]));
+        let tempObj: { fn: Function, property: string } = column.getTemplate(cell.cellType);
+        appendChildren(node, tempObj.fn(data[column.columnName], this.parent, tempObj.property));
         return false;
     }
 }

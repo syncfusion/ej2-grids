@@ -58,7 +58,7 @@ export class DetailRow {
                     detailRow.appendChild(detailCell);
                     tr.parentNode.insertBefore(detailRow, tr.nextSibling);
                     if (gObj.detailTemplate) {
-                        appendChildren(detailCell, gObj.getDetailTemplate()(data));
+                        appendChildren(detailCell, gObj.getDetailTemplate()(data, gObj, 'detailTemplate'));
                     } else {
                         gObj.childGrid[parent] = {
                             parentID: gObj.element.id,

@@ -5,7 +5,7 @@ import { IGrid, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { ServiceLocator } from '../services/service-locator';
 import { EditSettingsModel } from '../base/grid-model';
-import { templateCompiler } from '../base/util';
+import { templateCompiler, appendChildren } from '../base/util';
 import { ToolbarItems } from '../base/enum';
 
 /**
@@ -88,13 +88,19 @@ export class Toolbar {
             enablePersistence: this.parent.enablePersistence,
             enableRtl: this.parent.enableRtl
         });
+        let viewStr: string = 'viewContainerRef';
+        let registerTemp: string = 'registeredTemplate';
+        if (this.parent[viewStr]) {
+            this.toolbar[registerTemp] = {};
+            this.toolbar[viewStr] = this.parent[viewStr];
+        }
         this.element = createElement('div', { id: this.gridID + '_toolbarItems' });
         if (this.parent.toolbarTemplate) {
             if (typeof (this.parent.toolbarTemplate) === 'string') {
                 this.toolbar.appendTo(this.parent.toolbarTemplate);
                 this.element = this.toolbar.element;
             } else {
-                this.element = templateCompiler(this.parent.toolbarTemplate)()[1];
+                appendChildren(this.element, templateCompiler(this.parent.toolbarTemplate)({}, this.parent, 'toolbarTemplate'));
             }
         } else {
             this.toolbar.appendTo(this.element);

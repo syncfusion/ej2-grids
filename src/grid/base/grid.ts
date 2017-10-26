@@ -1093,6 +1093,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property()
     public pagerTemplate: string;
 
+    /**
+     * @hidden
+     * @default ['columns']
+     */
+    @Property(['columns'])
+    public deepMerge: string[];
+
     /** 
      * Triggers when the component is created.
      * @event 
@@ -1414,11 +1421,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             searchSettings: ['fields', 'operator', 'ignoreCase'],
             sortSettings: [], columns: [], selectedRowIndex: []
         };
-        let ignoreOnColumn: string[] = ['foreignKeyValue', 'isIdentity', 'edit', 'defaultValue',
-            'validationRules', 'editType', 'showInColumnChooser', 'hideAtMedia', 'isPrimaryKey', 'toolTip', 'filterBarTemplate',
-            'valueAccessor', 'formatter', 'dataSource', 'displayAsCheckBox', 'customAttributes', 'allowEditing', 'allowGrouping',
-            'allowFiltering', 'allowResizing', 'allowSorting', 'headerTemplate', 'template', 'format', 'type', 'disableHtmlEncode',
-            'headerTextAlign', 'clipMode', 'textAlign', 'maxWidth', 'minWidth', 'headerText', 'uid', 'field'];
+        let ignoreOnColumn: string[] = ['edit', 'filterBarTemplate', 'headerTemplate', 'template'];
         keyEntity.forEach((value: string) => {
             let currentObject: Object = this[value];
             for (let val of ignoreOnPersist[value]) {

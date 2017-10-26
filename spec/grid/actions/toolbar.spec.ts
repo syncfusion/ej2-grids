@@ -155,10 +155,13 @@ describe('Toolbar functionalities', () => {
         gridObj.selectCell({ cellIndex: 0, rowIndex: 0 }, true);
         gridObj.selectCell({ cellIndex: 0, rowIndex: 0 }, true);
         (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: '' } });
+        (<any>gridObj.toolbarModule).getItem({text: 'add'});
+        (<any>gridObj.toolbarModule).toolbar.isDestroyed = true;
+        (<any>gridObj.toolbarModule).destroy();
         gridObj.isDestroyed = true;
         (<any>gridObj.toolbarModule).destroy();
         gridObj.isDestroyed = false;
-
+        expect(1).toBe(1);
     });
 
     afterAll(() => {
