@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## 1.0.25-preview (2017-10-26)
+
+### Grid
+
+#### New Features
+
+- Pager template feature added.
+- Column clip mode feature added.
+- Improved toolbar item template support.
+
+#### Bug Fixes
+
+- Grid width shrinks with static column width fixed.
+
 ## 1.0.22-preview (2017-10-16)
 
 ### Grid
