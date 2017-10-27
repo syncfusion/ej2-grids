@@ -183,6 +183,22 @@ describe('Sorting module', () => {
             colHeader = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[2];
             (colHeader as HTMLElement).dispatchEvent(evt);
         });
+        it('Disable multisort des testing', (done: Function) => {
+            gridObj.allowSorting = true;
+            gridObj.allowMultiSorting = false;
+            actionComplete = (args: Object): void => {
+                expect(col1.querySelectorAll('.e-ascending').length).toBe(0);
+                expect(col2.querySelectorAll('.e-descending').length).toBe(0);
+                expect(colHeader.querySelectorAll('.e-descending').length).toBe(1);
+                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"EmployeeID","direction":"descending"}]');
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.dataBind();
+            colHeader = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[2];
+            (colHeader as HTMLElement).dispatchEvent(evt);
+        });
         it('Clear sorting', (done: Function) => {
             actionComplete = (args: Object): void => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
@@ -205,6 +221,7 @@ describe('Sorting module', () => {
             gridObj.sortColumn('OrderID', 'ascending', false);
         });
         it('Multisort column method testing', (done: Function) => {
+            gridObj.allowMultiSorting = true;
             actionComplete = (args: Object): void => {
                 expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
                 expect(col2.querySelectorAll('.e-descending').length).toBe(1);

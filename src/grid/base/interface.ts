@@ -87,6 +87,12 @@ export interface IGrid extends Component<HTMLElement> {
     allowSorting?: boolean;
 
     /**
+     * Specifies whether the multi-sorting is enable or not.
+     * @default null
+     */
+    allowMultiSorting?: boolean;
+
+    /**
      * Specifies the sortSettings for Grid.
      * @default []
      */

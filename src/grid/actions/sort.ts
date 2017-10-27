@@ -106,11 +106,15 @@ export class Sort implements IAction {
      * @return {void} 
      */
     public sortColumn(columnName: string, direction: SortDirection, isMultiSort?: boolean): void {
-        if (this.parent.getColumnByField(columnName).allowSorting === false) {
+        let gObj: IGrid = this.parent;
+        if (gObj.getColumnByField(columnName).allowSorting === false) {
             return;
         }
+        if (!gObj.allowMultiSorting) {
+            isMultiSort = gObj.allowMultiSorting;
+        }
         if (this.isActionPrevent()) {
-            this.parent.notify(
+            gObj.notify(
                 events.preventBatch,
                 {
                     instance: this, handler: this.sortColumn,
@@ -122,7 +126,7 @@ export class Sort implements IAction {
         this.direction = direction;
         this.isMultiSort = isMultiSort;
         this.removeSortIcons();
-        let column: Element = this.parent.getColumnHeaderByField(columnName);
+        let column: Element = gObj.getColumnHeaderByField(columnName);
         this.updateSortedCols(columnName, isMultiSort);
         this.updateModel();
     }

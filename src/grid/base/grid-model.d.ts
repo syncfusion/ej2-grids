@@ -468,6 +468,13 @@ export interface GridModel extends ComponentModel{
     allowSorting?: boolean;
 
     /**
+     * If `allowMultiSorting` set to true, then it will allow the user to sort multiple column in the grid.
+     * > `allowSorting` should be true.
+     * @default false
+     */
+    allowMultiSorting?: boolean;
+
+    /**
      * If `allowExcelExport` set to true, then it will allow the user to export grid to Excel file.
      * @default false    
      */
