@@ -458,6 +458,7 @@ describe('Grid base module', () => {
 
     describe('media columns testing', () => {
         let gridObj: Grid;
+        let targetEle: {};
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
             let dataBound: EmitType<Object> = () => { done(); };
@@ -485,6 +486,10 @@ describe('Grid base module', () => {
             gridObj.mediaQueryUpdate(0, mediaqry);
             let mediaqry1: any = window.matchMedia('(max-width:1300px)');
             gridObj.mediaQueryUpdate(1, mediaqry);
+            let ele: Element = gridObj.element;
+            let e: any = {target : ele };
+            (<any>gridObj).focusOutHandler(e);
+
         });
 
         afterAll(() => {

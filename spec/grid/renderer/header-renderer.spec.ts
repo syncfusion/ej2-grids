@@ -29,7 +29,10 @@ describe('header renderer module', () => {
                     dataSource: data,
                     query: new Query().take(5), allowPaging: false,
                     columns: [
-                        { headerText: 'OrderID', field: 'OrderID', headerTemplate: 'template' },
+                        {
+                            headerText: 'OrderID', field: 'OrderID',
+                            headerTemplate: '<span>Order ID</span>'
+                        },
                         { headerText: 'CustomerID', field: 'CustomerID' },
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
@@ -56,13 +59,51 @@ describe('header renderer module', () => {
             expect(gridObj.element.querySelectorAll('.e-headercell').length).toBe(gridObj.getColumns().length);
             //for coverage
             let hRender = (<any>gridObj).renderModule.locator.getService('cellRendererFactory').getCellRenderer(CellType.Header);
-            hRender.refresh({column: gridObj.getColumns()[1]} as any, createElement('div'));
+            hRender.refresh({ column: gridObj.getColumns()[1] } as any, createElement('div'));
         });
 
         afterAll(() => {
-          remove(elem);
+            remove(elem);
         });
 
+    });
+    describe('Header template element render', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            let template: Element = createElement('div', { id: 'template' });
+            template.innerHTML = '<span>$ShipCity$</span>';
+            document.body.appendChild(template);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    allowGrouping: true,
+                    groupSettings: { columns: ['ShipCity'] },
+                    columns: [
+                        { field: 'ShipCity', headerTemplate: '#template', headerText: 'Template column' },
+                        { field: 'EmployeeID' },
+                        { field: 'CustomerID', headerText: 'Customer ID' },
+
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('header testing', () => {
+            let sender: object = {};
+            let target: any = gridObj.element.querySelector('.e-headercell');
+            let trs = gridObj.getContent().querySelectorAll('tr');
+            let eve: any = { sender: { target } };
+            (<any>gridObj).headerModule.helper(eve);
+
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
     });
 
 });

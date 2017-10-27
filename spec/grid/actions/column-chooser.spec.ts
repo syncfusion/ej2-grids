@@ -242,6 +242,9 @@ describe('Column chooser module', () => {
                 gridObj.columnChooserModule.openColumnChooser(100, 100);
                 (<any>gridObj).columnChooserModule.confirmDlgBtnClick();
                 (gridObj.columnChooserModule as any).columnChooserManualSearch(e);
+                let searchElement = gridObj.element.querySelector('.e-ccsearch');
+                (<any>gridObj).columnChooserModule.searchFocus(searchElement);
+                (<any>gridObj).columnChooserModule.searchBlur(searchElement);
                 // (<any>gridObj).columnChooserModule.columnChooserSearch('e');
                 // (<any>gridObj).columnChooserModule.startTime({keycode: 13});
                 (<any>gridObj).columnChooserModule.destroy();

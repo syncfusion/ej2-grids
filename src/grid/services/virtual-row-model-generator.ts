@@ -142,7 +142,7 @@ export class VirtualRowModelGenerator implements IModelGenerator<Column> {
                 rows = [...rows, ...this.cache[key]];
             }
          });
-        if (currentFirst.isDataRow || block % 2 === 0) {
+        if ((currentFirst && currentFirst.isDataRow) || block % 2 === 0) {
             return current;
         }
         return this.iterateGroup(current, rows);
@@ -150,7 +150,7 @@ export class VirtualRowModelGenerator implements IModelGenerator<Column> {
 
     private iterateGroup(current: Row<Column>[], rows: Row<Column>[]): Row<Column>[] {
         let currentFirst: Row<Column> = current[0]; let offset: number = 0;
-        if (currentFirst.isDataRow) {
+        if (currentFirst && currentFirst.isDataRow) {
             return current;
         }
         let isPresent: boolean = current.some((row: Row<Column>) => {

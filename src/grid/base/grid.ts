@@ -401,6 +401,13 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
     @Property([])
     public columns: string[];
 
+    /**    
+     * The Caption Template allows user to display the string or HTML element in group caption.
+     */
+    @Property()
+    public captionTemplate: string;
+
+
 }
 
 

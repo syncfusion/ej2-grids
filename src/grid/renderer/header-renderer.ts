@@ -39,8 +39,17 @@ export class HeaderRender implements IRenderer {
         }
         let height: number = element.offsetHeight;
         let headercelldiv: Element = element.querySelector('.e-headercelldiv');
-        visualElement.textContent = headercelldiv ?
-            gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid')).headerText : element.innerHTML;
+        let col: Column = gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid'));
+        if (!isNullOrUndefined(col.headerTemplate)) {
+            if (col.headerTemplate.indexOf('#') !== -1) {
+                visualElement.innerHTML = document.querySelector(col.headerTemplate).innerHTML.trim();
+            } else {
+                visualElement.innerHTML = col.headerTemplate;
+            }
+        } else {
+            visualElement.textContent = headercelldiv ?
+                gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid')).headerText : element.firstElementChild.innerHTML;
+        }
         visualElement.style.width = element.offsetWidth + 'px';
         visualElement.style.height = element.offsetHeight + 'px';
         visualElement.style.lineHeight = (height - 6).toString() + 'px';
@@ -241,7 +250,7 @@ export class HeaderRender implements IRenderer {
         this.ariaService.setOptions(table as HTMLElement, { colcount: gObj.getColumns().length.toString() });
         return table;
     }
-     private createHeaderContent(): { thead: Element, rows: Row<Column>[] } {
+    private createHeaderContent(): { thead: Element, rows: Row<Column>[] } {
         let gObj: IGrid = this.parent;
         let columns: Column[] = <Column[]>gObj.getColumns();
         let thead: Element = createElement('thead');
@@ -321,7 +330,7 @@ export class HeaderRender implements IRenderer {
 
     private appendCells(
         cols: Column, rows: Row<Column>[], index: number, isFirstObj: boolean, isFirstCol: boolean, isLastCol: boolean): Row<Column>[] {
-        let lastCol: string = isLastCol ? 'e-lastcell' : '' ;
+        let lastCol: string = isLastCol ? 'e-lastcell' : '';
         if (!cols.columns) {
             rows[index].cells.push(this.generateCell(
                 cols, CellType.Header, this.colDepth - index,

@@ -331,6 +331,11 @@ export interface GroupSettingsModel {
      */
     columns?: string[];
 
+    /**
+     * The Caption Template allows user to display the string or HTML element in group caption.
+     */
+    captionTemplate?: string;
+
 }
 
 /**

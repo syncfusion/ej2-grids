@@ -450,6 +450,18 @@ describe('Row Drag and Drop module', () => {
                 (gridObj.rowDragAndDropModule as any).dragStop({ helper: gridObj.element, event: { clientX: 10, clientY: 10, target: gridObj.element } });
                 (gridObj.rowDragAndDropModule as any).getTargetIdx(null);
             });
+            it('row drop method for coverage', () => {
+                gridObj.selectRow(1);
+                let target: HTMLElement = createElement('div', { id: 'Grid11', attrs: { 'action': 'grouping1' } });
+                gridObj.element.appendChild(target);
+
+                gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
+                (gridObj.rowDragAndDropModule as any).dragStart({ target: "" });
+                (gridObj1.rowDragAndDropModule as any).dragStart({ target: gridObj.element });
+                (gridObj.rowDragAndDropModule as any).drag({ target: gridObj.element, event: { clientX: 10, clientY: 10, target: gridObj.element } });
+                (gridObj.rowDragAndDropModule as any).dragStop({ helper: gridObj.element, event: { clientX: 10, clientY: 10, target: gridObj.element } });
+                (gridObj.rowDragAndDropModule as any).getTargetIdx(null);
+            });
 
 
             afterAll(() => {
@@ -609,6 +621,13 @@ describe('Row Drag and Drop module', () => {
             expect(document.getElementById('Grid1')).toEqual(gridObj1.element);
         });
 
+        it('reorder helper coverage', () => {
+            gridObj.selectRow(3);
+            let target: any = gridObj.getContent().querySelectorAll('.e-selectionbackground')[0];
+            let sender: object = {};
+            let eve: any = { sender: { target } };
+            (<any>gridObj).rowDragAndDropModule.helper(eve);
+        });
 
 
         // it('drag and drop selected rows outside of grid', () => {

@@ -91,10 +91,18 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         if (column.allowGrouping) {
             ariaAttr.grabbed = false;
         }
+        if (!isNullOrUndefined(column.headerTemplate)) {
+            if (column.headerTemplate.indexOf('#') !== -1) {
+                innerDIV.innerHTML = document.querySelector(column.headerTemplate).innerHTML.trim();
+            } else {
+                innerDIV.innerHTML = column.headerTemplate;
+            }
+        }
+
         if (this.parent.allowResizing) {
             let handler: HTMLElement = createElement('div');
             handler.className = column.allowResizing ? 'e-rhandler e-rcursor' : 'e-rsuppress';
-            node.appendChild ( handler );
+            node.appendChild(handler);
         }
         this.ariaService.setOptions(<HTMLElement>node, ariaAttr);
 

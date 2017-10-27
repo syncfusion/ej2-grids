@@ -80,9 +80,15 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         //Captionsummary cells will be added here.    
         if (this.parent.aggregates.length && !this.captionModelGen.isEmpty()) {
             let captionCells: Row<Column> = <Row<Column>>this.captionModelGen.generateRows(data)[0];
-            extend(data, captionCells.data);
-            visibles = captionCells.cells.filter((cell: Cell<Column>) => cell.visible);
-            visibles = visibles.slice(groupedLen + 1, visibles.length);
+            extend(data, captionCells.data); let cIndex: number = 0;
+            captionCells.cells.some((cell: Cell<Column>, index: number) => { cIndex = index; return cell.visible && cell.isDataCell; });
+            visibles = captionCells.cells.slice(cIndex).filter((cell: Cell<Column>) => cell.visible);
+            if (visibles[0].column.field === this.parent.getVisibleColumns()[0].field) {
+                visibles = visibles.slice(1);
+            }
+            if (this.parent.getVisibleColumns().length === 1) {
+                visibles = [];
+            }
             indent = indent - visibles.length;
         }
         let cols: Column[] = (!this.parent.enableColumnVirtualization ? [column] : this.parent.getColumns());

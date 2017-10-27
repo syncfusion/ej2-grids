@@ -239,6 +239,45 @@ describe('Aggregates Functionality testing', () => {
         });
     });
 
+    describe('Caption summary with single visible column', () => {
+        let grid: Grid;
+        let rows: HTMLTableRowElement;
+        beforeAll((done: Function) => {
+            grid = createGrid(
+                {
+                    allowGrouping: true,
+                    allowPaging: true,
+                    groupSettings: { columns: ['OrderID'] },
+                    columns: [
+                        {
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
+                            textAlign: 'right'
+                        },
+                        { field: 'Freight', format: 'C1' },
+                    ],
+                    aggregates: [{
+                        columns: [{
+                            type: 'average',
+                            field: 'Freight',
+                            groupCaptionTemplate: '${average}'
+                        }]
+                    }]
+                },
+                done
+            );
+        });
+
+        it('check caption summary value', () => {
+            let rows: HTMLTableRowElement = <any>(grid.getContentTable() as HTMLTableElement)
+                .querySelector('.e-summarycell.e-templatecell');
+            expect(rows).toBeNull();
+        });
+
+        afterAll(() => {
+            destroy(grid);
+        });
+    });
+
     describe('Custom summary functionality', () => {
         let grid: Grid;
         let rows: HTMLTableRowElement;

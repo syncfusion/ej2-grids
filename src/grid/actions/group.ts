@@ -531,10 +531,20 @@ export class Group implements IAction {
         let column: Column = this.parent.getColumnByField(field);
         //Todo headerTemplateID for grouped column, disableHtmlEncode                          
         let headerCell: Element = gObj.getColumnHeaderByUid(column.uid);
-        childDiv.appendChild(createElement('span', {
-            className: 'e-grouptext', innerHTML: column.headerText,
-            attrs: { tabindex: '-1', 'aria-label': 'sort the grouped column' }
-        }));
+        if (!isNullOrUndefined(column.headerTemplate)) {
+            if (column.headerTemplate.indexOf('#') !== -1) {
+                childDiv.innerHTML = document.querySelector(column.headerTemplate).innerHTML.trim();
+            } else {
+                childDiv.innerHTML = column.headerTemplate;
+            }
+            childDiv.firstElementChild.classList.add('e-grouptext');
+        } else {
+            childDiv.appendChild(createElement('span', {
+                className: 'e-grouptext', innerHTML: column.headerText,
+                attrs: { tabindex: '-1', 'aria-label': 'sort the grouped column' }
+            }));
+        }
+
         if (this.groupSettings.showToggleButton) {
             childDiv.appendChild(createElement(
                 'span', {

@@ -116,9 +116,8 @@ export class Column {
     public template: string;
 
     /**        
-     * Defines the column template as string or HTML element ID which is used to add customized element in the column header.     
-     * @default null    
-     * @hidden  
+     * Defines the header template as string or HTML element ID which is used to add customized element in the column header.     
+     * @default null
      */
 
     public headerTemplate: string;

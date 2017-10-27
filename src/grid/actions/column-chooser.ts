@@ -242,18 +242,21 @@ export class ColumnChooser implements IAction {
         this.innerDiv = createElement('div', { className: 'e-innerdiv e-cc' });
         searchDiv.appendChild(ccsearchele);
         searchDiv.appendChild(ccsearchicon);
-        ccsearchele.addEventListener('focus', () => {
-            ccsearchele.parentElement.classList.add('e-input-focus');
-        });
-        ccsearchele.addEventListener('blur', () => {
-            ccsearchele.parentElement.classList.remove('e-input-focus');
-        });
+        ccsearchele.addEventListener('focus', this.searchFocus.bind(this, ccsearchele));
+        ccsearchele.addEventListener('blur', this.searchBlur.bind(this, ccsearchele));
         let innerDivContent: HTMLElement | string[] | string = this.refreshCheckboxList(this.parent.getColumns() as Column[]);
         this.innerDiv.appendChild((innerDivContent as Element));
         conDiv.appendChild(this.innerDiv);
         this.mainDiv.appendChild(searchDiv);
         this.mainDiv.appendChild(conDiv);
         return this.mainDiv;
+    }
+    private searchFocus(targt: Element): void {
+        targt.parentElement.classList.add('e-input-focus');
+    }
+
+    private searchBlur(targt: Element): void {
+        targt.parentElement.classList.remove('e-input-focus');
     }
 
     private confirmDlgBtnClick(args: Object): void {

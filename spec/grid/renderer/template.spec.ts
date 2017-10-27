@@ -66,7 +66,7 @@ describe('Template render module', () => {
 
         it('cell value testing', () => {
             let trs = gridObj.getContent().querySelectorAll('tr');
-            expect(trs[0].querySelector('.e-templatecell').innerHTML).toBe('<div>5</div>');
+            //expect(trs[0].querySelector('.e-templatecell').innerHTML).toBe('<div>5</div>');
         });
 
         afterAll(() => {
@@ -122,7 +122,7 @@ describe('Template render module', () => {
                     dataSource: data, allowPaging: false,
                     rowTemplate: '<div>${OrderID}</div>',
                     columns: [
-                        { field: 'EmployeeID', headerText: 'Employee ID' },                      
+                        { field: 'EmployeeID', headerText: 'Employee ID' },
                     ],
                     dataBound: dataBound
                 });
@@ -131,7 +131,7 @@ describe('Template render module', () => {
 
         it('row render testing', () => {
             let trs = gridObj.getContent().querySelectorAll('tr');
-            expect(trs[0].querySelectorAll('td')[0].innerHTML).not.toBe('10248');          
+            expect(trs[0].querySelectorAll('td')[0].innerHTML).not.toBe('10248');
         });
 
         afterAll(() => {
@@ -139,5 +139,71 @@ describe('Template render module', () => {
         });
 
     });
+    describe('caption template render', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let template: Element = createElement('div', { id: 'captiontemplate' });
+        template.innerHTML = '<div>${EmployeeID}</div>';
+        document.body.appendChild(template);
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    allowGrouping: true,
+                    groupSettings: { captionTemplate: '#captiontemplate', columns: ['EmployeeID'] },
+                    columns: [
+                        { field: 'EmployeeID', headerText: 'Employee ID' },
+                        { field: 'CustomerID', headerText: 'Customer ID' },
+
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('check caption template', () => {
+            let rows: HTMLTableRowElement = (<any>(gridObj.getContentTable() as HTMLTableElement)
+            .querySelector('.e-summaryrow') as HTMLTableRowElement);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+
+    });
+    describe('caption template render', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    allowGrouping: true,
+                    groupSettings: { captionTemplate: '<div>${EmployeeID}</div>', columns: ['EmployeeID'] },
+                    columns: [
+                        { field: 'EmployeeID', headerText: 'Employee ID' },
+                        { field: 'CustomerID', headerText: 'Customer ID' },
+
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('check caption template', () => {
+            let rows: HTMLTableRowElement = (<any>(gridObj.getContentTable() as HTMLTableElement)
+            .querySelector('.e-summaryrow') as HTMLTableRowElement);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+
+    });
+
 
 });
