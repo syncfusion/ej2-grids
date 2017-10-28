@@ -18,6 +18,7 @@ import { Dialog } from '@syncfusion/ej2-popups';
 import { parentsUntil, changeButtonType } from '../base/util';
 import { Tooltip } from '@syncfusion/ej2-popups';
 import { FormValidator } from '@syncfusion/ej2-inputs';
+import { DatePickerEditCell } from '../renderer/datepicker-edit-cell';
 
 /**
  * `Edit` module is used to handle editing actions.
@@ -30,8 +31,8 @@ export class Edit implements IAction {
     /** @hidden */
     public formObj: FormValidator;
     private editCellType: Object = {
-        'dropdownedit': DropDownEditCell,
-        'numericedit': NumericEditCell, 'booleanedit': BooleanEditCell, 'default': DefaultEditCell
+        'dropdownedit': DropDownEditCell, 'numericedit': NumericEditCell,
+        'datepickeredit': DatePickerEditCell, 'booleanedit': BooleanEditCell, 'defaultedit': DefaultEditCell
     };
     private editType: Object = { 'inline': InlineEdit, 'normal': InlineEdit, 'batch': BatchEdit, 'dialog': DialogEdit };
     //Module declarations
@@ -53,15 +54,18 @@ export class Edit implements IAction {
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator) {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
+        this.l10n = this.serviceLocator.getService<L10n>('localization');
         this.addEventListener();
         this.updateEditObj();
+        this.createAlertDlg();
+        this.createConfirmDlg();
     }
 
     private updateColTypeObj(): void {
         for (let col of this.parent.columns as Column[]) {
             col.edit = extend(
                 new this.editCellType[col.editType && this.editCellType[col.editType] ?
-                    col.editType : 'default'](this.parent, this.serviceLocator),
+                    col.editType : 'defaultedit'](this.parent, this.serviceLocator),
                 col.edit || {}
             );
         }
@@ -112,9 +116,6 @@ export class Edit implements IAction {
 
     private initialEnd(): void {
         this.updateColTypeObj();
-        this.l10n = this.serviceLocator.getService<L10n>('localization');
-        this.createAlertDlg();
-        this.createConfirmDlg();
     }
 
     private wireEvents(): void {
@@ -308,7 +309,7 @@ export class Edit implements IAction {
     /**
      * To get current value of edited component.
      */
-    public getCurrentEditCellData(): void {
+    public getCurrentEditCellData(): string {
         let obj: Object = this.getCurrentEditedData(this.formObj.element, {});
         return obj[Object.keys(obj)[0]];
     }
@@ -327,6 +328,7 @@ export class Edit implements IAction {
 
     private showDialog(content: string, obj: Dialog): void {
         obj.content = '<div>' + this.l10n.getConstant(content) + '</div>';
+        obj.dataBind();
         obj.show();
     }
 
@@ -334,7 +336,7 @@ export class Edit implements IAction {
         let val: number | string | Date | boolean = value;
         switch (col.type) {
             case 'number':
-                val = !isNullOrUndefined(parseFloat(value as string)) ? parseFloat(value as string) : null;
+                val = !isNaN(parseFloat(value as string)) ? parseFloat(value as string) : null;
                 break;
             case 'boolean':
                 if (col.editType !== 'booleanedit') {
@@ -464,7 +466,8 @@ export class Edit implements IAction {
     }
 
     private actionComplete(e: NotifyArgs): void {
-        if (e.requestType as string !== 'add' && e.requestType as string !== 'beginEdit' && e.requestType as string !== 'delete') {
+        let actions: string[] = ['add', 'beginEdit', 'save', 'delete', 'cancel'];
+        if (actions.indexOf(e.requestType) < 0) {
             this.parent.isEdit = false;
         }
         this.refreshToolbar();
@@ -495,7 +498,7 @@ export class Edit implements IAction {
      * @hidden
      */
     public onActionBegin(e: NotifyArgs): void {
-        if (this.parent.editSettings.mode !== 'batch' && this.formObj && !this.formObj.isDestroyed && !e.cancel) {
+        if (this.parent.editSettings.mode !== 'batch' && e.requestType as string !== 'save' && this.formObj && !this.formObj.isDestroyed) {
             this.destroyForm();
             this.destroyWidgets();
         }
@@ -532,8 +535,12 @@ export class Edit implements IAction {
     public destroy(): void {
         this.destroyForm();
         this.removeEventListener();
+        let elem: Element = this.dialogObj.element;
         this.dialogObj.destroy();
+        remove(elem);
+        elem = this.alertDObj.element;
         this.alertDObj.destroy();
+        remove(elem);
         this.unwireEvents();
     }
 

@@ -6,6 +6,7 @@ import { Cell } from '../models/cell';
 import { ICellRenderer, IValueFormatter, ICellFormatter, ICell, IGrid } from '../base/interface';
 import { doesImplementInterface, setStyleAndAttributes, appendChildren } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
+import { CheckBox } from '@syncfusion/ej2-buttons';
 
 /**
  * CellRenderer class which responsible for building cell content. 
@@ -128,7 +129,7 @@ export class CellRenderer implements ICellRenderer<Column> {
             let isNull: boolean = (value !== 'true' && value !== 'false');
             if (column.displayAsCheckBox) {
                 node.classList.add('e-checkbox');
-                innerHtml = isNull ? null : '<input type="checkbox" disabled ' + (value === 'true' ? 'checked' : '') + '/>';
+                innerHtml = isNull ? null : '<input type="checkbox" disabled ' + '/>';
             } else {
                 let localeStr: string = isNull ? null : value === 'true' ? 'True' : 'False';
                 innerHtml = localeStr ? this.localizer.getConstant(localeStr) : innerHtml;
@@ -146,6 +147,11 @@ export class CellRenderer implements ICellRenderer<Column> {
         }
 
         this.setAttributes(<HTMLElement>node, cell, attributes);
+
+        if (column.type === 'boolean') {
+            let obj: CheckBox = new CheckBox({ disabled: true, checked: value === 'true' });
+            obj.appendTo(node.firstElementChild as HTMLElement);
+        }
 
         return node;
     }
@@ -180,7 +186,7 @@ export class CellRenderer implements ICellRenderer<Column> {
 
         if (column.clipMode === 'clip') {
             node.classList.add('e-gridclip');
-        }else if (column.clipMode === 'ellipsiswithtooltip') {
+        } else if (column.clipMode === 'ellipsiswithtooltip') {
             node.classList.add('e-ellipsistooltip');
         }
     }

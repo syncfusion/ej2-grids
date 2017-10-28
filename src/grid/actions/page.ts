@@ -161,8 +161,9 @@ export class Page implements IAction {
         if (this.isForceCancel || isActionPrevent(gObj)) {
             if (!this.isForceCancel) {
                 gObj.notify(events.preventBatch, { instance: this, handler: this.goToPage, arg1: e.currentPage });
-                this.pagerObj.currentPage = gObj.pageSettings.currentPage;
                 this.isForceCancel = true;
+                this.pagerObj.currentPage = gObj.pageSettings.currentPage;
+                this.pagerObj.dataBind();
             } else {
                 this.isForceCancel = false;
             }

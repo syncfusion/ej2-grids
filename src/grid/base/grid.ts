@@ -505,7 +505,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /** @hidden */
     public currentAction: Action;
     /** @hidden */
-    public isEdit: boolean;
+    public isEdit: boolean = false;
     /** @hidden */
     public filterOperators: IFilterOperator = {
         contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',

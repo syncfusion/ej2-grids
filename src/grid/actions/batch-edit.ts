@@ -1,4 +1,4 @@
-import { extend, KeyboardEventArgs, addClass } from '@syncfusion/ej2-base';
+import { extend, KeyboardEventArgs, addClass, removeClass } from '@syncfusion/ej2-base';
 import { remove, classList, createElement } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
@@ -95,7 +95,8 @@ export class BatchEdit {
 
     private keyPressHandler(e: KeyboardEventArgs): void {
         let isEdit: boolean = this.parent.isEdit;
-        if (!document.querySelectorAll('.e-popup-open').length) {
+        let actions: string[] = ['tab', 'shiftTab', 'enter', 'f2'];
+        if (!document.querySelectorAll('.e-popup-open').length && actions.indexOf(e.action) > -1) {
             this.saveCell();
             isEdit = isEdit && !this.validateFormObj();
             switch (e.action) {
@@ -559,8 +560,8 @@ export class BatchEdit {
         gObj.editModule.destroyWidgets([column]);
         this.parent.notify(events.tooltipDestroy, {});
         this.refreshTD(args.cell, column, gObj.getRowObjectFromUID(tr.getAttribute('data-uid')), args.value);
-        classList(tr, [], ['e-editedrow', 'e-batchrow']);
-        args.cell.classList.remove('e-editedbatchcell');
+        removeClass([tr], ['e-editedrow', 'e-batchrow']);
+        removeClass([args.cell], ['e-editedbatchcell', 'e-boolcell']);
         gObj.isEdit = false;
         if (!isNullOrUndefined(args.value) && args.value.toString() ===
             (!isNullOrUndefined(this.cellDetails.value) ? this.cellDetails.value : '').toString() && !this.isColored) {
@@ -573,17 +574,6 @@ export class BatchEdit {
     protected getDataByIndex(index: number): Object {
         let row: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getDataRows()[index].getAttribute('data-uid'));
         return row.changes ? row.changes : row.data;
-    }
-
-    private valComplete(args: { status: string, inputName: string, element: HTMLElement }): void {
-        let edit: { validationComplete: Function } | Object = (this.parent.editModule as Object);
-        (edit as { validationComplete: Function }).validationComplete(args);
-    }
-
-
-    private customPlacement(inputElement: HTMLElement, error: HTMLElement): void {
-        let edit: { valErrorPlacement: Function } | Object = (this.parent.editModule as Object);
-        (edit as { valErrorPlacement: Function }).valErrorPlacement(inputElement, error);
     }
 }
 

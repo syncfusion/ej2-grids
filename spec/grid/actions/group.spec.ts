@@ -185,9 +185,9 @@ describe('Grouping module', () => {
                 expect(content[1].querySelectorAll('.e-groupcaption').length).toBe(1);
                 expect(content[2].querySelectorAll('.e-groupcaption').length).toBe(1);
 
-                // expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship City: Albuquerque - 1 item');
-                // expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship Country: USA - 1 item');
-                // expect(content[2].querySelectorAll('.e-groupcaption')[0].textContent).toBe('CustomerID: RATTC - 5 items');
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship City: Albuquerque - 1 item');
+                expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship Country: USA - 1 item');
+                expect(content[2].querySelectorAll('.e-groupcaption')[0].textContent).toBe('CustomerID: RATTC - 5 items');
 
                 expect(content[3].querySelectorAll('.e-indentcell').length).toBe(3);
 
@@ -230,8 +230,8 @@ describe('Grouping module', () => {
                 expect(content[0].querySelectorAll('.e-groupcaption').length).toBe(1);
                 expect(content[1].querySelectorAll('.e-groupcaption').length).toBe(1);
 
-                // expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship City: Albuquerque - 1 item');
-                // expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toBe('CustomerID: RATTC - 5 items');
+                expect(content[0].querySelectorAll('.e-groupcaption')[0].textContent).toBe('Ship City: Albuquerque - 1 item');
+                expect(content[1].querySelectorAll('.e-groupcaption')[0].textContent).toBe('CustomerID: RATTC - 5 items');
 
                 expect(content[2].querySelectorAll('.e-indentcell').length).toBe(2);
 
@@ -631,8 +631,8 @@ describe('Grouping module', () => {
         it('hide Grouped Column', (done: Function) => {
             actionComplete = () => {
                 expect(1).toBe(1);
-                // expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toBe(gridObj.groupSettings.columns.length);
-                // expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toBe(gridObj.groupSettings.columns.length * 12);
+                expect(gridObj.element.querySelectorAll('.e-headercell.e-hide').length).toBe(gridObj.groupSettings.columns.length);
+                expect(gridObj.element.querySelectorAll('.e-rowcell.e-hide').length).toBe(gridObj.groupSettings.columns.length * 12);
                 done();
             };
             gridObj.actionComplete = actionComplete;

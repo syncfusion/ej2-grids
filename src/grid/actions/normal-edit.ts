@@ -56,6 +56,7 @@ export class NormalEdit {
      * @hidden
      */
     public editComplete(e: NotifyArgs): void {
+        this.parent.isEdit = false;
         switch (e.requestType as string) {
             case 'save':
                 this.parent.selectRow(0);
@@ -130,7 +131,9 @@ export class NormalEdit {
                 return;
             }
         }
-        this.parent.notify(events.dialogDestroy, {});
+        gObj.editModule.destroyWidgets();
+        gObj.editModule.destroyForm();
+        gObj.notify(events.dialogDestroy, {});
         this.stopEditStatus();
     }
 
@@ -159,6 +162,7 @@ export class NormalEdit {
             this.parent.trigger(events.beforeDataBound, args);
         }
         args.type = events.actionComplete;
+        this.parent.isEdit = false;
         this.refreshRow(args.data);
         this.parent.trigger(events.actionComplete, args);
         this.parent.selectRow(this.rowIndex > -1 ? this.rowIndex : this.editRowIndex);
@@ -168,11 +172,10 @@ export class NormalEdit {
 
     private editFailure(e: ReturnType): void {
         this.parent.trigger(events.actionFailure, e);
-        this.parent.hideSpinner();
     }
 
     private refreshRow(data: Object): void {
-        let row: RowRenderer<Column> = new RowRenderer(this.serviceLocator, null, this.parent);
+        let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let rowObj: Row<Column> = this.parent.getRowObjectFromUID(this.uid);
         if (rowObj) {
             rowObj.changes = data;
@@ -186,6 +189,7 @@ export class NormalEdit {
             requestType: 'cancel', type: events.actionBegin, data: this.previousData, selectedRow: gObj.selectedRowIndex
         };
         gObj.trigger(events.actionBegin, args);
+        gObj.isEdit = false;
         this.stopEditStatus();
         args.type = events.actionComplete;
         if (gObj.editSettings.mode !== 'dialog') {
@@ -198,13 +202,13 @@ export class NormalEdit {
 
     protected addRecord(data?: Object): void {
         let gObj: IGrid = this.parent;
-        if (gObj.isEdit) {
-            return;
-        }
         if (data) {
             gObj.notify(events.modelChanged, {
-                requestType: 'add', type: events.actionBegin, data: data
+                requestType: 'save', type: events.actionBegin, data: data, selectedRow: 0, action: 'add'
             });
+            return;
+        }
+        if (gObj.isEdit) {
             return;
         }
         this.previousData = {};
@@ -239,7 +243,6 @@ export class NormalEdit {
 
     private stopEditStatus(): void {
         let gObj: IGrid = this.parent;
-        gObj.isEdit = false;
         let elem: Element = gObj.element.querySelector('.e-addedrow');
         if (elem) {
             remove(elem);

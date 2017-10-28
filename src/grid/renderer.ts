@@ -20,3 +20,4 @@ export * from './renderer/boolean-edit-cell';
 export * from './renderer/default-edit-cell';
 export * from './renderer/dropdown-edit-cell';
 export * from './renderer/numeric-edit-cell';
+export * from './renderer/datepicker-edit-cell';

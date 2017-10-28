@@ -18,6 +18,7 @@ import { DropDownListModel } from '@syncfusion/ej2-dropdowns';
 import { NumericTextBoxModel } from '@syncfusion/ej2-inputs';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { Data } from '../actions/data';
+import { DatePickerModel } from '@syncfusion/ej2-calendars';
 
 /**
  * Specifies grid interfaces.
@@ -413,7 +414,7 @@ export interface IEditCell {
     create?: Element | Function;
     read?: Object | Function;
     write?: void | Function;
-    params?: NumericTextBoxModel | DropDownListModel;
+    params?: DatePickerModel | NumericTextBoxModel | DropDownListModel;
     destroy?: Function;
 }
 /**

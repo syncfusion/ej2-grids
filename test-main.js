@@ -64,6 +64,12 @@ require.config({
             main: 'index.js'
         },
         {
+            name: '@syncfusion/ej2-calendars',
+            location: 'node_modules/@syncfusion/ej2-calendars',
+            main: 'src/datepicker/index.js'
+        },
+
+        {
             name: '@syncfusion/ej2-file-utils',
             location: 'node_modules/@syncfusion/ej2-file-utils',
             main: 'index.js'

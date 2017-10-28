@@ -1,5 +1,4 @@
 import { IGrid } from '../base/interface';
-import { getValue } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { InlineEditRender } from './inline-edit-renderer';
 import { BatchEditRender } from './batch-edit-renderer';
@@ -61,9 +60,6 @@ export class EditRender {
             value = col.valueAccessor(col.field, args.rowData, col) as string;
             cell = form.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
             let temp: Function = col.edit.write as Function;
-            if (typeof temp === 'string') {
-                temp = getValue(temp, window);
-            }
             (col.edit.write as Function)({ rowData: args.rowData, element: cell, column: col, requestType: args.requestType });
             if (!isFocused && !cell.getAttribute('disabled')) {
                 this.focusElement(cell as HTMLInputElement);

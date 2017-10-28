@@ -1,7 +1,7 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
 import { Dialog } from '@syncfusion/ej2-popups';
-import { remove, createElement, Browser } from '@syncfusion/ej2-base';
+import { remove, createElement } from '@syncfusion/ej2-base';
 import { L10n } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import * as events from '../base/constant';
@@ -99,16 +99,7 @@ export class DialogEditRender {
             let dataCell: HTMLElement = createElement('td', { className: 'e-rowcell', attrs: { style: 'text-align:left;width:190px' } });
             let label: Element = createElement('label', { innerHTML: cols[i].field });
             elements[cols[i].uid].classList.remove('e-input');
-            if (cols[i].editType === 'booleanedit') {
-                let elem: Element = dataCell.appendChild(elements[cols[i].uid]);
-                let lbl: Element = createElement(
-                    'label', { className: 'e-noselect', attrs: { for: elem.id, style: Browser.isDevice ? '' : 'vertical-align: top;' } });
-                lbl.innerHTML = cols[i].headerText;
-                dataCell.appendChild(elem);
-                dataCell.appendChild(lbl);
-            } else {
-                dataCell.appendChild(elements[cols[i].uid]);
-            }
+            dataCell.appendChild(elements[cols[i].uid]);
             tr.appendChild(dataCell);
             tbody.appendChild(tr);
         }

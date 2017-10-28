@@ -1,4 +1,4 @@
-import { ChildProperty, compile as baseTemplateComplier } from '@syncfusion/ej2-base';
+import { ChildProperty, compile as baseTemplateComplier, classList } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
 import { setStyleAttribute, addClass, attributes, createElement, remove } from '@syncfusion/ej2-base';
 import { IPosition, IGrid } from './interface';
