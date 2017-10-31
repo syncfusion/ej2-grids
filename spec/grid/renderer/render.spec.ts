@@ -44,7 +44,7 @@ describe('Render module', () => {
                 EmployeeID: new Date(2017, 2, 13, 0, 0, 10, 0), CustomerID: new Date(2017, 2, 13, 0, 10, 0, 0),
                 ShipCity: new Date(2017, 2, 13, 10, 0, 0, 0), ShipCountry: new Date(2017, 2, 13, 0, 0, 0, 0), OrderDate: new Date(2017, 2, 13, 0, 10, 0, 10)
             });
-            (<any>gridObj.renderModule).data.removeRows({ indexes: [4, 5] });
+            (<any>gridObj.renderModule).data.removeRows({ indexes: [4, 5], records: data.slice(4, 5)  });
             gridObj.ariaService.setOptions(null, { role: 'grid' });
         });
 

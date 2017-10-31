@@ -300,10 +300,11 @@ export class Sort implements IAction {
             let field: string = gObj.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')).field;
             let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'ascending' :
                 'descending';
-            if (!e.shiftKey) {
-                this.sortColumn(field, direction, e.ctrlKey || this.enableSortMultiTouch);
-            } else {
+            if (e.shiftKey || (this.sortSettings.allowUnSort && target.querySelectorAll('.e-descending').length)
+                && !(gObj.groupSettings.columns.indexOf(field) > -1)) {
                 this.removeSortColumn(field);
+            } else {
+                this.sortColumn(field, direction, e.ctrlKey || this.enableSortMultiTouch);
             }
             if (Browser.isDevice) {
                 this.showPopUp(e);

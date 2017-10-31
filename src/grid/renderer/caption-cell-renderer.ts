@@ -25,7 +25,8 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         let gObj: IGrid = this.parent;
         let result: Element[];
         let helper: object = {};
-        let value: string = this.format(cell.column, cell.column.valueAccessor('key', data, cell.column));
+        let value: string = cell.column.enableGroupByFormat ? data.key :
+         this.format(cell.column, cell.column.valueAccessor('key', data, cell.column));
         if (!isNullOrUndefined(gObj.groupSettings.captionTemplate)) {
             if (gObj.groupSettings.captionTemplate.indexOf('#') !== -1) {
                 result = templateCompiler(document.querySelector(gObj.groupSettings.captionTemplate).innerHTML.trim())(data);

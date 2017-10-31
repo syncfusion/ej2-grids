@@ -82,6 +82,13 @@ export class SortSettings extends ChildProperty<SortSettings> {
      */
     @Collection<SortDescriptorModel>([], SortDescriptor)
     public columns: SortDescriptorModel[];
+
+    /**
+     * If set to false the user can not get the grid in unsorted state by clicking the sorted column header.
+     * @default true
+     */
+    @Property(true)
+    public allowUnSort: boolean;
 }
 
 /**  
@@ -1107,13 +1114,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property()
     public pagerTemplate: string;
-
-    /**
-     * @hidden
-     * @default ['columns']
-     */
-    @Property(['columns'])
-    public deepMerge: string[];
 
     /** 
      * Triggers when the component is created.

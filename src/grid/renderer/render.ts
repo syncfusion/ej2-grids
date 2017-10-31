@@ -1,4 +1,4 @@
-import { L10n, DateFormatOptions, NumberFormatOptions } from '@syncfusion/ej2-base';
+import { L10n, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base';
 import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
@@ -9,7 +9,7 @@ import { Data } from '../actions/data';
 import { Column } from '../models/column';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
-import { prepareColumns, calculateAggregate } from '../base/util';
+import { prepareColumns, calculateAggregate, setFormatter } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -49,7 +49,7 @@ export class Render {
     constructor(parent?: IGrid, locator?: ServiceLocator) {
         this.parent = parent;
         this.locator = locator;
-        this.data = new Data(parent);
+        this.data = new Data(parent, locator);
         this.l10n = locator.getService<L10n>('localization');
         this.ariaService = this.locator.getService<AriaService>('ariaService');
         this.renderer = this.locator.getService<RendererFactory>('rendererFactory');
@@ -170,26 +170,7 @@ export class Render {
                         value.getSeconds() > 0 || value.getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
                 }
                 if (typeof (columns[i].format) === 'string') {
-                    switch (columns[i].type) {
-                        case 'date':
-                            columns[i].setFormatter(
-                                fmtr.getFormatFunction({ type: 'date', skeleton: columns[i].format } as DateFormatOptions));
-                            columns[i].setParser(
-                                fmtr.getParserFunction({ type: 'date', skeleton: columns[i].format } as DateFormatOptions));
-                            break;
-                        case 'datetime':
-                            columns[i].setFormatter(
-                                fmtr.getFormatFunction({ type: 'dateTime', skeleton: columns[i].format } as DateFormatOptions));
-                            columns[i].setParser(
-                                fmtr.getParserFunction({ type: 'dateTime', skeleton: columns[i].format } as DateFormatOptions));
-                            break;
-                        case 'number':
-                            columns[i].setFormatter(
-                                fmtr.getFormatFunction({ format: columns[i].format } as NumberFormatOptions));
-                            columns[i].setParser(
-                                fmtr.getParserFunction({ format: columns[i].format } as NumberFormatOptions));
-                            break;
-                    }
+                    setFormatter(this.locator, columns[i]);
                 } else if (!columns[i].format && columns[i].type === 'number') {
                     columns[i].setParser(
                         fmtr.getParserFunction({ format: 'n2' } as NumberFormatOptions));

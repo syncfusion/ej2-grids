@@ -1,11 +1,14 @@
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
 import { Query, DataManager, Predicate } from '@syncfusion/ej2-data';
 import { IDataProcessor, IGrid } from '../base/interface';
 import { ReturnType } from '../base/type';
 import { SearchSettingsModel, PredicateModel, SortDescriptorModel } from '../base/grid-model';
-import { getActualProperties } from '../base/util';
+import { getActualProperties, setFormatter } from '../base/util';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
+import { ValueFormatter } from '../services/value-formatter';
+import { ServiceLocator } from '../services/service-locator';
+import { Column } from '../models/column';
 
 /**
  * Grid data module is used to generate query and data source.
@@ -17,13 +20,15 @@ export class Data implements IDataProcessor {
 
     //Module declarations    
     private parent: IGrid;
+    private serviceLocator: ServiceLocator;
 
     /**
      * Constructor for data module.
      * @hidden
      */
-    constructor(parent?: IGrid) {
+    constructor(parent?: IGrid , serviceLocator?: ServiceLocator) {
         this.parent = parent;
+        this.serviceLocator = serviceLocator;
         this.initDataManager();
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.rowsAdded, this.addRows, this);
@@ -102,7 +107,13 @@ export class Data implements IDataProcessor {
         if (gObj.allowGrouping && gObj.groupSettings.columns.length) {
             let columns: string[] = gObj.groupSettings.columns;
             for (let i: number = 0, len: number = columns.length; i < len; i++) {
-                query.group(columns[i]);
+                let isGrpFmt: boolean = gObj.getColumnByField(columns[i]).enableGroupByFormat;
+                let format: string| NumberFormatOptions | DateFormatOptions  = gObj.getColumnByField(columns[i]).format;
+                if (isGrpFmt) {
+                    query.group(columns[i], this.formatGroupColumn.bind(this), format);
+                } else {
+                    query.group(columns[i], null);
+                }
             }
         }
 
@@ -145,7 +156,21 @@ export class Data implements IDataProcessor {
         }
         return this.dataManager.executeQuery(query);
     }
-
+    private formatGroupColumn(value: number | Date, field: string): string | object {
+        let gObj: IGrid = this.parent;
+        let serviceLocator: ServiceLocator = this.serviceLocator;
+        let column: Column = gObj.getColumnByField(field);
+        let date : Date = value as Date;
+        if (!column.type) {
+            column.type = date.getDay ? (date.getHours() > 0 || date.getMinutes() > 0 ||
+            date.getSeconds() > 0 || date.getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
+        }
+        if (isNullOrUndefined(column.getFormatter())) {
+            setFormatter(serviceLocator, column);
+        }
+        let formatVal: string | object = ValueFormatter.prototype.toView(value, column.getFormatter());
+        return formatVal;
+    }
     private crudActions(args: {
         requestType?: string, foreignKeyData?: string[], data?: Object
     }): void {
@@ -213,9 +238,9 @@ export class Data implements IDataProcessor {
         }
     }
 
-    private removeRows(e: { indexes: number[] }): void {
+    private removeRows(e: { indexes: number[], records: Object[] }): void {
         let json: Object[] = this.dataManager.dataSource.json;
-        this.dataManager.dataSource.json = json.filter((value: Object, index: number) => e.indexes.indexOf(index) === -1);
+        this.dataManager.dataSource.json = json.filter((value: Object, index: number) => e.records.indexOf(value) === -1);
     }
 
     private destroy(): void {

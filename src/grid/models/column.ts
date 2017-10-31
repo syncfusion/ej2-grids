@@ -155,6 +155,13 @@ export class Column {
     public allowGrouping: boolean = true;
 
     /**    
+     * If `enableGroupByFormat` set to true, then it groups the particular column by formatted values.     
+     * @default true   
+     */
+
+    public enableGroupByFormat: boolean = false;
+
+    /**    
      * If `allowEditing` set to false, then it disables editing of a particular column. 
      * By default all columns are editable. 
      * @default true   
@@ -547,6 +554,13 @@ export interface ColumnModel {
      * @default true   
      */
     allowGrouping?: boolean;
+
+    /**    
+     * If `enableGroupByFormat` set to true, then it groups the particular column by formatted values. 
+     * By default no columns are group by format.   
+     * @default true   
+     */
+    enableGroupByFormat?: boolean;
 
     /**    
      * If `allowEditing` set to false, then it disables editing of a particular column. 

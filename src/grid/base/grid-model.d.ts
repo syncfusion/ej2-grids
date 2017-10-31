@@ -29,6 +29,12 @@ export interface SortSettingsModel {
      */
     columns?: SortDescriptorModel[];
 
+    /**
+     * If set to false the user can not get the grid in unsorted state by clicking the sorted column header.
+     * @default true
+     */
+    allowUnSort?: boolean;
+
 }
 
 /**
@@ -757,12 +763,6 @@ export interface GridModel extends ComponentModel{
      * @default null
      */
     pagerTemplate?: string;
-
-    /**
-     * @hidden
-     * @default ['columns']
-     */
-    deepMerge?: string[];
 
     /**
      * Triggers when the component is created.

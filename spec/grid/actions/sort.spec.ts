@@ -116,7 +116,7 @@ describe('Sorting module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.dataBind();
             gridObj.clearSorting();
-        });     
+        });
         it('Disabled sort asc testing', () => {
             gridObj.allowSorting = false;
             gridObj.dataBind();
@@ -282,7 +282,7 @@ describe('Sorting module', () => {
         });
     });
 
-describe('Sort with Grouping', () => {
+    describe('Sort with Grouping', () => {
         let gridObj: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: () => void;
@@ -294,7 +294,7 @@ describe('Sort with Grouping', () => {
                     dataSource: data,
                     allowSorting: true,
                     allowGrouping: true,
-                    groupSettings: {showGroupedColumn: true},
+                    groupSettings: { showGroupedColumn: true },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     dataBound: dataBound
@@ -371,7 +371,7 @@ describe('Sort with Grouping', () => {
 
         });
         it('Clear sorting', (done: Function) => {
-            actionComplete = (args?: Object): void => {                
+            actionComplete = (args?: Object): void => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-descending').length).toBe(0);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-sortnumber').length).toBe(0);
@@ -381,6 +381,7 @@ describe('Sort with Grouping', () => {
             gridObj.clearSorting();
             gridObj.dataBind();
         });
+
         it('remove Grouping', (done: Function) => {
             let actionComplete = (args: Object) => {
                 expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(0);
@@ -391,6 +392,37 @@ describe('Sort with Grouping', () => {
             gridObj.groupModule.ungroupColumn('EmployeeID');
             gridObj.dataBound();
         });
+
+        it('tri-state Sorting testing - first', (done) => {
+            let actionComplete = () => {
+                expect(gridObj.sortSettings.columns.length).toBe(1);
+                expect((<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).querySelector('.e-ascending')).not.toBeUndefined();
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            (<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).click();
+        });
+
+        it('tri-state Sorting testing - second', (done) => {
+            let actionComplete = () => {
+                expect(gridObj.sortSettings.columns.length).toBe(1);
+                expect((<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).querySelector('.e-descending')).not.toBeUndefined();
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            (<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).click();
+        });
+
+        it('tri-state Sorting testing - third', (done) => {
+            let actionComplete = () => {
+                expect(gridObj.sortSettings.columns.length).toBe(0);
+                expect((<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).querySelector('.e-ascending')).not.toBeUndefined();
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            (<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).click();
+        });
+
 
         //set model and default properties model check
         afterAll(() => {

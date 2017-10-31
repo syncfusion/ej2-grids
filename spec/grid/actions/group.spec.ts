@@ -1276,6 +1276,276 @@ describe('Grouping module', () => {
         });
     });
 
+    describe('Grouping column by format using setmodel', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'OrderDate', headerText: 'Order Date', format: 'y', enableGroupByFormat: true, type: 'date' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    // groupSettings: { disablePageWiseAggregates: true, columns: ['OrderDate', 'ShipCountry'] },
+                    allowPaging: true,
+                    allowSorting: true,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('Single column group testing', (done: Function) => {
+            actionComplete = (args?: Object): void => {
+                let grpHIndent = gridObj.getHeaderContent().querySelectorAll('.e-grouptopleftcell');
+                let content = gridObj.getContent().querySelectorAll('tr');
+                let gHeader = gridObj.element.querySelectorAll('.e-groupheadercell');
+                expect(grpHIndent.length).toBe(1);
+
+                expect(content[0].querySelectorAll('.e-groupcaption').length).toBe(1);
+
+                expect(gHeader.length).toBe(1);
+                expect(gHeader[0].querySelectorAll('.e-grouptext').length).toBe(1);
+                expect(gHeader[0].querySelectorAll('.e-grouptext')[0].textContent).toBe('Order Date');
+                expect(gHeader[0].querySelectorAll('.e-groupsort').length).toBe(1);
+                expect(gHeader[0].querySelectorAll('.e-groupsort')[0].classList.contains('e-ascending')).toBeTruthy();
+                expect(gHeader[0].querySelectorAll('.e-ungroupbutton').length).toBe(1);
+
+                expect(gridObj.groupSettings.columns.length).toBe(1);
+                expect(gridObj.sortSettings.columns.length).toBe(1);
+
+
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupModule.groupColumn('OrderDate');
+        });
+        it('multi grouping with group by format', (done: Function) => {
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.element.querySelectorAll('.e-groupcaption')[0].innerHTML.indexOf('Order Date: 1996 ') > -1).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('#Grid .e-groupheadercell').length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('#Grid  .e-ascending').length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('#Grid  .e-emptycell').length).toBe(2);
+                done();
+            };
+            gridObj.groupModule.groupColumn('EmployeeID');
+            gridObj.actionComplete = actionComplete;
+            gridObj.dataBind();
+        });
+        it('sort a column with multi grouping', (done: Function) => {
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.element.querySelectorAll('.e-groupcaption')[0].innerHTML.indexOf('Order Date: 1996 ') > -1).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(2);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.sortColumn('OrderID', 'ascending');
+            gridObj.dataBind();
+        });
+        it('ungroup a column', (done: Function) => {
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.element.querySelectorAll('.e-groupcaption')[0].innerHTML.indexOf('Order Date: 1996 ') > -1).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(1);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(1);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupModule.ungroupColumn('EmployeeID');
+            gridObj.dataBind();
+        });
+        it('clear Grouping', (done: Function) => {
+            actionComplete = () => {
+                expect(gridObj.groupSettings.columns.length).toBe(0);
+                expect(gridObj.getContent().querySelectorAll('tr').length).toBe(12);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupModule.ungroupColumn('OrderDate');
+            gridObj.dataBind();
+        });
+        afterAll(() => {
+            elem.remove();
+        });
+    });
+
+    describe('Grouping remote data for group by format', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        let old: (e: ReturnType) => Promise<Object> = Render.prototype.validateGroupRecords;
+        beforeAll((done: Function) => {
+            jasmine.Ajax.install();
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: new DataManager({ url: '/api/test' }),
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'OrderDate', headerText: 'Order Date', format: 'y', enableGroupByFormat: true, type: 'date' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: { disablePageWiseAggregates: true, columns: ['OrderDate', 'CustomerID'] },
+                    allowPaging: true,
+                    actionFailure: dataBound,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+            let first: JasmineAjaxRequest = jasmine.Ajax.requests.at(1);
+            first.respondWith({
+                'status': 200,
+                'contentType': 'application/json',
+                'responseText': JSON.stringify({ d: { results: filterData, __count: 100 } })
+            });
+
+            Render.prototype.validateGroupRecords = (e: ReturnType) => {
+                let promise: Promise<Object> = old.call(gridObj.renderModule, e);
+                let first: JasmineAjaxRequest = jasmine.Ajax.requests.at(1);
+                first.respondWith({
+                    'status': 200,
+                    'contentType': 'application/json',
+                    'responseText': JSON.stringify({ d: { results: filterData, __count: 100 } })
+                });
+                return promise;
+            };
+        });
+        it('check data', () => {
+            expect(gridObj.groupSettings.columns.length).not.toBeNull();
+        });
+        afterAll(() => {
+            Render.prototype.validateGroupRecords = old;
+            elem.remove();
+            jasmine.Ajax.uninstall();
+        });
+    });
+    describe('Grouping column by format at initial settings', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight', format: 'C1', enableGroupByFormat: true, type: 'number' },
+                    { field: 'OrderDate', headerText: 'Order Date', format: 'y', enableGroupByFormat: true, type: 'date' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: { disablePageWiseAggregates: true, columns: ['OrderDate', 'Freight'] },
+                    allowPaging: true,
+                    allowSorting: true,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('multi grouping with group by format at initial', (done: Function) => {
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.element.querySelectorAll('.e-groupcaption')[0].getAttribute('aria-label').indexOf('Order Date: 1996 ') > -1).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(3);
+                done();
+            };
+            gridObj.groupModule.groupColumn('EmployeeID');
+            gridObj.getColumnByField('OrderDate').type = 'undefined';
+            gridObj.dataSource[0].OrderDate = new Date('07 07 1996 00:00:23');
+            gridObj.actionComplete = actionComplete;
+            gridObj.dataBind();
+        });
+        it('sort a column with multi grouping', (done: Function) => {
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.element.querySelectorAll('.e-groupcaption')[0].getAttribute('aria-label').indexOf('Order Date: 1996 ') > -1).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(4);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(3);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.getColumnByField('OrderDate').type = 'undefined';
+            gridObj.dataSource[0].OrderDate = new Date('07 07 1996 00:01:23');
+            gridObj.sortColumn('OrderID', 'ascending');
+            gridObj.dataBind();
+        });
+        it('ungroup a column', (done: Function) => {
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(2);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupModule.ungroupColumn('EmployeeID');
+            gridObj.getColumnByField('OrderDate').type = 'undefined';
+            gridObj.dataSource[0].OrderDate = new Date('07 07 1996 00:00:20');
+            gridObj.dataBind();
+        });
+        afterAll(() => {
+            elem.remove();
+        });
+    });
+    describe('Grouping column by format at initial settings without column type declaration', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight', format: 'C1', enableGroupByFormat: true },
+                    { field: 'OrderDate', headerText: 'Order Date', format: 'y', enableGroupByFormat: true },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: { disablePageWiseAggregates: true, columns: ['OrderDate', 'Freight'] },
+                    allowPaging: true,
+                    allowSorting: true,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('multi grouping with group by format at initial', (done: Function) => {
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.element.querySelectorAll('.e-groupcaption')[0].getAttribute('aria-label').indexOf('Order Date: 1996 ') > -1).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(3);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-emptycell').length).toBe(3);
+                done();
+            };
+            gridObj.groupModule.groupColumn('EmployeeID');
+            gridObj.actionComplete = actionComplete;
+            gridObj.dataBind();
+        });
+        afterAll(() => {
+            elem.remove();
+        });
+    });
     describe('Grouping disablePageWiseAggregates with empty datasource', () => {
         let gridObj: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });

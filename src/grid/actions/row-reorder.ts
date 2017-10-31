@@ -179,7 +179,7 @@ export class RowDD implements IAction {
             for (let i: number = 0, len: number = records.length; i < len; i++) {
                 this.selectedRows.push(skip + selectedRows[i]);
             }
-            srcControl.notify(events.rowsRemoved, { indexes: this.selectedRows });
+            srcControl.notify(events.rowsRemoved, { indexes: this.selectedRows, records: records });
             srcControl.notify(events.modelChanged, {
                 type: events.actionBegin, requestType: 'rowdraganddrop'
             });

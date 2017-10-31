@@ -1,7 +1,8 @@
 import { ChildProperty, compile as baseTemplateComplier, classList } from '@syncfusion/ej2-base';
-import { extend as baseExtend, isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
-import { setStyleAttribute, addClass, attributes, createElement, remove } from '@syncfusion/ej2-base';
-import { IPosition, IGrid } from './interface';
+import { extend as baseExtend, isNullOrUndefined, getValue, NumberFormatOptions } from '@syncfusion/ej2-base';
+import { setStyleAttribute, addClass, attributes, createElement, remove, DateFormatOptions } from '@syncfusion/ej2-base';
+import { IPosition, IGrid, IValueFormatter } from './interface';
+import { ServiceLocator } from '../services/service-locator';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { ColumnModel, AggregateColumnModel } from '../models/models';
@@ -356,5 +357,29 @@ export function changeButtonType(target: Element): void {
     let elements: Element[] = [].slice.call(target.querySelectorAll('button'));
     for (let button of elements) {
         attributes(button, { type: 'button' });
+    }
+}
+/** @hidden */
+export function setFormatter(serviceLocator?: ServiceLocator, column?: Column): void {
+    let fmtr: IValueFormatter = serviceLocator.getService<IValueFormatter>('valueFormatter');
+    switch (column.type) {
+        case 'date':
+            column.setFormatter(
+                fmtr.getFormatFunction({ type: 'date', skeleton: column.format } as DateFormatOptions));
+            column.setParser(
+                fmtr.getParserFunction({ type: 'date', skeleton: column.format } as DateFormatOptions));
+            break;
+        case 'datetime':
+            column.setFormatter(
+                fmtr.getFormatFunction({ type: 'dateTime', skeleton: column.format } as DateFormatOptions));
+            column.setParser(
+                fmtr.getParserFunction({ type: 'dateTime', skeleton: column.format } as DateFormatOptions));
+            break;
+        case 'number':
+            column.setFormatter(
+                fmtr.getFormatFunction({ format: column.format } as NumberFormatOptions));
+            column.setParser(
+                fmtr.getParserFunction({ format: column.format } as NumberFormatOptions));
+            break;
     }
 }
