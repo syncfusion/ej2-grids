@@ -27,12 +27,13 @@ export class InlineEditRender {
     }
 
     public update(elements: Object, args: { row?: Element }): void {
+        let tdElement: HTMLElement[] = [].slice.call(args.row.querySelectorAll('td.e-rowcell'));
         args.row.innerHTML = '';
-        args.row.appendChild(this.getEditElement(elements, true));
+        args.row.appendChild(this.getEditElement(elements, true, tdElement));
         args.row.classList.add('e-editedrow');
     }
 
-    private getEditElement(elements?: Object, isEdit?: boolean): Element {
+    private getEditElement(elements?: Object, isEdit?: boolean, tdElement?: HTMLElement[]): Element {
         let gObj: IGrid = this.parent;
         let gLen: number = 0;
         let isDetail: number = !isNullOrUndefined(gObj.detailTemplate) || !isNullOrUndefined(gObj.childGrid) ? 1 : 0;
@@ -56,21 +57,26 @@ export class InlineEditRender {
             tr.appendChild(createElement('td', { className: 'e-indentcell' }));
             i++;
         }
-        for (let col of gObj.columns as Column[]) {
-            if (!col.visible) {
-                continue;
+        let m: number = 0;
+        i = 0;
+        while ((isEdit && m < tdElement.length && i < gObj.columns.length) || i < gObj.columns.length) {
+            let span: string = isEdit ? tdElement[m].getAttribute('colspan') : null;
+            let col: Column = gObj.columns[i] as Column;
+            if (col.visible) {
+                let td: HTMLElement = createElement(
+                    'td',
+                    {
+                        className: 'e-rowcell', attrs:
+                        { style: 'text-align:' + (col.textAlign ? col.textAlign : ''), 'colspan': span ? span : '' }
+                    });
+                td.appendChild(elements[col.uid]);
+                if (col.editType === 'booleanedit') {
+                    td.classList.add('e-boolcell');
+                }
+                tr.appendChild(td);
             }
-            let td: HTMLElement = createElement(
-                'td',
-                {
-                    className: 'e-rowcell', attrs:
-                    { style: 'text-align:' + (col.textAlign ? col.textAlign : '') }
-                });
-            td.appendChild(elements[col.uid]);
-            if (col.editType === 'booleanedit') {
-                td.classList.add('e-boolcell');
-            }
-            tr.appendChild(td);
+            i = span ? i + parseInt(span, 10) : i + 1;
+            m++;
         }
         tbody.appendChild(tr);
         table.appendChild(tbody);

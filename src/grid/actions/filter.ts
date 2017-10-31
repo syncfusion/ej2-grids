@@ -67,7 +67,7 @@ export class Filter implements IAction {
     public render(): void {
         let gObj: IGrid = this.parent;
         if (gObj.columns.length) {
-            let rowRenderer: RowRenderer<Column> = new RowRenderer(this.serviceLocator, CellType.Filter);
+            let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Filter);
             let row: Row<Column>;
             let cellrender: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
             cellrender.addCellRenderer(CellType.Filter, new FilterCellRenderer(this.parent, this.serviceLocator));

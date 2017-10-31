@@ -342,7 +342,7 @@ export class Selection implements IAction {
     public selectCell(cellIndex: IIndex, isToggle?: boolean): void {
         if (!this.isCellType()) { return; }
         let gObj: IGrid = this.parent;
-        let selectedCell: Element = gObj.getCellFromIndex(cellIndex.rowIndex, cellIndex.cellIndex);
+        let selectedCell: Element = gObj.getCellFromIndex(cellIndex.rowIndex, this.getColIndex(cellIndex.rowIndex, cellIndex.cellIndex));
         this.currentIndex = cellIndex.rowIndex;
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
         if (!this.isCellType() || !selectedCell || this.isEditing()) {
@@ -416,7 +416,7 @@ export class Selection implements IAction {
         for (let i: number = startIndex.rowIndex; i <= endIndex.rowIndex; i++) {
             if (this.selectionSettings.cellSelectionMode !== 'box') {
                 min = i === startIndex.rowIndex ? (startIndex.cellIndex) : 0;
-                max = i === endIndex.rowIndex ? (endIndex.cellIndex) : gObj.getColumns().length - 1;
+                max = i === endIndex.rowIndex ? (endIndex.cellIndex) : this.getLastColIndex(i);
             } else {
                 min = startIndex.cellIndex;
                 max = endIndex.cellIndex;
@@ -498,7 +498,8 @@ export class Selection implements IAction {
     public addCellsToSelection(cellIndexes: IIndex[]): void {
         if (!this.isCellType()) { return; }
         let gObj: IGrid = this.parent;
-        let selectedCell: Element = gObj.getCellFromIndex(cellIndexes[0].rowIndex, cellIndexes[0].cellIndex);
+        let selectedCell: Element = gObj.getCellFromIndex(
+            cellIndexes[0].rowIndex, this.getColIndex(cellIndexes[0].rowIndex, cellIndexes[0].cellIndex));
         let index: number;
         this.currentIndex = cellIndexes[0].rowIndex;
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
@@ -554,6 +555,37 @@ export class Selection implements IAction {
                     events.cellSelected);
             }
         }
+    }
+
+    private getColIndex(rowIndex: number, index: number): number {
+        let cells: NodeListOf<Element> = this.parent.getDataRows()[rowIndex].querySelectorAll('td.e-rowcell');
+        for (let m: number = 0; m < cells.length; m++) {
+            let colIndex: number = parseInt(cells[m].getAttribute('aria-colindex'), 10);
+            if ( colIndex === index) {
+                return m;
+            }
+        }
+        return -1;
+    }
+
+    private getLeftRightColIndex(rowIndex: number, colIndex: number, key: number): number {
+        let cells: NodeListOf<Element> = this.parent.getDataRows()[rowIndex].querySelectorAll('td.e-rowcell');
+        for (let m: number = 0; m < cells.length && m + key < cells.length; m++) {
+            if (parseInt(cells[m].getAttribute('aria-colindex'), 10) >= colIndex) {
+                return parseInt(cells[m + key].getAttribute('aria-colindex'), 10);
+            }
+        }
+        return -1;
+    }
+
+    private getLastColIndex(rowIndex: number): number {
+        let cells: NodeListOf<Element> = this.parent.getDataRows()[rowIndex].querySelectorAll('td.e-rowcell');
+        return parseInt(cells[cells.length - 1].getAttribute('aria-colindex'), 10);
+    }
+
+    private getLastCellIndex(rowIndex: number, colIndex: number, key: number): number {
+        let cells: NodeListOf<Element> = this.parent.getDataRows()[this.prevECIdxs.rowIndex + key].querySelectorAll('td.e-rowcell');
+        return colIndex >= cells.length ? cells.length - 1 : colIndex;
     }
 
     private clearCell(): void {
@@ -991,7 +1023,9 @@ export class Selection implements IAction {
             this.applyUpDown(gObj.selectedRowIndex);
         }
         if (this.isCellType() && cond2) {
-            this.selectCell({ rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: this.prevECIdxs.cellIndex }, true);
+            let index: number = this.getColIndex(this.prevECIdxs.rowIndex + key, this.prevECIdxs.cellIndex);
+            index = index < 0 ? this.getLastColIndex(this.prevECIdxs.rowIndex + key) : this.prevECIdxs.cellIndex;
+            this.selectCell({ rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: index }, true);
         }
     }
 
@@ -1036,13 +1070,14 @@ export class Selection implements IAction {
         }
         if (this.isCellType()) {
             if (cond && this.prevECIdxs.cellIndex + key1 > -1 &&
-                this.prevECIdxs.cellIndex + key1 < this.parent.getColumns().length) {
-                cellIndex = this.prevECIdxs.cellIndex + key1;
+                this.prevECIdxs.cellIndex + key1 < this.parent.getColumns().length &&
+                this.getLeftRightColIndex(rowIndex, cellIndex, key1) > -1) {
+                cellIndex = this.getLeftRightColIndex(rowIndex, cellIndex, key1);
                 rowIndex = this.prevECIdxs.rowIndex;
                 this.selectCell({ rowIndex: rowIndex, cellIndex: cellIndex }, true);
             } else if (this.prevECIdxs.rowIndex + key1 > -1 &&
                 this.prevECIdxs.rowIndex + key1 < this.parent.getRows().length) {
-                cellIndex = key2;
+                cellIndex = key2 === 0 ? key2 : this.getLastColIndex(this.prevECIdxs.rowIndex + key1);
                 rowIndex = this.prevECIdxs.rowIndex + key1;
                 this.selectCell({ rowIndex: rowIndex, cellIndex: cellIndex }, true);
             }
@@ -1133,7 +1168,8 @@ export class Selection implements IAction {
                 if (this.prevECIdxs.rowIndex + 1 < this.parent.getRows().length) {
                     this.selectCellsByRange(
                         this.prevCIdxs,
-                        { rowIndex: this.prevECIdxs.rowIndex + 1, cellIndex: this.prevECIdxs.cellIndex });
+                        { rowIndex: this.prevECIdxs.rowIndex + 1,
+                            cellIndex: this.getLastCellIndex(this.prevECIdxs.rowIndex + 1, this.prevECIdxs.cellIndex , 1) });
                 }
             } else {
                 this.selectCellsByRange({ rowIndex: 0, cellIndex: 0 }, { rowIndex: 1, cellIndex: 0 });
@@ -1158,7 +1194,8 @@ export class Selection implements IAction {
         }
         if (this.isCellType() && !isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1 && !this.isSingleSel()) {
             this.selectCellsByRange(
-                this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex - 1, cellIndex: this.prevECIdxs.cellIndex });
+                this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex - 1,
+                    cellIndex: this.getLastCellIndex(this.prevECIdxs.rowIndex - 1, this.prevECIdxs.cellIndex, - 1) });
         }
         this.isMultiShiftRequest = false;
     }

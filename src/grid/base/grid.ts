@@ -504,6 +504,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /** @hidden */
     public recordsCount: number;
     /**
+     * @hidden
+     */
+    public mergeCells:  { [key: string]: number } = {};
+    /**
      * Gets the current visible records of Grid.
      */
     public currentViewData: Object[];
@@ -2864,7 +2868,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         [events.updateData, events.modelChanged, events.contentReady, events.columnWidthChanged].forEach((event: string) =>
             this.off(event, this.refreshTooltip));
         this.off(events.headerRefreshed, this.recalcIndentWidth);
-        this.removeEventListener(events.dataBound, this.refreshMediaCol);
+        this.removeEventListener(events.dataBound, this.refreshMediaCol.bind(this));
     }
 
     /** 

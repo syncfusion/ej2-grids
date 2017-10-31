@@ -9,6 +9,7 @@ import { ICellRenderer, IRowRenderer, IRow, QueryCellInfoEventArgs, RowDataBound
 import { CellType } from '../base/enum';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { ServiceLocator } from '../services/service-locator';
+import { CellMergeRender } from './cell-merge-renderer';
 
 /**
  * RowRenderer class which responsible for building row content. 
@@ -53,6 +54,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
     public refresh(row: Row<T>, columns: Column[], isChanged: boolean, attributes?: { [x: string]: Object }, rowTemplate?: string): void {
         if (isChanged) {
             row.data = extend({}, row.changes);
+            this.refreshMergeCells(row);
         }
         let node: Element = this.parent.getContent().querySelector('[data-uid=' + row.uid + ']');
         let tr: Element = this.refreshRow(row, columns, attributes, rowTemplate);
@@ -85,10 +87,18 @@ export class RowRenderer<T> implements IRowRenderer<T> {
             let td: Element = cellRenderer.render(
                 row.cells[i], row.data,
                 { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' });
-            tr.appendChild(td);
             if (row.cells[i].cellType === CellType.Data) {
-                this.parent.trigger(queryCellInfo, extend(cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: <{}>cell.column }));
+                this.parent.trigger(queryCellInfo, extend(
+                    cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: <{}>cell.column, colSpan: 1 }));
+                if (cellArgs.colSpan > 1 || row.cells[i].cellSpan > 1) {
+                    let cellMerge: CellMergeRender<T> = new CellMergeRender(this.serviceLocator, this.parent);
+                    td = cellMerge.render(cellArgs, row, i, td);
+                }
             }
+            if ( !row.cells[i].isSpanned) {
+                tr.appendChild(td);
+            }
+
         }
         if (row.isDataRow) {
             this.parent.trigger(rowDataBound, extend(rowArgs, <RowDataBoundEventArgs>{ row: tr }));
@@ -98,7 +108,12 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         }
         return tr;
     }
-
+    private refreshMergeCells(row: Row<T>): Row<T> {
+        for ( let cell of row.cells ){
+            cell.isSpanned = false;
+        }
+        return row;
+    }
     /**
      * Function to check and add alternative row css class.
      * @param  {Element} tr

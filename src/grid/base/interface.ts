@@ -283,6 +283,8 @@ export interface IGrid extends Component<HTMLElement> {
 
     editModule?: Edit;
 
+    mergeCells?: { [key: string]: number };
+
     //public methods
     getHeaderContent?(): Element;
     setGridHeaderContent?(value: Element): void;
@@ -697,6 +699,8 @@ export interface QueryCellInfoEventArgs {
     cell?: Element;
     /** Defines the column object associated with this cell. */
     column?: Column;
+    /** Defines the no. of columns to be spanned */
+    colSpan?: number;
 }
 
 export interface PdfQueryCellInfoEventArgs {

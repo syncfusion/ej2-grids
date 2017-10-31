@@ -7,6 +7,7 @@ import { IRenderer, IGrid, NotifyArgs, IModelGenerator } from '../base/interface
 import { Column } from '../models/column';
 import { Row } from '../models/row';
 import { RowRenderer } from './row-renderer';
+import { CellMergeRender } from './cell-merge-renderer';
 import { ServiceLocator } from '../services/service-locator';
 import { AriaService } from '../services/aria-service';
 import { RowModelGenerator } from '../services/row-model-generator';
@@ -120,9 +121,13 @@ export class ContentRender implements IRenderer {
         let frag: DocumentFragment = document.createDocumentFragment();
         let columns: Column[] = <Column[]>gObj.getColumns();
         let tr: Element;
-        let row: RowRenderer<Column> = new RowRenderer(this.serviceLocator, null, this.parent);
+        let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         this.rowElements = [];
         let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args);
+        if (this.parent.enableColumnVirtualization) {
+            let cellMerge: CellMergeRender<Column> = new CellMergeRender(this.serviceLocator, this.parent);
+            cellMerge.updateVirtualCells(modelData);
+        }
         let tbody: Element = this.getTable().querySelector('tbody');
 
         for (let i: number = 0, len: number = modelData.length; i < len; i++) {

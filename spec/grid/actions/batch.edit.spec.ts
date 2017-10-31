@@ -1846,106 +1846,106 @@ describe('Editing module', () => {
             }
         });
     });
-    // describe('keyboard shortcuts testing with cell spanning', () => {
-    //     let gridObj: Grid;
-    //     let elem: HTMLElement = createElement('div', { id: 'Grid' });
-    //     let actionBegin: () => void;
-    //     let preventDefault: Function = new Function();
-    //     let actionComplete: () => void;
-    //     let cell: HTMLElement;
-    //     beforeAll((done: Function) => {
-    //         let dataBound: EmitType<Object> = () => { done(); };
-    //         document.body.appendChild(elem);
-    //         gridObj = new Grid(
-    //             {
-    //                 dataSource: dataSource(),
-    //                 allowFiltering: false,
-    //                 allowGrouping: true,
-    //                 editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
-    //                 toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
-    //                 allowPaging: false,
-    //                 columns: [
-    //                     { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
-    //                     { field: 'CustomerID', type: 'string', validationRules: { required: true } },
-    //                     { field: 'EmployeeID', type: 'number', allowEditing: true },
-    //                     { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
-    //                     { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
-    //                     { field: 'ShipName', isIdentity: true },
-    //                     { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
-    //                     { field: 'ShipAddress', allowFiltering: true, visible: false },
-    //                     { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
-    //                 ],
-    //                 actionBegin: actionBegin,
-    //                 actionComplete: actionComplete,
-    //                 dataBound: dataBound,
-    //                 queryCellInfo: function(args: QueryCellInfoEventArgs){
-    //                     if (args.column['field'] === 'CustomerID' && args.data['CustomerID'] === 'VICTE' ) {
-    //                         args.colSpan = 2;
-    //                     }
-    //                     else if (args.column['field'] === 'ShipCountry' && args.data['ShipCountry'] === 'Germany' ) {
-    //                         args.colSpan = 2;
-    //                     }
-    //                     else if (args.column['field'] === 'OrderID' && args.data['OrderID'] === 10250 ) {
-    //                         args.colSpan = 3;
-    //                     }
-    //                 }
-    //             });
-    //         gridObj.appendTo('#Grid');
-    //     });
+    describe('keyboard shortcuts testing with cell spanning', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let preventDefault: Function = new Function();
+        let actionComplete: () => void;
+        let cell: HTMLElement;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: dataSource(),
+                    allowFiltering: false,
+                    allowGrouping: true,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: false,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID', type: 'string', validationRules: { required: true } },
+                        { field: 'EmployeeID', type: 'number', allowEditing: true },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'ShipAddress', allowFiltering: true, visible: false },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound,
+                    queryCellInfo: function(args: QueryCellInfoEventArgs){
+                        if (args.column['field'] === 'CustomerID' && args.data['CustomerID'] === 'VICTE' ) {
+                            args.colSpan = 2;
+                        }
+                        else if (args.column['field'] === 'ShipCountry' && args.data['ShipCountry'] === 'Germany' ) {
+                            args.colSpan = 2;
+                        }
+                        else if (args.column['field'] === 'OrderID' && args.data['OrderID'] === 10250 ) {
+                            args.colSpan = 3;
+                        }
+                    }
+                });
+            gridObj.appendTo('#Grid');
+        });
 
-    //     //firt cell with shift tab key        
-    //     it(' shift Tab from spanned cell', () => {          
-    //         gridObj.editModule.editCell(1, 'ShipCountry');
-    //         gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
-    //         let td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-    //         expect(td.getAttribute('aria-label').toString().indexOf('Verified')).toBeGreaterThan(0);
-    //         gridObj.editModule.editCell(3, 'CustomerID');
-    //         gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
-    //         td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-    //         expect(td.getAttribute('aria-label').toString().indexOf('OrderDate')).toBeGreaterThan(0);
-    //         expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
-    //     });
+        //firt cell with shift tab key        
+        it(' shift Tab from spanned cell', () => {          
+            gridObj.editModule.editCell(1, 'ShipCountry');
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            let td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
+            expect(td.getAttribute('aria-label').toString().indexOf('Verified')).toBeGreaterThan(0);
+            gridObj.editModule.editCell(3, 'CustomerID');
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
+            expect(td.getAttribute('aria-label').toString().indexOf('OrderDate')).toBeGreaterThan(0);
+            expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
+        });
 
-    //     it('tab key', () => {
-    //         gridObj.editModule.editCell(1, 'ShipCountry');
-    //         gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
-    //         let td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-    //         expect(td.getAttribute('aria-label').toString().indexOf('Freight')).toBeGreaterThan(0);
-    //         expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
-    //         gridObj.editModule.editCell(3, 'CustomerID');
-    //         gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
-    //         td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-    //         expect(td.getAttribute('aria-label').toString().indexOf('Freight')).toBeGreaterThan(0);
-    //         expect(gridObj.getRows()[3].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
-    //     });
+        it('tab key', () => {
+            gridObj.editModule.editCell(1, 'ShipCountry');
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            let td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
+            expect(td.getAttribute('aria-label').toString().indexOf('Freight')).toBeGreaterThan(0);
+            expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
+            gridObj.editModule.editCell(3, 'CustomerID');
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
+            expect(td.getAttribute('aria-label').toString().indexOf('Freight')).toBeGreaterThan(0);
+            expect(gridObj.getRows()[3].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
+        });
 
-    //     it('f2 key', () => {           
-    //         let tr = gridObj.getContent().querySelectorAll('tr')[1];
-    //         cell = tr.cells[tr.cells.length -2 ];
-    //         cell.click();
-    //         gridObj.keyboardModule.keyAction({ action: 'f2', preventDefault: preventDefault, target: cell } as any);
-    //         expect(cell.getAttribute('aria-label').toString().indexOf('ShipCountry')).toBeGreaterThan(0);
-    //     });
+        it('f2 key', () => {           
+            let tr = gridObj.getContent().querySelectorAll('tr')[1];
+            cell = tr.cells[tr.cells.length -2 ];
+            cell.click();
+            gridObj.keyboardModule.keyAction({ action: 'f2', preventDefault: preventDefault, target: cell } as any);
+            expect(cell.getAttribute('aria-label').toString().indexOf('ShipCountry')).toBeGreaterThan(0);
+        });
 
-    //     it('enter key', () => {
-    //         let tr = gridObj.getContent().querySelectorAll('tr')[1];
-    //         let cell = tr.cells[tr.cells.length -2 ];
-    //         let ele = gridObj.element.querySelector('.e-editedbatchcell').querySelector('input');
-    //         ele['ej2_instances'][0].value = 'France';
-    //         gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: cell } as any);
-    //         expect(cell.classList.contains('e-updatedtd')).toBeGreaterThan(0);
-    //     });
+        it('enter key', () => {
+            let tr = gridObj.getContent().querySelectorAll('tr')[1];
+            let cell = tr.cells[tr.cells.length -2 ];
+            let ele = gridObj.element.querySelector('.e-editedbatchcell').querySelector('input');
+            ele['ej2_instances'][0].value = 'France';
+            gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: cell } as any);
+            expect(cell.classList.contains('e-updatedtd')).toBeGreaterThan(0);
+        });
 
-    //     afterAll((done) => {
-    //         gridObj.notify('tooltip-destroy', {});
-    //         elem.remove();
-    //         if (document.getElementById('Grid')) {
-    //             document.getElementById('Grid').remove();
-    //         }
-    //         setTimeout(function () {
-    //             done();
-    //         }, 1000);     
-    //     });
-    // });
+        afterAll((done) => {
+            gridObj.notify('tooltip-destroy', {});
+            elem.remove();
+            if (document.getElementById('Grid')) {
+                document.getElementById('Grid').remove();
+            }
+            setTimeout(function () {
+                done();
+            }, 1000);     
+        });
+    });
 
 });

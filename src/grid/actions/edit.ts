@@ -460,8 +460,8 @@ export class Edit implements IAction {
         this.parent.off(events.tooltipDestroy, this.destroyToolTip);
         this.parent.off(events.preventBatch, this.preventBatch);
         this.parent.off(events.destroyForm, this.destroyForm);
-        this.parent.removeEventListener(events.actionComplete, this.actionComplete);
-        this.parent.removeEventListener(events.actionBegin, this.onActionBegin);
+        this.parent.removeEventListener(events.actionComplete, this.actionComplete.bind(this));
+        this.parent.removeEventListener(events.actionBegin, this.onActionBegin.bind(this));
         this.parent.off(events.initialEnd, this.unwireEvents);
     }
 

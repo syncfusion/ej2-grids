@@ -32,6 +32,12 @@ export class Cell<T> {
 
     public attributes: { [a: string]: Object };
 
+    public isSpanned: boolean = false;
+
+    public cellSpan: number;
+
+    public spanText: string | number | boolean | Date;
+
     constructor(options: { [x: string]: Object }) {
         merge(this, options);
     }

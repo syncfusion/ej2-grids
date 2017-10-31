@@ -59,7 +59,7 @@ export class BatchEdit {
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.dblclick, this.dblClickHandler);
         this.parent.off(events.keyPressed, this.keyPressHandler);
-        this.parent.removeEventListener(events.dataBound, this.dataBound);
+        this.parent.removeEventListener(events.dataBound, this.dataBound.bind(this));
         this.parent.off(events.doubleTap, this.dblClickHandler);
     }
 
@@ -142,29 +142,53 @@ export class BatchEdit {
 
     private editNextCell(): void {
         let oldIdx: number = this.cellDetails.cellIndex;
+        let oldRowIdx: number = this.cellDetails.rowIndex;
         let cellIdx: number = this.findNextEditableCell(this.cellDetails.cellIndex + 1, this.isAddRow(this.cellDetails.rowIndex));
-        if (cellIdx > -1) {
+        let tr: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
+        let cellIndex: number = this.getColIndex([].slice.apply(tr.cells), cellIdx);
+        if (cellIndex === -1 && cellIdx > -1) {
+            this.cellDetails.cellIndex = cellIdx;
+            this.editNextCell();
+        } else if (cellIdx > -1 && cellIndex < tr.cells.length && cellIndex > -1) {
             this.cellDetails.cellIndex = cellIdx;
         } else if (this.cellDetails.rowIndex + 1 < this.parent.getDataRows().length) {
             this.cellDetails.rowIndex++;
             this.cellDetails.cellIndex = this.findNextEditableCell(0, this.isAddRow(this.cellDetails.rowIndex));
+            let row: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
+            if (this.getColIndex([].slice.apply(row.cells), this.cellDetails.cellIndex) === -1) {
+                this.editNextCell();
+            }
         }
-        if (oldIdx !== this.cellDetails.cellIndex) {
+        if (oldIdx !== this.cellDetails.cellIndex || oldRowIdx !== this.cellDetails.rowIndex) {
             this.editCellFromIndex(this.cellDetails.rowIndex, this.cellDetails.cellIndex);
         }
     }
 
     private editPrevCell(): void {
         let oldIdx: number = this.cellDetails.cellIndex;
+        let oldRowIdx: number = this.cellDetails.rowIndex;
         let cellIdx: number = this.findPrevEditableCell(this.cellDetails.cellIndex - 1, this.isAddRow(this.cellDetails.rowIndex));
-        if (cellIdx > -1) {
+        let tr: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
+        if (cellIdx > -1 && this.getColIndex([].slice.apply(tr.cells), cellIdx) === -1) {
+            this.cellDetails.cellIndex = cellIdx;
+            this.editPrevCell();
+        } else if (cellIdx > -1) {
             this.cellDetails.cellIndex = cellIdx;
         } else if (this.cellDetails.rowIndex - 1 > -1) {
             this.cellDetails.rowIndex--;
+            let tr: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
             this.cellDetails.cellIndex = this.findPrevEditableCell(
                 this.parent.columns.length - 1, this.isAddRow(this.cellDetails.rowIndex));
+            if (this.cellDetails.cellIndex >= tr.cells.length) {
+                let index: number = parseInt(tr.cells[tr.cells.length - 1].getAttribute('aria-colindex'), 10);
+                if (this.checkNPCell(this.parent.getColumns()[index])) {
+                    this.cellDetails.cellIndex = index;
+                } else {
+                    this.cellDetails.cellIndex = this.findPrevEditableCell(index, this.isAddRow(this.cellDetails.rowIndex));
+                }
+            }
         }
-        if (oldIdx !== this.cellDetails.cellIndex) {
+        if (oldIdx !== this.cellDetails.cellIndex || oldRowIdx !== this.cellDetails.rowIndex) {
             this.editCellFromIndex(this.cellDetails.rowIndex, this.cellDetails.cellIndex);
         }
     }
@@ -178,7 +202,7 @@ export class BatchEdit {
     public closeEdit(): void {
         let gObj: IGridEx = this.parent as IGridEx;
         let rows: Row<Column>[] = gObj.contentModule.getRows();
-        let rowRenderer: RowRenderer<Column> = new RowRenderer(this.serviceLocator, null, this.parent);
+        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let tr: HTMLElement;
         if (gObj.isEdit) {
             this.saveCell(true);
@@ -364,7 +388,7 @@ export class BatchEdit {
             return;
         }
         gObj.clearSelection();
-        let row: RowRenderer<Column> = new RowRenderer(this.serviceLocator, null, this.parent);
+        let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let model: IModelGenerator<Column> = new RowModelGenerator(this.parent);
         let modelData: Row<Column>[] = model.generateRows([args.defaultData]);
         let tr: HTMLTableRowElement = row.render(modelData[0], gObj.getColumns()) as HTMLTableRowElement;
@@ -460,21 +484,23 @@ export class BatchEdit {
                 return;
             }
             let rowData: Object = extend({}, this.getDataByIndex(index));
+            let cells: Element[] = [].slice.apply((row as HTMLTableRowElement).cells);
             let args: CellEditArgs = {
-                cell: (row as HTMLTableRowElement).cells[this.getCellIdx(col.uid)], row: row,
+                cell: cells[this.getColIndex(cells, this.getCellIdx(col.uid))], row: row,
                 columnName: col.field, columnObject: col, isForeignKey: !isNullOrUndefined(col.foreignKeyValue),
                 primaryKey: keys, rowData: rowData,
                 validationRules: extend({}, col.validationRules ? col.validationRules : {}),
                 value: rowData[col.field], type: !isAdd ? 'edit' : 'add', cancel: false
             };
+            if (!args.cell) { return; }
             gObj.trigger(events.cellEdit, args);
             if (args.cancel) {
                 return;
             }
             this.cellDetails = {
-                rowData: rowData, column: col, value: args.value, isForeignKey: args.isForeignKey,
+                rowData: rowData, column: col, value: args.value, isForeignKey: args.isForeignKey, rowIndex: index,
+                cellIndex: parseInt((args.cell as HTMLTableCellElement).getAttribute('aria-colindex'), 10)
             };
-            this.setCellIdx(args.cell as HTMLTableCellElement);
             if (args.cell.classList.contains('e-updatedtd')) {
                 this.isColored = true;
                 args.cell.classList.remove('e-updatedtd');
@@ -530,6 +556,16 @@ export class BatchEdit {
         cell.refreshTD(td, rowObj.cells[this.getCellIdx(column.uid)] as Cell<Column>, rowObj.changes);
         td.classList.add('e-updatedtd');
         this.parent.notify(events.toolbarRefresh, {});
+    }
+
+    private getColIndex(cells: Element[], index: number): number {
+        for (let m: number = 0; m < cells.length; m++) {
+            let colIndex: number = parseInt(cells[m].getAttribute('aria-colindex'), 10);
+            if (colIndex === index) {
+                return m;
+            }
+        }
+        return -1;
     }
 
     public saveCell(isForceSave?: boolean): void {
