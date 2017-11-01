@@ -36,7 +36,7 @@ export class NormalEdit {
     protected clickHandler(e: MouseEvent): void {
         let target: Element = e.target as Element;
         let gObj: IGrid = this.parent;
-        if (parentsUntil(target, 'e-gridcontent')) {
+        if (parentsUntil(target, 'e-gridcontent') && !parentsUntil(target, 'e-unboundcelldiv')) {
             this.rowIndex = parentsUntil(target, 'e-rowcell') ? parseInt(target.parentElement.getAttribute('aria-rowindex'), 10) : -1;
             if (gObj.isEdit) {
                 gObj.editModule.endEdit();
@@ -59,7 +59,10 @@ export class NormalEdit {
         this.parent.isEdit = false;
         switch (e.requestType as string) {
             case 'save':
-                this.parent.selectRow(0);
+                if (!this.parent.element.classList.contains('e-checkboxselection')
+                    || !this.parent.element.classList.contains('e-persistselection')) {
+                    this.parent.selectRow(0);
+                }
                 this.parent.trigger(events.actionComplete, extend(e, {
                     requestType: 'save',
                     type: events.actionComplete
@@ -95,8 +98,11 @@ export class NormalEdit {
         if (args.cancel) {
             return;
         }
-        gObj.clearSelection();
         gObj.isEdit = true;
+        gObj.clearSelection();
+        if (gObj.editSettings.mode === 'dialog') {
+            args.row.classList.add('e-dlgeditrow');
+        }
         this.renderer.update(args);
         this.uid = tr.getAttribute('data-uid');
         gObj.editModule.applyFormValidation();
@@ -135,6 +141,9 @@ export class NormalEdit {
         gObj.editModule.destroyForm();
         gObj.notify(events.dialogDestroy, {});
         this.stopEditStatus();
+        if (gObj.editSettings.mode === 'dialog' && args.action !== 'add') {
+            gObj.element.querySelector('.e-dlgeditrow').classList.remove('e-dlgeditrow');
+        }
     }
 
     private editHandler(args: EditArgs): void {
@@ -165,7 +174,10 @@ export class NormalEdit {
         this.parent.isEdit = false;
         this.refreshRow(args.data);
         this.parent.trigger(events.actionComplete, args);
-        this.parent.selectRow(this.rowIndex > -1 ? this.rowIndex : this.editRowIndex);
+        if (!this.parent.element.classList.contains('e-checkboxselection')
+            || !this.parent.element.classList.contains('e-persistselection')) {
+            this.parent.selectRow(this.rowIndex > -1 ? this.rowIndex : this.editRowIndex);
+        }
         this.parent.element.focus();
         this.parent.hideSpinner();
     }
@@ -224,8 +236,8 @@ export class NormalEdit {
         if (args.cancel) {
             return;
         }
-        gObj.clearSelection();
         gObj.isEdit = true;
+        gObj.clearSelection();
         this.renderer.addNew({ rowData: args.data, requestType: 'add' });
         gObj.editModule.applyFormValidation();
         args.type = events.actionComplete;

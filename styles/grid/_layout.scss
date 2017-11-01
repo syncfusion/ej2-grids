@@ -221,6 +221,11 @@
       padding-top: 0;
     }
 
+    .e-unboundcell {
+      padding-bottom: 6px;
+      padding-top: 6px;
+    }
+
     .e-grouptext {
       margin-right: $grid-bigger-grouptext-marign;
       width: $grid-bigger-grouptext-width;
@@ -509,6 +514,15 @@
       user-select: none;
     }
 
+    .e-headercelldiv.e-headerchkcelldiv {
+      overflow: visible;
+    }
+
+    .e-gridheader .e-headercontent .e-rightalign .e-headercelldiv.e-headerchkcelldiv {
+      padding: 0 .6em;
+    }
+
+
     .e-columnheader {
       cursor: pointer;
     }
@@ -611,6 +625,19 @@
       padding-right: $grid-first-last-rowcell-padding;
     }
 
+    .e-unboundcell {
+      padding-bottom: 4px;
+      padding-top: 4px;
+    }
+
+    .e-unboundcelldiv > button {
+      margin: 0 3.5px;
+    }
+
+    .e-unboundcelldiv {
+      margin: 0 -3.5px;
+    }
+
     .e-summarycell {
       border-style: solid;
       border-width: $border-size 0 0;
@@ -664,7 +691,7 @@
 
     .e-gridheader table th[rowspan],
     &.e-device .e-gridheader table th[rowspan] {
-      padding-bottom: 13px;
+      padding-bottom: $grid-stackedheadercell-botttom-padding;
       vertical-align: bottom;
     }
 
@@ -677,6 +704,11 @@
     &.e-responsive .e-headercelldiv {
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    &.e-responsive .e-rowcell.e-gridchkbox,
+    &.e-responsive .e-headercelldiv.e-headerchkcelldiv {
+      text-overflow: clip;
     }
 
     &.e-default .e-headercell,
@@ -1296,6 +1328,7 @@
 
     .e-normaledit {
       border-top: 0;
+      padding: 0;
     }
 
     .e-gridcontent .e-normaledit .e-rowcell {

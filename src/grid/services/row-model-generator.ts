@@ -69,7 +69,7 @@ export class RowModelGenerator implements IModelGenerator<Column> {
 
         dummies.forEach((dummy: Column, index: number) =>
             tmp.push(this.generateCell(
-                dummy, <string>options.uid, undefined, null, index)));
+                dummy, <string>options.uid, isNullOrUndefined(dummy.commands) ? undefined : CellType.CommandColumn, null, index)));
         return tmp;
     }
 
@@ -81,10 +81,11 @@ export class RowModelGenerator implements IModelGenerator<Column> {
             'rowID': rowId,
             'column': column,
             'cellType': !isNullOrUndefined(cellType) ? cellType : CellType.Data,
-            'colSpan': colSpan
+            'colSpan': colSpan,
+            'commands': column.commands
         };
 
-        if (opt.isDataCell) {
+        if (opt.isDataCell || opt.column.type === 'checkbox') {
             opt.index = this.parent.getColumnIndexByField(column.field);
         }
 

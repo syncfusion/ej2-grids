@@ -96,9 +96,11 @@ describe('Toolbar functionalities', () => {
         expect(gridObj.toolbarModule).toBe(undefined);
     });
     it('render all predefined items', () => {
-        gridObj.toolbar = ['add', 'edit', 'delete', 'update', 'cancel', 'print', 'excelexport', 'pdfexport', 'wordexport', 'search', 'csvexport'];
+        gridObj.toolbar = ['add', 'edit', 'delete', 'update', 'cancel', 'print', 'excelexport', 'pdfexport', 'wordexport',
+        {text:'search', align: 'left'}, 'csvexport'];
         gridObj.dataBind();
         expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-toolbar-item').length).toBe(11);
+        expect(gridObj.toolbarModule.toolbar.items[9].align).toBe('left');
     });
 
     it('check search', (done: Function) => {

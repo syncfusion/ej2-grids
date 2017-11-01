@@ -110,8 +110,9 @@ export enum CellType {
     /**  Defines CellType as DetailHeader */
     DetailHeader,
     /**  Defines CellType as DetailExpand */
-    DetailExpand
-
+    DetailExpand,
+    /**  Defines CellType as CommandColumn */
+    CommandColumn
 }
 
 /** 
@@ -284,3 +285,20 @@ export type ClipMode =
     'ellipsis' |
     /** Displays ellipsis when the cell content overflows its area also it will display tooltip while hover on ellipsis applied cell. */
     'ellipsiswithtooltip';
+
+/**
+ * Defines the Command Buttons type.
+ * * edit -  Edit the current record.
+ * * delete - Delete the current record.
+ * * save - Save the current edited record.
+ * * cancel - Cancel the edited state.
+ */
+export type CommandButtonType =
+/** Edit the current row */
+'edit' |
+/** Delete the current row */
+'delete' |
+/** Save the current edited row */
+'save' |
+/**  Cancel the edited state */
+'cancel';

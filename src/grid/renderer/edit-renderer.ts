@@ -1,10 +1,16 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { InlineEditRender } from './inline-edit-renderer';
 import { BatchEditRender } from './batch-edit-renderer';
 import { DialogEditRender } from './dialog-edit-renderer';
 import { createElement, attributes, classList } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
+import { CellType } from '../base/enum';
+import { CellRendererFactory } from '../services/cell-render-factory';
+import { RowModelGenerator } from '../services/row-model-generator';
+import { IModelGenerator, ICellRenderer } from '../base/interface';
+import { Cell } from '../models/cell';
 
 /**
  * Edit render module is used to render grid edit row.
@@ -46,7 +52,7 @@ export class EditRender {
         this.convertWidget(args);
     }
 
-    private convertWidget(args: { rowData?: Object, columnName?: string, requestType?: string }): void {
+    private convertWidget(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element }): void {
         let gObj: IGrid = this.parent;
         let isFocused: boolean;
         let cell: HTMLElement;
@@ -54,13 +60,15 @@ export class EditRender {
         let form: Element = gObj.element.querySelector('.e-gridform');
         let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.columns as Column[] : [gObj.getColumnByField(args.columnName)];
         for (let col of cols) {
-            if (!col.visible) {
+            if (!col.visible || col.commands) {
                 continue;
             }
             value = col.valueAccessor(col.field, args.rowData, col) as string;
             cell = form.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
             let temp: Function = col.edit.write as Function;
-            (col.edit.write as Function)({ rowData: args.rowData, element: cell, column: col, requestType: args.requestType });
+            (col.edit.write as Function)({
+                rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row
+            });
             if (!isFocused && !cell.getAttribute('disabled')) {
                 this.focusElement(cell as HTMLInputElement);
                 isFocused = true;
@@ -69,6 +77,10 @@ export class EditRender {
     }
 
     private focusElement(elem: HTMLInputElement): void {
+        let chkBox: HTMLInputElement = this.parent.element.querySelector('.e-edit-checkselect') as HTMLInputElement;
+        if (!isNullOrUndefined(chkBox)) {
+            chkBox.nextElementSibling.classList.add('e-focus');
+        }
         elem.focus();
         if (elem.classList.contains('e-defaultcell')) {
             elem.setSelectionRange(elem.value.length, elem.value.length);
@@ -79,12 +91,25 @@ export class EditRender {
         let gObj: IGrid = this.parent;
         let elements: Object = {};
         let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.columns as Column[] : [gObj.getColumnByField(args.columnName)];
-        for (let col of cols) {
+        for (let i: number = 0, len: number = cols.length; i < len; i++) {
+            let col: Column = cols[i];
             if (!col.visible) {
                 continue;
             }
+            if (col.commands || col.commandsTemplate) {
+                let cellRendererFact: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
+                let model: IModelGenerator<Column> = new RowModelGenerator(this.parent);
+                let cellRenderer: ICellRenderer<{}> = cellRendererFact.getCellRenderer(CellType.CommandColumn);
+                let cells: Cell<Column>[] = model.generateRows(args.rowData)[0].cells;
+                let td: Element = cellRenderer.render(
+                    cells[i], args.rowData, <{ [x: string]: string }>{'index': args.row.getAttribute('aria-rowindex')});
+                let div: Element = td.firstElementChild;
+                div.setAttribute('textAlign', td.getAttribute('textAlign'));
+                elements[col.uid] = div;
+                continue;
+            }
             let value: string = col.valueAccessor(col.field, args.rowData, col) as string;
-            let tArgs: Object = { column: col, value: value, type: args.requestType };
+            let tArgs: Object = { column: col, value: value, type: args.requestType, data: args.rowData };
             let temp: Function = col.edit.create as Function;
             let input: Element;
             input = (col.edit.create as Function)(tArgs);

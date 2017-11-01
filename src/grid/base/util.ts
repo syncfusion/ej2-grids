@@ -383,3 +383,16 @@ export function setFormatter(serviceLocator?: ServiceLocator, column?: Column): 
             break;
     }
 }
+
+/** @hidden */
+export function addRemoveActiveClasses(cells: Element[], add: boolean, ...args: string[]): void {
+    for (let i: number = 0, len: number = cells.length; i < len; i++) {
+        if (add) {
+            classList(cells[i], [...args], []);
+            cells[i].setAttribute('aria-selected', 'true');
+        } else {
+            classList(cells[i], [], [...args]);
+            cells[i].removeAttribute('aria-selected');
+        }
+    }
+}

@@ -1,5 +1,6 @@
 import { merge } from '@syncfusion/ej2-base';
 import { CellType } from '../base/enum';
+import { CommandModel } from '../base/interface';
 /**
  * Cell
  * @hidden
@@ -37,6 +38,8 @@ export class Cell<T> {
     public cellSpan: number;
 
     public spanText: string | number | boolean | Date;
+
+    public commands: CommandModel[];
 
     constructor(options: { [x: string]: Object }) {
         merge(this, options);

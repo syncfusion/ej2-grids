@@ -89,6 +89,8 @@ export const onResize: string = 'onResize';
 /** @hidden */
 export const resizeStop: string = 'resizeStop';
 /** @hidden */
+export const checkBoxChange: string = 'checkBoxChange';
+/** @hidden */
 export const beforeCopy: string = 'beforeCopy';
 
 /**

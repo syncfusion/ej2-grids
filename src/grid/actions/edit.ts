@@ -486,12 +486,16 @@ export class Edit implements IAction {
         for (let i: number = 0, len: number = inputs.length; i < len; i++) {
             let col: Column = gObj.getColumnByUid(inputs[i].getAttribute('e-mappinguid'));
             let value: number | string | Date | boolean;
-            if (col) {
+            if (col && col.field) {
                 let temp: Function = col.edit.read as Function;
                 if (typeof temp === 'string') {
                     temp = getValue(temp, window);
                 }
-                value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
+                if (col.type !== 'checkbox') {
+                    value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
+                } else {
+                    value = inputs[i].checked;
+                }
                 setValue(col.field, value, editedData);
             }
         }
@@ -560,7 +564,7 @@ export class Edit implements IAction {
                 this.startEdit();
                 break;
             case 'enter':
-                if (this.parent.editSettings.mode !== 'batch' &&
+                if (!parentsUntil(e.target as HTMLElement, '.e-unboundcelldiv') && this.parent.editSettings.mode !== 'batch' &&
                     parentsUntil(e.target as HTMLElement, 'e-gridcontent') && !document.querySelectorAll('.e-popup-open').length) {
                     e.preventDefault();
                     this.endEdit();

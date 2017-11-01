@@ -1,6 +1,6 @@
 import { merge } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
-import { ICellFormatter, IFilterUI, IEditCell } from '../base/interface';
+import { ICellFormatter, IFilterUI, IEditCell, CommandModel } from '../base/interface';
 import { TextAlign, ClipMode } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
 import { ValueAccessor } from '../base/type';
@@ -372,6 +372,44 @@ export class Column {
      */
     public foreignKeyValue: string;
 
+    /**
+     * @hidden
+     * Defines the commands column template as string or HTML element ID which is used to add
+     * customized command buttons in each cells of the column.        
+     */
+    public commandsTemplate: string;
+
+    /**
+     * `commands` provides an option to display command buttons in every cell.
+     * The available built-in command buttons are
+     * * edit - Edit the record.
+     * * delete - Delete the record.
+     * * save - Save the record.
+     * * cancel - Cancel the edit state.
+     *
+     * The following code example implements the custom command column.
+     * ```html
+     * <style type="text/css" class="cssStyles">
+     * .details-icon:before
+     * {
+     *    content:"\e74d";
+     * }
+     * </style>
+     * <div id="Grid"></div>
+     * ```
+     * ```typescript
+     * var gridObj = new Grid({
+     * datasource: window.gridData,
+     * columns : [
+     *  { field: 'CustomerID', headerText: 'Customer ID' },
+     *  { field: 'CustomerName', headerText: 'Customer Name' },
+     *  {commands: [{buttonOption:{content: 'Details', click: onClick, cssClass: details-icon}}], headerText: 'Customer Details'}
+     * ]
+     * gridObj.appendTo("#Grid");
+     * ```
+     * @default null
+     */
+    public commands: CommandModel[];
 
     constructor(options: ColumnModel) {
         merge(this, options);
@@ -386,8 +424,11 @@ export class Column {
             this.allowGrouping = false;
             this.allowSorting = false;
         }
-        if (this.template) {
-            this.templateFn = templateCompiler(this.template);
+        if (this.commands && !this.textAlign) {
+            this.textAlign = 'right';
+        }
+        if (this.template || this.commandsTemplate) {
+            this.templateFn = templateCompiler(this.template || this.commandsTemplate);
         }
     }
 
@@ -772,5 +813,44 @@ export interface ColumnModel {
      * @default true
      */
     showInColumnChooser?: boolean;
+
+    /**
+     * @hidden
+     * Defines the commands column template as string or HTML element ID which is used to add
+     * customized command buttons in each cells of the column.        
+     */
+    commandsTemplate?: string;
+
+    /**
+     * `commands` provides an option to display command buttons in every cell.
+     * The available built-in command buttons are
+     * * edit - Edit the record.
+     * * delete - Delete the record.
+     * * save - Save the record.
+     * * cancel - Cancel the edit state.
+     *
+     * The following code example implements the custom command column.
+     * ```html
+     * <style type="text/css" class="cssStyles">
+     * .details-icon:before
+     * {
+     *    content:"\e74d";
+     * }
+     * </style>
+     * <div id="Grid"></div>
+     * ```
+     * ```typescript
+     * var gridObj = new Grid({
+     * datasource: window.gridData,
+     * columns : [
+     *  { field: 'CustomerID', headerText: 'Customer ID' },
+     *  { field: 'CustomerName', headerText: 'Customer Name' },
+     *  {commands: [{buttonOption:{content: 'Details', click: onClick, cssClass: details-icon}}], headerText: 'Customer Details'}
+     * ]
+     * gridObj.appendTo("#Grid");
+     * ```
+     * @default null
+     */
+    commands?: CommandModel[];
 
 }

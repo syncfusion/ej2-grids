@@ -1,6 +1,7 @@
-import { Component, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
+import { Component, NumberFormatOptions, DateFormatOptions, EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { ItemModel } from '@syncfusion/ej2-navigations';
+import { ButtonModel } from '@syncfusion/ej2-buttons';
 import { Column, ColumnModel } from '../models/column';
 import {
     SortSettingsModel, TextWrapSettingsModel, SelectionSettingsModel,
@@ -10,7 +11,7 @@ import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel } from './grid-model';
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
-import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems } from './enum';
+import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems, CommandButtonType } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
 import { Edit } from '../actions/edit';
@@ -350,6 +351,7 @@ export interface IGrid extends Component<HTMLElement> {
     addRecord?(data?: Object): void;
     deleteRow?(tr: HTMLTableRowElement): void;
     getRowObjectFromUID?(uid: string): Row<Column>;
+    getRowsObject?(): Row<Column>[];
     createColumnchooser(x: number, y: number, target: Element): void;
     getDataModule?(): Data;
     refreshTooltip?(): void;
@@ -520,6 +522,7 @@ export interface ICell<T> {
 
     className?: string;
 
+    commands?: CommandModel[];
 }
 /**
  * @hidden
@@ -1010,7 +1013,40 @@ export interface IEdit {
 /**
  * @hidden
  */
+export interface CheckBoxChangeEventArgs extends ICancel {
+    /** Defines the checked state. */
+    checked?: boolean;
+    /** Defines the selected row indexes. */
+    selectedRowIndexes?: number[];
+    /** Defines the target element for selection. */
+    target?: Element;
+}
+
+/**
+ * @hidden
+ */
 export interface BeforeCopyEventArgs extends ICancel {
     /** Defines the grid copied data. */
     data?: string;
+}
+
+export interface CommandButtonOptions extends ButtonModel {
+    /**
+     * Define handler for click event.
+     */
+    click?: EmitType<Event>;
+}
+
+/**
+ * Define options for custom command buttons.
+ */
+export interface CommandModel {
+    /**
+     * Define the command Button type
+     */
+    type?: CommandButtonType;
+    /**
+     * Define the button model
+     */
+    buttonOption?: CommandButtonOptions;
 }

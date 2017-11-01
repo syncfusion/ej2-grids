@@ -6,6 +6,7 @@ import { ICellRenderer } from '../base/interface';
 import { setStyleAndAttributes } from '../base/util';
 import { CellRenderer } from './cell-renderer';
 import { AriaService, IAriaOptions } from '../services/aria-service';
+import { CheckBox } from '@syncfusion/ej2-buttons';
 /**
  * HeaderCellRenderer class which responsible for building header cell content. 
  * @hidden
@@ -17,6 +18,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
     private hTxtEle: Element = createElement('span', { className: 'e-headertext' });
     private sortEle: Element = createElement('div', { className: 'e-sortfilterdiv e-icons' });
     private gui: Element = createElement('div');
+    private chkAllBox: Element = createElement('input', { className: 'e-checkselectall', attrs: { 'type': 'checkbox' } });
     /**
      * Function to return the wrapper for the TH content.
      * @returns string 
@@ -56,20 +58,30 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         //Prepare innerHtml
         let innerDIV: HTMLDivElement = <HTMLDivElement>this.getGui();
 
-        let value: string = column.headerText;
-
-        let headerText: Element = <Element>this.hTxtEle.cloneNode();
-
-        //TODO: Header Template support.
-
-        headerText[column.getDomSetter()] = value;
-
-        innerDIV.appendChild(headerText);
-
         attributes(innerDIV, {
             'e-mappinguid': column.uid,
             'class': 'e-headercelldiv'
         });
+
+        if (column.type !== 'checkbox') {
+
+            let value: string = column.headerText;
+
+            let headerText: Element = <Element>this.hTxtEle.cloneNode();
+
+            //TODO: Header Template support.
+
+            headerText[column.getDomSetter()] = value;
+
+            innerDIV.appendChild(headerText);
+        } else {
+            column.editType = 'booleanedit';
+            let checkAllBox: Element = <Element>this.chkAllBox.cloneNode();
+            innerDIV.appendChild(checkAllBox);
+            let checkAllBoxObj: CheckBox = new CheckBox();
+            checkAllBoxObj.appendTo(checkAllBox as HTMLElement);
+            innerDIV.classList.add('e-headerchkcelldiv');
+        }
 
         this.buildAttributeFromCell(node as HTMLElement, cell);
 

@@ -1,4 +1,4 @@
-import { Component, ModuleDeclaration, ChildProperty, Browser } from '@syncfusion/ej2-base';
+import { Component, ModuleDeclaration, ChildProperty, Browser, closest } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
@@ -17,7 +17,7 @@ import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEv
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
-import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs } from './interface';
+import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs, CheckBoxChangeEventArgs } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
@@ -54,6 +54,7 @@ import { ColumnChooser } from '../actions/column-chooser';
 import { ExcelExport } from '../actions/excel-export';
 import { PdfExport } from '../actions/pdf-export';
 import { Clipboard } from '../actions/clipboard';
+import { CommandColumn } from '../actions/command-column';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -89,7 +90,7 @@ export class SortSettings extends ChildProperty<SortSettings> {
      * @default true
      */
     @Property(true)
-    public allowUnSort: boolean;
+    public allowUnsort: boolean;
 }
 
 /**  
@@ -270,6 +271,21 @@ export class SelectionSettings extends ChildProperty<SelectionSettings> {
      */
     @Property('single')
     public type: SelectionType;
+
+    /**
+     * If 'checkboxOnly' set to true, then the Grid selection is allowed only through checkbox when checkbox type column has been enabled.
+     * @default false 
+     */
+    @Property(false)
+    public checkboxOnly: boolean;
+
+    /**
+     * If 'persistSelection' set to true, then the Grid selection is persisted on all operations.
+     * For persisting selection on the Grid, any one of the column should be enabled as a primary key.
+     * @default false 
+     */
+    @Property(false)
+    public persistSelection: boolean;
 }
 
 /**    
@@ -549,6 +565,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         Wordexport: 'Word Export',
         Csvexport: 'CSV Export',
         Search: 'Search',
+        Save: 'Save',
         Item: 'item',
         Items: 'items',
         EditOperationAlert: 'No records selected for edit operation',
@@ -597,7 +614,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         f2: 'f2',
         enter: 'enter',
         tab: 'tab',
-        shiftTab: 'shift+tab'
+        shiftTab: 'shift+tab',
+        space: 'space',
+        ctrlPlusC: 'ctrl+C',
+        ctrlShiftPlusH: 'ctrl+shift+H'
     };
 
     //Module Declarations
@@ -718,6 +738,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public columnChooserModule: ColumnChooser;
+
+    private commandColumnModule: CommandColumn;
 
     //Grid Options    
 
@@ -1424,6 +1446,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforeDataBound: EmitType<BeforeDataBoundArgs>;
 
     /** 
+     * Triggers when the check box in checkbox type column is changed.
+     * @event
+     */
+    @Event()
+    public checkBoxChange: EmitType<CheckBoxChangeEventArgs>;
+
+    /** 
      * Triggers before Grid copy action.
      * @event
      */
@@ -1572,6 +1601,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
             modules.push({
                 member: 'edit',
+                args: [this, this.serviceLocator]
+            });
+        }
+
+        if (this.isCommandColumn(<Column[]>this.columns)) {
+            modules.push({
+                member: 'commandColumn',
                 args: [this, this.serviceLocator]
             });
         }
@@ -2109,6 +2145,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
+     * @hidden   
+     */
+    public getRowsObject(): Row<Column>[] {
+        return this.contentModule.getRows() as Row<Column>[];
+    }
+
+    /**
      * Gets a column header by column name.
      * @param  {string} field - Specifies the column name.
      * @return {Element} 
@@ -2317,8 +2360,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Object[]}
      */
     public getSelectedRecords(): Object[] {
-        return (<Row<Column>[]>this.contentModule.getRows()).filter((row: Row<Column>) => row.isSelected)
-            .map((m: Row<Column>) => m.data);
+        return this.selectionModule.getSelectedRecords();
     }
 
     /**
@@ -2925,12 +2967,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         let tr: Element = parentsUntil(e.target as Element, 'e-row');
         let isEdit: boolean = this.editSettings.mode !== 'batch' &&
             this.isEdit && tr && (tr.classList.contains('e-editedrow') || tr.classList.contains('e-addedrow'));
-        return isEdit || (parentsUntil(e.target as Element, 'e-rowcell') &&
-            parentsUntil(e.target as Element, 'e-rowcell').classList.contains('e-editedbatchcell'));
+        return !parentsUntil(e.target as Element, 'e-unboundcelldiv') && (isEdit || (parentsUntil(e.target as Element, 'e-rowcell') &&
+        parentsUntil(e.target as Element, 'e-rowcell').classList.contains('e-editedbatchcell')));
     }
 
     private dblClickHandler(e: MouseEvent): void {
-        if (parentsUntil(e.target as Element, 'e-grid').id !== this.element.id) {
+        if (parentsUntil(e.target as Element, 'e-grid').id !== this.element.id || closest(<Node>e.target, '.e-unboundcelldiv')) {
             return;
         }
         this.notify(events.dblclick, e);
@@ -2963,7 +3005,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private keyActionHandler(e: KeyboardEventArgs): void {
         if (this.isChildGrid(e) ||
-            (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'tab' && e.action !== 'shiftTab')) {
+            (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'tab'
+                && e.action !== 'shiftTab' && e.action !== 'space')) {
             return;
         }
         if (this.allowKeyboard) {
@@ -3028,6 +3071,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /* tslint:disable-next-line:no-any */
     public pdfExport(exportProperties?: any, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object> {
         return this.pdfExportModule.Map(this, exportProperties, isMultipleExport, pdfDoc);
+    }
+
+    private isCommandColumn(columns: Column[]): boolean {
+        for (let column of columns) {
+            if ((<Column>column).columns) {
+                if (this.isCommandColumn(<Column[]>column.columns)) {
+                    return true;
+                }
+            } else if ((<Column>column).commands || column.commandsTemplate) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 

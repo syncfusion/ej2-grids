@@ -297,17 +297,20 @@ export class Sort implements IAction {
             !(e.target as Element).classList.contains('e-stackedheadercelldiv') &&
             !(e.target as Element).classList.contains('e-rhandler')) {
             let gObj: IGrid = this.parent;
-            let field: string = gObj.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')).field;
+            let colObj: Column = gObj.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;
+            let field: string = colObj.field;
             let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'ascending' :
                 'descending';
-            if (e.shiftKey || (this.sortSettings.allowUnSort && target.querySelectorAll('.e-descending').length)
-                && !(gObj.groupSettings.columns.indexOf(field) > -1)) {
-                this.removeSortColumn(field);
-            } else {
-                this.sortColumn(field, direction, e.ctrlKey || this.enableSortMultiTouch);
-            }
-            if (Browser.isDevice) {
-                this.showPopUp(e);
+            if (colObj.type !== 'checkbox') {
+                if (e.shiftKey || (this.sortSettings.allowUnsort && target.querySelectorAll('.e-descending').length)
+                    && !(gObj.groupSettings.columns.indexOf(field) > -1)) {
+                    this.removeSortColumn(field);
+                } else {
+                    this.sortColumn(field, direction, e.ctrlKey || this.enableSortMultiTouch);
+                }
+                if (Browser.isDevice) {
+                    this.showPopUp(e);
+                }
             }
         }
     }

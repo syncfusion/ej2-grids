@@ -31,76 +31,78 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
         let input: Element;
         let column: Column = cell.column;
 
-        if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
-            node.classList.add('e-fltrtemp');
-            attributes(innerDIV, {
-                'class': 'e-fltrtempdiv'
-            });
-            if (isNullOrUndefined(column.filterBarTemplate.create)) {
-                input = createElement('input', {
-                    id: column.field + '_filterBarcell', className: 'e-filterUi_input e-filtertext e-fltrTemp',
-                    attrs: { type: 'search', title: column.headerText }
-                });
-                innerDIV.appendChild(input);
-            } else {
-                let args: Object = { column: column };
-                let temp: Function = column.filterBarTemplate.create as Function;
-                if (typeof temp === 'string') {
-                    temp = getValue(temp, window);
-                }
-                input = temp(args);
-                if (typeof input === 'string') {
-                    let div: Element = createElement('div');
-                    div.innerHTML = input;
-                    input = div.firstChild as Element;
-                }
+        if (column.type !== 'checkbox') {
+            if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
+                node.classList.add('e-fltrtemp');
                 attributes(innerDIV, {
-                    class: 'e-filterUi_input e-filtertext e-fltrTemp',
-                    title: column.headerText,
-                    id: column.field + '_filterBarcell',
+                    'class': 'e-fltrtempdiv'
+                });
+                if (isNullOrUndefined(column.filterBarTemplate.create)) {
+                    input = createElement('input', {
+                        id: column.field + '_filterBarcell', className: 'e-filterUi_input e-filtertext e-fltrTemp',
+                        attrs: { type: 'search', title: column.headerText }
+                    });
+                    innerDIV.appendChild(input);
+                } else {
+                    let args: Object = { column: column };
+                    let temp: Function = column.filterBarTemplate.create as Function;
+                    if (typeof temp === 'string') {
+                        temp = getValue(temp, window);
+                    }
+                    input = temp(args);
+                    if (typeof input === 'string') {
+                        let div: Element = createElement('div');
+                        div.innerHTML = input;
+                        input = div.firstChild as Element;
+                    }
+                    attributes(innerDIV, {
+                        class: 'e-filterUi_input e-filtertext e-fltrTemp',
+                        title: column.headerText,
+                        id: column.field + '_filterBarcell',
+                    });
+                    innerDIV.appendChild(input);
+                }
+            } else {
+                attributes(innerDIV, {
+                    'class': 'e-filterdiv e-fltrinputdiv'
+                });
+                input = createElement('input', {
+                    id: column.field + '_filterBarcell', className: 'e-filtertext',
+                    attrs: {
+                        type: 'search', title: column.headerText + (cell.attributes as { title: string }).title,
+                        value: data[cell.column.field] ? data[cell.column.field] : '', role: 'search'
+                    }
                 });
                 innerDIV.appendChild(input);
+                innerDIV.appendChild(createElement('span', {
+                    className: 'e-cancel e-hide e-icons e-icon-hide',
+                    attrs: { 'aria-label': 'clear filter cell', tabindex: '-1' }
+                }));
             }
-        } else {
-            attributes(innerDIV, {
-                'class': 'e-filterdiv e-fltrinputdiv'
-            });
-            input = createElement('input', {
-                id: column.field + '_filterBarcell', className: 'e-filtertext',
-                attrs: {
-                    type: 'search', title: column.headerText + (cell.attributes as { title: string }).title,
-                    value: data[cell.column.field] ? data[cell.column.field] : '', role: 'search'
+            //TODO: apply intial filtering
+            if (column.allowFiltering === false || column.field === '' || isNullOrUndefined(column.field)) {
+                input.setAttribute('disabled', 'true');
+                input.classList.add('e-disable');
+            }
+            if (!column.visible) {
+                node.classList.add('e-hide');
+            }
+
+            if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
+                let templateRead: Function = column.filterBarTemplate.read as Function;
+                let templateWrite: Function = column.filterBarTemplate.write as Function;
+                let args: { element: Element, column: Column } = { element: input, column: column };
+                if (typeof templateRead === 'string') {
+                    templateRead = args.column = getValue(templateRead, window);
                 }
-            });
-            innerDIV.appendChild(input);
-            innerDIV.appendChild(createElement('span', {
-                className: 'e-cancel e-hide e-icons e-icon-hide',
-                attrs: { 'aria-label': 'clear filter cell', tabindex: '-1' }
-            }));
-        }
-        //TODO: apply intial filtering
-        if (column.allowFiltering === false || column.field === '' || isNullOrUndefined(column.field)) {
-            input.setAttribute('disabled', 'true');
-            input.classList.add('e-disable');
-        }
-        if (!column.visible) {
-            node.classList.add('e-hide');
-        }
-
-        if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
-            let templateRead: Function = column.filterBarTemplate.read as Function;
-            let templateWrite: Function = column.filterBarTemplate.write as Function;
-            let args: { element: Element, column: Column } = { element: input, column: column };
-            if (typeof templateRead === 'string') {
-                templateRead = args.column = getValue(templateRead, window);
+                if (typeof templateWrite === 'string') {
+                    templateWrite = getValue(templateWrite, window);
+                }
+                templateWrite.call(this, args);
             }
-            if (typeof templateWrite === 'string') {
-                templateWrite = getValue(templateWrite, window);
-            }
-            templateWrite.call(this, args);
-        }
 
-        this.appendHtml(node, innerDIV);
+            this.appendHtml(node, innerDIV);
+        }
 
         return node;
     }

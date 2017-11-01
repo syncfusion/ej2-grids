@@ -2,7 +2,7 @@
  * Grid Clipboard spec document
  */
 import { Browser, EmitType, extend } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base';
+import { createElement, remove, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Selection } from '../../../src/grid/actions/selection';
 import { Clipboard } from '../../../src/grid/actions/clipboard';
@@ -19,6 +19,9 @@ describe('Grid clipboard copy testing - row type selection', () => {
     let selectionModule: Selection;
     let rows: Element[];
     beforeAll((done: Function) => {
+        if (!isNullOrUndefined(document.getElementById('Grid'))) {
+            document.getElementById('Grid').remove();
+        }
         let dataBound: EmitType<Object> = () => { done(); };
         document.body.appendChild(elem);
         gridObj = new Grid(

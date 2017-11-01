@@ -86,12 +86,11 @@ export class BatchEdit {
     }
 
     protected dblClickHandler(e: MouseEvent): void {
-        let target: Element = e.target as Element;
+        let target: Element = parentsUntil(e.target as Element, 'e-rowcell');
         let tr: Element = parentsUntil(e.target as Element, 'e-row');
-        if ((parentsUntil(target, 'e-rowcell')) && tr) {
-            this.editCell(
-                parseInt(tr.getAttribute('aria-rowindex'), 10),
-                (this.parent.columns[parseInt(parentsUntil(target, 'e-rowcell').getAttribute('aria-colindex'), 10)] as Column).field);
+        if (target && tr && !isNaN(parseInt(target.getAttribute('aria-colindex'), 10))) {
+            this.editCell(parseInt(tr.getAttribute('aria-rowindex'), 10), (this.parent.columns
+            [parseInt(target.getAttribute('aria-colindex'), 10)] as Column).field);
         }
     }
 
@@ -507,9 +506,11 @@ export class BatchEdit {
                 this.isColored = true;
                 args.cell.classList.remove('e-updatedtd');
             }
-            gObj.clearSelection();
-            gObj.selectRow(this.cellDetails.rowIndex);
             gObj.isEdit = true;
+            gObj.clearSelection();
+            if (!gObj.element.classList.contains('e-checkboxselection') || !gObj.element.classList.contains('e-persistselection')) {
+                gObj.selectRow(this.cellDetails.rowIndex, true);
+            }
             this.renderer.update(args);
             this.form = gObj.element.querySelector('#' + gObj.element.id + 'EditForm');
             gObj.editModule.applyFormValidation([col]);

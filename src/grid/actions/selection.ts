@@ -1,13 +1,18 @@
 import { KeyboardEventArgs, Browser, EventHandler, MouseEventArgs } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, isUndefined } from '@syncfusion/ej2-base';
 import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
-import { IGrid, IAction, IIndex, ISelectedCell, IPosition, IRenderer } from '../base/interface';
+import { IGrid, IAction, IIndex, ISelectedCell, IPosition, IRenderer, EJ2Intance, NotifyArgs } from '../base/interface';
 import { SelectionSettings } from '../base/grid';
-import { setCssInGridPopUp, getPosition, parentsUntil } from '../base/util';
+import { setCssInGridPopUp, getPosition, parentsUntil, addRemoveActiveClasses }from '../base/util';
 import * as events from '../base/constant';
 import { RenderType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
+import { Column } from '../models/column';
+import { Row } from '../models/row';
+import { Data } from '../actions/data';
+import { ReturnType } from '../base/type';
+import { Query } from '@syncfusion/ej2-data';
 
 /**
  * `Selection` module is used to handle cell and row selection.
@@ -52,6 +57,23 @@ export class Selection implements IAction {
     private preSelectedCellIndex: IIndex;
     private factory: RendererFactory;
     private contentRenderer: IRenderer;
+    private isChkSelection: boolean;
+    private chkAllBox: HTMLInputElement;
+    private checkedTarget: HTMLInputElement;
+    private persistSelection: boolean = false;
+    private primaryKey: string;
+    private chkField: string;
+    private selectedRowState: { [key: number]: boolean } = {};
+    private chkAllObj: EJ2Intance;
+    private isBatchEdit: boolean = false;
+    private prevKey: number = 0;
+    private totalRecordsCount: number = 0;
+    private isChkAll: boolean = false;
+    private isUnChkAll: boolean = false;
+    private chkAllCollec: Object[] = [];
+    private isCheckedOnAdd: boolean = false;
+    private persistSelectedData: Object[] = [];
+    private selectionRequest: boolean = false;
     //Module declarations
     private parent: IGrid;
 
@@ -109,7 +131,7 @@ export class Selection implements IAction {
     }
 
     private isEditing(): boolean {
-        return this.parent.editSettings.mode !== 'batch' && this.parent.isEdit;
+        return this.parent.editSettings.mode !== 'batch' && this.parent.isEdit && !this.persistSelection;
     }
 
 
@@ -272,6 +294,38 @@ export class Selection implements IAction {
         this.isRowSelected = this.selectedRowIndexes.length && true;
     }
 
+    private updatePersistCollection(selectedRow: Element, chkState: boolean): void {
+        if (this.persistSelection && !isNullOrUndefined(selectedRow)) {
+            let rowObj: Row<Column> = this.parent.getRowObjectFromUID(selectedRow.getAttribute('data-uid'));
+            let pKey: string = rowObj.data[this.primaryKey];
+            rowObj.isSelected = chkState;
+            if (chkState) {
+                this.selectedRowState[pKey] = chkState;
+                if (this.selectionRequest && this.persistSelectedData.indexOf(rowObj.data) < 0) {
+                    this.persistSelectedData.push(rowObj.data);
+                }
+            } else {
+                delete (this.selectedRowState[pKey]);
+                if (this.selectionRequest && this.persistSelectedData.indexOf(rowObj.data) >= 0) {
+                    this.persistSelectedData.splice(this.persistSelectedData.indexOf(rowObj.data), 1);
+                }
+            }
+        }
+    }
+
+    private updateCheckBoxes(row: Element, chkState?: boolean): void {
+        if (!isNullOrUndefined(row)) {
+            let chkBox: HTMLInputElement = row.querySelector('.e-checkselect') as HTMLInputElement;
+            if (!isNullOrUndefined(chkBox) && this.checkedTarget !== chkBox) {
+                ((chkBox as HTMLElement) as EJ2Intance).ej2_instances[0].setProperties({ checked: chkState });
+                if (isNullOrUndefined(this.checkedTarget) || (!isNullOrUndefined(this.checkedTarget)
+                    && !this.checkedTarget.classList.contains('e-checkselectall'))) {
+                    this.setCheckAllState();
+                }
+            }
+        }
+    }
+
     private updateRowSelection(selectedRow: Element, startIndex: number): void {
         if (!selectedRow) {
             return;
@@ -279,6 +333,8 @@ export class Selection implements IAction {
         this.selectedRowIndexes.push(startIndex);
         this.selectedRecords.push(selectedRow);
         selectedRow.setAttribute('aria-selected', 'true');
+        this.updatePersistCollection(selectedRow, true);
+        this.updateCheckBoxes(selectedRow, true);
         this.addRemoveClassesForRow(selectedRow, true, null, 'e-selectionbackground', 'e-active');
     }
 
@@ -287,13 +343,16 @@ export class Selection implements IAction {
      * @return {void} 
      */
     public clearSelection(): void {
-        let span: Element = this.parent.element.querySelector('.e-gridpopup').querySelector('span');
-        if (span.classList.contains('e-rowselect')) {
-            span.classList.remove('e-spanclicked');
+        if (!this.persistSelection || (this.persistSelection && !this.parent.isEdit) ||
+            (!isNullOrUndefined(this.checkedTarget) && this.checkedTarget.classList.contains('e-checkselectall'))) {
+            let span: Element = this.parent.element.querySelector('.e-gridpopup').querySelector('span');
+            if (span.classList.contains('e-rowselect')) {
+                span.classList.remove('e-spanclicked');
+            }
+            this.clearRowSelection();
+            this.clearCellSelection();
+            this.enableSelectMultiTouch = false;
         }
-        this.clearRowSelection();
-        this.clearCellSelection();
-        this.enableSelectMultiTouch = false;
     }
 
     /** 
@@ -328,9 +387,11 @@ export class Selection implements IAction {
     }
 
     private rowDeselect(type: string, rowIndex: number[], data: Object, row: Element[]): void {
+        this.updatePersistCollection(row[0], false);
         this.parent.trigger(type, {
             rowIndex: rowIndex, data: data, row: row
         });
+        this.updateCheckBoxes(row[0]);
     }
 
     /**
@@ -593,6 +654,9 @@ export class Selection implements IAction {
     }
 
     private cellDeselect(type: string, cellIndexes: ISelectedCell[], data: Object, cells: Element[]): void {
+        if (cells[0].classList.contains('e-gridchkbox')) {
+            this.updateCheckBoxes(closest(cells[0], 'tr'));
+        }
         this.parent.trigger(type, {
             cells: cells, data: data, cellIndexes: cellIndexes
         });
@@ -603,6 +667,9 @@ export class Selection implements IAction {
             this.addRowCellIndex({ rowIndex: rowIndex, cellIndex: cellIndex });
         }
         selectedCell.classList.add('e-cellselectionbackground');
+        if (selectedCell.classList.contains('e-gridchkbox')) {
+            this.updateCheckBoxes(closest(selectedCell, 'tr'), true);
+        }
         this.addAttribute(selectedCell);
     }
 
@@ -749,7 +816,7 @@ export class Selection implements IAction {
     }
 
     private clearSelAfterRefresh(e: { requestType: string }): void {
-        if (e.requestType !== 'virtualscroll') {
+        if (e.requestType !== 'virtualscroll' && !this.persistSelection) {
             this.clearSelection();
         }
     }
@@ -769,6 +836,9 @@ export class Selection implements IAction {
         this.parent.on(events.dataReady, this.clearSelAfterRefresh, this);
         this.parent.on(events.columnPositionChanged, this.clearSelection, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
+        this.parent.addEventListener(events.dataBound, this.onDataBound.bind(this));
+        this.parent.addEventListener(events.actionBegin, this.actionBegin.bind(this));
+        this.parent.addEventListener(events.actionComplete, this.actionComplete.bind(this));
     }
     /**
      * @hidden
@@ -784,10 +854,13 @@ export class Selection implements IAction {
         this.parent.off(events.dataReady, this.dataReady);
         this.parent.off(events.dataReady, this.clearSelAfterRefresh);
         this.parent.off(events.columnPositionChanged, this.clearSelection);
+        this.parent.removeEventListener(events.dataBound, this.onDataBound);
+        this.parent.removeEventListener(events.actionBegin, this.actionBegin);
+        this.parent.removeEventListener(events.actionComplete, this.actionComplete);
     }
 
     public dataReady(e: { requestType: string }): void {
-        if (e.requestType !== 'virtualscroll') {
+         if (e.requestType !== 'virtualscroll' && !this.persistSelection) {
             this.clearSelection();
         }
     };
@@ -813,6 +886,7 @@ export class Selection implements IAction {
             !isNullOrUndefined(e.properties.cellSelectionMode)) {
             this.clearSelection();
         }
+        this.checkBoxSelectionChanged();
     }
 
     private hidePopUp(): void {
@@ -824,6 +898,230 @@ export class Selection implements IAction {
     private initialEnd(): void {
         this.parent.off(events.contentReady, this.initialEnd);
         this.selectRow(this.parent.selectedRowIndex);
+        this.checkBoxSelectionChanged();
+    }
+
+    private checkBoxSelectionChanged(): void {
+        let isCheckColumn: boolean = false;
+        for (let col of this.parent.columns as Column[]) {
+            if (col.type === 'checkbox') {
+                this.isChkSelection = true;
+                this.parent.selectionSettings.type = 'multiple';
+                this.chkField = col.field;
+                this.totalRecordsCount = this.parent.pageSettings.totalRecordsCount;
+                if (isNullOrUndefined(this.totalRecordsCount)) {
+                    this.totalRecordsCount = this.parent.getCurrentViewRecords().length;
+                }
+                this.chkAllBox = this.parent.element.querySelector('.e-checkselectall') as HTMLInputElement;
+                this.chkAllObj = ((this.chkAllBox as HTMLElement) as EJ2Intance);
+                isCheckColumn = true;
+                this.parent.element.classList.add('e-checkboxselection');
+                break;
+            }
+        }
+        if (!isCheckColumn) {
+            this.isChkSelection = false;
+            this.chkField = '';
+            this.chkAllBox = this.chkAllObj = null;
+            this.parent.element.classList.remove('e-checkboxselection');
+        }
+        if (this.parent.selectionSettings.persistSelection && this.parent.getPrimaryKeyFieldNames().length > 0) {
+            this.persistSelection = true;
+            this.parent.element.classList.add('e-persistselection');
+            this.primaryKey = this.parent.getPrimaryKeyFieldNames()[0];
+            if (!this.parent.enableVirtualization && this.chkField && Object.keys(this.selectedRowState).length === 0) {
+                let data: Data = this.parent.getDataModule();
+                let query: Query = new Query().where(this.chkField, 'equal', true);
+                let dataManager: Promise<Object> = data.getData({} as NotifyArgs, query);
+                let proxy: Selection = this;
+                this.parent.showSpinner();
+                dataManager.then((e: ReturnType) => {
+                    proxy.dataSuccess(e.result);
+                    proxy.refreshPersistSelection();
+                    proxy.parent.hideSpinner();
+                });
+            }
+        } else {
+            this.persistSelection = false;
+            this.parent.element.classList.remove('e-persistselection');
+            this.selectedRowState = {};
+        }
+    }
+
+    private dataSuccess(res: Object[]): void {
+        for (let i: number = 0; i < res.length; i++) {
+            if (isNullOrUndefined(this.selectedRowState[res[i][this.primaryKey]]) && res[i][this.chkField]) {
+                this.selectedRowState[res[i][this.primaryKey]] = res[i][this.chkField];
+            }
+        }
+        this.persistSelectedData = res;
+    }
+
+    private refreshPersistSelection(): void {
+        this.chkAllBox = this.parent.element.querySelector('.e-checkselectall') as HTMLInputElement;
+        this.chkAllObj = ((this.chkAllBox as HTMLElement) as EJ2Intance);
+        let rows: Element[] = this.parent.getRows();
+        if (rows.length > 0 && (this.persistSelection || this.chkField)) {
+            let indexes: number[] = [];
+            for (let j: number = 0; j < rows.length; j++) {
+                let rowObj: Row<Column> = this.parent.getRowObjectFromUID(rows[j].getAttribute('data-uid'));
+                let pKey: string = rowObj.data[this.primaryKey];
+                let checkState: boolean;
+                if (this.selectedRowState[pKey] || (this.isChkAll && this.chkAllCollec.indexOf(pKey) < 0)
+                    || (this.isUnChkAll && this.chkAllCollec.indexOf(pKey) > 0) || (this.chkField && rowObj.data[this.chkField])) {
+                    indexes.push(parseInt(rows[j].getAttribute('aria-rowindex'), 10));
+                    checkState = true;
+                } else {
+                    let chkBox: HTMLElement = (rows[j].querySelector('.e-checkselect') as HTMLElement);
+                    checkState = false;
+                    if (this.checkedTarget !== chkBox && this.isChkSelection) {
+                        (chkBox as EJ2Intance).ej2_instances[0].setProperties({ checked: checkState });
+                    }
+                }
+                this.updatePersistCollection(rows[j], checkState);
+            }
+            if (this.selectionSettings.type === 'multiple') {
+                this.selectRows(indexes);
+            } else {
+                this.clearSelection();
+                if (indexes.length > 0) {
+                    this.selectRow(indexes[0], true);
+                }
+            }
+        }
+        if (this.isChkSelection) {
+            this.setCheckAllState();
+        }
+    }
+
+
+    private actionBegin(e: { requestType: string }): void {
+        if (e.requestType === 'save' && this.persistSelection) {
+            let editChkBox: HTMLInputElement = this.parent.element.querySelector('.e-edit-checkselect') as HTMLInputElement;
+            if (!isNullOrUndefined(editChkBox)) {
+                let row: HTMLElement = closest(editChkBox, '.e-editedrow') as HTMLElement;
+                if (row) {
+                    if (this.parent.editSettings.mode === 'dialog') {
+                        row = this.parent.element.querySelector('.e-dlgeditrow') as HTMLElement;
+                    }
+                    let rowObj: Row<Column> = this.parent.getRowObjectFromUID(row.getAttribute('data-uid'));
+                    this.selectedRowState[rowObj.data[this.primaryKey]] = rowObj.isSelected = editChkBox.checked;
+                } else {
+                    this.isCheckedOnAdd = editChkBox.checked;
+                }
+            }
+        }
+    }
+
+    private actionComplete(e: { requestType: string, action: string, selectedRow: number }): void {
+        if (e.requestType === 'save' && this.persistSelection) {
+            if (e.action === 'add' && this.isCheckedOnAdd) {
+                let rowObj: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getRows()[e.selectedRow].getAttribute('data-uid'));
+                this.selectedRowState[rowObj.data[this.primaryKey]] = rowObj.isSelected = this.isCheckedOnAdd;
+            }
+            this.refreshPersistSelection();
+        }
+    }
+
+    private onDataBound(): void {
+        if (this.persistSelection || this.chkField) {
+            if (this.parent.enableVirtualization) {
+                let records: Object[] = this.parent.getCurrentViewRecords();
+                this.dataSuccess(records);
+            }
+            this.refreshPersistSelection();
+        }
+    }
+
+    private checkSelectAllAction(checkState: boolean): void {
+        let editForm: HTMLFormElement = this.parent.element.querySelector('.e-gridform') as HTMLFormElement;
+        this.checkedTarget = this.chkAllBox;
+        if (checkState) {
+            this.selectRowsByRange(0, this.parent.getCurrentViewRecords().length);
+            this.isChkAll = true;
+            this.isUnChkAll = false;
+        } else {
+            this.clearSelection();
+            this.isUnChkAll = true;
+            this.isChkAll = false;
+        }
+        this.chkAllCollec = [];
+        if (this.persistSelection) {
+            let rows: Element[] = this.parent.getRows();
+            for (let i: number = 0; i < rows.length; i++) {
+                this.updatePersistCollection(rows[i], checkState);
+            }
+            if (this.isUnChkAll) {
+                this.selectedRowState = {};
+                this.persistSelectedData = [];
+            }
+        }
+        if (!isNullOrUndefined(editForm)) {
+            let editChkBox: HTMLElement = editForm.querySelector('.e-edit-checkselect') as HTMLElement;
+            (editChkBox as EJ2Intance).ej2_instances[0].setProperties({ checked: checkState });
+        }
+    }
+
+    private checkSelectAll(checkBox: HTMLInputElement): void {
+        let checkObj: EJ2Intance = ((checkBox as HTMLElement) as EJ2Intance);
+        this.checkSelectAllAction(checkBox.checked);
+        this.target = null;
+        this.triggerChkChangeEvent(checkBox, checkBox.checked);
+    }
+
+    private checkSelect(checkBox: HTMLInputElement): void {
+        let target: HTMLElement = closest(this.checkedTarget, '.e-rowcell') as HTMLElement;
+        let checkObj: EJ2Intance = ((checkBox as HTMLElement) as EJ2Intance);
+        this.isMultiCtrlRequest = true;
+        let rIndex: number = parseInt(target.parentElement.getAttribute('aria-rowindex'), 10);
+        if (this.persistSelection && this.parent.element.querySelectorAll('.e-addedrow').length > 0) {
+            ++rIndex;
+        }
+        this.rowCellSelectionHandler(rIndex, parseInt(target.getAttribute('aria-colindex'), 10));
+        this.moveIntoUncheckCollection(closest(target, '.e-row') as HTMLElement);
+        this.setCheckAllState();
+        this.isMultiCtrlRequest = false;
+        this.triggerChkChangeEvent(checkBox, checkBox.checked);
+    }
+
+    private moveIntoUncheckCollection(row: HTMLElement): void {
+        if (this.isChkAll || this.isUnChkAll) {
+            let rowObj: Row<Column> = this.parent.getRowObjectFromUID(row.getAttribute('data-uid'));
+            let pKey: string = rowObj.data[this.primaryKey];
+            if (this.chkAllCollec.indexOf(pKey) < 0) {
+                this.chkAllCollec.push(pKey);
+            } else {
+                this.chkAllCollec.splice(this.chkAllCollec.indexOf(pKey), 1);
+            }
+        }
+    }
+
+    private triggerChkChangeEvent(checkBox: HTMLInputElement, checkState: boolean): void {
+        this.parent.trigger(events.checkBoxChange, {
+            checked: checkState, selectedRowIndexes: this.parent.getSelectedRowIndexes(),
+            target: checkBox
+        });
+        if (!this.parent.isEdit) {
+            this.checkedTarget = null;
+        }
+    }
+
+    private setCheckAllState(): void {
+        if (this.isChkSelection) {
+            let checkedLen: number = Object.keys(this.selectedRowState).length;
+            if (!this.persistSelection) {
+                checkedLen = this.selectedRecords.length;
+                this.totalRecordsCount = this.parent.getCurrentViewRecords().length;
+            }
+            if (checkedLen === this.totalRecordsCount || (this.persistSelection && this.parent.allowPaging
+            && this.isChkAll && this.chkAllCollec.length === 0)) {
+                this.chkAllObj.ej2_instances[0].setProperties({ checked: true });
+            } else if (checkedLen === 0 || this.parent.getCurrentViewRecords().length === 0) {
+                this.chkAllObj.ej2_instances[0].setProperties({ indeterminate: false, checked: false });
+            } else {
+                this.chkAllObj.ej2_instances[0].setProperties({ indeterminate: true });
+            }
+        }
     }
 
     private clickHandler(e: MouseEvent): void {
@@ -831,16 +1129,44 @@ export class Selection implements IAction {
         this.isMultiCtrlRequest = e.ctrlKey || this.enableSelectMultiTouch;
         this.isMultiShiftRequest = e.shiftKey;
         this.popUpClickHandler(e);
-        if (target.classList.contains('e-rowcell')) {
+        let chkSelect: boolean = false;
+        let checkBox: HTMLInputElement;
+        this.selectionRequest = true;
+        if (target.classList.contains('e-checkselect') || target.classList.contains('e-checkselectall')) {
+            checkBox = target as HTMLInputElement;
+            chkSelect = true;
+        }
+        if ((target.classList.contains('e-rowcell') && !this.parent.selectionSettings.checkboxOnly) || chkSelect) {
+            if (this.isChkSelection) {
+                this.isMultiCtrlRequest = true;
+            }
             this.target = target;
-            this.rowCellSelectionHandler(
-                parseInt(target.parentElement.getAttribute('aria-rowindex'), 10), parseInt(target.getAttribute('aria-colindex'), 10));
-            if (Browser.isDevice && this.parent.selectionSettings.type === 'multiple') {
+            if (!isNullOrUndefined(checkBox)) {
+                this.checkedTarget = checkBox;
+                if (checkBox.classList.contains('e-checkselectall')) {
+                    this.checkSelectAll(checkBox);
+                } else {
+                    this.checkSelect(checkBox);
+                    this.target = closest(target, '.e-rowcell');
+                }
+            } else {
+                let rIndex: number = parseInt(target.parentElement.getAttribute('aria-rowindex'), 10);
+                if (this.persistSelection && this.parent.element.querySelectorAll('.e-addedrow').length > 0) {
+                    ++rIndex;
+                }
+                this.rowCellSelectionHandler(rIndex, parseInt(target.getAttribute('aria-colindex'), 10));
+                if (this.isChkSelection) {
+                    this.moveIntoUncheckCollection(closest(target, '.e-row') as HTMLElement);
+                    this.setCheckAllState();
+                }
+            }
+            if (!this.isChkSelection && Browser.isDevice && this.parent.selectionSettings.type === 'multiple') {
                 this.showPopup(e);
             }
         }
         this.isMultiCtrlRequest = false;
         this.isMultiShiftRequest = false;
+        this.selectionRequest = false;
     }
 
     private popUpClickHandler(e: MouseEvent): void {
@@ -944,6 +1270,28 @@ export class Selection implements IAction {
                 preventDefault = true;
                 this.ctrlPlusA();
                 break;
+            case 'space':
+                this.selectionRequest = true;
+                let target: HTMLElement = (e.target as HTMLElement);
+                if (target.classList.contains('e-checkselectall')) {
+                    this.checkedTarget = target as HTMLInputElement;
+                    this.checkSelectAll(this.checkedTarget);
+                } else {
+                    if (target.classList.contains('e-checkselect')) {
+                        this.checkedTarget = target as HTMLInputElement;
+                        this.checkSelect(this.checkedTarget);
+                    }
+                }
+                this.selectionRequest = false;
+                break;
+            case 'tab':
+                if (this.isChkSelection && this.parent.isEdit) {
+                    let editChkBox: HTMLInputElement = this.parent.element.querySelector('.e-edit-checkselect') as HTMLInputElement;
+                    if (!isNullOrUndefined(editChkBox) && editChkBox.nextElementSibling.classList.contains('e-focus')) {
+                        editChkBox.nextElementSibling.classList.remove('e-focus');
+                    }
+                }
+                break;
         }
         if (checkScroll) {
             let scrollElem: Element = this.parent.getContent().firstElementChild;
@@ -1019,7 +1367,16 @@ export class Selection implements IAction {
     private applyDownUpKey(key: number, cond1: boolean, cond2: boolean): void {
         let gObj: IGrid = this.parent;
         if (this.isRowType() && cond1) {
-            this.selectRow(gObj.selectedRowIndex + key, true);
+            if (this.isChkSelection) {
+                if ((this.prevKey === 1 && key === -1) || (this.prevKey === -1 && key === 1)) {
+                    key = 0;
+                }
+                this.addRowsToSelection([gObj.selectedRowIndex + key]);
+                this.prevKey = key;
+                this.setCheckAllState();
+            } else {
+                this.selectRow(gObj.selectedRowIndex + key, true);
+            }
             this.applyUpDown(gObj.selectedRowIndex);
         }
         if (this.isCellType() && cond2) {
@@ -1030,6 +1387,9 @@ export class Selection implements IAction {
     }
 
     private applyUpDown(rowIndex: number): void {
+        if (!this.target) {
+            this.target = this.parent.getRows()[0].children[this.parent.groupSettings.columns.length || 0];
+        }
         let cIndex: number = parseInt(this.target.getAttribute('aria-colindex'), 10);
         this.target = this.contentRenderer.getRowByIndex(rowIndex).querySelectorAll('.e-rowcell')[cIndex];
         this.addAttribute(this.target);
@@ -1290,15 +1650,7 @@ export class Selection implements IAction {
             if (cell) {
                 cells.push(cell);
             }
-            for (let i: number = 0, len: number = cells.length; i < len; i++) {
-                if (isAdd) {
-                    classList(cells[i], [...args], []);
-                    cells[i].setAttribute('aria-selected', 'true');
-                } else {
-                    classList(cells[i], [], [...args]);
-                    cells[i].removeAttribute('aria-selected');
-                }
-            }
+            addRemoveActiveClasses(cells, isAdd, ...args);
         }
         this.getRenderer().setSelection(row ? row.getAttribute('data-uid') : null, isAdd, clearAll);
     }
@@ -1324,6 +1676,21 @@ export class Selection implements IAction {
             this.contentRenderer = this.factory.getRenderer(RenderType.Content);
         }
         return this.contentRenderer;
+    }
+
+    /**
+     * Gets the collection of selected records. 
+     * @return {Object[]}
+     */
+    public getSelectedRecords(): Object[] {
+        let selectedData: Object[] = [];
+        if (!this.selectionSettings.persistSelection) {
+            selectedData = (<Row<Column>[]>this.parent.getRowsObject()).filter((row: Row<Column>) => row.isSelected)
+                .map((m: Row<Column>) => m.data);
+        } else {
+            selectedData = this.persistSelectedData;
+        }
+        return selectedData;
     }
 
 }

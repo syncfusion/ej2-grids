@@ -15,6 +15,7 @@ import { CheckBox } from '@syncfusion/ej2-buttons';
 export class CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell', tabindex: '-1' } });
+    private rowChkBox: Element = createElement('input', { className: 'e-checkselect', attrs: { 'type': 'checkbox' } });
 
     protected localizer: L10n;
     protected formatter: IValueFormatter;
@@ -142,8 +143,20 @@ export class CellRenderer implements ICellRenderer<Column> {
 
         node.setAttribute('aria-label', innerHtml + ' column header ' + cell.column.headerText);
 
-        if (this.evaluate(node, cell, data, attributes)) {
+        if (this.evaluate(node, cell, data, attributes) && column.type !== 'checkbox') {
             this.appendHtml(node, innerHtml, column.getDomSetter ? column.getDomSetter() : 'innerHTML');
+        } else if (column.type === 'checkbox') {
+            node.classList.add('e-gridchkbox');
+            node.setAttribute('aria-label', 'column header ' + cell.column.headerText);
+            let checkBox: Element = <Element>this.rowChkBox.cloneNode();
+            checkBox.id = 'checkselect_' + cell.rowID.split('grid-row')[1];
+            node.appendChild(checkBox);
+            if (this.parent.selectionSettings.persistSelection) {
+                value = value === 'true';
+            } else {
+                value = false;
+            }
+            new CheckBox({ checked: value as boolean }).appendTo(checkBox as HTMLElement);
         }
 
         this.setAttributes(<HTMLElement>node, cell, attributes);

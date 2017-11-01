@@ -157,12 +157,7 @@ export class Toolbar {
 
     private getItem(itemObject: ItemModel): ItemModel {
         let item: ItemModel = this.predefinedItems[itemObject.text];
-        if (item) {
-            extend(item, item, itemObject);
-        } else {
-            item = itemObject;
-        }
-        return item;
+        return item ? extend(item, item, itemObject) : itemObject;
     }
 
     private getItemObject(itemName: string): ItemModel {

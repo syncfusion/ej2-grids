@@ -2,7 +2,7 @@
  * Grid Selection spec document
  */
 import { Browser, EmitType } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { EventHandler, isNullOrUndefined, closest } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Selection } from '../../../src/grid/actions/selection';
@@ -10,10 +10,14 @@ import { Page } from '../../../src/grid/actions/page';
 import { data } from '../base/datasource.spec';
 import { Group } from '../../../src/grid/actions/group';
 import { Sort } from '../../../src/grid/actions/sort';
+import { Edit } from '../../../src/grid/actions/edit';
+import { CheckBox } from '@syncfusion/ej2-buttons';
+import { employeeSelectData } from '../base/datasource.spec';
+import { Toolbar } from '../../../src/grid/actions/toolbar';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 import { QueryCellInfoEventArgs } from '../../../src/grid/base/interface';
 
-Grid.Inject(Selection, Page, Sort, Group);
+Grid.Inject(Selection, Page, Sort, Group, Edit, Toolbar);
 
 function copyObject(source: Object, destiation: Object): Object {
     for (let prop in source) {
@@ -1852,6 +1856,410 @@ describe('Grid Touch Selection', () => {
             setTimeout(function () {
                 done();
             }, 1000);
+        });
+    });
+
+    describe('Grid checkbox selection functionality', () => {
+        describe('grid checkbox selection functionality with persist selection', () => {
+            let gridObj: Grid;
+            let elem: HTMLElement = createElement('div', { id: 'Grid' });
+            let selectionModule: Selection;
+            let rows: Element[];
+            let preventDefault: Function = new Function();
+            let chkAllObj: any;
+            beforeAll((done: Function) => {
+                let dataBound: EmitType<Object> = () => { done(); };
+                document.body.appendChild(elem);
+                gridObj = new Grid(
+                    {
+                        dataSource: data, dataBound: dataBound,
+                        columns: [
+                            { type: 'checkbox' },
+                            { headerText: 'OrderID', isPrimaryKey: true, field: 'OrderID' },
+                            { headerText: 'CustomerID', field: 'CustomerID' },
+                            { headerText: 'EmployeeID', field: 'EmployeeID' },
+                            { headerText: 'ShipCountry', field: 'ShipCountry' },
+                            { headerText: 'ShipCity', field: 'ShipCity' },
+                        ],
+                        allowSelection: true,
+                        pageSettings: { pageSize: 5 },
+                        allowPaging: true,
+                        allowSorting: true,
+                        selectionSettings: { persistSelection: true }
+                    });
+                gridObj.appendTo('#Grid');
+            });
+
+            it('checkbox selection with persist selection on paging', () => {
+                selectionModule = gridObj.selectionModule;
+                rows = gridObj.getRows();
+                chkAllObj = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                selectionModule.selectRows([1, 2]);
+                expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(12);
+                expect(selectionModule.selectedRecords.length).toBe(2);
+                expect(selectionModule.selectedRowIndexes.length).toBe(2);
+                expect(chkAllObj.indeterminate).toBeTruthy();
+                gridObj.goToPage(2);
+                gridObj.goToPage(1);
+                expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(12);
+                expect(selectionModule.selectedRecords.length).toBe(2);
+                expect(selectionModule.selectedRowIndexes.length).toBe(2);
+                expect(chkAllObj.indeterminate).toBeTruthy();
+                (gridObj.element.querySelectorAll('.e-checkbox')[1] as HTMLElement).click();
+                expect(chkAllObj.indeterminate).toBeTruthy();
+            });
+
+            it('checkbox selection with check all checkbox', () => {
+                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                expect(!chkAllObj.indeterminate).toBeTruthy();
+                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                expect(!chkAllObj.indeterminate).toBeTruthy();
+                (gridObj.getCellFromIndex(0, 1) as HTMLElement).click();
+            });
+
+            it('checkbox selection through down and up keys', () => {
+                let args: any = { action: 'downArrow', preventDefault: preventDefault };
+                for (let i = 0; i < rows.length; i++) {
+                    args.target = (rows[i].querySelector('.e-checkselect') as HTMLElement);
+                    gridObj.keyboardModule.keyAction(args);
+                }
+                args.action = 'upArrow';
+                for (let i = 0; i < rows.length; i++) {
+                    args.target = (rows[i].querySelector('.e-checkselect') as HTMLElement);
+                    gridObj.keyboardModule.keyAction(args);
+                }
+                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                expect(!chkAllObj.indeterminate).toBeTruthy();
+            });
+
+            it('checkbox selection through space key', () => {
+                let args: any = { action: 'space', preventDefault: preventDefault };
+                let chkBox: HTMLElement = (rows[2].querySelector('.e-checkselect') as HTMLElement);
+                args.target = chkBox;
+                gridObj.keyboardModule.keyAction(args);
+                expect(chkAllObj.indeterminate).toBeTruthy();
+                chkBox = (gridObj.element.querySelector('.e-checkselectall') as HTMLElement);
+                args.target = chkBox;
+                gridObj.keyboardModule.keyAction(args);
+                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                expect(!chkAllObj.indeterminate).toBeTruthy();
+                (gridObj.getCellFromIndex(0, 1) as HTMLElement).click();
+                gridObj.getSelectedRecords();
+            });
+
+            it('checkbox selection with cell mode selection', () => {
+                gridObj.selectionSettings.mode = 'cell';
+                gridObj.dataBind();
+                expect(gridObj.selectionSettings.mode === 'cell').toBeTruthy();
+                (gridObj.getCellFromIndex(0, 0) as HTMLElement).click();
+                (gridObj.getCellFromIndex(0, 0) as HTMLElement).click();
+            });
+
+            afterAll(() => {
+                remove(elem);
+            });
+        });
+
+        describe('grid checkbox selection functionality with dialog editing', () => {
+            let gridObj: Grid;
+            let elem: HTMLElement = createElement('div', { id: 'Grid' });
+            let selectionModule: Selection;
+            let chkAllObj: any;
+            let rows: Element[];
+            beforeAll((done: Function) => {
+                let dataBound: EmitType<Object> = () => { done(); };
+                document.body.appendChild(elem);
+                gridObj = new Grid(
+                    {
+                        dataSource: employeeSelectData, dataBound: dataBound,
+                        columns: [
+                            { type: 'checkbox' },
+                            { field: 'EmployeeID', isPrimaryKey: true, headerText: 'Employee ID', textAlign: 'right', width: 135, },
+                            { field: 'FirstName', headerText: 'Name', width: 125 },
+                            { field: 'Title', headerText: 'Title', width: 180 },
+                        ],
+                        allowSelection: true,
+                        toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                        editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'dialog' },
+                        pageSettings: { pageSize: 5 },
+                        allowPaging: true,
+                        allowSorting: true,
+                        allowFiltering: true,
+                        selectionSettings: { persistSelection: true }
+                    });
+                gridObj.appendTo('#Grid');
+            });
+            it('test checkbox selection with dialog editing', () => {
+                (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.getCellFromIndex(0, 0) });
+                gridObj.endEdit();
+                expect(gridObj.selectionModule.selectedRecords.length === 0).toBeTruthy();
+            });
+            it('checkbox selection on adding new record with dialog editing', () => {
+                chkAllObj = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                (document.getElementsByClassName('e-add')[0] as HTMLElement).click();
+                (document.getElementsByClassName('e-field')[0] as HTMLInputElement).click();
+                (document.getElementsByClassName('e-field')[1] as HTMLInputElement).value = "222";
+                (document.getElementsByClassName('e-field')[2] as HTMLInputElement).value = "Angier";
+                (document.getElementsByClassName('e-field')[3] as HTMLInputElement).value = "Sales Manager";
+                (document.getElementsByClassName('e-primary')[2] as HTMLElement).click();
+                expect(!chkAllObj.indeterminate).toBeTruthy();
+            });
+            it('checkbox selection on adding new record with normal editing', () => {
+                gridObj.editSettings.mode = 'normal';
+                gridObj.dataBind();
+                expect(gridObj.editSettings.mode === 'normal').toBeTruthy();
+                (document.getElementsByClassName('e-add')[0] as HTMLElement).click();
+                (document.getElementsByClassName('e-field')[0] as HTMLInputElement).click();
+                (document.getElementsByClassName('e-field')[1] as HTMLInputElement).value = "222";
+                (document.getElementsByClassName('e-field')[2] as HTMLInputElement).value = "Angier";
+                (document.getElementsByClassName('e-field')[3] as HTMLInputElement).value = "Sales Manager";
+                (gridObj.getCellFromIndex(2, 2) as HTMLElement).click();
+                (document.getElementsByClassName('e-add')[0] as HTMLElement).click();
+                (document.getElementsByClassName('e-field')[0] as HTMLInputElement).click();
+                (document.getElementsByClassName('e-field')[1] as HTMLInputElement).value = "222";
+                (document.getElementsByClassName('e-field')[2] as HTMLInputElement).value = "Fallen";
+                (document.getElementsByClassName('e-field')[3] as HTMLInputElement).value = "Sales Manager";
+                (gridObj.element.querySelectorAll('.e-checkbox')[2] as HTMLElement).click();
+            });
+            afterAll(() => {
+                remove(elem);
+            });
+        });
+
+        describe('grid checkbox selection functionality without persist selection', () => {
+            let gridObj: Grid;
+            let elem: HTMLElement = createElement('div', { id: 'Grid' });
+            let selectionModule: Selection;
+            let rows: Element[];
+            beforeAll((done: Function) => {
+                let dataBound: EmitType<Object> = () => { done(); };
+                document.body.appendChild(elem);
+                gridObj = new Grid(
+                    {
+                        dataSource: employeeSelectData, dataBound: dataBound,
+                        columns: [
+                            { type: 'checkbox' },
+                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 135, },
+                            { field: 'FirstName', headerText: 'Name', width: 125 },
+                            { field: 'Title', headerText: 'Title', width: 180 },
+                        ],
+                        allowSelection: true,
+                        editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'dialog' },
+                        pageSettings: { pageSize: 5 },
+                        allowPaging: true,
+                        allowSorting: true,
+                        selectionSettings: { type: 'multiple' }
+                    });
+                gridObj.appendTo('#Grid');
+            });
+
+            it('Test checkbox selection', () => {
+                selectionModule = gridObj.selectionModule;
+                rows = gridObj.getRows();
+                selectionModule.selectRows([1, 2]);
+                expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(8);
+                expect(selectionModule.selectedRecords.length).toBe(2);
+                expect(selectionModule.selectedRowIndexes.length).toBe(2);
+                gridObj.goToPage(2);
+                gridObj.goToPage(1);
+            });
+
+            it('checkbox selection on editing', () => {
+                (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.getCellFromIndex(0, 0) });
+                gridObj.endEdit();
+                expect(gridObj.selectionModule.selectedRecords.length === 1).toBeTruthy();
+            });
+
+            afterAll(() => {
+                remove(elem);
+            });
+        });
+
+        describe('persist selection functionality without checkbox', () => {
+            let gridObj: Grid;
+            let elem: HTMLElement = createElement('div', { id: 'Grid' });
+            let selectionModule: Selection;
+            let rows: Element[];
+            beforeAll((done: Function) => {
+                let dataBound: EmitType<Object> = () => { done(); };
+                document.body.appendChild(elem);
+                gridObj = new Grid(
+                    {
+                        dataSource: data, dataBound: dataBound,
+                        columns: [
+                            { headerText: 'OrderID', isPrimaryKey: true, field: 'OrderID' },
+                            { headerText: 'CustomerID', field: 'CustomerID' },
+                            { headerText: 'EmployeeID', field: 'EmployeeID' },
+                            { headerText: 'ShipCountry', field: 'ShipCountry' },
+                            { headerText: 'ShipCity', field: 'ShipCity' },
+                        ],
+                        allowSelection: true,
+                        pageSettings: { pageSize: 5 },
+                        allowPaging: true,
+                        selectionSettings: { persistSelection: true }
+                    });
+                gridObj.appendTo('#Grid');
+            });
+
+            it('persist selection', () => {
+                selectionModule = gridObj.selectionModule;
+                rows = gridObj.getRows();
+                selectionModule.selectRow(1, true);
+                expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(5);
+                expect(selectionModule.selectedRecords.length).toBe(1);
+                expect(selectionModule.selectedRowIndexes.length).toBe(1);
+                gridObj.goToPage(2);
+                gridObj.goToPage(1);
+                expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(5);
+                expect(selectionModule.selectedRecords.length).toBe(1);
+                expect(selectionModule.selectedRowIndexes.length).toBe(1);
+            });
+            afterAll(() => {
+                remove(elem);
+            });
+        });
+        describe('grid checkbox selection functionality and selection persistance with virtualization', () => {
+            let gridObj: Grid;
+            let elem: HTMLElement = createElement('div', { id: 'Grid' });
+            let selectionModule: Selection;
+            let rows: Element[];
+            beforeAll((done: Function) => {
+                let dataBound: EmitType<Object> = () => { done(); };
+                document.body.appendChild(elem);
+                gridObj = new Grid(
+                    {
+                        dataSource: data, dataBound: dataBound,
+                        columns: [
+                            { type: 'checkbox' },
+                            { headerText: 'OrderID', isPrimaryKey: true, field: 'OrderID' },
+                            { headerText: 'CustomerID', field: 'CustomerID' },
+                            { headerText: 'EmployeeID', field: 'EmployeeID' },
+                            { headerText: 'ShipCountry', field: 'ShipCountry' },
+                            { headerText: 'ShipCity', field: 'ShipCity' },
+                        ],
+                        allowSelection: true,
+                        enableVirtualization: true,
+                        selectionSettings: { persistSelection: true }
+                    });
+                gridObj.appendTo('#Grid');
+            });
+
+            it('Test checkbox selection and persist selection', () => {
+                selectionModule = gridObj.selectionModule;
+                rows = gridObj.getRows();
+                let chkAllObj: any = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                selectionModule.selectRows([1, 2]);
+                expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
+                expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(12);
+                expect(selectionModule.selectedRecords.length).toBe(2);
+                expect(selectionModule.selectedRowIndexes.length).toBe(2);
+                expect(chkAllObj.indeterminate).toBeTruthy();
+            });
+            afterAll(() => {
+                remove(elem);
+            });
+        });
+        describe('grid checkbox selection functionaly with datasource field', () => {
+            let gridObj: Grid;
+            let elem: HTMLElement = createElement('div', { id: 'Grid' });
+            let selectionModule: Selection;
+            let rows: Element[];
+            let chkAllObj: any;
+            beforeAll((done: Function) => {
+                let dataBound: EmitType<Object> = () => { done(); };
+                document.body.appendChild(elem);
+                gridObj = new Grid(
+                    {
+                        dataSource: employeeSelectData, dataBound: dataBound,
+                        columns: [
+                            { type: 'checkbox', field: 'IsAutoSelect' },
+                            { field: 'EmployeeID', isPrimaryKey: true, headerText: 'Employee ID', textAlign: 'right', width: 135, },
+                            { field: 'FirstName', headerText: 'Name', width: 125 },
+                            { field: 'Title', headerText: 'Title', width: 180 },
+                        ],
+                        allowSelection: true,
+                        editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'normal' },
+                        pageSettings: { pageSize: 5 },
+                        allowPaging: true,
+                        selectionSettings: { persistSelection: true }
+                    });
+                gridObj.appendTo('#Grid');
+            });
+
+            it('checkbox selection with persist selection on paging', (done: Function) => {
+                setTimeout(
+                    () => {
+                        selectionModule = gridObj.selectionModule;
+                        chkAllObj = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                        rows = gridObj.getRows();
+                        gridObj.goToPage(2);
+                        gridObj.goToPage(1);
+                        expect(chkAllObj.indeterminate).toBeTruthy();
+                        done();
+                    },
+                    200);
+            });
+
+            it('checkbox selection with check all checkbox', (done: Function) => {
+                setTimeout(
+                    () => {
+                        (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                        expect(!chkAllObj.indeterminate).toBeTruthy();
+                        (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                        expect(!chkAllObj.indeterminate).toBeTruthy();
+                        done();
+                    },
+                    500);
+            });
+
+            it('edit checkbox selection on editing', (done: Function) => {
+                setTimeout(
+                    () => {
+                        (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.getCellFromIndex(0, 0) });
+                        let preventDefault: Function = new Function();
+                        let args: any = { action: 'tab', preventDefault: preventDefault };
+                        gridObj.keyboardModule.keyAction(args);
+                        (gridObj.element.querySelector('.e-edit-checkselect') as HTMLElement).click();
+                        (gridObj.element.querySelector('.e-edit-checkselect') as HTMLElement).click();
+                        gridObj.endEdit();
+                        (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.getCellFromIndex(0, 0) });
+                        (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                        expect(!chkAllObj.indeterminate).toBeTruthy();
+                        done();
+                    },
+                    500);
+            });
+
+            afterAll(() => {
+                remove(elem);
+            });
         });
     });
 });

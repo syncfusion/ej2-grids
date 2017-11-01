@@ -1,9 +1,9 @@
-import { createElement } from '@syncfusion/ej2-base';
+import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IEditCell, IGrid } from '../base/interface';
 import { Column } from '../models/column';
-import { CheckBox } from '@syncfusion/ej2-buttons';
+import { CheckBox, ChangeEventArgs } from '@syncfusion/ej2-buttons';
 import { extend } from '@syncfusion/ej2-base';
-import { isEditable } from '../base/util';
+import { isEditable, addRemoveActiveClasses } from '../base/util';
 
 /**
  * `BooleanEditCell` is used to handle boolean cell type editing.
@@ -12,6 +12,9 @@ import { isEditable } from '../base/util';
 export class BooleanEditCell implements IEditCell {
     private parent: IGrid;
     private obj: CheckBox;
+    private editRow: HTMLElement;
+    private editType: string;
+    private activeClasses: string[] = ['e-selectionbackground', 'e-active'];
 
     constructor(parent?: IGrid) {
         this.parent = parent;
@@ -19,8 +22,12 @@ export class BooleanEditCell implements IEditCell {
 
     public create(args: { column: Column, value: string, type: string }): Element {
         let col: Column = args.column;
+        let classNames: string = 'e-field e-boolcell';
+        if (col.type === 'checkbox') {
+            classNames = 'e-field e-boolcell e-edit-checkselect';
+        }
         return createElement('input', {
-            className: 'e-field e-boolcell', attrs: {
+            className: classNames, attrs: {
                 type: 'checkbox', value: args.value, 'e-mappinguid': col.uid,
                 id: this.parent.element.id + col.field, name: col.field
             }
@@ -31,18 +38,46 @@ export class BooleanEditCell implements IEditCell {
         return (<HTMLInputElement>element).checked;
     }
 
-    public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
+    public write(args: { rowData: Object, element: Element, column: Column, requestType: string, row: Element }): void {
+        let selectChkBox: Element;
+        let chkState: boolean;
+        if (!isNullOrUndefined(args.row)) {
+            selectChkBox = args.row.querySelector('.e-edit-checkselect') as Element;
+        }
+        if (args.rowData[args.column.field]) {
+            chkState = JSON.parse(args.rowData[args.column.field].toString().toLowerCase());
+        }
+        if (!isNullOrUndefined(selectChkBox)) {
+            this.editType = this.parent.editSettings.mode;
+            this.editRow = args.row as HTMLElement;
+            if (args.requestType !== 'add') {
+                chkState = this.parent.getRowObjectFromUID(args.row.getAttribute('data-uid')).isSelected;
+            }
+            addRemoveActiveClasses([].slice.call(args.row.querySelectorAll('.e-rowcell')), chkState, ...this.activeClasses);
+        }
         this.obj = new CheckBox(
             extend(
                 {
                     label: this.parent.editSettings.mode !== 'dialog' ? '' : args.column.headerText,
-                    checked: args.rowData[args.column.field] &&
-                    JSON.parse(args.rowData[args.column.field].toString().toLowerCase()),
-                    disabled: !isEditable(args.column, args.type, args.element), enableRtl: this.parent.enableRtl
+                    checked: chkState,
+                    disabled: !isEditable(args.column, args.requestType, args.element), enableRtl: this.parent.enableRtl,
+                    change: this.checkBoxChange.bind(this)
                 },
                 args.column.edit.params));
         this.obj.appendTo(args.element as HTMLElement);
+    }
 
+    private checkBoxChange(args: ChangeEventArgs): void {
+        if (this.editRow && this.editType !== 'dialog') {
+            let add: boolean = false;
+            if (!args.checked) {
+                this.editRow.removeAttribute('aria-selected');
+            } else {
+                add = true;
+                this.editRow.setAttribute('aria-selected', add.toString());
+            }
+            addRemoveActiveClasses([].slice.call(this.editRow.querySelectorAll('.e-rowcell')), add, ...this.activeClasses);
+        }
     }
 
     public destroy(): void {

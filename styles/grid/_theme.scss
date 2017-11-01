@@ -7,7 +7,7 @@
       color: $grid-icon-color;
     }
 
-    .e-gridheader .e-icons:not(.e-icon-hide) {
+    .e-gridheader .e-icons:not(.e-icon-hide):not(.e-check) {
       color: $grid-icon-default-color;
     }
 
