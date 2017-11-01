@@ -35,6 +35,10 @@
       content: $grid-group-right-arrow-icon;
     }
 
+    .e-icon-filter::before {
+      content:  $grid-filtermenu-icon;
+   }
+
     &.e-rtl {
       .e-icon-grightarrow::before {
         content: $grid-group-rtl-right-arrow-icon;

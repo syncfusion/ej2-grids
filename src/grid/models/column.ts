@@ -1,6 +1,6 @@
 import { merge } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
-import { ICellFormatter, IFilterUI, IEditCell, CommandModel } from '../base/interface';
+import { ICellFormatter, IFilterUI, IEditCell, CommandModel, IFilterMenuUI } from '../base/interface';
 import { TextAlign, ClipMode } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
 import { ValueAccessor } from '../base/type';
@@ -234,7 +234,7 @@ export class Column {
      *  
      * @default null   
      */
-    public formatter: { new(): ICellFormatter } | ICellFormatter | Function;
+    public formatter: { new (): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method which is used to apply custom cell values from external function and display this on each cells of render.     
@@ -299,6 +299,13 @@ export class Column {
      */
 
     public filterBarTemplate: IFilterUI;
+
+    /**
+     *  it is used to render your customize filter menu instead of default.
+     *  @default null
+     */
+
+    public filter: IFilterMenuUI;
 
     /**    
      * It is used to render multiple header rows(stacked headers) on the Grid header.      
@@ -673,7 +680,7 @@ export interface ColumnModel {
      * 
      * @default null  
      */
-    formatter?: { new(): ICellFormatter } | ICellFormatter | Function;
+    formatter?: { new (): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method which is used to apply custom cell values from external function and display this on each cells of render.     
@@ -736,6 +743,13 @@ export interface ColumnModel {
      * @default null   
      */
     filterBarTemplate?: IFilterUI;
+
+    /**
+     *  it is used to render your customize filter menu instead of default.
+     *  @default null
+     */
+
+     filter?: IFilterMenuUI;
 
     /**    
      * It is used to render multiple header rows(stacked headers) on the Grid header.      

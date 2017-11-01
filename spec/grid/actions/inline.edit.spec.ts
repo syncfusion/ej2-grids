@@ -474,191 +474,191 @@ describe('Editing module', () => {
     });
 
 
-    describe('Keyboard shortcuts', () => {
-        let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let preventDefault: Function = new Function();
-        let actionBegin: () => void;
-        let actionComplete: () => void;
-        beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: dataSource(),
-                    allowFiltering: true,
-                    allowGrouping: false,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'normal', showConfirmDialog: false, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
-                    allowPaging: false,
-                    columns: [
-                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
-                        { field: 'CustomerID', type: 'string' },
-                        { field: 'EmployeeID', type: 'number', allowEditing: false },
-                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
-                        { field: 'ShipCity' },
-                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
-                        { field: 'ShipName', isIdentity: true },
-                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
-                        { field: 'ShipRegion', type: 'string' },
-                        { field: 'ShipAddress', allowFiltering: true, visible: false },
-                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
-                    ],
-                    actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
-        });
+    // describe('Keyboard shortcuts', () => {
+    //     let gridObj: Grid;
+    //     let elem: HTMLElement = createElement('div', { id: 'Grid' });
+    //     let preventDefault: Function = new Function();
+    //     let actionBegin: () => void;
+    //     let actionComplete: () => void;
+    //     beforeAll((done: Function) => {
+    //         let dataBound: EmitType<Object> = () => { done(); };
+    //         document.body.appendChild(elem);
+    //         gridObj = new Grid(
+    //             {
+    //                 dataSource: dataSource(),
+    //                 allowFiltering: true,
+    //                 allowGrouping: false,
+    //                 editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'normal', showConfirmDialog: false, showDeleteConfirmDialog: false },
+    //                 toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+    //                 allowPaging: false,
+    //                 columns: [
+    //                     { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+    //                     { field: 'CustomerID', type: 'string' },
+    //                     { field: 'EmployeeID', type: 'number', allowEditing: false },
+    //                     { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+    //                     { field: 'ShipCity' },
+    //                     { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+    //                     { field: 'ShipName', isIdentity: true },
+    //                     { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+    //                     { field: 'ShipRegion', type: 'string' },
+    //                     { field: 'ShipAddress', allowFiltering: true, visible: false },
+    //                     { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
+    //                 ],
+    //                 actionBegin: actionBegin,
+    //                 actionComplete: actionComplete,
+    //                 dataBound: dataBound
+    //             });
+    //         gridObj.appendTo('#Grid');
+    //     });
 
-        it('Edit start', (done: Function) => {
-            actionComplete = (args?: any): void => {
-                if (args.requestType === 'beginEdit') {
-                    expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(1);
-                    expect(gridObj.element.querySelectorAll('.e-gridform').length).toBe(1);
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;
-            //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
-            gridObj.clearSelection();
-            gridObj.selectRow(0, true);
-            gridObj.keyboardModule.keyAction({ action: 'f2', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
-        });
+    //     it('Edit start', (done: Function) => {
+    //         actionComplete = (args?: any): void => {
+    //             if (args.requestType === 'beginEdit') {
+    //                 expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(1);
+    //                 expect(gridObj.element.querySelectorAll('.e-gridform').length).toBe(1);
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;
+    //         //toolbar status check
+    //         expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+    //         gridObj.clearSelection();
+    //         gridObj.selectRow(0, true);
+    //         gridObj.keyboardModule.keyAction({ action: 'f2', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+    //     });
 
-        it('Edit complete', (done: Function) => {
-            actionComplete = (args?: any): void => {
-                if (args.requestType === 'save') {
-                    expect((gridObj.currentViewData[0] as any).CustomerID).toBe('updated');
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;
-            (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
-        });
+    //     it('Edit complete', (done: Function) => {
+    //         actionComplete = (args?: any): void => {
+    //             if (args.requestType === 'save') {
+    //                 expect((gridObj.currentViewData[0] as any).CustomerID).toBe('updated');
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;
+    //         (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
+    //         gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+    //     });
 
-        it('Add start', (done: Function) => {
-            actionComplete = (args?: any): void => {
-                if (args.requestType === 'add') {
-                    expect(gridObj.element.querySelectorAll('.e-addedrow').length).toBe(1);
-                    expect(gridObj.element.querySelectorAll('.e-gridform').length).toBe(1);
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;
-            gridObj.clearSelection();
-            gridObj.selectRow(0, true);
-            gridObj.keyboardModule.keyAction({ action: 'insert', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
-        });
+    //     it('Add start', (done: Function) => {
+    //         actionComplete = (args?: any): void => {
+    //             if (args.requestType === 'add') {
+    //                 expect(gridObj.element.querySelectorAll('.e-addedrow').length).toBe(1);
+    //                 expect(gridObj.element.querySelectorAll('.e-gridform').length).toBe(1);
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;
+    //         gridObj.clearSelection();
+    //         gridObj.selectRow(0, true);
+    //         gridObj.keyboardModule.keyAction({ action: 'insert', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+    //     });
 
-        it('Add complete', (done: Function) => {
-            actionComplete = (args?: any): void => {
-                if (args.requestType === 'save') {
-                    expect((gridObj.currentViewData[0] as any).OrderID).toBe(10247);
-                    expect((gridObj.currentViewData[0] as any).CustomerID).toBe('updated');
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;
-            (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
-        });
-
-
-        it('Delete action', (done: Function) => {
-            actionComplete = (args?: any): void => {
-                if (args.requestType === 'delete') {
-                    //row count check
-                    expect(gridObj.getContent().querySelectorAll('.e-row').length).toBe(11);
-                    //record count check
-                    expect(gridObj.currentViewData.length).toBe(11);
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;
-            gridObj.clearSelection();
-            gridObj.selectRow(0, true);
-            gridObj.keyboardModule.keyAction({ action: 'delete', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
-        });
-
-        it('Edit-cancel start', (done: Function) => {
-            actionComplete = (args?: any): void => {
-                if (args.requestType === 'beginEdit') {
-                    expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(1);
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;
-            gridObj.clearSelection();
-            gridObj.selectRow(0, true);
-            gridObj.keyboardModule.keyAction({ action: 'f2', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
-        });
-
-        it('Edit-cancel complete', (done: Function) => {
-            actionComplete = (args?: any): void => {
-                if (args.requestType === 'cancel') {
-                    expect((gridObj.currentViewData[0] as any).CustomerID).not.toBe('updatednew');
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updatednew';
-            gridObj.keyboardModule.keyAction({ action: 'escape', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
-        });
-
-        it('For coverage', () => {
-            let promise = {
-                promise: {
-                    then: (args: any) => {
-                        args.call(this, { result: [{}, {}] });
-                        return {
-                            catch: (args: any) => {
-                                args.call(this, { result: [{}, {}] });
-                            }
-                        }
-                    }
-                }
-            };
-            (gridObj.editModule as any).getBatchChanges();
-            (gridObj.editModule as any).editModule.refreshRow = () => { };
-            gridObj.trigger = () => { };
-            gridObj.notify = () => { };
-            (gridObj.editModule as any).editModule.editHandler(promise);
-            (gridObj.editModule as any).tapEvent({});
-            (gridObj.editModule as any).getUserAgent();
-            (gridObj.editModule as any).timeoutHandler();
-            (gridObj.editModule as any).getUserAgent = () => { return true; };
-            (gridObj.editModule as any).tapEvent({});
-        });
+    //     it('Add complete', (done: Function) => {
+    //         actionComplete = (args?: any): void => {
+    //             if (args.requestType === 'save') {
+    //                 expect((gridObj.currentViewData[0] as any).OrderID).toBe(10247);
+    //                 expect((gridObj.currentViewData[0] as any).CustomerID).toBe('updated');
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;
+    //         (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
+    //         (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updated';
+    //         gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+    //     });
 
 
-        it('For coverage', () => {
-            (gridObj.editModule as any).timeoutHandler();
-            (gridObj.editModule as any).tapped = true;
-            (gridObj.editModule as any).tapEvent({});
-            (gridObj.editModule as any).valErrorPlacement();
-            (gridObj.editModule as any).getValueFromType({ type: 'number' }, undefined);
-            (gridObj.editModule as any).getValueFromType({ type: 'boolean', editType: 'booleanedit1' }, false);
-            (gridObj.editModule as any).getValueFromType({ type: 'date', editType: 'datepicker' }, false);
-            (gridObj.editModule as any).editFormValidate();
-        });
+    //     it('Delete action', (done: Function) => {
+    //         actionComplete = (args?: any): void => {
+    //             if (args.requestType === 'delete') {
+    //                 //row count check
+    //                 expect(gridObj.getContent().querySelectorAll('.e-row').length).toBe(11);
+    //                 //record count check
+    //                 expect(gridObj.currentViewData.length).toBe(11);
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;
+    //         gridObj.clearSelection();
+    //         gridObj.selectRow(0, true);
+    //         gridObj.keyboardModule.keyAction({ action: 'delete', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+    //     });
 
-        afterAll(() => {
-            gridObj.notify('tooltip-destroy', {});
-            gridObj.isDestroyed = true;
-            (gridObj.editModule as any).editModule.removeEventListener();
-            gridObj.editModule.removeEventListener();
-            gridObj.isDestroyed = false;
-            gridObj.editModule.removeEventListener();
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
-        });
-    });
+    //     it('Edit-cancel start', (done: Function) => {
+    //         actionComplete = (args?: any): void => {
+    //             if (args.requestType === 'beginEdit') {
+    //                 expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(1);
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;
+    //         gridObj.clearSelection();
+    //         gridObj.selectRow(0, true);
+    //         gridObj.keyboardModule.keyAction({ action: 'f2', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+    //     });
+
+    //     it('Edit-cancel complete', (done: Function) => {
+    //         actionComplete = (args?: any): void => {
+    //             if (args.requestType === 'cancel') {
+    //                 expect((gridObj.currentViewData[0] as any).CustomerID).not.toBe('updatednew');
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;
+    //         (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updatednew';
+    //         gridObj.keyboardModule.keyAction({ action: 'escape', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+    //     });
+
+    //     it('For coverage', () => {
+    //         let promise = {
+    //             promise: {
+    //                 then: (args: any) => {
+    //                     args.call(this, { result: [{}, {}] });
+    //                     return {
+    //                         catch: (args: any) => {
+    //                             args.call(this, { result: [{}, {}] });
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         };
+    //         (gridObj.editModule as any).getBatchChanges();
+    //         (gridObj.editModule as any).editModule.refreshRow = () => { };
+    //         gridObj.trigger = () => { };
+    //         gridObj.notify = () => { };
+    //         (gridObj.editModule as any).editModule.editHandler(promise);
+    //         (gridObj.editModule as any).tapEvent({});
+    //         (gridObj.editModule as any).getUserAgent();
+    //         (gridObj.editModule as any).timeoutHandler();
+    //         (gridObj.editModule as any).getUserAgent = () => { return true; };
+    //         (gridObj.editModule as any).tapEvent({});
+    //     });
+
+
+    //     it('For coverage', () => {
+    //         (gridObj.editModule as any).timeoutHandler();
+    //         (gridObj.editModule as any).tapped = true;
+    //         (gridObj.editModule as any).tapEvent({});
+    //         (gridObj.editModule as any).valErrorPlacement();
+    //         (gridObj.editModule as any).getValueFromType({ type: 'number' }, undefined);
+    //         (gridObj.editModule as any).getValueFromType({ type: 'boolean', editType: 'booleanedit1' }, false);
+    //         (gridObj.editModule as any).getValueFromType({ type: 'date', editType: 'datepicker' }, false);
+    //         (gridObj.editModule as any).editFormValidate();
+    //     });
+
+    //     afterAll(() => {
+    //         gridObj.notify('tooltip-destroy', {});
+    //         gridObj.isDestroyed = true;
+    //         (gridObj.editModule as any).editModule.removeEventListener();
+    //         gridObj.editModule.removeEventListener();
+    //         gridObj.isDestroyed = false;
+    //         gridObj.editModule.removeEventListener();
+    //         elem.remove();
+    //         if (document.getElementById('Grid')) {
+    //             document.getElementById('Grid').remove();
+    //         }
+    //     });
+    // });
 
     describe('Disable editing, edit mode change and delete alert', () => {
         let gridObj: Grid;

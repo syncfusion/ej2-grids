@@ -17,6 +17,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
     private ariaService: AriaService = new AriaService();
     private hTxtEle: Element = createElement('span', { className: 'e-headertext' });
     private sortEle: Element = createElement('div', { className: 'e-sortfilterdiv e-icons' });
+    private fltrMenuEle: Element = createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
     private gui: Element = createElement('div');
     private chkAllBox: Element = createElement('input', { className: 'e-checkselectall', attrs: { 'type': 'checkbox' } });
     /**
@@ -89,6 +90,15 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
         node.appendChild(this.sortEle.cloneNode());
 
+        if ((this.parent.allowFiltering && this.parent.filterSettings.type === 'menu') &&
+            (column.allowFiltering && isNullOrUndefined(column.template))) {
+            attributes(this.fltrMenuEle, {
+                'e-mappinguid': 'e-flmenu-' + column.uid,
+            });
+            node.appendChild(this.fltrMenuEle.cloneNode());
+            node.classList.add('e-fltr-icon');
+        }
+
         if (cell.className) {
             node.classList.add(cell.className);
         }
@@ -128,7 +138,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
         if (column.clipMode === 'clip') {
             node.classList.add('e-gridclip');
-        }else if (column.clipMode === 'ellipsiswithtooltip') {
+        } else if (column.clipMode === 'ellipsiswithtooltip') {
             node.classList.add('e-ellipsistooltip');
         }
         node.setAttribute('aria-rowspan', (!isNullOrUndefined(cell.rowSpan) ? cell.rowSpan : 1).toString());

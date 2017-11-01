@@ -170,6 +170,10 @@
       opacity: 1;
      }
 
+    .e-filtered::before {
+      color: $grid-filtered-color;
+    }
+
     .e-gridpopup .e-content {
       background-color: $grid-popup-bg-color;
       border-color: $grid-header-border-color;

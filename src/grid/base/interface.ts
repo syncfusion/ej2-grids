@@ -434,6 +434,32 @@ export interface IFilterUI {
 /**
  * @hidden
  */
+export interface IFilterMUI {
+    create?: void | Function;
+    read?: Object | Function;
+    write?: void | Function;
+}
+
+/**
+ * @hidden
+ */
+export interface IFilterMenuUI {
+    ui?: IFilterMUI;
+    type?: string;
+}
+
+/**
+ * @hidden
+ */
+export interface ICustomOptr {
+    stringOperator?: { [key: string]: Object }[];
+    numberOperator?: { [key: string]: Object }[];
+    dateOperator?: { [key: string]: Object }[];
+    booleanOperator?: { [key: string]: Object }[];
+}
+/**
+ * @hidden
+ */
 export interface ICellRenderer<T> {
     element?: Element;
     getGui?(): string | Element;

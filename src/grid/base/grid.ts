@@ -12,7 +12,7 @@ import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
 import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs } from './interface';
-import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs } from './interface';
+import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
@@ -239,6 +239,14 @@ export class FilterSettings extends ChildProperty<FilterSettings> {
      */
     @Property(1500)
     public immediateModeDelay: number;
+
+    /** 
+     * Defines the custom operator for Menu filter.
+     * @default null
+     */
+    @Property()
+    public operators: ICustomOptr;
+
 }
 
 /** 
@@ -524,7 +532,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**
      * @hidden
      */
-    public mergeCells:  { [key: string]: number } = {};
+    public mergeCells: { [key: string]: number } = {};
     /**
      * Gets the current visible records of Grid.
      */
@@ -581,7 +589,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         CancelEdit: 'Are you sure you want to Cancel the changes?',
         ChooseColumns: 'Choose Column',
         SearchColumns: 'search columns',
-        Matchs: 'No Matches Found'
+        Matchs: 'No Matches Found',
+        FilterButton: 'Filter',
+        ClearButton: 'Clear',
+        StartsWith: 'StartsWith',
+        EndsWidth: 'EndsWith',
+        Contains: 'Contains',
+        Equal: 'Equal',
+        NotEqual: 'NotEqual',
+        LessThan: 'LessThan',
+        LessThanOrEqual: 'LessThanOrEqual',
+        Greaterthan: 'GreaterThan',
+        GreaterThanOrEqual: 'GreaterThanOrEqual',
+        ChooseDate: 'Choose a Date',
+        EnterValue: 'Enter the value'
     };
     private keyConfigs: { [key: string]: string } = {
         downArrow: 'downarrow',
@@ -923,7 +944,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**    
      * Configures the filter settings of Grid.  
-     * @default {columns: [], type: 'filterbar', mode: 'immediate', showFilterBarStatus: true, immediateModeDelay: 1500}    
+     * @default {columns: [], type: 'filterbar', mode: 'immediate', showFilterBarStatus: true, immediateModeDelay: 1500, operators: {}}    
      */
     @Complex<FilterSettingsModel>({}, FilterSettings)
     public filterSettings: FilterSettingsModel;
@@ -2968,7 +2989,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         let isEdit: boolean = this.editSettings.mode !== 'batch' &&
             this.isEdit && tr && (tr.classList.contains('e-editedrow') || tr.classList.contains('e-addedrow'));
         return !parentsUntil(e.target as Element, 'e-unboundcelldiv') && (isEdit || (parentsUntil(e.target as Element, 'e-rowcell') &&
-        parentsUntil(e.target as Element, 'e-rowcell').classList.contains('e-editedbatchcell')));
+            parentsUntil(e.target as Element, 'e-rowcell').classList.contains('e-editedbatchcell')));
     }
 
     private dblClickHandler(e: MouseEvent): void {

@@ -1,5 +1,4 @@
-import { EventHandler, L10n } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { EventHandler, L10n, isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { getActualPropFromColl, isActionPrevent } from '../base/util';
 import { remove, createElement, matches } from '@syncfusion/ej2-base';
 import { DataUtil } from '@syncfusion/ej2-data';
@@ -15,6 +14,8 @@ import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
 import { FilterCellRenderer } from '../renderer/filter-cell-renderer';
+import { parentsUntil } from '../base/util';
+import { FilterMenuRenderer } from '../renderer/filter-menu-renderer';
 
 /**
  * 
@@ -37,11 +38,15 @@ export class Filter implements IAction {
     private isRemove: boolean;
     private contentRefresh: boolean = true;
     private values: Object = {};
+    private nextFlMenuOpen: string = '';
+    private type: Object = { 'menu': FilterMenuRenderer };
+    private filterModule: { openDialog: Function, closeDialog: Function };
     private filterOperators: IFilterOperator = {
         contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
         lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
     };
 
+    private customOperators: Object;
     //Module declarations
     private parent: IGrid;
     private serviceLocator: ServiceLocator;
@@ -66,23 +71,33 @@ export class Filter implements IAction {
      */
     public render(): void {
         let gObj: IGrid = this.parent;
-        if (gObj.columns.length) {
-            let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Filter);
-            let row: Row<Column>;
-            let cellrender: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
-            cellrender.addCellRenderer(CellType.Filter, new FilterCellRenderer(this.parent, this.serviceLocator));
-            this.l10n = this.serviceLocator.getService<L10n>('localization');
-            this.valueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
-            rowRenderer.element = createElement('tr', { className: 'e-filterbar' });
-            row = this.generateRow();
-            row.data = this.values;
-            this.element = rowRenderer.render(row, <Column[]>gObj.getColumns());
-            this.parent.getHeaderContent().querySelector('thead').appendChild(this.element);
-            let detail: Element = this.element.querySelector('.e-detailheadercell');
-            if (detail) {
-                detail.className = 'e-filterbarcell e-mastercell';
+        this.l10n = this.serviceLocator.getService<L10n>('localization');
+        this.getLocalizedCustomOperators();
+        if (this.parent.filterSettings.type !== 'filterbar' && !this.filterModule) {
+            this.filterModule = new this.type[this.parent.filterSettings.type]
+                (this.parent, gObj.filterSettings, this.serviceLocator, this.customOperators, this);
+        } else {
+            if (gObj.columns.length) {
+                let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Filter, gObj);
+                let row: Row<Column>;
+                let cellrender: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
+                cellrender.addCellRenderer(CellType.Filter, new FilterCellRenderer(this.parent, this.serviceLocator));
+                this.valueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
+                rowRenderer.element = createElement('tr', { className: 'e-filterbar' });
+                row = this.generateRow();
+                row.data = this.values;
+                this.element = rowRenderer.render(row, <Column[]>gObj.getColumns());
+                this.parent.getHeaderContent().querySelector('thead').appendChild(this.element);
+                let detail: Element = this.element.querySelector('.e-detailheadercell');
+                if (detail) {
+                    detail.className = 'e-filterbarcell e-mastercell';
+                }
+                let gCells: Element[] = [].slice.call(this.element.querySelectorAll('.e-grouptopleftcell'));
+                if (gCells.length) {
+                    gCells[gCells.length - 1].classList.add('e-lastgrouptopleftcell');
+                }
+                this.wireEvents();
             }
-            this.wireEvents();
         }
     }
 
@@ -226,6 +241,8 @@ export class Filter implements IAction {
         this.parent.on(events.columnPositionChanged, this.columnPositionChanged, this);
         this.parent.on(events.headerRefreshed, this.render, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
+        document.addEventListener(events.click, this.clickHandler.bind(this));
+
     }
     /**
      * @hidden
@@ -238,6 +255,7 @@ export class Filter implements IAction {
         this.parent.off(events.keyPressed, this.keyUpHandler);
         this.parent.off(events.columnPositionChanged, this.columnPositionChanged);
         this.parent.off(events.headerRefreshed, this.render);
+        document.removeEventListener(events.click, this.clickHandler);
     }
 
     /** 
@@ -258,7 +276,9 @@ export class Filter implements IAction {
         let gObj: IGrid = this.parent;
         let filterCell: HTMLInputElement;
         this.column = gObj.getColumnByField(fieldName);
-        filterCell = this.element.querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement;
+        if (this.filterSettings.type === 'filterbar') {
+            filterCell = this.element.querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement;
+        }
         if (!isNullOrUndefined(this.column.allowFiltering) && !this.column.allowFiltering) {
             return;
         }
@@ -274,7 +294,10 @@ export class Filter implements IAction {
         this.fieldName = fieldName;
         this.predicate = predicate || 'and';
         this.operator = filterOperator;
-        filterValue = filterValue.toString();
+        filterValue = !isNullOrUndefined(filterValue) && filterValue.toString();
+        if (this.column.type === 'number' || this.column.type === 'date') {
+            this.matchCase = true;
+        }
         this.values[this.column.field] = filterValue;
         gObj.getColumnHeaderByField(fieldName).setAttribute('aria-filtered', 'true');
         if (filterValue.length < 1 || this.checkForSkipInput(this.column, filterValue)) {
@@ -282,7 +305,7 @@ export class Filter implements IAction {
             this.updateFilterMsg();
             return;
         }
-        if (filterCell.value !== filterValue) {
+        if (this.filterSettings.type === 'filterbar' && filterCell.value !== filterValue) {
             filterCell.value = filterValue;
         }
         if (this.checkAlreadyColFiltered(this.column.field)) {
@@ -368,7 +391,7 @@ export class Filter implements IAction {
         }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             if (cols[i].field === field) {
-                if (!(isClearFilterBar === false)) {
+                if (this.filterSettings.type === 'filterbar' && !isClearFilterBar) {
                     (this.element.querySelector('#' + cols[i].field + '_filterBarcell') as HTMLInputElement).value = '';
                     delete this.values[field];
                 }
@@ -396,7 +419,7 @@ export class Filter implements IAction {
     private keyUpHandler(e: KeyboardEvent): void {
         let gObj: IGrid = this.parent;
         let target: HTMLInputElement = e.target as HTMLInputElement;
-        if (matches(target, '.e-filterbar input')) {
+        if (target && matches(target, '.e-filterbar input')) {
             this.column = gObj.getColumnByField(target.id.split('_')[0]);
             if (!this.column) {
                 return;
@@ -439,28 +462,32 @@ export class Filter implements IAction {
     }
 
     private updateFilterMsg(): void {
-        let gObj: IGrid = this.parent;
-        let columns: PredicateModel[] = this.filterSettings.columns;
-        let column: Column;
-        if (!this.filterSettings.showFilterBarStatus) {
-            return;
-        }
-        if (columns.length > 0 && this.filterStatusMsg !== this.l10n.getConstant('InvalidFilterMessage')) {
-            this.filterStatusMsg = '';
-            for (let index: number = 0; index < columns.length; index++) {
-                column = gObj.getColumnByField(columns[index].field);
-                if (index) {
-                    this.filterStatusMsg += ' && ';
-                }
-                this.filterStatusMsg += column.headerText + ': ' + this.values[column.field];
+        if (this.filterSettings.type === 'filterbar') {
+            let gObj: IGrid = this.parent;
+            let columns: PredicateModel[] = this.filterSettings.columns;
+            let formater: IValueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
+            let column: Column;
+            let value: Date | string | number | boolean;
+            if (!this.filterSettings.showFilterBarStatus) {
+                return;
             }
-        }
-        if (gObj.allowPaging) {
-            gObj.updateExternalMessage(this.filterStatusMsg);
-        }
+            if (columns.length > 0 && this.filterStatusMsg !== this.l10n.getConstant('InvalidFilterMessage')) {
+                this.filterStatusMsg = '';
+                for (let index: number = 0; index < columns.length; index++) {
+                    column = gObj.getColumnByField(columns[index].field);
+                    if (index) {
+                        this.filterStatusMsg += ' && ';
+                    }
+                    this.filterStatusMsg += column.headerText + ': ' + this.values[column.field];
+                }
+            }
+            if (gObj.allowPaging) {
+                gObj.updateExternalMessage(this.filterStatusMsg);
+            }
 
-        //TODO: virtual paging       
-        this.filterStatusMsg = '';
+            //TODO: virtual paging       
+            this.filterStatusMsg = '';
+        }
     }
 
     private checkForSkipInput(column: Column, value: string): boolean {
@@ -608,6 +635,65 @@ export class Filter implements IAction {
         this.element.innerHTML = '';
         for (let cell of filterCells) {
             this.element.appendChild(cell);
+        }
+    }
+
+    private getLocalizedCustomOperators(): void {
+        let numOptr: Object[] = [
+            { value: 'equal', text: this.l10n.getConstant('Equal') },
+            { value: 'greaterThan', text: this.l10n.getConstant('GreaterThan') },
+            { value: 'greaterThanOrEqual', text: this.l10n.getConstant('GreaterthanOrEqual') },
+            { value: 'lessThan', text: this.l10n.getConstant('LessThan') },
+            { value: 'lessThanOrEqual', text: this.l10n.getConstant('LessThanOrEqual') },
+            { value: 'notEqual', text: this.l10n.getConstant('NotEqual') }
+        ];
+        this.customOperators = {
+            stringOperator: [
+                { value: 'startsWith', text: this.l10n.getConstant('StartsWith') },
+                { value: 'endsWith', text: this.l10n.getConstant('EndsWith') },
+                { value: 'contains', text: this.l10n.getConstant('Contains') },
+                { value: 'equal', text: this.l10n.getConstant('Equal') }, { value: 'notEqual', text: this.l10n.getConstant('NotEqual') }],
+
+            numberOperator: numOptr,
+
+            dateOperator: numOptr,
+
+            datetimeOperator: numOptr,
+
+            booleanOperator: [
+                { value: 'equal', text: this.l10n.getConstant('Equal') }, { value: 'notEqual', text: this.l10n.getConstant('NotEqual') }
+            ]
+        };
+
+    };
+
+    private clickHandler(e: MouseEvent): void {
+        if (this.parent.filterSettings.type === 'menu') {
+            let gObj: IGrid = this.parent;
+            let target: Element = e.target as Element;
+            let isNextMenuOpen: boolean;
+            let elem: Element = parentsUntil(target, 'e-flmenu');
+            if ((elem || target.classList.contains('e-filtermenudiv')) && (!target.parentElement.classList.contains('e-date-wrapper')) ) {
+                isNextMenuOpen = (this.nextFlMenuOpen === '' || (!isNullOrUndefined(target.getAttribute('e-mappinguid')) &&
+                    this.nextFlMenuOpen !== target.getAttribute('e-mappinguid'))) ? true : false;
+                if (!gObj.element.querySelectorAll('.e-filter-popup').length || isNextMenuOpen) {
+                    this.nextFlMenuOpen = target.getAttribute('e-mappinguid');
+                    let col: Column = gObj.getColumnByUid
+                        (parentsUntil(target, 'e-headercell').firstElementChild.getAttribute('e-mappinguid'));
+                    this.filterModule.openDialog({
+                        type: col.type, field: col.field, displayName: col.headerText,
+                        query: gObj.query, dataSource: gObj.dataSource, format: col.format,
+                        filteredColumns: gObj.filterSettings.columns, sortedColumns: gObj.sortSettings.columns,
+                        blank: '', localizedStrings: {}, position: { X: 0, Y: 0 }, target: target, coluid: col.uid,
+                        isNextMenuOpen: isNextMenuOpen
+                    });
+                }
+
+            } else {
+                if (!target.classList.contains('e-flmenu-cancelbtn') && !target.classList.contains('e-flmenu-okbtn')) {
+                    this.filterModule.closeDialog(target);
+                }
+            }
         }
     }
 

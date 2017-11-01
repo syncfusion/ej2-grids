@@ -396,3 +396,16 @@ export function addRemoveActiveClasses(cells: Element[], add: boolean, ...args: 
         }
     }
 }
+
+/** @hidden */
+export function distinctStringValues(result: string[]): string[] {
+    let temp: Object = {};
+    let res: string[] = [];
+    for (let i: number = 0; i < result.length; i++) {
+        if (!(result[i] in temp)) {
+            res.push(result[i].toString());
+            temp[result[i]] = 1;
+        }
+    }
+    return res;
+}

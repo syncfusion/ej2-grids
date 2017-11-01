@@ -26,7 +26,7 @@ export class Data implements IDataProcessor {
      * Constructor for data module.
      * @hidden
      */
-    constructor(parent?: IGrid , serviceLocator?: ServiceLocator) {
+    constructor(parent?: IGrid, serviceLocator?: ServiceLocator) {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.initDataManager();
@@ -108,7 +108,7 @@ export class Data implements IDataProcessor {
             let columns: string[] = gObj.groupSettings.columns;
             for (let i: number = 0, len: number = columns.length; i < len; i++) {
                 let isGrpFmt: boolean = gObj.getColumnByField(columns[i]).enableGroupByFormat;
-                let format: string| NumberFormatOptions | DateFormatOptions  = gObj.getColumnByField(columns[i]).format;
+                let format: string | NumberFormatOptions | DateFormatOptions = gObj.getColumnByField(columns[i]).format;
                 if (isGrpFmt) {
                     query.group(columns[i], this.formatGroupColumn.bind(this), format);
                 } else {
@@ -160,10 +160,10 @@ export class Data implements IDataProcessor {
         let gObj: IGrid = this.parent;
         let serviceLocator: ServiceLocator = this.serviceLocator;
         let column: Column = gObj.getColumnByField(field);
-        let date : Date = value as Date;
+        let date: Date = value as Date;
         if (!column.type) {
             column.type = date.getDay ? (date.getHours() > 0 || date.getMinutes() > 0 ||
-            date.getSeconds() > 0 || date.getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
+                date.getSeconds() > 0 || date.getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
         }
         if (isNullOrUndefined(column.getFormatter())) {
             setFormatter(serviceLocator, column);
@@ -223,7 +223,7 @@ export class Data implements IDataProcessor {
         if (filterObject.operator === 'equal') {
             prevObj.operator = 'greaterthan';
             nextObj.operator = 'lessthan';
-        } else {
+        } else if (filterObject.operator === 'notequal') {
             prevObj.operator = 'lessthanorequal';
             nextObj.operator = 'greaterthanorequal';
         }
