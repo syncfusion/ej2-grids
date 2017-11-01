@@ -502,6 +502,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private mediaColumn: Column[];
     private isMediaQuery: boolean = false;
     private isInitialLoad: boolean = false;
+    private dataBoundFunction: Function;
     /** @hidden */
     public recordsCount: number;
     /**
@@ -2878,7 +2879,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         [events.updateData, events.modelChanged, events.contentReady, events.columnWidthChanged].forEach((event: string) =>
             this.on(event, this.refreshTooltip, this));
         this.on(events.headerRefreshed, this.recalcIndentWidth, this);
-        this.addEventListener(events.dataBound, this.refreshMediaCol.bind(this));
+        this.dataBoundFunction = this.refreshMediaCol.bind(this);
+        this.addEventListener(events.dataBound, this.dataBoundFunction);
     }
     /**
      * @hidden
@@ -2890,7 +2892,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         [events.updateData, events.modelChanged, events.contentReady, events.columnWidthChanged].forEach((event: string) =>
             this.off(event, this.refreshTooltip));
         this.off(events.headerRefreshed, this.recalcIndentWidth);
-        this.removeEventListener(events.dataBound, this.refreshMediaCol.bind(this));
+        this.removeEventListener(events.dataBound, this.dataBoundFunction);
     }
 
     /** 

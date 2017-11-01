@@ -42,6 +42,8 @@ export class Edit implements IAction {
     private dialogObj: Dialog;
     private alertDObj: Dialog;
     private tapped: boolean | number = false;
+    private actionBeginFunction: Function;
+    private actionCompleteFunction: Function;
     private preventObj: {
         instance: Object,
         handler: Function, arg1?: Object, arg2?: Object, arg3?: Object, arg4?: Object, arg5?: Object, arg6?: Object, arg7?: Object
@@ -443,8 +445,10 @@ export class Edit implements IAction {
         this.parent.on(events.tooltipDestroy, this.destroyToolTip, this);
         this.parent.on(events.preventBatch, this.preventBatch, this);
         this.parent.on(events.destroyForm, this.destroyForm, this);
-        this.parent.addEventListener(events.actionBegin, this.onActionBegin.bind(this));
-        this.parent.addEventListener(events.actionComplete, this.actionComplete.bind(this));
+        this.actionBeginFunction = this.onActionBegin.bind(this);
+        this.actionCompleteFunction = this.actionComplete.bind(this);
+        this.parent.addEventListener(events.actionBegin, this.actionBeginFunction);
+        this.parent.addEventListener(events.actionComplete, this.actionCompleteFunction);
         this.parent.on(events.initialEnd, this.wireEvents, this);
     }
 
@@ -460,8 +464,8 @@ export class Edit implements IAction {
         this.parent.off(events.tooltipDestroy, this.destroyToolTip);
         this.parent.off(events.preventBatch, this.preventBatch);
         this.parent.off(events.destroyForm, this.destroyForm);
-        this.parent.removeEventListener(events.actionComplete, this.actionComplete.bind(this));
-        this.parent.removeEventListener(events.actionBegin, this.onActionBegin.bind(this));
+        this.parent.removeEventListener(events.actionComplete, this.actionCompleteFunction);
+        this.parent.removeEventListener(events.actionBegin, this.actionBeginFunction);
         this.parent.off(events.initialEnd, this.unwireEvents);
     }
 

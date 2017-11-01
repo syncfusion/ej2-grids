@@ -26,6 +26,7 @@ export class BatchEdit {
     private form: Element;
     public formObj: FormValidator;
     private renderer: EditRender;
+    private dataBoundFunction: Function;
     private cellDetails: {
         rowData?: Object, field?: string, value?: string,
         isForeignKey?: boolean, column?: Column, rowIndex?: number, cellIndex?: number
@@ -47,7 +48,8 @@ export class BatchEdit {
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.dblclick, this.dblClickHandler, this);
         this.parent.on(events.keyPressed, this.keyPressHandler, this);
-        this.parent.addEventListener(events.dataBound, this.dataBound.bind(this));
+        this.dataBoundFunction = this.dataBound.bind(this);
+        this.parent.addEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.on(events.doubleTap, this.dblClickHandler, this);
     }
 
@@ -59,7 +61,7 @@ export class BatchEdit {
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.dblclick, this.dblClickHandler);
         this.parent.off(events.keyPressed, this.keyPressHandler);
-        this.parent.removeEventListener(events.dataBound, this.dataBound.bind(this));
+        this.parent.removeEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.off(events.doubleTap, this.dblClickHandler);
     }
 
