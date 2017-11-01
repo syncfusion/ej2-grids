@@ -1897,5 +1897,16 @@
     &.e-responsive .e-stackedheadercelldiv.e-gridclip {
       text-overflow: clip;
     }
+
+    .e-clipboard {
+      cursor: default;
+      height: 1px;
+      left: -1000px;
+      overflow: hidden;
+      position: fixed;
+      resize: none;
+      top: -1000px;
+      width: 1px;
+    }
   }
 }

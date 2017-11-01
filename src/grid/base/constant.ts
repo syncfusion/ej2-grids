@@ -88,6 +88,8 @@ export const resizeStart: string = 'resizeStart';
 export const onResize: string = 'onResize';
 /** @hidden */
 export const resizeStop: string = 'resizeStop';
+/** @hidden */
+export const beforeCopy: string = 'beforeCopy';
 
 /**
  * Specifies grid internal events

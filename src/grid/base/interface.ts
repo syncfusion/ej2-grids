@@ -315,6 +315,7 @@ export interface IGrid extends Component<HTMLElement> {
     getSelectedRows?(): Element[];
     getSelectedRecords?(): Object[];
     getSelectedRowIndexes?(): number[];
+    getSelectedRowCellIndexes(): ISelectedCell[];
     getCurrentViewRecords(): Object[];
     selectRows?(indexes: number[]): void;
     clearSelection?(): void;
@@ -352,6 +353,7 @@ export interface IGrid extends Component<HTMLElement> {
     createColumnchooser(x: number, y: number, target: Element): void;
     getDataModule?(): Data;
     refreshTooltip?(): void;
+    copy?(withHeader?: boolean): void;
 }
 
 /** @hidden */
@@ -1003,4 +1005,12 @@ export interface IEdit {
     updateCell?(rowIndex: number, field: string, value: string | number | boolean | Date): void;
     updateRow?(index: number, data: Object): void;
     saveCell?(isForceSave?: boolean): void;
+}
+
+/**
+ * @hidden
+ */
+export interface BeforeCopyEventArgs extends ICancel {
+    /** Defines the grid copied data. */
+    data?: string;
 }

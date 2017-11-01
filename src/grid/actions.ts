@@ -27,3 +27,4 @@ export * from './actions/column-chooser';
 export * from './actions/excel-export';
 export * from './actions/pdf-export';
 export * from './actions/export-helper';
+export * from './actions/clipboard';

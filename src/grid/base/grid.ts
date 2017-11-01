@@ -17,7 +17,7 @@ import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEv
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
-import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance } from './interface';
+import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
@@ -53,6 +53,7 @@ import { Row } from '../models/row';
 import { ColumnChooser } from '../actions/column-chooser';
 import { ExcelExport } from '../actions/excel-export';
 import { PdfExport } from '../actions/pdf-export';
+import { Clipboard } from '../actions/clipboard';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -705,6 +706,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * `editModule` is used to handle Grid content manipulation.
      */
     public editModule: Edit;
+
+    /**
+     * `clipboardModule` is used to handle Grid copy action.
+     */
+    public clipboardModule: Clipboard;
 
     /**
      * `columnchooserModule` is used to dynamically show or hide the Grid columns.
@@ -1415,6 +1421,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Event()
     public beforeDataBound: EmitType<BeforeDataBoundArgs>;
+
+    /** 
+     * Triggers before Grid copy action.
+     * @event
+     */
+    @Event()
+    public beforeCopy: EmitType<BeforeCopyEventArgs>;
 
     /**
      * Constructor for creating the component
@@ -2525,6 +2538,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.editModule.deleteRow(tr);
     }
 
+    /**
+     * Copy selected rows or cells data into clipboard.
+     * @param {boolean} withHeader - Specifies whether the column header data need to be copied or not.
+     */
+    public copy(withHeader?: boolean): void {
+        this.clipboardModule.copy(withHeader);
+    }
+
     /**    
      * @hidden
      */
@@ -2668,6 +2689,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.headerModule = rendererFactory.getRenderer(RenderType.Header);
         this.contentModule = rendererFactory.getRenderer(RenderType.Content);
         this.printModule = new Print(this, this.scrollModule);
+        this.clipboardModule = new Clipboard(this);
         this.renderModule.render();
         this.eventInitializer();
         this.createGridPopUpElement();
