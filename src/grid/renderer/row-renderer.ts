@@ -100,8 +100,15 @@ export class RowRenderer<T> implements IRowRenderer<T> {
             }
 
         }
+        let args: RowDataBoundEventArgs = { row: tr, rowHeight: this.parent.rowHeight };
         if (row.isDataRow) {
-            this.parent.trigger(rowDataBound, extend(rowArgs, <RowDataBoundEventArgs>{ row: tr }));
+            this.parent.trigger(rowDataBound, extend(rowArgs, args));
+        }
+        if (this.parent.enableVirtualization) {
+            rowArgs.rowHeight = this.parent.rowHeight;
+        }
+        if (rowArgs.rowHeight) {
+            (tr as HTMLElement).style.height = rowArgs.rowHeight + 'px';
         }
         if (row.cssClass) {
             tr.classList.add(row.cssClass);

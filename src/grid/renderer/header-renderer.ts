@@ -257,7 +257,7 @@ export class HeaderRender implements IRenderer {
         let columns: Column[] = <Column[]>gObj.getColumns();
         let thead: Element = createElement('thead');
         let colHeader: Element = createElement('tr', { className: 'e-columnheader' });
-        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header);
+        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header, gObj);
         rowRenderer.element = colHeader;
         let rows: Row<Column>[] = [];
         let headerRow: Element;

@@ -1159,6 +1159,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property([])
     public dataSource: Object | DataManager;
 
+    /**
+     * Defines the row height for Grid rows.
+     * @default null
+     */
+    @Property(null)
+    public rowHeight: number;
+
     /**    
      * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html) 
      * which will execute along with data processing.    

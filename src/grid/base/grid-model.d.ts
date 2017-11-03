@@ -749,6 +749,12 @@ export interface GridModel extends ComponentModel{
     dataSource?: Object | DataManager;
 
     /**
+     * Defines the row height for Grid rows.
+     * @default null
+     */
+    rowHeight?: number;
+
+    /**
      * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html) 
      * which will execute along with data processing.    
      * @default null    

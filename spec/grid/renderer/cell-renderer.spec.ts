@@ -161,7 +161,7 @@ describe('Custom Atrributes and html encode module', () => {
         });
 
         it('Row Rendeder functionality object to attribute conversion checking', () => {
-            let render: RowRenderer<Column> = new RowRenderer<Column>(grid.serviceLocator);
+            let render: RowRenderer<Column> = new RowRenderer<Column>(grid.serviceLocator, null, grid);
             let tr: HTMLElement = <HTMLElement>render.render(<Row<Column>>{ isSelected: true, visible: false, rowSpan: 1, cells:[] }, []);
             expect(tr.classList.contains('e-hide')).toBeTruthy();
             expect(tr.getAttribute('aria-selected')).not.toBeNull();

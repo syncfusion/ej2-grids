@@ -255,6 +255,12 @@ export interface IGrid extends Component<HTMLElement> {
     dataSource?: Object | DataManager;
 
     /**
+     * Defines the row height for Grid rows.
+     * @default null
+     */
+    rowHeight?: number;
+
+    /**
      * Specifies the query for Grid.
      * @default []
      */
@@ -727,6 +733,8 @@ export interface RowDataBoundEventArgs {
     data?: Object;
     /** Defines the row element. */
     row?: Element;
+    /** Defines the row height */
+    rowHeight?: number;
 }
 
 export interface QueryCellInfoEventArgs {

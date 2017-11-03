@@ -63,7 +63,7 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         let rows: Row<AggregateColumnModel>[] = this.modelGenerator.generateRows(input, e || this.aggregates);
         let fragment: DocumentFragment = <DocumentFragment>document.createDocumentFragment();
 
-        let rowrenderer: RowRenderer<AggregateColumnModel> = new RowRenderer<AggregateColumnModel>(this.locator);
+        let rowrenderer: RowRenderer<AggregateColumnModel> = new RowRenderer<AggregateColumnModel>(this.locator, null, this.parent);
         rowrenderer.element = createElement('TR', { className: 'e-summaryrow' });
 
         for (let srow: number = 0, len: number = summaries.length; srow < len; srow ++) {
