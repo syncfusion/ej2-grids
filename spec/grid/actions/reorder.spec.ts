@@ -139,6 +139,8 @@ describe('Reorder module', () => {
         // });
 
         it('Reorder Column simulate testing', (done: Function) => {
+            let cOld: Function = (gridObj.reorderModule as any).chkDropPosition;
+            let ccOld: Function = (gridObj.reorderModule as any).chkDropAllCols;
             let dataBound = (args: Object): void => {
                 columns = gridObj.getColumns() as Column[];
                 headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
@@ -147,6 +149,8 @@ describe('Reorder module', () => {
                 expect(columns[0].field).toBe('OrderID');
                 expect(columns[1].field).toBe('EmployeeID');
                 done();
+                (gridObj.reorderModule as any).chkDropPosition = cOld;
+                (gridObj.reorderModule as any).chkDropAllCols = ccOld;
             };
             gridObj.dataBound = dataBound;
             gridObj.dataBind();
@@ -162,7 +166,10 @@ describe('Reorder module', () => {
             });
 
             (gridObj.reorderModule as any).element = gridObj.getColumnHeaderByField('OrderID');
+            (gridObj.reorderModule as any).chkDropPosition = () => true;
+            (gridObj.reorderModule as any).chkDropAllCols = () => true;
             (gridObj.headerModule as any).drop({ target: gridObj.getColumnHeaderByField('EmployeeID'), droppedElement: dropClone });
+            (gridObj.reorderModule as any).moveColumns(0, gridObj.getColumnByField('OrderID'));
         });
 
         it('Reorder disable and enable testing', (done: Function) => {
@@ -182,6 +189,7 @@ describe('Reorder module', () => {
                 parentsUntil(headers[0], 'e-headercell', false);
                 parentsUntil(headers[0], 'Grid', true);
                 done();
+                gridObj.dataBound = null;
             };
             gridObj.allowReordering = false;
             gridObj.dataBind();

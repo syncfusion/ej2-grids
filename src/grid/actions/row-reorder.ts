@@ -72,7 +72,7 @@ export class RowDD implements IAction {
         }
     }
     private dragStop: Function = (e: { target: HTMLElement, event: MouseEventArgs, helper: Element }) => {
-        let gObj: IGrid = this.parent;
+        let gObj: IGrid = this.parent; if (this.parent.isDestroyed) { return; }
         let target: Element = this.getElementFromPosition(e.helper as HTMLElement, e.event);
         gObj.element.classList.remove('e-rowdrag');
         let dropElem: EJ2Intance = document.getElementById(gObj.rowDropSettings.targetID) as EJ2Intance;

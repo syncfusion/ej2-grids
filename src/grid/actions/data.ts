@@ -9,6 +9,7 @@ import * as events from '../base/constant';
 import { ValueFormatter } from '../services/value-formatter';
 import { ServiceLocator } from '../services/service-locator';
 import { Column } from '../models/column';
+import { CheckBoxFilter } from '../actions/checkbox-filter';
 
 /**
  * Grid data module is used to generate query and data source.
@@ -61,12 +62,25 @@ export class Data implements IDataProcessor {
 
         if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
             let columns: PredicateModel[] = gObj.filterSettings.columns;
-            for (let col of columns) {
-                let sType: string = gObj.getColumnByField(col.field).type;
-                if (sType !== 'date' && sType !== 'datetime') {
-                    query.where(col.field, col.operator, col.value, !col.matchCase);
-                } else {
-                    query.where(this.getDatePredicate(col));
+            let predicate: Predicate;
+            if (gObj.filterSettings.type === 'checkbox') {
+                let predicates: Predicate = CheckBoxFilter.getPredicate(gObj.filterSettings.columns);
+                for (let prop of Object.keys(predicates)) {
+                    let and: string = 'and';
+                    let obj: Predicate | string = predicates[prop] as Predicate | string;
+                    predicate = !isNullOrUndefined(predicate) ?
+                        (predicate as Object)[and](obj as string) as Predicate :
+                        obj as Predicate;
+                }
+                query.where(predicate);
+            } else {
+                for (let col of columns) {
+                    let sType: string = gObj.getColumnByField(col.field).type;
+                    if (sType !== 'date' && sType !== 'datetime') {
+                        query.where(col.field, col.operator, col.value, !col.matchCase);
+                    } else {
+                        query.where(this.getDatePredicate(col));
+                    }
                 }
             }
         }

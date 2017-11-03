@@ -5,6 +5,12 @@ import { Grid } from '../base/grid';
 import { parents, getUid, appendChildren } from '../base/util';
 import * as events from '../base/constant';
 import { AriaService } from '../services/aria-service';
+import { ServiceLocator } from '../services/service-locator';
+import { FocusStrategy } from '../services/focus-strategy';
+import { Row } from '../models/row';
+import { Cell } from '../models/cell';
+import { Column } from '../models/column';
+import { CellType } from '../base/enum';
 
 /**
  * `DetailRow` module is used to handle Detail Template and Hierarchy Grid operations.
@@ -16,14 +22,16 @@ export class DetailRow {
 
     //Module declarations
     private parent: IGrid;
+    private focus: FocusStrategy;
 
     /**
      * Constructor for the Grid detail template module
      * @hidden
      */
-    constructor(parent?: IGrid) {
+    constructor(parent?: IGrid, locator?: ServiceLocator) {
         this.parent = parent;
         if (this.parent.isDestroyed) { return; }
+        this.focus = locator.getService<FocusStrategy>('focus');
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.destroy, this.destroy, this);
         this.parent.on(events.keyPressed, this.keyPressHandler, this);
@@ -37,7 +45,7 @@ export class DetailRow {
         let gObj: IGrid = this.parent;
         let parent: string = 'parentDetails';
         if (target && (target.classList.contains('e-detailrowcollapse') || target.classList.contains('e-detailrowexpand'))) {
-            let tr: HTMLTableRowElement = target.parentElement as HTMLTableRowElement;
+            let tr: HTMLTableRowElement = target.parentElement as HTMLTableRowElement; let uid: string = tr.getAttribute('data-uid');
             let nextRow: HTMLElement =
                 this.parent.getContentTable().querySelector('tbody').children[tr.rowIndex + 1] as HTMLElement;
             if (target.classList.contains('e-detailrowcollapse')) {
@@ -51,8 +59,13 @@ export class DetailRow {
                     let detailRow: Element = createElement('tr', { className: 'e-detailrow' });
                     let detailCell: Element = createElement('td', { className: 'e-detailcell' });
                     detailCell.setAttribute('colspan', this.parent.getVisibleColumns().length.toString());
+                    let row: Row<Column> = new Row<Column>({
+                        isDataRow: true,
+                        cells: [new Cell<Column>({ cellType: CellType.Indent }), new Cell<Column>({ isDataCell: true, visible: true })]
+                    });
                     for (let i: number = 0, len: number = gObj.groupSettings.columns.length; i < len; i++) {
                         detailRow.appendChild(createElement('td', { className: 'e-indentcell' }));
+                        row.cells.unshift(new Cell<Column>({ cellType: CellType.Indent }));
                     }
                     detailRow.appendChild(createElement('td', { className: 'e-detailindentcell' }));
                     detailRow.appendChild(detailCell);
@@ -80,8 +93,14 @@ export class DetailRow {
                         detailCell.appendChild(gridElem);
                         grid.appendTo(gridElem);
                     }
+                    detailRow.appendChild(detailCell);
+                    tr.parentNode.insertBefore(detailRow, tr.nextSibling);
+                    let idx: number;
+                    this.parent.getRowsObject().some((r: Row<Column>, rIndex: number) => { idx = rIndex; return r.uid === uid; });
                     gObj.getRows().splice(tr.rowIndex + 1, 0, detailRow);
+                    this.parent.getRowsObject().splice(idx + 1, 0, row);
                     gObj.trigger(events.detailDataBound, { detailElement: detailCell, data: data });
+                    gObj.notify(events.detailDataBound, { rows: this.parent.getRowsObject() });
                 }
                 classList(target, ['e-detailrowexpand'], ['e-detailrowcollapse']);
                 classList(target.firstElementChild, ['e-dtdiagonaldown', 'e-icon-gdownarrow'], ['e-dtdiagonalright', 'e-icon-grightarrow']);
@@ -186,6 +205,12 @@ export class DetailRow {
                     let td: Element = dataRow.querySelector('.e-detailrowcollapse, .e-detailrowexpand');
                     e.action === 'altDownArrow' ? this.expand(td) : this.collapse(td);
                 }
+                break;
+            case 'enter':
+                if (this.parent.isEdit) { return; }
+                let element: HTMLElement = this.focus.getFocusedElement();
+                if (!element.classList.contains('e-detailrowcollapse') && !element.classList.contains('e-detailrowexpand')) { break; }
+                this.toogleExpandcollapse(element);
                 break;
         }
     }

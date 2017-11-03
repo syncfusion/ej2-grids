@@ -76,7 +76,6 @@ export class NormalEdit {
                 }));
                 break;
         }
-        this.parent.element.focus();
     }
 
     protected startEdit(tr: Element): void {
@@ -196,6 +195,7 @@ export class NormalEdit {
     }
 
     protected closeEdit(): void {
+        if (!this.parent.isEdit) { return; }
         let gObj: IGrid = this.parent;
         let args: { data: Object, requestType: string, selectedRow: Number, type: string } = {
             requestType: 'cancel', type: events.actionBegin, data: this.previousData, selectedRow: gObj.selectedRowIndex
@@ -208,7 +208,6 @@ export class NormalEdit {
             this.refreshRow(args.data);
         }
         gObj.selectRow(this.rowIndex);
-        gObj.element.focus();
         gObj.trigger(events.actionComplete, args);
     }
 

@@ -185,7 +185,9 @@ export type FilterType =
     /**  Defines FilterType as excel */
     'excel' |
     /**  Defines FilterType as menu */
-    'menu';
+    'menu' |
+    /**  Defines FilterType as checkbox */
+    'checkbox';
 
 /** 
  * Filter bar mode options are 
@@ -237,39 +239,39 @@ export type WrapMode =
  * Defines Multiple Export Type.
  */
 export type MultipleExportType =
-/**  Multiple Grids are exported to same Worksheet. */
-'appendtosheet' |
-/**  Multiple Grids are exported to separate Worksheet. */
-'newsheet';
+    /**  Multiple Grids are exported to same Worksheet. */
+    'appendtosheet' |
+    /**  Multiple Grids are exported to separate Worksheet. */
+    'newsheet';
 
 /**
  * Defines Predefined toolbar items.
  */
 export type ToolbarItems =
-/** Add new record */
-'add' |
-/** Delete selected record */
-'delete' |
-/** Update edited record */
-'update' |
-/** Cancel the edited state */
-'cancel' |
-/** Edit the selected record */
-'edit' |
-/** Searches the grid records by given key */
-'search' |
-/** ColumnChooser used show/gird columns */
-'columnchooser' |
-/** Print the Grid */
-'print' |
-/** Export the Grid to PDF format */
-'pdfexport' |
-/** Export the Grid to Excel format */
-'excelexport' |
-/** Export the Grid to CSV format */
-'csvexport' |
-/** Export the Grid to word fromat */
-'wordexport';
+    /** Add new record */
+    'add' |
+    /** Delete selected record */
+    'delete' |
+    /** Update edited record */
+    'update' |
+    /** Cancel the edited state */
+    'cancel' |
+    /** Edit the selected record */
+    'edit' |
+    /** Searches the grid records by given key */
+    'search' |
+    /** ColumnChooser used show/gird columns */
+    'columnchooser' |
+    /** Print the Grid */
+    'print' |
+    /** Export the Grid to PDF format */
+    'pdfexport' |
+    /** Export the Grid to Excel format */
+    'excelexport' |
+    /** Export the Grid to CSV format */
+    'csvexport' |
+    /** Export the Grid to word fromat */
+    'wordexport';
 
 /** 
  * Defines the cell content's overflow mode. The available modes are   
@@ -294,11 +296,52 @@ export type ClipMode =
  * * cancel - Cancel the edited state.
  */
 export type CommandButtonType =
-/** Edit the current row */
+    /** Edit the current row */
+    'edit' |
+    /** Delete the current row */
+    'delete' |
+    /** Save the current edited row */
+    'save' |
+    /**  Cancel the edited state */
+    'cancel';
+
+/** 
+ * Defines the default items of context menu.
+ */
+export type ContextMenuItem =
+/**  Auto fit the size of all columns */
+'autoFitAll' |
+/**  Auto fit the current column */
+'autoFit' |
+/**  Group by current column */
+'group' |
+/**  Ungroup by current column */
+'ungroup' |
+/**  Edit the current record */
 'edit' |
-/** Delete the current row */
+/**  Delete the current record */
 'delete' |
-/** Save the current edited row */
+/**  Save the edited record */
 'save' |
 /**  Cancel the edited state */
-'cancel';
+'cancel' |
+/**  Copy the selected records */
+'copy' |
+/**  Export the grid as Pdf format */
+'pdfExport' |
+/**  Export the grid as Excel format */
+'excelExport' |
+/**  Export the grid as CSV format */
+'csvExport' |
+/**  Sort the current column in ascending order */
+'sortAscending' |
+/**  Sort the current column in descending order */
+'sortDescending' |
+/**  Go to the first page */
+'firstPage' |
+/**  Go to the previous page */
+'prevPage' |
+/**  Go to the last page */
+'lastPage' |
+/**  Go to the next page */
+'nextPage';

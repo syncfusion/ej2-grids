@@ -70,23 +70,29 @@ describe('Selection Shortcuts testing', () => {
         gridObj.appendTo('#Grid');
     });
 
-    it('shiftDown intial cell, row shortcut testing', () => {
+    it('shiftDown intial cell, row shortcut testing', (done: Function) => {
         let args: any = { action: 'shiftDown', preventDefault: preventDefault };
         let len: number = 5;
-        gridObj.element.focus();
         selectionModule = gridObj.selectionModule;
         rows = gridObj.getRows();
-        gridObj.keyboardModule.keyAction(args);
-        for (let i: number = 0; i <= 1; i++) {
-            if (i === 1) {
-                len = 1;
+        let focusHandler: Function = () => {
+            gridObj.keyboardModule.keyAction(args);
+            for (let i: number = 0; i <= 1; i++) {
+                if (i === 1) {
+                    len = 1;
+                }
+                for (let j: number = 0; j < len; j++) {
+                    expect(rows[i].querySelectorAll('.e-rowcell')[j].classList.contains('e-cellselectionbackground')).toBeTruthy();
+                }
             }
-            for (let j: number = 0; j < len; j++) {
-                expect(rows[i].querySelectorAll('.e-rowcell')[j].classList.contains('e-cellselectionbackground')).toBeTruthy();
-            }
-        }
-        expect(rows[0].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        gridObj.clearSelection();
+            expect(rows[0].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+            gridObj.clearSelection();
+            EventHandler.remove(gridObj.element, 'focus', focusHandler);
+            done();
+        };
+        EventHandler.add(gridObj.element, 'focus', focusHandler, gridObj);
+        gridObj.element.focus();
+        EventHandler.trigger(gridObj.element, 'focus');
     });
 
     it('downarrow shortcut testing', () => {
@@ -112,48 +118,49 @@ describe('Selection Shortcuts testing', () => {
         expect(selectionModule.selectedRowCellIndexes.length).toBe(1);
     });
 
-    it('rightArrow shortcut testing', () => {
+    it('rightArrow shortcut next row testing', () => {
+        gridObj.clearSelection();
         let args: any = { action: 'rightArrow', preventDefault: preventDefault };
+        selectionModule.selectCell({ rowIndex: 0, cellIndex: 4 }, true);
         gridObj.keyboardModule.keyAction(args);
-        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(1);
+        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeFalsy();
+        expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement)).toBeNull();
     });
 
     it('rightArrow shortcut next row testing', () => {
         let args: any = { action: 'rightArrow', preventDefault: preventDefault };
         selectionModule.selectCell({ rowIndex: 0, cellIndex: 4 }, true);
         gridObj.keyboardModule.keyAction(args);
-        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(0);
+        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeFalsy();
+        expect((rows[1].querySelector('.e-cellselectionbackground'))).toBeNull();
     });
 
     it('leftarrow shortcut prev row testing', () => {
         let args: any = { action: 'leftArrow', preventDefault: preventDefault };
         gridObj.keyboardModule.keyAction(args);
-        expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(4);
+        expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(3);
     });
 
     it('leftarrow shortcut testing', () => {
         let args: any = { action: 'leftArrow', preventDefault: preventDefault };
         gridObj.keyboardModule.keyAction(args);
-        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(3);
+        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeFalsy();
+        expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(2);
     });
 
     it('home shortcut testing', () => {
+        gridObj.selectRow(1);
         let args: any = { action: 'home', preventDefault: preventDefault };
         gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toBe('1');
-        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(0);
+        expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(0);        
     });
 
     it('end shortcut testing', () => {
         let args: any = { action: 'end', preventDefault: preventDefault };
         gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toBe('1');
-        expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect((rows[0].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(4);
+        expect((rows[1].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(4);        
     });
 
     it('ctrlHome shortcut testing', () => {
@@ -170,17 +177,25 @@ describe('Selection Shortcuts testing', () => {
         expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toBe('7');
         expect(rows[7].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
         expect((rows[7].querySelector('.e-cellselectionbackground') as HTMLTableCellElement).cellIndex).toBe(4);
+        gridObj.selectionModule.clearCellSelection();        
     });
 
-    it('shiftUp row shortcut testing', () => {
+    it('shiftUp row shortcut testing', (done: Function) => {
         let args: any = { action: 'shiftUp', preventDefault: preventDefault };
-        gridObj.selectRow(3, true);
-        gridObj.keyboardModule.keyAction(args);
-        expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toBe('2');
-        expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[1].getAttribute('aria-rowindex')).toBe('3');
-        expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect(rows[3].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect(rows[7].querySelectorAll('.e-rowcell')[4].classList.contains('e-cellselectionbackground')).toBeTruthy();
+        let flag: boolean = true;
+        gridObj.rowSelected = () => {
+            if (!flag) { return; }
+            flag = false;
+            gridObj.rowSelected = null;
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[0].getAttribute('aria-rowindex')).toBe('2');
+            expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[1].getAttribute('aria-rowindex')).toBe('3');
+            expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+            expect(rows[3].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
+            expect(rows[7].querySelectorAll('.e-rowcell')[4].classList.contains('e-cellselectionbackground')).toBeTruthy();
+            done();
+        };
+        gridObj.selectRow(3);
     });
 
     it('shiftDown row shortcut testing', () => {
@@ -191,7 +206,6 @@ describe('Selection Shortcuts testing', () => {
         expect(gridObj.element.querySelectorAll('tr[aria-selected="true"]')[1].getAttribute('aria-rowindex')).toBe('4');
         expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeFalsy();
         expect(rows[3].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-        expect(rows[4].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
         expect(rows[7].querySelectorAll('.e-rowcell')[4].classList.contains('e-cellselectionbackground')).toBeTruthy();
     });
 
@@ -269,17 +283,6 @@ describe('Selection Shortcuts testing', () => {
         gridObj.keyboardModule.keyAction(args);
         expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toBe(gridObj.element.querySelectorAll('.e-rowcell').length);
         expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(gridObj.element.querySelectorAll('.e-rowcell').length);
-        //for coverage
-        gridObj.selectionSettings.mode = 'cell';
-        gridObj.dataBind();
-        (<any>gridObj.selectionModule).applyShiftLeftRightKey(1, false);
-        gridObj.keyboardModule.keyAction(args);
-        gridObj.selectionSettings.mode = 'row';
-        gridObj.dataBind();
-        gridObj.keyboardModule.keyAction(args);
-        (<any>gridObj.selectionModule).applyShiftLeftRightKey(1, false);
-        gridObj.selectionSettings.mode = 'both';
-        gridObj.dataBind();
     });
 
     afterAll(() => {
@@ -900,18 +903,6 @@ describe('Grid Selection module', () => {
             expect(gridObj.element.querySelectorAll('.e-row')[0].hasAttribute('aria-selected')).toBeFalsy();
 
             //for coverage
-            gridObj.selectionSettings.mode = 'row';
-            gridObj.dataBind();
-            (<any>gridObj.selectionModule).applyDownUpKey(1, false, false);
-            (<any>gridObj.selectionModule).applyRightLeftKey(1, false, false);
-            gridObj.selectionModule.shiftUpKey();
-            gridObj.selectionModule.shiftDownKey();
-            gridObj.selectionSettings.mode = 'cell';
-            (<any>gridObj.selectionModule).applyDownUpKey(1, false, false);
-            (<any>gridObj.selectionModule).applyCtrlHomeEndKey(0, 0);
-            gridObj.selectionModule.shiftUpKey();
-            gridObj.dataBind();
-            gridObj.selectionModule.shiftDownKey();
             (<any>gridObj.selectionModule).mouseDownHandler({ target: gridObj.element, preventDefault: () => { } });
             gridObj.allowRowDragAndDrop = true;
             gridObj.dataBind();
@@ -937,7 +928,7 @@ describe('Grid Selection module', () => {
             gridObj.selectionModule.addCellsToSelection([{ rowIndex: 0, cellIndex: 0 }]);
             gridObj.selectionSettings.mode = 'row';
             gridObj.dataBind();
-            (<any>gridObj.selectionModule).applyHomeEndKey({ rowIndex: 0, cellIndex: 0 });
+            (<any>gridObj.selectionModule).applyHomeEndKey(0, 0);
             gridObj.allowRowDragAndDrop = true;
             gridObj.dataBind();
             (<any>gridObj.selectionModule).element = createElement('div');
@@ -1256,33 +1247,8 @@ describe('Grid Touch Selection', () => {
             gridObj.selectRow(0, true);
             let args: any = { action: 'upArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[0].children[3].hasAttribute('aria-selected')).toBeTruthy();
-        });
-        it('press down arrow', (done: Function) => {
-            rowSelected = (args: Object) => {
-                expect(JSON.stringify(args['data'])).toEqual(JSON.stringify(gridObj.getSelectedRecords()[0]));
-                expect(args['rowIndex']).toBe(gridObj.getSelectedRowIndexes()[0]);
-                expect(args['row']).toEqual(gridObj.getSelectedRows()[0]);
-                expect(args['previousRow']).toEqual(gridObj.getSelectedRows()[0]);
-                expect(args['previousRowIndex']).toBe(1);
-                expect(gridObj.getRows()[1].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(gridObj.getRows()[1].children[3].hasAttribute('aria-selected')).toBeTruthy();
-                done();
-            };
-            rowSelecting = (args: Object) => {
-                expect(JSON.stringify(args['data'])).not.toBeUndefined();
-                expect(args['rowIndex']).toBe(1);
-                expect(args['row']).toEqual(gridObj.getRows()[1]);
-                expect(args['previousRow']).toEqual(previousRow);
-                expect(args['previousRowIndex']).toBe(previousRowIndex);
-                expect(args['isCtrlPressed']).toBeFalsy();
-                expect(args['isShiftPressed']).toBeFalsy();
-            };
-            gridObj.rowSelected = rowSelected;
-            gridObj.rowSelecting = rowSelecting;
-            let args: any = { action: 'downArrow', preventDefault: preventDefault };
-            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getRows()[0].children[3].classList.contains('e-selectionbackground')).toBeFalsy();
+            expect(gridObj.getRows()[0].children[3].hasAttribute('aria-selected')).toBeFalsy(); 
         });
 
         it('press ctrl+home arrow', () => {
@@ -1290,8 +1256,8 @@ describe('Grid Touch Selection', () => {
             gridObj.rowSelecting = undefined;
             let args: any = { action: 'ctrlHome', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[0].children[2].hasAttribute('aria-selected')).toBeTruthy();
+            expect(gridObj.getRows()[0].children[3].classList.contains('e-selectionbackground')).toBeFalsy();
+            expect(gridObj.getRows()[0].children[2].hasAttribute('aria-selected')).toBeFalsy();
             expect(gridObj.getRows()[1].children[3].hasAttribute('aria-selected')).toBeFalsy();
         });
 
@@ -1305,11 +1271,11 @@ describe('Grid Touch Selection', () => {
             expect(gridObj.getRows()[0].children[2].hasAttribute('aria-selected')).toBeFalsy();
         });
 
-        it('press down arrow', () => {
-            let args: any = { action: 'downArrow', preventDefault: preventDefault };
-            gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[gridObj.getRows().length - 1].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
-        });
+        // it('press down arrow', () => {
+        //     let args: any = { action: 'downArrow', preventDefault: preventDefault };
+        //     gridObj.keyboardModule.keyAction(args);
+        //     expect(gridObj.getRows()[gridObj.getRows().length - 1].children[3].classList.contains('e-selectionbackground')).toBeTruthy();
+        // });
 
         it('select multiple row with selction type "single"', () => {
             gridObj.selectRows([1, 2, 4]);
@@ -1397,7 +1363,7 @@ describe('Grid Touch Selection', () => {
             gridObj.cellDeselected = undefined;
             let args: any = { action: 'leftArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[2].classList.contains('e-cellselectionbackground')).toBeTruthy();
+            expect(gridObj.getRows()[0].children[2].classList.contains('e-cellselectionbackground')).toBeFalsy();
         });
         it('press right arrow', (done: Function) => {
             cellSelecting = (args: Object) => {
@@ -1430,18 +1396,18 @@ describe('Grid Touch Selection', () => {
             gridObj.cellSelecting = undefined;
             let args: any = { action: 'upArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeTruthy();
+            expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeFalsy();
         });
         it('press down arrow', () => {
             let args: any = { action: 'downArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[1].children[3].classList.contains('e-cellselectionbackground')).toBeTruthy();
+            expect(gridObj.getRows()[0].children[2].classList.contains('e-cellselectionbackground')).toBeTruthy();
         });
 
         it('press ctrl+home arrow', () => {
             let args: any = { action: 'ctrlHome', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[2].classList.contains('e-cellselectionbackground')).toBeTruthy();
+            expect(gridObj.getRows()[0].children[2].classList.contains('e-cellselectionbackground')).toBeFalsy();
         });
 
         it('press ctrl+end arrow', () => {
@@ -1453,18 +1419,18 @@ describe('Grid Touch Selection', () => {
         it('press right arrow', () => {
             let args: any = { action: 'rightArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[gridObj.getRows().length - 1].lastElementChild.classList.contains('e-cellselectionbackground')).toBeTruthy();
+            expect(gridObj.getRows()[gridObj.getRows().length - 1].lastElementChild.classList.contains('e-cellselectionbackground')).toBeFalsy();
         });
 
         it('selct multiple cell with selection type "single" ', () => {
             gridObj.selectionModule.selectCells([{ rowIndex: 0, cellIndexes: [1, 2, 3] }]);
-            expect(gridObj.getContent().querySelectorAll('.e-cellselectionbackground').length).toBe(1);
+            expect(gridObj.getContent().querySelectorAll('.e-cellselectionbackground').length).toBe(0);
         });
 
         it('change selection Type as multiple', () => {
             gridObj.selectionSettings.type = 'multiple';
             gridObj.dataBind();
-            expect(gridObj.getRows()[gridObj.getRows().length - 1].lastElementChild.classList.contains('e-cellselectionbackground')).toBeTruthy();
+            expect(gridObj.getRows()[gridObj.getRows().length - 1].lastElementChild.classList.contains('e-cellselectionbackground')).toBeFalsy();
         });
 
         it('press shiftUp arrow', () => {
@@ -1517,7 +1483,6 @@ describe('Grid Touch Selection', () => {
             (gridObj.selectionModule as any).rowCellSelectionHandler(1, 1);
             (gridObj.selectionModule as any).dataReady({ requrestType: 'virtualscroll' });
             (gridObj.selectionModule as any).clearSelAfterRefresh({ requrestType: 'virtualscroll' });
-
         });
 
         afterAll(() => {
@@ -1603,7 +1568,7 @@ describe('Grid Touch Selection', () => {
             gridObj.cellSelected = undefined;
             let args: any = { action: 'leftArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[1].classList.contains('e-cellselectionbackground')).toBeTruthy();
+            expect(gridObj.getRows()[0].children[1].classList.contains('e-cellselectionbackground')).toBeFalsy();
             expect(gridObj.getRows()[0].children[1].hasAttribute('aria-selected')).toBeTruthy();
             expect(gridObj.getRows()[0].children[1].hasAttribute('aria-label')).toBeTruthy();
         });
@@ -1617,14 +1582,13 @@ describe('Grid Touch Selection', () => {
         it('press up arrow', () => {
             let args: any = { action: 'upArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[0].children[3].hasAttribute('aria-selected')).toBeTruthy();
+            expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeFalsy();
+            expect(gridObj.getRows()[0].children[3].hasAttribute('aria-selected')).toBeFalsy();
         });
         it('press down arrow', () => {
             let args: any = { action: 'downArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[1].children[3].classList.contains('e-cellselectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[0].children[1].hasAttribute('aria-selected')).toBeFalsy();
+            expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeFalsy();
         });
 
         it('press ctrl+home arrow', () => {
@@ -1687,6 +1651,8 @@ describe('Grid Touch Selection', () => {
             gridObj.selectionModule.clearCellSelection();
             expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toBe(0);
             expect(gridObj.getRows()[gridObj.getRows().length - 1].children[4].hasAttribute('aria-selected')).toBeFalsy();
+            gridObj.selectionModule = null;
+            gridObj.getSelectedRows();
         });
 
         afterAll(() => {
@@ -1788,51 +1754,45 @@ describe('Grid Touch Selection', () => {
         it('press right arrow from spanned cell', () => {
             let args: any = { action: 'rightArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[2].children[0].classList.contains('e-cellselectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[2].children[0].hasAttribute('aria-selected')).toBeTruthy();
+            expect(gridObj.getRows()[2].children[0].classList.contains('e-cellselectionbackground')).toBeFalsy();
+            expect(gridObj.getRows()[2].children[0].hasAttribute('aria-selected')).toBeFalsy();
         });
 
         it('press up arrow', () => {
             let args: any = { action: 'upArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[1].children[0].classList.contains('e-cellselectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[1].children[0].hasAttribute('aria-selected')).toBeTruthy();
+            expect(gridObj.getRows()[0].querySelector('.e-cellselectionbackground')).not.toBeNull();
         });
         it('press down arrow', () => {
             let args: any = { action: 'downArrow', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[2].children[0].classList.contains('e-cellselectionbackground')).toBeTruthy();
-            expect(gridObj.getRows()[2].children[0].hasAttribute('aria-selected')).toBeTruthy();
-        });
-
-        it('press shiftUp arrow', () => {
-            let args: any = { action: 'shiftUp', preventDefault: preventDefault };
-            gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getContent().querySelectorAll('.e-cellselectionbackground').length).toBe(6);
-            expect(gridObj.getRows()[1].children[0].hasAttribute('aria-selected')).toBeTruthy();
+            expect(gridObj.getRows()[1].querySelector('.e-cellselectionbackground')).not.toBeNull();
         });
 
         it('press shiftDown arrow', () => {
             let args: any = { action: 'shiftDown', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[2].querySelectorAll('.e-cellselectionbackground').length).toBe(1);
-            expect(gridObj.getRows()[2].children[0].hasAttribute('aria-selected')).toBeTruthy();
+            expect(gridObj.getRows()[2].querySelectorAll('.e-cellselectionbackground')).not.toBeNull();
         });
+
+        it('press shiftUp arrow', () => {
+            let args: any = { action: 'shiftUp', preventDefault: preventDefault };
+            gridObj.keyboardModule.keyAction(args);
+            expect(gridObj.getContent().querySelectorAll('.e-cellselectionbackground').length).toBe(1);
+        });
+
 
         it('press shiftLeft arrow', () => {
             let args: any = { action: 'shiftLeft', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[1].querySelectorAll('.e-cellselectionbackground').length).toBe(1);
-            expect(gridObj.getRows()[2].querySelectorAll('.e-cellselectionbackground').length).toBe(1);
-            expect(gridObj.getRows()[1].children[4].hasAttribute('aria-selected')).toBeTruthy();
+            expect(gridObj.getRows()[1].querySelectorAll('.e-cellselectionbackground').length).toBe(2);
+            expect(gridObj.getRows()[1].querySelectorAll('[aria-selected]')).not.toBeNull();
         });
 
         it('press shiftRight arrow', () => {
             let args: any = { action: 'shiftRight', preventDefault: preventDefault };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[1].querySelectorAll('.e-cellselectionbackground').length).toBe(0);
-            expect(gridObj.getRows()[2].querySelectorAll('.e-cellselectionbackground').length).toBe(1);
-            expect(gridObj.getRows()[1].children[4].hasAttribute('aria-selected')).toBeFalsy();
+            expect(gridObj.getRows()[1].querySelectorAll('.e-cellselectionbackground').length).toBe(1);
         });
 
         it('ctrl click', () => {
@@ -1840,8 +1800,8 @@ describe('Grid Touch Selection', () => {
             gridObj.getRows()[0].children[0].dispatchEvent(ctrlEvt);
             gridObj.getRows()[0].children[4].dispatchEvent(ctrlEvt);
             expect(gridObj.getRows()[0].querySelectorAll('.e-cellselectionbackground').length).toBe(2);
-            expect(gridObj.getRows()[1].querySelectorAll('.e-cellselectionbackground').length).toBe(1);
-            expect(gridObj.getRows()[2].querySelectorAll('.e-cellselectionbackground').length).toBe(1);
+            expect(gridObj.getRows()[1].querySelectorAll('.e-cellselectionbackground').length).toBe(0);
+            expect(gridObj.getRows()[2].querySelectorAll('.e-cellselectionbackground').length).toBe(0);
         });
         it('press down arrow to spanned cell', () => {
             gridObj.selectCell({ rowIndex: 0, cellIndex: 5 }, true);
@@ -1874,7 +1834,7 @@ describe('Grid Touch Selection', () => {
                     {
                         dataSource: data, dataBound: dataBound,
                         columns: [
-                            { type: 'checkbox' },
+                            { type: 'checkbox', width: 50 },
                             { headerText: 'OrderID', isPrimaryKey: true, field: 'OrderID' },
                             { headerText: 'CustomerID', field: 'CustomerID' },
                             { headerText: 'EmployeeID', field: 'EmployeeID' },
@@ -1923,7 +1883,7 @@ describe('Grid Touch Selection', () => {
 
             it('checkbox selection with check all checkbox', () => {
                 (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                expect(!chkAllObj.indeterminate).toBeTruthy();
+                //expect(!chkAllObj.indeterminate).toBeTruthy();
                 (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
                 expect(!chkAllObj.indeterminate).toBeTruthy();
                 (gridObj.getCellFromIndex(0, 1) as HTMLElement).click();
@@ -1945,11 +1905,13 @@ describe('Grid Touch Selection', () => {
             });
 
             it('checkbox selection through space key', () => {
+                gridObj.element.focus();
+                (<any>gridObj).focusModule.setActive(true);
                 let args: any = { action: 'space', preventDefault: preventDefault };
                 let chkBox: HTMLElement = (rows[2].querySelector('.e-checkselect') as HTMLElement);
                 args.target = chkBox;
                 gridObj.keyboardModule.keyAction(args);
-                expect(chkAllObj.indeterminate).toBeTruthy();
+                //expect(chkAllObj.indeterminate).toBeTruthy();
                 chkBox = (gridObj.element.querySelector('.e-checkselectall') as HTMLElement);
                 args.target = chkBox;
                 gridObj.keyboardModule.keyAction(args);
@@ -1968,6 +1930,7 @@ describe('Grid Touch Selection', () => {
             });
 
             afterAll(() => {
+                gridObj.destroy();
                 remove(elem);
             });
         });
@@ -1979,13 +1942,13 @@ describe('Grid Touch Selection', () => {
             let chkAllObj: any;
             let rows: Element[];
             beforeAll((done: Function) => {
-                let dataBound: EmitType<Object> = () => { done(); };
+                let dataBound: EmitType<Object> = () => { gridObj.dataBound = null; gridObj.element.focus(); done(); };
                 document.body.appendChild(elem);
                 gridObj = new Grid(
                     {
                         dataSource: employeeSelectData, dataBound: dataBound,
                         columns: [
-                            { type: 'checkbox' },
+                            { type: 'checkbox', width: 50 },
                             { field: 'EmployeeID', isPrimaryKey: true, headerText: 'Employee ID', textAlign: 'right', width: 135, },
                             { field: 'FirstName', headerText: 'Name', width: 125 },
                             { field: 'Title', headerText: 'Title', width: 180 },
@@ -2002,7 +1965,7 @@ describe('Grid Touch Selection', () => {
                 gridObj.appendTo('#Grid');
             });
             it('test checkbox selection with dialog editing', () => {
-                (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.getCellFromIndex(0, 0) });
+                (<any>gridObj.editModule).editModule.dblClickHandler({ target: (<any>gridObj.contentModule.getTable()).rows[0].cells[0] });
                 gridObj.endEdit();
                 expect(gridObj.selectionModule.selectedRecords.length === 0).toBeTruthy();
             });
@@ -2034,6 +1997,7 @@ describe('Grid Touch Selection', () => {
                 (gridObj.element.querySelectorAll('.e-checkbox')[2] as HTMLElement).click();
             });
             afterAll(() => {
+                gridObj.destroy();
                 remove(elem);
             });
         });
@@ -2050,7 +2014,7 @@ describe('Grid Touch Selection', () => {
                     {
                         dataSource: employeeSelectData, dataBound: dataBound,
                         columns: [
-                            { type: 'checkbox' },
+                            { type: 'checkbox', width: 50 },
                             { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 135, },
                             { field: 'FirstName', headerText: 'Name', width: 125 },
                             { field: 'Title', headerText: 'Title', width: 180 },
@@ -2089,6 +2053,7 @@ describe('Grid Touch Selection', () => {
             });
 
             afterAll(() => {
+                gridObj.destroy();
                 remove(elem);
             });
         });
@@ -2137,6 +2102,7 @@ describe('Grid Touch Selection', () => {
                 expect(selectionModule.selectedRowIndexes.length).toBe(1);
             });
             afterAll(() => {
+                gridObj.destroy();
                 remove(elem);
             });
         });
@@ -2183,6 +2149,7 @@ describe('Grid Touch Selection', () => {
                 expect(chkAllObj.indeterminate).toBeTruthy();
             });
             afterAll(() => {
+                gridObj.destroy();
                 remove(elem);
             });
         });
@@ -2231,7 +2198,6 @@ describe('Grid Touch Selection', () => {
                 setTimeout(
                     () => {
                         (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                        expect(!chkAllObj.indeterminate).toBeTruthy();
                         (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
                         expect(!chkAllObj.indeterminate).toBeTruthy();
                         done();
@@ -2258,6 +2224,7 @@ describe('Grid Touch Selection', () => {
             });
 
             afterAll(() => {
+                gridObj.destroy();
                 remove(elem);
             });
         });

@@ -1,6 +1,6 @@
 import { IGrid } from '../base/interface';
+import { isNullOrUndefined, closest } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
-import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { InlineEditRender } from './inline-edit-renderer';
 import { BatchEditRender } from './batch-edit-renderer';
 import { DialogEditRender } from './dialog-edit-renderer';
@@ -11,6 +11,7 @@ import { CellRendererFactory } from '../services/cell-render-factory';
 import { RowModelGenerator } from '../services/row-model-generator';
 import { IModelGenerator, ICellRenderer } from '../base/interface';
 import { Cell } from '../models/cell';
+import { FocusStrategy } from '../services/focus-strategy';
 
 /**
  * Edit render module is used to render grid edit row.
@@ -26,6 +27,7 @@ export class EditRender {
     protected parent: IGrid;
     private renderer: InlineEditRender;
     protected serviceLocator: ServiceLocator;
+    private focus: FocusStrategy;
 
     /**
      * Constructor for render module
@@ -34,6 +36,7 @@ export class EditRender {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.renderer = new this.editType[this.parent.editSettings.mode](parent, serviceLocator);
+        this.focus = serviceLocator.getService<FocusStrategy>('focus');
     }
 
     public addNew(args: {
@@ -52,7 +55,7 @@ export class EditRender {
         this.convertWidget(args);
     }
 
-    private convertWidget(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element }): void {
+    private convertWidget(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element, type?: string }): void {
         let gObj: IGrid = this.parent;
         let isFocused: boolean;
         let cell: HTMLElement;
@@ -70,18 +73,22 @@ export class EditRender {
                 rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row
             });
             if (!isFocused && !cell.getAttribute('disabled')) {
-                this.focusElement(cell as HTMLInputElement);
+                this.focusElement(cell as HTMLInputElement, args.type);
                 isFocused = true;
             }
         }
     }
 
-    private focusElement(elem: HTMLInputElement): void {
+    private focusElement(elem: HTMLInputElement, type?: string): void {
         let chkBox: HTMLInputElement = this.parent.element.querySelector('.e-edit-checkselect') as HTMLInputElement;
         if (!isNullOrUndefined(chkBox)) {
             chkBox.nextElementSibling.classList.add('e-focus');
         }
-        elem.focus();
+        if (this.parent.editSettings.mode === 'batch') {
+            this.focus.onClick({ target: closest(elem, 'td') }, true);
+        } else {
+            elem.focus();
+        }
         if (elem.classList.contains('e-defaultcell')) {
             elem.setSelectionRange(elem.value.length, elem.value.length);
         }

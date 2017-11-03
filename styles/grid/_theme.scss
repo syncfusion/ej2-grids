@@ -7,6 +7,11 @@
       color: $grid-icon-color;
     }
 
+    .e-focused {
+      border: 0;
+      box-shadow: $grid-cell-focus-shadow;
+    }
+
     .e-gridheader .e-icons:not(.e-icon-hide):not(.e-check) {
       color: $grid-icon-default-color;
     }

@@ -1,9 +1,10 @@
-import { KeyboardEventArgs, Browser, EventHandler, MouseEventArgs } from '@syncfusion/ej2-base';
+import { Browser, EventHandler, MouseEventArgs } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, isUndefined } from '@syncfusion/ej2-base';
 import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
-import { IGrid, IAction, IIndex, ISelectedCell, IPosition, IRenderer, EJ2Intance, NotifyArgs } from '../base/interface';
+import { Query } from '@syncfusion/ej2-data';
+import { IGrid, IAction, IIndex, ISelectedCell, IPosition, IRenderer, EJ2Intance, NotifyArgs, CellFocusArgs } from '../base/interface';
 import { SelectionSettings } from '../base/grid';
-import { setCssInGridPopUp, getPosition, parentsUntil, addRemoveActiveClasses }from '../base/util';
+import { setCssInGridPopUp, getPosition, parentsUntil, addRemoveActiveClasses } from '../base/util';
 import * as events from '../base/constant';
 import { RenderType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
@@ -12,7 +13,8 @@ import { Column } from '../models/column';
 import { Row } from '../models/row';
 import { Data } from '../actions/data';
 import { ReturnType } from '../base/type';
-import { Query } from '@syncfusion/ej2-data';
+import { FocusStrategy } from '../services/focus-strategy';
+
 
 /**
  * `Selection` module is used to handle cell and row selection.
@@ -43,6 +45,7 @@ export class Selection implements IAction {
     private prevRowIndex: number;
     private prevCIdxs: IIndex;
     private prevECIdxs: IIndex;
+    private preventFocus: boolean = false;
     private selectedRowIndex: number;
     private isMultiShiftRequest: boolean = false;
     private isMultiCtrlRequest: boolean = false;
@@ -76,6 +79,7 @@ export class Selection implements IAction {
     private selectionRequest: boolean = false;
     //Module declarations
     private parent: IGrid;
+    private focus: FocusStrategy;
 
     /**
      * Constructor for the Grid selection module
@@ -85,6 +89,7 @@ export class Selection implements IAction {
         this.parent = parent;
         this.selectionSettings = selectionSettings;
         this.factory = locator.getService<RendererFactory>('rendererFactory');
+        this.focus = locator.getService<FocusStrategy>('focus');
         this.addEventListener();
     }
 
@@ -297,7 +302,8 @@ export class Selection implements IAction {
     private updatePersistCollection(selectedRow: Element, chkState: boolean): void {
         if (this.persistSelection && !isNullOrUndefined(selectedRow)) {
             let rowObj: Row<Column> = this.parent.getRowObjectFromUID(selectedRow.getAttribute('data-uid'));
-            let pKey: string = rowObj.data[this.primaryKey];
+            let pKey: string = rowObj ? rowObj.data[this.primaryKey] : null;
+            if (pKey === null) { return; }
             rowObj.isSelected = chkState;
             if (chkState) {
                 this.selectedRowState[pKey] = chkState;
@@ -336,6 +342,12 @@ export class Selection implements IAction {
         this.updatePersistCollection(selectedRow, true);
         this.updateCheckBoxes(selectedRow, true);
         this.addRemoveClassesForRow(selectedRow, true, null, 'e-selectionbackground', 'e-active');
+        if (!this.preventFocus) {
+            let target: Element = this.focus.getPrevIndexes().cellIndex ?
+                (<HTMLTableRowElement>selectedRow).cells[this.focus.getPrevIndexes().cellIndex] :
+                selectedRow.querySelector('.e-selectionbackground:not(.e-hide)');
+            this.focus.onClick({ target }, true);
+        }
     }
 
     /** 
@@ -377,6 +389,8 @@ export class Selection implements IAction {
                 let row: Element = this.parent.getRowByIndex(this.selectedRowIndexes[i]);
                 if (row) { row.removeAttribute('aria-selected'); }
                 this.addRemoveClassesForRow(row, false, true, 'e-selectionbackground', 'e-active');
+                this.updatePersistCollection(row, false);
+                this.updateCheckBoxes(row);
             }
             this.selectedRowIndexes = [];
             this.selectedRecords = [];
@@ -622,18 +636,8 @@ export class Selection implements IAction {
         let cells: NodeListOf<Element> = this.parent.getDataRows()[rowIndex].querySelectorAll('td.e-rowcell');
         for (let m: number = 0; m < cells.length; m++) {
             let colIndex: number = parseInt(cells[m].getAttribute('aria-colindex'), 10);
-            if ( colIndex === index) {
+            if (colIndex === index) {
                 return m;
-            }
-        }
-        return -1;
-    }
-
-    private getLeftRightColIndex(rowIndex: number, colIndex: number, key: number): number {
-        let cells: NodeListOf<Element> = this.parent.getDataRows()[rowIndex].querySelectorAll('td.e-rowcell');
-        for (let m: number = 0; m < cells.length && m + key < cells.length; m++) {
-            if (parseInt(cells[m].getAttribute('aria-colindex'), 10) >= colIndex) {
-                return parseInt(cells[m + key].getAttribute('aria-colindex'), 10);
             }
         }
         return -1;
@@ -644,17 +648,12 @@ export class Selection implements IAction {
         return parseInt(cells[cells.length - 1].getAttribute('aria-colindex'), 10);
     }
 
-    private getLastCellIndex(rowIndex: number, colIndex: number, key: number): number {
-        let cells: NodeListOf<Element> = this.parent.getDataRows()[this.prevECIdxs.rowIndex + key].querySelectorAll('td.e-rowcell');
-        return colIndex >= cells.length ? cells.length - 1 : colIndex;
-    }
-
     private clearCell(): void {
         this.clearCellSelection();
     }
 
     private cellDeselect(type: string, cellIndexes: ISelectedCell[], data: Object, cells: Element[]): void {
-        if (cells[0].classList.contains('e-gridchkbox')) {
+        if (cells[0] && cells[0].classList.contains('e-gridchkbox')) {
             this.updateCheckBoxes(closest(cells[0], 'tr'));
         }
         this.parent.trigger(type, {
@@ -676,7 +675,9 @@ export class Selection implements IAction {
     private addAttribute(cell: Element): void {
         this.target = cell;
         cell.setAttribute('aria-selected', 'true');
-        (<HTMLElement>cell).focus();
+        if (!this.preventFocus) {
+            this.focus.onClick({ target: cell }, true);
+        }
     }
 
     private updateCellProps(startIndex: IIndex, endIndex: IIndex): void {
@@ -831,7 +832,7 @@ export class Selection implements IAction {
         this.parent.on(events.cellSelectionComplete, this.onActionComplete, this);
         this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
         this.parent.on(events.click, this.clickHandler, this);
-        this.parent.on(events.keyPressed, this.keyPressHandler, this);
+        this.parent.on(events.cellFocused, this.onCellFocused, this);
         this.parent.on(events.dataReady, this.dataReady, this);
         this.parent.on(events.dataReady, this.clearSelAfterRefresh, this);
         this.parent.on(events.columnPositionChanged, this.clearSelection, this);
@@ -850,7 +851,7 @@ export class Selection implements IAction {
         this.parent.off(events.cellSelectionComplete, this.onActionComplete);
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
         this.parent.off(events.click, this.clickHandler);
-        this.parent.off(events.keyPressed, this.keyPressHandler);
+        this.parent.off(events.cellFocused, this.onCellFocused);
         this.parent.off(events.dataReady, this.dataReady);
         this.parent.off(events.dataReady, this.clearSelAfterRefresh);
         this.parent.off(events.columnPositionChanged, this.clearSelection);
@@ -860,7 +861,7 @@ export class Selection implements IAction {
     }
 
     public dataReady(e: { requestType: string }): void {
-         if (e.requestType !== 'virtualscroll' && !this.persistSelection) {
+        if (e.requestType !== 'virtualscroll' && !this.persistSelection) {
             this.clearSelection();
         }
     };
@@ -965,7 +966,7 @@ export class Selection implements IAction {
             let indexes: number[] = [];
             for (let j: number = 0; j < rows.length; j++) {
                 let rowObj: Row<Column> = this.parent.getRowObjectFromUID(rows[j].getAttribute('data-uid'));
-                let pKey: string = rowObj.data[this.primaryKey];
+                let pKey: string = rowObj ? rowObj.data[this.primaryKey] : null; if (pKey === null) { return; }
                 let checkState: boolean;
                 if (this.selectedRowState[pKey] || (this.isChkAll && this.chkAllCollec.indexOf(pKey) < 0)
                     || (this.isUnChkAll && this.chkAllCollec.indexOf(pKey) > 0) || (this.chkField && rowObj.data[this.chkField])) {
@@ -1005,6 +1006,7 @@ export class Selection implements IAction {
                         row = this.parent.element.querySelector('.e-dlgeditrow') as HTMLElement;
                     }
                     let rowObj: Row<Column> = this.parent.getRowObjectFromUID(row.getAttribute('data-uid'));
+                    if (!rowObj) { return; }
                     this.selectedRowState[rowObj.data[this.primaryKey]] = rowObj.isSelected = editChkBox.checked;
                 } else {
                     this.isCheckedOnAdd = editChkBox.checked;
@@ -1087,7 +1089,8 @@ export class Selection implements IAction {
     private moveIntoUncheckCollection(row: HTMLElement): void {
         if (this.isChkAll || this.isUnChkAll) {
             let rowObj: Row<Column> = this.parent.getRowObjectFromUID(row.getAttribute('data-uid'));
-            let pKey: string = rowObj.data[this.primaryKey];
+            let pKey: string = rowObj ? rowObj.data[this.primaryKey] : null;
+            if (!pKey) { return; }
             if (this.chkAllCollec.indexOf(pKey) < 0) {
                 this.chkAllCollec.push(pKey);
             } else {
@@ -1114,7 +1117,7 @@ export class Selection implements IAction {
                 this.totalRecordsCount = this.parent.getCurrentViewRecords().length;
             }
             if (checkedLen === this.totalRecordsCount || (this.persistSelection && this.parent.allowPaging
-            && this.isChkAll && this.chkAllCollec.length === 0)) {
+                && this.isChkAll && this.chkAllCollec.length === 0)) {
                 this.chkAllObj.ej2_instances[0].setProperties({ checked: true });
             } else if (checkedLen === 0 || this.parent.getCurrentViewRecords().length === 0) {
                 this.chkAllObj.ej2_instances[0].setProperties({ indeterminate: false, checked: false });
@@ -1130,13 +1133,14 @@ export class Selection implements IAction {
         this.isMultiShiftRequest = e.shiftKey;
         this.popUpClickHandler(e);
         let chkSelect: boolean = false;
+        this.preventFocus = true;
         let checkBox: HTMLInputElement;
         this.selectionRequest = true;
         if (target.classList.contains('e-checkselect') || target.classList.contains('e-checkselectall')) {
             checkBox = target as HTMLInputElement;
             chkSelect = true;
         }
-        if ((target.classList.contains('e-rowcell') && !this.parent.selectionSettings.checkboxOnly) || chkSelect) {
+        if (target && (target.classList.contains('e-rowcell') && !this.parent.selectionSettings.checkboxOnly) || chkSelect) {
             if (this.isChkSelection) {
                 this.isMultiCtrlRequest = true;
             }
@@ -1167,6 +1171,7 @@ export class Selection implements IAction {
         this.isMultiCtrlRequest = false;
         this.isMultiShiftRequest = false;
         this.selectionRequest = false;
+        this.preventFocus = false;
     }
 
     private popUpClickHandler(e: MouseEvent): void {
@@ -1214,65 +1219,54 @@ export class Selection implements IAction {
         this.isDragged = false;
     }
 
-    private keyPressHandler(e: KeyboardEventArgs): void {
-        let checkScroll: boolean;
-        let preventDefault: boolean;
-        switch (e.action) {
+    private onCellFocused(e: CellFocusArgs): void {
+        let clear: boolean = (!e.container.isContent || !e.container.isSelectable) &&
+            !(e.byKey && e.keyArgs.action === 'space');
+        if (!e.byKey || clear) {
+            if (clear) { this.clearSelection(); }
+            return;
+        }
+        let [rowIndex, cellIndex]: number[] = e.container.isContent ? e.container.indexes : e.indexes;
+        let prev: IIndex = this.focus.getPrevIndexes();
+        if (['ctrlPlusA', 'escape'].indexOf(e.keyArgs.action) === -1 && e.keyArgs.action !== 'space' &&
+            rowIndex === prev.rowIndex && cellIndex === prev.cellIndex) { return; }
+        this.preventFocus = true;
+        switch (e.keyArgs.action) {
             case 'downArrow':
-                checkScroll = true;
-                this.downArrowKey();
-                break;
             case 'upArrow':
-                checkScroll = true;
-                this.upArrowKey();
+            case 'enter':
+            case 'shiftEnter':
+                this.applyDownUpKey(rowIndex, cellIndex);
                 break;
             case 'rightArrow':
-                preventDefault = true;
-                this.rightArrowKey();
-                break;
             case 'leftArrow':
-                preventDefault = true;
-                this.leftArrowKey();
-                break;
-            case 'home':
-                preventDefault = true;
-                this.homeKey();
-                break;
-            case 'end':
-                preventDefault = true;
-                this.endKey();
-                break;
-            case 'ctrlHome':
-                preventDefault = true;
-                this.ctrlHomeKey();
-                break;
-            case 'ctrlEnd':
-                preventDefault = true;
-                this.ctrlEndKey();
+                this.applyRightLeftKey(rowIndex, cellIndex);
                 break;
             case 'shiftDown':
-                this.shiftDownKey();
-                break;
             case 'shiftUp':
-                this.shiftUpKey();
-                break;
-            case 'shiftRight':
-                this.shiftRightKey();
+                this.shiftDownKey(rowIndex, cellIndex);
                 break;
             case 'shiftLeft':
-                this.shiftLeftKey();
+            case 'shiftRight':
+                this.applyShiftLeftRightKey(rowIndex, cellIndex);
+                break;
+            case 'home':
+            case 'end':
+                this.applyHomeEndKey(rowIndex, cellIndex);
+                break;
+            case 'ctrlHome':
+            case 'ctrlEnd':
+                this.applyCtrlHomeEndKey(rowIndex, cellIndex);
                 break;
             case 'escape':
-                preventDefault = true;
                 this.clearSelection();
                 break;
             case 'ctrlPlusA':
-                preventDefault = true;
                 this.ctrlPlusA();
                 break;
             case 'space':
                 this.selectionRequest = true;
-                let target: HTMLElement = (e.target as HTMLElement);
+                let target: HTMLElement = (e.element as HTMLElement);
                 if (target.classList.contains('e-checkselectall')) {
                     this.checkedTarget = target as HTMLInputElement;
                     this.checkSelectAll(this.checkedTarget);
@@ -1284,43 +1278,8 @@ export class Selection implements IAction {
                 }
                 this.selectionRequest = false;
                 break;
-            case 'tab':
-                if (this.isChkSelection && this.parent.isEdit) {
-                    let editChkBox: HTMLInputElement = this.parent.element.querySelector('.e-edit-checkselect') as HTMLInputElement;
-                    if (!isNullOrUndefined(editChkBox) && editChkBox.nextElementSibling.classList.contains('e-focus')) {
-                        editChkBox.nextElementSibling.classList.remove('e-focus');
-                    }
-                }
-                break;
         }
-        if (checkScroll) {
-            let scrollElem: Element = this.parent.getContent().firstElementChild;
-            if (this.selectedRecords.length || this.selectedRowCellIndexes.length) {
-                let row: HTMLTableRowElement = this.selectedRecords.length ? (this.selectedRecords[0] as HTMLTableRowElement) :
-                    this.parent.getRowByIndex(this.selectedRowCellIndexes[0].rowIndex) as HTMLTableRowElement;
-                let height: number = row.offsetHeight;
-                let rowIndex: number = row.rowIndex;
-                scrollElem.scrollTop = scrollElem.scrollTop + (e.action === 'downArrow' ? height : height * -1);
-                if (this.checkVisible(row) &&
-                    rowIndex !== 0 && this.parent.getContentTable().querySelector('tbody').children.length !== rowIndex + 1) {
-                    e.preventDefault();
-                }
-            }
-        }
-        if (preventDefault) {
-            e.preventDefault();
-        }
-    }
-
-    private checkVisible(element: HTMLElement): boolean {
-        let st: number = window.scrollY;
-        let y: number = element.getBoundingClientRect().top + st;
-        return y + 36 < (window.innerHeight + st) - this.getRowHeight(element) && y > (st - element.offsetHeight) +
-            this.getRowHeight(element);
-    }
-
-    private getRowHeight(element: HTMLElement): number {
-        return element.getBoundingClientRect().height;
+        this.preventFocus = false;
     }
 
     /**
@@ -1339,54 +1298,19 @@ export class Selection implements IAction {
         }
     }
 
-    /**
-     * Apply downArrow key selection
-     * @return {void}
-     * @hidden
-     */
-    public downArrowKey(): void {
-        this.applyDownUpKey(
-            1,
-            !isUndefined(this.parent.selectedRowIndex) && this.parent.selectedRowIndex + 1 < this.parent.getRows().length,
-            !isUndefined(this.prevECIdxs) &&
-            this.prevECIdxs.rowIndex + 1 < this.parent.getRows().length);
-    }
-
-    /**
-     * Apply upArrow key selection
-     * @return {void}
-     * @hidden
-     */
-    public upArrowKey(): void {
-        this.applyDownUpKey(
-            -1,
-            !isUndefined(this.parent.selectedRowIndex) && this.parent.selectedRowIndex - 1 > -1,
-            !isUndefined(this.prevECIdxs) && this.prevECIdxs.rowIndex - 1 > -1);
-    }
-
-    private applyDownUpKey(key: number, cond1: boolean, cond2: boolean): void {
+    private applyDownUpKey(rowIndex?: number, cellIndex?: number): void {
         let gObj: IGrid = this.parent;
-        if (this.isRowType() && cond1) {
-            if (this.isChkSelection) {
-                if ((this.prevKey === 1 && key === -1) || (this.prevKey === -1 && key === 1)) {
-                    key = 0;
-                }
-                this.addRowsToSelection([gObj.selectedRowIndex + key]);
-                this.prevKey = key;
-                this.setCheckAllState();
-            } else {
-                this.selectRow(gObj.selectedRowIndex + key, true);
-            }
+        if (this.isRowType()) {
+            this.selectRow(rowIndex, true);
             this.applyUpDown(gObj.selectedRowIndex);
         }
-        if (this.isCellType() && cond2) {
-            let index: number = this.getColIndex(this.prevECIdxs.rowIndex + key, this.prevECIdxs.cellIndex);
-            index = index < 0 ? this.getLastColIndex(this.prevECIdxs.rowIndex + key) : this.prevECIdxs.cellIndex;
-            this.selectCell({ rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: index }, true);
+        if (this.isCellType()) {
+            this.selectCell({ rowIndex, cellIndex }, true);
         }
     }
 
     private applyUpDown(rowIndex: number): void {
+        if (rowIndex < 0) { return; }
         if (!this.target) {
             this.target = this.parent.getRows()[0].children[this.parent.groupSettings.columns.length || 0];
         }
@@ -1395,110 +1319,19 @@ export class Selection implements IAction {
         this.addAttribute(this.target);
     }
 
-    /**
-     * Apply rightArrow key selection
-     * @return {void}
-     * @hidden
-     */
-    public rightArrowKey(): void {
-        this.preSelectedCellIndex = this.prevECIdxs;
-        this.applyRightLeftKey(
-            1, 0, !isUndefined(this.prevECIdxs) && this.prevECIdxs.cellIndex + 1 < this.parent.getColumns().length);
-    }
-
-    /**
-     * Apply leftArrow key selection
-     * @return {void}
-     * @hidden
-     */
-    public leftArrowKey(): void {
-        this.preSelectedCellIndex = this.prevECIdxs;
-        this.applyRightLeftKey(
-            -1,
-            this.parent.getColumns().length - 1,
-            !isUndefined(this.prevECIdxs) && this.prevECIdxs.cellIndex - 1 > -1
-        );
-    }
-
-    private applyRightLeftKey(key1: number, key2: number, cond: boolean): void {
+    private applyRightLeftKey(rowIndex?: number, cellIndex?: number): void {
         let gObj: IGrid = this.parent;
-        let cellIndex: number;
-        let rowIndex: number;
-        if (!isNullOrUndefined(this.prevECIdxs)) {
-            cellIndex = this.prevECIdxs.cellIndex;
-            rowIndex = this.prevECIdxs.rowIndex;
-        }
         if (this.isCellType()) {
-            if (cond && this.prevECIdxs.cellIndex + key1 > -1 &&
-                this.prevECIdxs.cellIndex + key1 < this.parent.getColumns().length &&
-                this.getLeftRightColIndex(rowIndex, cellIndex, key1) > -1) {
-                cellIndex = this.getLeftRightColIndex(rowIndex, cellIndex, key1);
-                rowIndex = this.prevECIdxs.rowIndex;
-                this.selectCell({ rowIndex: rowIndex, cellIndex: cellIndex }, true);
-            } else if (this.prevECIdxs.rowIndex + key1 > -1 &&
-                this.prevECIdxs.rowIndex + key1 < this.parent.getRows().length) {
-                cellIndex = key2 === 0 ? key2 : this.getLastColIndex(this.prevECIdxs.rowIndex + key1);
-                rowIndex = this.prevECIdxs.rowIndex + key1;
-                this.selectCell({ rowIndex: rowIndex, cellIndex: cellIndex }, true);
-            }
-            if (this.isCellHide({ rowIndex: rowIndex, cellIndex: cellIndex })) {
-                if (!((cellIndex === 0 && rowIndex === 0) ||
-                    (cellIndex === gObj.getColumns().length - 1 && rowIndex === gObj.getRows().length - 1))) {
-                    this.applyRightLeftKey(key1, key2, cond);
-                } else {
-                    this.selectCell(this.preSelectedCellIndex, true);
-                }
-            }
-        } else if (this.isRowType()) {
-            let cellIndex: number = parseInt(this.target.getAttribute('aria-colindex'), 10);
-            let rowElement: Element = closest(this.target, 'tr');
-            if (cellIndex + key1 > -1 && cellIndex + key1 < this.parent.getColumns().length) {
-                let cell: Element = (<HTMLTableRowElement>rowElement).querySelectorAll('.e-rowcell')[cellIndex + key1];
-                if (cell) {
-                    if (!cell.classList.contains('e-hide')) {
-                        this.addAttribute(cell);
-                    } else {
-                        key1 += key1;
-                        this.applyRightLeftKey(key1, key2, cond);
-                    }
-                }
-            } else {
-                this.addAttribute(this.target);
-            }
+            this.selectCell({ rowIndex, cellIndex }, true);
+            this.addAttribute(this.target);
         }
     }
 
-    /**
-     * Apply home key selection
-     * @return {void}
-     * @hidden
-     */
-    public homeKey(): void {
-        this.applyHomeEndKey({ rowIndex: this.currentIndex || 0, cellIndex: 0 });
-    }
-
-    /**
-     * Apply end key selection
-     * @return {void}
-     * @hidden
-     */
-    public endKey(): void {
-        this.applyHomeEndKey(
-            { rowIndex: this.currentIndex || 0, cellIndex: this.parent.getColumns().length - 1 });
-    }
-
-    private applyHomeEndKey(key: IIndex): void {
+    private applyHomeEndKey(rowIndex?: number, cellIndex?: number): void {
         if (this.isCellType()) {
-            this.selectCell(key, true);
-            if (this.isCellHide(key)) {
-                if (key.cellIndex > 0) {
-                    this.applyRightLeftKey(-1, this.parent.getColumns().length - 1, true);
-                } else {
-                    this.applyRightLeftKey(1, 0, true);
-                }
-            }
+            this.selectCell({ rowIndex, cellIndex }, true);
         } else {
-            this.addAttribute(this.parent.getCellFromIndex(key.rowIndex, key.cellIndex));
+            this.addAttribute(this.parent.getCellFromIndex(rowIndex, cellIndex));
         }
     }
 
@@ -1507,141 +1340,40 @@ export class Selection implements IAction {
      * @return {void}
      * @hidden
      */
-    public shiftDownKey(): void {
+    public shiftDownKey(rowIndex?: number, cellIndex?: number): void {
         let gObj: IGrid = this.parent;
         this.isMultiShiftRequest = true;
         if (this.isRowType() && !this.isSingleSel()) {
             if (!isUndefined(this.prevRowIndex)) {
-                let endIndex: number = isUndefined(gObj.selectedRowIndex) ? this.prevRowIndex + 1 :
-                    (gObj.selectedRowIndex + 1 < this.parent.getRows().length ?
-                        gObj.selectedRowIndex + 1 : gObj.selectedRowIndex);
-                if (endIndex < this.parent.getRows().length) {
-                    this.selectRowsByRange(this.prevRowIndex, endIndex);
-                    this.applyUpDown(endIndex);
-                }
+                this.selectRowsByRange(this.prevRowIndex, rowIndex);
+                this.applyUpDown(rowIndex);
             } else {
                 this.selectRow(0, true);
             }
         }
         if (this.isCellType() && !this.isSingleSel()) {
-            if (!isUndefined(this.prevCIdxs)) {
-                if (this.prevECIdxs.rowIndex + 1 < this.parent.getRows().length) {
-                    this.selectCellsByRange(
-                        this.prevCIdxs,
-                        { rowIndex: this.prevECIdxs.rowIndex + 1,
-                            cellIndex: this.getLastCellIndex(this.prevECIdxs.rowIndex + 1, this.prevECIdxs.cellIndex , 1) });
-                }
-            } else {
-                this.selectCellsByRange({ rowIndex: 0, cellIndex: 0 }, { rowIndex: 1, cellIndex: 0 });
-            }
+            this.selectCellsByRange(this.prevCIdxs || { rowIndex: 0, cellIndex: 0 }, { rowIndex, cellIndex });
         }
         this.isMultiShiftRequest = false;
     }
 
-    /**
-     * Apply shift+up key selection
-     * @return {void}
-     * @hidden
-     */
-    public shiftUpKey(): void {
+    private applyShiftLeftRightKey(rowIndex?: number, cellIndex?: number): void {
         let gObj: IGrid = this.parent;
         this.isMultiShiftRequest = true;
-        if (this.isRowType() && !isUndefined(this.prevRowIndex) && !this.isSingleSel()) {
-            let endIndex: number = isUndefined(gObj.selectedRowIndex) ? (this.prevRowIndex - 1 > -1 ? (this.prevRowIndex - 1) : 0) :
-                ((gObj.selectedRowIndex - 1) > -1 ? gObj.selectedRowIndex - 1 : gObj.selectedRowIndex);
-            this.selectRowsByRange(this.prevRowIndex, endIndex);
-            this.applyUpDown(endIndex);
-        }
-        if (this.isCellType() && !isUndefined(this.prevECIdxs) && (this.prevECIdxs.rowIndex - 1) > -1 && !this.isSingleSel()) {
-            this.selectCellsByRange(
-                this.prevCIdxs, { rowIndex: this.prevECIdxs.rowIndex - 1,
-                    cellIndex: this.getLastCellIndex(this.prevECIdxs.rowIndex - 1, this.prevECIdxs.cellIndex, - 1) });
-        }
+        this.selectCellsByRange(this.prevCIdxs, { rowIndex, cellIndex });
         this.isMultiShiftRequest = false;
     }
 
-    /**
-     * Apply shift+left key selection
-     * @return {void}
-     * @hidden
-     */
-    public shiftLeftKey(): void {
-        this.applyShiftLeftRightKey(-1, !isUndefined(this.prevCIdxs) && this.prevECIdxs.cellIndex - 1 > -1);
-    }
-
-    /**
-     * Apply shift+right key selection
-     * @return {void}
-     * @hidden
-     */
-    public shiftRightKey(): void {
-        this.applyShiftLeftRightKey(
-            1, !isUndefined(this.prevCIdxs) && this.prevECIdxs.cellIndex + 1 < this.parent.getColumns().length);
-    }
-
-    private applyShiftLeftRightKey(key: number, cond: boolean): void {
-        let gObj: IGrid = this.parent;
-        let cellIndex: IIndex;
-        this.isMultiShiftRequest = true;
-        if (this.isCellType() && !this.isSingleSel()) {
-            if (cond) {
-                cellIndex = { rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key };
-                this.selectCellsByRange(
-                    this.prevCIdxs, {
-                        rowIndex: this.prevECIdxs.rowIndex, cellIndex: this.prevECIdxs.cellIndex + key
-                    });
-            } else if (!this.isSingleSel()) {
-                if (this.selectionSettings.cellSelectionMode === 'flow' &&
-                    (key > 0 ? this.prevECIdxs.rowIndex + 1 < this.parent.pageSettings.pageSize : this.prevECIdxs.rowIndex - 1 > -1)) {
-                    cellIndex = { rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: key > 0 ? 0 : gObj.getColumns().length - 1 };
-                    this.selectCellsByRange(
-                        this.prevCIdxs, {
-                            rowIndex: this.prevECIdxs.rowIndex + key, cellIndex: key > 0 ? 0 : gObj.getColumns().length - 1
-                        });
-                }
-            }
-            if (!isNullOrUndefined(cellIndex) && this.isCellHide(cellIndex) && !((cellIndex.rowIndex === 0 && cellIndex.cellIndex === 0) ||
-                (cellIndex.rowIndex === gObj.getRows().length - 1 && cellIndex.cellIndex === gObj.getColumns().length))) {
-                this.applyShiftLeftRightKey(key, cellIndex.cellIndex > 0);
-            }
-        }
-        this.isMultiShiftRequest = false;
-    }
-
-    /**
-     * Apply ctrl+home key selection
-     * @return {void}
-     * @hidden
-     */
-    public ctrlHomeKey(): void {
-        this.applyCtrlHomeEndKey(0, 0);
-    }
-
-    /**
-     * Apply ctrl+end key selection
-     * @return {void}
-     * @hidden
-     */
-    public ctrlEndKey(): void {
-        this.applyCtrlHomeEndKey(this.parent.getRows().length - 1, this.parent.getColumns().length - 1);
-    }
-
-    private applyCtrlHomeEndKey(rowIndex: number, colIndex: number): void {
+    private applyCtrlHomeEndKey(rowIndex: number, cellIndex: number): void {
         if (this.isRowType()) {
             this.selectRow(rowIndex, true);
-            this.addAttribute(this.parent.getCellFromIndex(rowIndex, colIndex));
+            this.addAttribute(this.parent.getCellFromIndex(rowIndex, cellIndex));
         }
         if (this.isCellType()) {
-            this.selectCell({ rowIndex: rowIndex, cellIndex: colIndex }, true);
-            if (this.isCellHide({ rowIndex: rowIndex, cellIndex: colIndex })) {
-                if (colIndex > 0) {
-                    this.applyRightLeftKey(-1, this.parent.getColumns().length - 1, true);
-                } else {
-                    this.applyRightLeftKey(1, 0, true);
-                }
-            }
+            this.selectCell({ rowIndex, cellIndex }, true);
         }
     }
+
 
     private addRemoveClassesForRow(row: Element, isAdd: boolean, clearAll: boolean, ...args: string[]): void {
         if (row) {
@@ -1665,10 +1397,6 @@ export class Selection implements IAction {
 
     private isSingleSel(): boolean {
         return this.selectionSettings.type === 'single';
-    }
-
-    private isCellHide(cellIndex: IIndex): boolean {
-        return !this.parent.getColumns()[cellIndex.cellIndex].visible;
     }
 
     private getRenderer(): IRenderer {

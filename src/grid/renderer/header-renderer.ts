@@ -25,6 +25,7 @@ export class HeaderRender implements IRenderer {
     private colgroup: Element;
     private colDepth: number;
     private column: Column;
+    private rows: Row<Column>[];
     private helper: Function = (e: { sender: MouseEvent }) => {
         let gObj: IGrid = this.parent;
         if (!(gObj.allowReordering || gObj.allowGrouping)) {
@@ -145,7 +146,7 @@ export class HeaderRender implements IRenderer {
         this.setTable(headerDiv.querySelector('.e-table'));
         this.initializeHeaderDrag();
         this.initializeHeaderDrop();
-        this.parent.notify(events.headerRefreshed, {});
+        this.parent.notify(events.headerRefreshed, { rows: this.rows });
     }
 
     /**
@@ -231,7 +232,8 @@ export class HeaderRender implements IRenderer {
         let colGroup: Element = createElement('colgroup');
         let rowBody: Element = createElement('tr');
         let bodyCell: Element;
-        let rows: Row<Column>[] = findHeaderRow.rows;
+        let rows: Row<Column>[] = this.rows = findHeaderRow.rows;
+        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header);
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
             for (let j: number = 0, len: number = rows[i].cells.length; j < len; j++) {
                 let cell: Cell<Column> = rows[i].cells[j];
@@ -424,8 +426,14 @@ export class HeaderRender implements IRenderer {
         this.parent.notify(events.colGroupRefresh, {});
         this.widthService.setWidthToColumns();
         this.initializeHeaderDrag();
-        this.parent.notify(events.headerRefreshed, {});
         let rows: Element[] = [].slice.call(headerDiv.querySelectorAll('tr.e-columnheader'));
+        for (let row of rows) {
+            let gCells: Element[] = [].slice.call(row.querySelectorAll('.e-grouptopleftcell'));
+            if (gCells.length) {
+                gCells[gCells.length - 1].classList.add('e-lastgrouptopleftcell');
+            }
+        }
+        this.parent.notify(events.headerRefreshed, { rows: this.rows });
         if (this.parent.allowTextWrap && this.parent.textWrapSettings.wrapMode === 'header') {
             wrap(rows, true);
         }
@@ -484,7 +492,8 @@ export class HeaderRender implements IRenderer {
                 dragStart: this.dragStart,
                 drag: this.drag,
                 dragStop: this.dragStop,
-                abort: '.e-rhandler'
+                abort: '.e-rhandler',
+                preventDefault: false
             });
         }
     }

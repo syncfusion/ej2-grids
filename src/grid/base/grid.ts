@@ -10,7 +10,7 @@ import { GridModel } from './grid-model';
 import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler } from './util';
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
-import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails } from './interface';
+import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';
 import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
@@ -21,7 +21,7 @@ import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEv
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
-import { WrapMode, ToolbarItems } from './enum';
+import { WrapMode, ToolbarItems, ContextMenuItem } from './enum';
 import { Data } from '../actions/data';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { ServiceLocator } from '../services/service-locator';
@@ -29,6 +29,7 @@ import { ValueFormatter } from '../services/value-formatter';
 import { RendererFactory } from '../services/renderer-factory';
 import { ColumnWidthService } from '../services/width-controller';
 import { AriaService } from '../services/aria-service';
+import { FocusStrategy } from '../services/focus-strategy';
 import { SortSettingsModel, SelectionSettingsModel, FilterSettingsModel, SearchSettingsModel, EditSettingsModel } from './grid-model';
 import { SortDescriptorModel, PredicateModel, RowDropSettingsModel, GroupSettingsModel, TextWrapSettingsModel } from './grid-model';
 import { PageSettingsModel, AggregateRowModel } from '../models/models';
@@ -55,6 +56,8 @@ import { ExcelExport } from '../actions/excel-export';
 import { PdfExport } from '../actions/pdf-export';
 import { Clipboard } from '../actions/clipboard';
 import { CommandColumn } from '../actions/command-column';
+import { ContextMenu } from '../actions/context-menu';
+import { BeforeOpenCloseMenuEventArgs, MenuEventArgs } from '@syncfusion/ej2-navigations';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -194,6 +197,35 @@ export class Predicate extends ChildProperty<Predicate> {
      */
     @Property({})
     public actualOperator: Object;
+
+    /**
+     * @hidden 
+     * Defines the type of the filter column.  
+     */
+    @Property()
+    public type: string;
+
+    /**  
+     * @hidden 
+     * Defines the predicate of filter column.  
+     */
+    @Property()
+    public ejpredicate: Object;
+
+    /**  
+     * @hidden 
+     * Defines the matchcase of filter column.  
+     */
+    @Property()
+    public matchcase: boolean;
+
+    /**  
+     * @hidden 
+     * Defines the ignoreCase of filter column.  
+     */
+    @Property()
+    public ignoreCase: boolean;
+
 }
 
 /**  
@@ -599,10 +631,24 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         NotEqual: 'NotEqual',
         LessThan: 'LessThan',
         LessThanOrEqual: 'LessThanOrEqual',
-        Greaterthan: 'GreaterThan',
+        GreaterThan: 'GreaterThan',
         GreaterThanOrEqual: 'GreaterThanOrEqual',
         ChooseDate: 'Choose a Date',
-        EnterValue: 'Enter the value'
+        EnterValue: 'Enter the value',
+        Copy: 'Copy',
+        Group: 'Group by this column',
+        Ungroup: 'Ungroup by this column',
+        autoFitAll: 'Auto Fit all columns',
+        autoFit: 'Auto Fit this column',
+        Export: 'Export',
+        FirstPage: 'First Page',
+        LastPage: 'Last Page',
+        PreviousPage: 'Previous Page',
+        NextPage: 'Next Page',
+        SortAscending: 'Sort Ascending',
+        SortDescending: 'Sort Descending',
+        EditRecord: 'Edit Record',
+        DeleteRecord: 'Delete Record'
     };
     private keyConfigs: { [key: string]: string } = {
         downArrow: 'downarrow',
@@ -634,6 +680,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         delete: 'delete',
         f2: 'f2',
         enter: 'enter',
+        ctrlEnter: 'ctrl+enter',
+        shiftEnter: 'shift+enter',
         tab: 'tab',
         shiftTab: 'shift+tab',
         space: 'space',
@@ -745,6 +793,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public toolbarModule: Toolbar;
 
     /**
+     * `contextMenuModule` is used to manipulate context menu items in the Grid.
+     */
+    public contextMenuModule: ContextMenu;
+
+    /**
      * `editModule` is used to handle Grid content manipulation.
      */
     public editModule: Edit;
@@ -761,7 +814,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public columnChooserModule: ColumnChooser;
 
     private commandColumnModule: CommandColumn;
-
+    private focusModule: FocusStrategy;
     //Grid Options    
 
     /**     
@@ -1153,6 +1206,33 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property()
     public toolbar: ToolbarItems[] | string[] | ItemModel[];
 
+    /**    
+     * `contextMenuItems` defines both built-in and custom context menu items.
+     * <br><br> 
+     * The available default items are   
+     * * `autoFitAll` - Auto fit the size of all columns. 
+     * * `autoFit` - Auto fit the current column.
+     * * `group` - Group by current column. 
+     * * `ungroup` - Ungroup by current column.
+     * * `edit` - Edit the current record.
+     * * `delete` - Delete the current record.
+     * * `save` - Save the edited record.
+     * * `cancel` - Cancel the edited state.
+     * * `copy` - Copy the selected records.
+     * * `pdfExport` - Export the grid as Pdf format.
+     * * `excelExport` - Export the grid as Excel format.
+     * * `csvExport` - Export the grid as CSV format.
+     * * `sortAscending` - Sort the current column in ascending order.
+     * * `sortDescending` - Sort the current column in descending order.
+     * * `firstPage` - Go to the first page.
+     * * `prevPage` - Go to the previous page.
+     * * `lastPage` - Go to the last page.
+     * * `nextPage` - Go to the next page.
+     * @default null
+     */
+    @Property()
+    public contextMenuItems: ContextMenuItem[] | ContextMenuItemModel[];
+
     /**
      * @hidden
      * It used to render toolbar template
@@ -1467,6 +1547,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforeDataBound: EmitType<BeforeDataBoundArgs>;
 
     /** 
+     * Triggers before context menu opens.
+     * @event
+     */
+    @Event()
+    public contextMenuOpen: EmitType<BeforeOpenCloseMenuEventArgs>;
+
+    /** 
+     * Triggers when click on context menu.
+     * @event
+     */
+    @Event()
+    public contextMenuClick: EmitType<MenuEventArgs>;
+
+    /** 
      * Triggers when the check box in checkbox type column is changed.
      * @event
      */
@@ -1560,7 +1654,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.allowSorting) {
             modules.push({
                 member: 'sort',
-                args: [this, this.sortSettings, this.sortedColumns]
+                args: [this, this.sortSettings, this.sortedColumns, this.serviceLocator]
             });
         }
         if (this.allowPaging) {
@@ -1604,7 +1698,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.isDetail()) {
             modules.push({
                 member: 'detailRow',
-                args: [this]
+                args: [this, this.serviceLocator]
             });
         }
         if (this.toolbar || this.toolbarTemplate) {
@@ -1626,6 +1720,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             });
         }
 
+        this.extendRequiredModules(modules);
+        return modules;
+    }
+
+    public extendRequiredModules(modules: ModuleDeclaration[]): void {
         if (this.isCommandColumn(<Column[]>this.columns)) {
             modules.push({
                 member: 'commandColumn',
@@ -1633,7 +1732,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             });
         }
 
-        return modules;
+        if (this.contextMenuItems) {
+            modules.push({
+                member: 'contextMenu',
+                args: [this, this.serviceLocator]
+            });
+        }
     }
 
     /**
@@ -1752,6 +1856,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private destroyDependentModules(): void {
         this.scrollModule.destroy();
         this.keyboardModule.destroy();
+        this.focusModule.destroy();
     }
 
     /**
@@ -1882,6 +1987,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     (<EJ2Intance>this.toolbarModule.getToolbar()).ej2_instances[0].enableRtl = newProp.enableRtl;
                     (<EJ2Intance>this.toolbarModule.getToolbar()).ej2_instances[0].dataBind();
                 }
+                if (this.contextMenuItems) {
+                    (<EJ2Intance>this.contextMenuModule.getContextMenu()).ej2_instances[0].enableRtl = newProp.enableRtl;
+                    (<EJ2Intance>this.contextMenuModule.getContextMenu()).ej2_instances[0].dataBind();
+                }
                 break;
             case 'enableAltRow':
                 this.renderModule.refresh();
@@ -1894,6 +2003,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'filterSettings':
                 this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
+                this.headerModule.refreshUI();
                 break;
             case 'searchSettings':
                 this.notify(events.inBoundModelChanged, { module: 'search', properties: newProp.searchSettings });
@@ -1970,6 +2080,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public getColumnIndexesInView(): number[] {
         return this.inViewIndexes;
     }
+
+    /**
+     * @private
+     */
+    public getLocaleConstants(): Object {
+        return this.defaultLocale;
+    }
+
 
     /**
      * @private
@@ -2699,6 +2817,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.serviceLocator.register('valueFormatter', this.valueFormatterService = new ValueFormatter(this.locale));
         this.serviceLocator.register('showHideService', this.showHider = new ShowHide(this));
         this.serviceLocator.register('ariaService', this.ariaService = new AriaService());
+        this.serviceLocator.register('focus', this.focusModule = new FocusStrategy(this));
     }
 
     private processModel(): void {
@@ -2908,7 +3027,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public wireEvents(): void {
         EventHandler.add(this.element, 'click', this.mouseClickHandler, this);
-        EventHandler.add(this.element, 'touchend', this.mouseClickHandler, this);
         EventHandler.add(this.element, 'focusout', this.focusOutHandler, this);
         EventHandler.add(this.getContent(), 'dblclick', this.dblClickHandler, this);
         if (this.allowKeyboard) {
@@ -2929,7 +3047,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public unwireEvents(): void {
         EventHandler.remove(this.element, 'click', this.mouseClickHandler);
-        EventHandler.remove(this.element, 'touchend', this.mouseClickHandler);
         EventHandler.remove(this.element, 'focusout', this.focusOutHandler);
     }
     /**
@@ -2970,7 +3087,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private mouseClickHandler(e: MouseEvent & TouchEvent): void {
-        if (this.isChildGrid(e) || (parentsUntil(e.target as Element, 'e-gridpopup') && e.touches) ||
+        if (this.isChildGrid(e) ||
             this.element.querySelectorAll('.e-cloneproperties').length || this.checkEdit(e)) {
             return;
         }
@@ -3026,8 +3143,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private keyActionHandler(e: KeyboardEventArgs): void {
         if (this.isChildGrid(e) ||
-            (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'tab'
-                && e.action !== 'shiftTab' && e.action !== 'space')) {
+            (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'shiftEnter'
+                && e.action !== 'tab' && e.action !== 'shiftTab')) {
             return;
         }
         if (this.allowKeyboard) {
@@ -3107,6 +3224,39 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
         return false;
     }
+
+    /** 
+     * Groups a column by column name. 
+     * @param  {string} columnName - Defines the column name to group.  
+     * @return {void} 
+     */
+    public groupColumn(columnName: string): void {
+        this.groupModule.groupColumn(columnName);
+    }
+
+    /** 
+     * Ungroups a column by column name. 
+     * @param  {string} columnName - Defines the column name to ungroup.  
+     * @return {void} 
+     */
+    public ungroupColumn(columnName: string): void {
+        this.groupModule.ungroupColumn(columnName);
+    }
+
+    /** 
+     * @hidden
+     */
+    public isContextMenuOpen(): boolean {
+        return this.contextMenuModule && this.contextMenuModule.isOpen;
+    }
+
+    /** 
+     * @hidden
+     */
+    public ensureModuleInjected(module: Function): boolean {
+        return this.getInjectedModules().indexOf(module) >= 0;
+    }
+
 }
 
 Grid.Inject(Selection);

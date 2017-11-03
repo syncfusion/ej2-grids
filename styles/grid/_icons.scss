@@ -97,6 +97,14 @@
       content: $grid-filterbar-cancel-icon-content;
     }
 
+    .e-copy::before {
+      content: '\e70a';
+    }
+
+    .e-save::before {
+      content: $grid-icon-save;
+    }
+
     .e-update::before {
       content: '\e735';
     }

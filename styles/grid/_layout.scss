@@ -850,17 +850,17 @@
       margin: $grid-textwrap-srotnumber-rightalign-margin;
     }
 
-    &.e-wrap .e-gridheader .e-rightalign .e-sortfilterdiv {
-      margin: $grid-textwrap-sorticon-rightalign-margin;
-   }
-
     &.e-wrap .e-gridheader .e-sortnumber {
       margin: $grid-textwrap-srotnumber-margin;
     }
 
     &.e-wrap .e-gridheader .e-sortfilterdiv {
       margin: $grid-textwrap-sorticon-margin;
-   }
+    }
+
+    &.e-contextmenu-wrapper {
+      position: static;
+    }
 
     [class^='e-'] {
       box-sizing: border-box;
@@ -993,6 +993,34 @@
     .e-filterdiv .e-filtertext:focus {
       border-width: $grid-textbox-animation-bordersize;
      }
+
+    .e-searchclear {
+      bottom: 5px;
+      position: absolute;
+      right: 5px;
+    }
+
+    .e-checkboxlist {
+      height: 160px;
+      margin-top: 5px;
+      min-height: 160px;
+      overflow-y: auto;
+    }
+
+    .e-chk-hidden {
+      height: 1px;
+      opacity: 0;
+      width: 1px;
+    }
+
+    .e-checkboxfilter {
+      min-width: 200px;
+    }
+
+    .e-ftrchk {
+      padding-bottom: 7px;
+      padding-top: 7px;
+    }
 
     .e-filterdiv,
     .e-fltrtempdiv {

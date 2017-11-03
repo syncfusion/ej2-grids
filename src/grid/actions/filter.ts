@@ -1,7 +1,7 @@
 import { EventHandler, L10n, isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { getActualPropFromColl, isActionPrevent } from '../base/util';
 import { remove, createElement, matches } from '@syncfusion/ej2-base';
-import { DataUtil } from '@syncfusion/ej2-data';
+import { DataUtil, Predicate, Query, DataManager } from '@syncfusion/ej2-data';
 import { FilterSettings } from '../base/grid';
 import { IGrid, IAction, NotifyArgs, IFilterOperator, IValueFormatter } from '../base/interface';
 import * as events from '../base/constant';
@@ -16,6 +16,7 @@ import { Row } from '../models/row';
 import { FilterCellRenderer } from '../renderer/filter-cell-renderer';
 import { parentsUntil } from '../base/util';
 import { FilterMenuRenderer } from '../renderer/filter-menu-renderer';
+import { CheckBoxFilter } from '../actions/checkbox-filter';
 
 /**
  * 
@@ -39,8 +40,8 @@ export class Filter implements IAction {
     private contentRefresh: boolean = true;
     private values: Object = {};
     private nextFlMenuOpen: string = '';
-    private type: Object = { 'menu': FilterMenuRenderer };
-    private filterModule: { openDialog: Function, closeDialog: Function };
+    private type: Object = { 'menu': FilterMenuRenderer, 'checkbox': CheckBoxFilter };
+    private filterModule: { openDialog: Function, closeDialog: Function, destroy: Function };
     private filterOperators: IFilterOperator = {
         contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
         lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
@@ -73,10 +74,7 @@ export class Filter implements IAction {
         let gObj: IGrid = this.parent;
         this.l10n = this.serviceLocator.getService<L10n>('localization');
         this.getLocalizedCustomOperators();
-        if (this.parent.filterSettings.type !== 'filterbar' && !this.filterModule) {
-            this.filterModule = new this.type[this.parent.filterSettings.type]
-                (this.parent, gObj.filterSettings, this.serviceLocator, this.customOperators, this);
-        } else {
+        if (this.parent.filterSettings.type === 'filterbar') {
             if (gObj.columns.length) {
                 let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Filter, gObj);
                 let row: Row<Column>;
@@ -107,11 +105,16 @@ export class Filter implements IAction {
      * @hidden
      */
     public destroy(): void {
+        if (this.filterModule) {
+            this.filterModule.destroy();
+        }
         this.filterSettings.columns = [];
         this.updateFilterMsg();
         this.removeEventListener();
         this.unWireEvents();
-        remove(this.element);
+        if (this.element) {
+            remove(this.element);
+        }
     }
 
     private generateRow(index?: number): Row<Column> {
@@ -642,7 +645,7 @@ export class Filter implements IAction {
         let numOptr: Object[] = [
             { value: 'equal', text: this.l10n.getConstant('Equal') },
             { value: 'greaterThan', text: this.l10n.getConstant('GreaterThan') },
-            { value: 'greaterThanOrEqual', text: this.l10n.getConstant('GreaterthanOrEqual') },
+            { value: 'greaterThanOrEqual', text: this.l10n.getConstant('GreaterThanOrEqual') },
             { value: 'lessThan', text: this.l10n.getConstant('LessThan') },
             { value: 'lessThanOrEqual', text: this.l10n.getConstant('LessThanOrEqual') },
             { value: 'notEqual', text: this.l10n.getConstant('NotEqual') }
@@ -668,33 +671,72 @@ export class Filter implements IAction {
     };
 
     private clickHandler(e: MouseEvent): void {
-        if (this.parent.filterSettings.type === 'menu') {
+        if (this.parent.filterSettings.type === 'menu' ||
+            this.parent.filterSettings.type === 'checkbox' || this.parent.filterSettings.type === 'excel') {
             let gObj: IGrid = this.parent;
             let target: Element = e.target as Element;
-            let isNextMenuOpen: boolean;
-            let elem: Element = parentsUntil(target, 'e-flmenu');
-            if ((elem || target.classList.contains('e-filtermenudiv')) && (!target.parentElement.classList.contains('e-date-wrapper')) ) {
-                isNextMenuOpen = (this.nextFlMenuOpen === '' || (!isNullOrUndefined(target.getAttribute('e-mappinguid')) &&
-                    this.nextFlMenuOpen !== target.getAttribute('e-mappinguid'))) ? true : false;
-                if (!gObj.element.querySelectorAll('.e-filter-popup').length || isNextMenuOpen) {
-                    this.nextFlMenuOpen = target.getAttribute('e-mappinguid');
-                    let col: Column = gObj.getColumnByUid
-                        (parentsUntil(target, 'e-headercell').firstElementChild.getAttribute('e-mappinguid'));
-                    this.filterModule.openDialog({
-                        type: col.type, field: col.field, displayName: col.headerText,
-                        query: gObj.query, dataSource: gObj.dataSource, format: col.format,
-                        filteredColumns: gObj.filterSettings.columns, sortedColumns: gObj.sortSettings.columns,
-                        blank: '', localizedStrings: {}, position: { X: 0, Y: 0 }, target: target, coluid: col.uid,
-                        isNextMenuOpen: isNextMenuOpen
-                    });
+            let elem: Element = parentsUntil(target, 'e-filter-popup');
+            if (elem) {
+                return;
+            }
+            if (target.classList.contains('e-filtermenudiv')) {
+                let col: Column = gObj.getColumnByUid
+                    (parentsUntil(target, 'e-headercell').firstElementChild.getAttribute('e-mappinguid'));
+                let gClient: ClientRect = gObj.element.getBoundingClientRect();
+                let fClient: ClientRect = target.getBoundingClientRect();
+                this.column = col;
+                if (this.filterModule) {
+                    this.filterModule.closeDialog();
                 }
-
+                this.filterModule = new this.type[col.filter.type || this.parent.filterSettings.type]
+                    (this.parent, gObj.filterSettings, this.serviceLocator, this.customOperators, this);
+                this.filterModule.openDialog({
+                    type: col.type, field: col.field, displayName: col.headerText,
+                    dataSource: col.filter.dataSource || gObj.dataSource, format: col.format,
+                    filteredColumns: gObj.filterSettings.columns, target: target,
+                    sortedColumns: gObj.sortSettings.columns, formatFn: col.getFormatter(),
+                    parserFn: col.getParser(), query: gObj.query, template: col.getFilterItemTemplate(),
+                    hideSearchbox: isNullOrUndefined(col.filter.hideSearchbox) ? false : col.filter.hideSearchbox,
+                    handler: this.filterHandler.bind(this), localizedStrings: gObj.getLocaleConstants(),
+                    position: { X: fClient.right - gClient.left, Y: fClient.bottom - gClient.top }
+                });
             } else {
-                if (!target.classList.contains('e-flmenu-cancelbtn') && !target.classList.contains('e-flmenu-okbtn')) {
+                if (this.filterModule &&
+                    (!parentsUntil(target, 'e-popup-wrapper') && (!parentsUntil(target, 'e-popup')))) {
                     this.filterModule.closeDialog(target);
                 }
             }
         }
     }
+
+
+    private filterHandler(args: {
+        action: string, filterCollection: { field: string, predicate: string, operator: string, matchcase: boolean, value: string },
+        field: string, ejpredicate: Predicate
+    }): void {
+        let dataManager: DataManager = new DataManager(this.filterSettings.columns as JSON[]);
+        let query: Query = new Query().where('field', this.filterOperators.equal, args.field);
+        let result: { field: string }[] = dataManager.executeLocal(query) as { field: string }[];
+        for (let i: number = 0; i < result.length; i++) {
+            let index: number = -1;
+            for (let j: number = 0; j < this.filterSettings.columns.length; j++) {
+                if (result[i].field === this.filterSettings.columns[j].field) {
+                    index = j;
+                    break;
+                }
+            }
+            if (index !== -1) {
+                this.filterSettings.columns.splice(index, 1);
+            }
+        }
+        if (args.action === 'filtering') {
+            this.filterSettings.columns = this.filterSettings.columns.concat(args.filterCollection);
+        } else {
+            this.filterSettings.columns = this.filterSettings.columns;
+            this.parent.refresh(); //hot-fix onpropertychanged not working for object { array }           
+        }
+        this.parent.dataBind();
+    }
+
 
 }

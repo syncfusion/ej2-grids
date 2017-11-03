@@ -1,4 +1,4 @@
-import { Browser } from '@syncfusion/ej2-base';
+import { Browser, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
 import { SortSettings } from '../base/grid';
@@ -9,6 +9,8 @@ import { setCssInGridPopUp, getActualPropFromColl, isActionPrevent } from '../ba
 import * as events from '../base/constant';
 import { SortDescriptorModel } from '../base/grid-model';
 import { AriaService } from '../services/aria-service';
+import { ServiceLocator } from '../services/service-locator';
+import { FocusStrategy } from '../services/focus-strategy';
 
 /**
  * 
@@ -27,7 +29,7 @@ export class Sort implements IAction {
     private sortedColumns: string[];
     private isModelChanged: boolean = true;
     private aria: AriaService = new AriaService();
-
+    private focus: FocusStrategy;
     //Module declarations   
     private parent: IGrid;
 
@@ -35,10 +37,11 @@ export class Sort implements IAction {
      * Constructor for Grid sorting module
      * @hidden
      */
-    constructor(parent?: IGrid, sortSettings?: SortSettings, sortedColumns?: string[], ) {
+    constructor(parent?: IGrid, sortSettings?: SortSettings, sortedColumns?: string[], locator?: ServiceLocator) {
         this.parent = parent;
         this.sortSettings = sortSettings;
         this.sortedColumns = sortedColumns;
+        this.focus = locator.getService<FocusStrategy>('focus');
         this.addEventListener();
     }
 
@@ -107,7 +110,7 @@ export class Sort implements IAction {
      */
     public sortColumn(columnName: string, direction: SortDirection, isMultiSort?: boolean): void {
         let gObj: IGrid = this.parent;
-        if (gObj.getColumnByField(columnName).allowSorting === false) {
+        if (this.parent.getColumnByField(columnName).allowSorting === false || this.parent.isContextMenuOpen()) {
             return;
         }
         if (!gObj.allowMultiSorting) {
@@ -262,6 +265,7 @@ export class Sort implements IAction {
         this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.headerRefreshed, this.refreshSortIcons, this);
+        this.parent.on(events.keyPressed, this.keyPressed, this);
     }
     /**
      * @hidden
@@ -272,6 +276,7 @@ export class Sort implements IAction {
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.headerRefreshed, this.refreshSortIcons);
+        this.parent.off(events.keyPressed, this.keyPressed);
     }
 
     /**
@@ -299,16 +304,10 @@ export class Sort implements IAction {
             !(e.target as Element).classList.contains('e-filtermenudiv')) {
             let gObj: IGrid = this.parent;
             let colObj: Column = gObj.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;
-            let field: string = colObj.field;
             let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'ascending' :
                 'descending';
             if (colObj.type !== 'checkbox') {
-                if (e.shiftKey || (this.sortSettings.allowUnsort && target.querySelectorAll('.e-descending').length)
-                    && !(gObj.groupSettings.columns.indexOf(field) > -1)) {
-                    this.removeSortColumn(field);
-                } else {
-                    this.sortColumn(field, direction, e.ctrlKey || this.enableSortMultiTouch);
-                }
+                this.initiateSort(target, e, colObj);
                 if (Browser.isDevice) {
                     this.showPopUp(e);
                 }
@@ -316,9 +315,31 @@ export class Sort implements IAction {
         }
     }
 
+    private keyPressed(e: KeyboardEventArgs): void {
+        if (!this.parent.isEdit && (e.action === 'enter' || e.action === 'ctrlEnter' || e.action === 'shiftEnter')) {
+            let target: Element = this.focus.getFocusedElement();
+            if (target && !target.classList.contains('e-headercell')) { return; }
+            let col: Column = this.parent.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;
+            this.initiateSort(target, e, col);
+        }
+    }
+
+    private initiateSort(target: Element, e: MouseEvent | KeyboardEventArgs, column: Column): void {
+        let gObj: IGrid = this.parent;
+        let field: string = column.field;
+        let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'ascending' :
+            'descending';
+        if (e.shiftKey || (this.sortSettings.allowUnsort && target.querySelectorAll('.e-descending').length)
+            && !(gObj.groupSettings.columns.indexOf(field) > -1)) {
+            this.removeSortColumn(field);
+        } else {
+            this.sortColumn(field, direction, e.ctrlKey || this.enableSortMultiTouch);
+        }
+    }
+
     private showPopUp(e: MouseEvent): void {
         let target: HTMLElement = closest(e.target as Element, '.e-headercell') as HTMLElement;
-        if (!isNullOrUndefined(target)) {
+        if (!isNullOrUndefined(target) || this.parent.isContextMenuOpen()) {
             setCssInGridPopUp(
                 <HTMLElement>this.parent.element.querySelector('.e-gridpopup'), e,
                 'e-sortdirect e-icons e-icon-sortdirect' + (this.sortedColumns.length > 1 ? ' e-spanclicked' : ''));

@@ -333,7 +333,7 @@ export class Resize implements IAction {
     }
 
     private resizeEnd(e: PointerEvent): void {
-        if (!this.helper) { return; }
+        if (!this.helper || this.parent.isDestroyed) { return; }
         EventHandler.remove(this.parent.element, Browser.touchMoveEvent, this.resizing);
         EventHandler.remove(document, Browser.touchEndEvent, this.resizeEnd);
         this.updateCursor('remove');

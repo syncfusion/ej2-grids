@@ -172,6 +172,7 @@ export class Edit implements IAction {
         this.editModule.startEdit(tr);
         this.refreshToolbar();
         (gObj.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
+        this.parent.notify('start-edit', {});
     }
 
     /**
@@ -185,6 +186,7 @@ export class Edit implements IAction {
         }
         this.editModule.closeEdit();
         this.refreshToolbar();
+        this.parent.notify('close-edit', {});
     }
 
     protected refreshToolbar(): void {
@@ -202,6 +204,7 @@ export class Edit implements IAction {
         }
         this.editModule.addRecord(data);
         this.refreshToolbar();
+        this.parent.notify('start-add', {});
     }
 
     /**

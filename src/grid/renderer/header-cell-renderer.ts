@@ -90,7 +90,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
         node.appendChild(this.sortEle.cloneNode());
 
-        if ((this.parent.allowFiltering && this.parent.filterSettings.type === 'menu') &&
+        if ((this.parent.allowFiltering && this.parent.filterSettings.type !== 'filterbar') &&
             (column.allowFiltering && isNullOrUndefined(column.template))) {
             attributes(this.fltrMenuEle, {
                 'e-mappinguid': 'e-flmenu-' + column.uid,

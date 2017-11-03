@@ -507,4 +507,39 @@ describe('Sorting module', () => {
             remove(elem);
         });
     });
+
+    describe('Keyboard operation', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { gridObj.element.focus(); done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data,
+                    allowSorting: true,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('Pressing enter key', (done: Function) => {
+            let flag: boolean = true;
+            gridObj.actionComplete = (args: { requestType?: string }) => {
+                if (!flag) { flag = !flag; return; }
+                if (args.requestType === 'sorting') {
+                    expect(gridObj.sortSettings.columns.length).toBeGreaterThan(0);
+                    done();
+                }
+            };
+            (<any>gridObj.element.querySelector('.e-headercell')).click();
+            gridObj.keyboardModule.keyAction(<any>{ action: 'enter',
+            target: (<any>gridObj.element.querySelector('.e-headercell')), preventDefault: () => {} });
+        });
+
+        afterAll(() => {
+            remove(elem);
+        })
+    });
 });

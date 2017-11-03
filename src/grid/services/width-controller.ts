@@ -50,7 +50,10 @@ export class ColumnWidthService {
         let headerCol: HTMLTableColElement = (<HTMLTableColElement>header.querySelector('colgroup').children[index]);
         if (headerCol) {
             headerCol.style.width = fWidth;
-            (<HTMLTableColElement>content.querySelector('colgroup').children[index]).style.width = fWidth;
+        }
+        let contentCol: HTMLTableColElement = (<HTMLTableColElement>content.querySelector('colgroup').children[index]);
+        if (contentCol) {
+            contentCol.style.width = fWidth;
         }
         let edit: HTMLTableElement = <HTMLTableElement>content.querySelector('.e-table.e-inline-edit');
         if (edit) {

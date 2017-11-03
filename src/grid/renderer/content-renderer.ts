@@ -30,14 +30,14 @@ export class ContentRender implements IRenderer {
         remove(e.droppedElement);
     }
     private args: NotifyArgs;
-    private rafCallback: Function = () => {
+    private rafCallback: Function = (args: NotifyArgs) => () => {
         this.ariaService.setBusy(<HTMLElement>this.getPanel().firstChild, false);
         if (this.parent.isDestroyed) { return; }
-        this.parent.notify(events.contentReady, {});
+        this.parent.notify(events.contentReady, { rows: this.rows, args: args });
         this.parent.trigger(events.dataBound, {});
-        if (this.args) {
-            let action: string = (this.args.requestType || '').toLowerCase() + '-complete';
-            this.parent.notify(action, this.args);
+        if (args) {
+            let action: string = (args.requestType || '').toLowerCase() + '-complete';
+            this.parent.notify(action, args);
         }
         this.parent.hideSpinner();
     }
@@ -122,7 +122,7 @@ export class ContentRender implements IRenderer {
         let columns: Column[] = <Column[]>gObj.getColumns();
         let tr: Element;
         let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
-        this.rowElements = [];
+        this.rowElements = []; this.rows = [];
         let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args);
         if (this.parent.enableColumnVirtualization) {
             let cellMerge: CellMergeRender<Column> = new CellMergeRender(this.serviceLocator, this.parent);
@@ -161,7 +161,7 @@ export class ContentRender implements IRenderer {
                 tbody = createElement('tbody');
                 this.appendContent(tbody, frag, args);
             },
-            this.rafCallback);
+            this.rafCallback(args));
     }
 
     public appendContent(tbody: Element, frag: DocumentFragment, args: NotifyArgs): void {

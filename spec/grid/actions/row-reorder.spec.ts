@@ -454,13 +454,14 @@ describe('Row Drag and Drop module', () => {
                 gridObj.selectRow(1);
                 let target: HTMLElement = createElement('div', { id: 'Grid11', attrs: { 'action': 'grouping1' } });
                 gridObj.element.appendChild(target);
-
+                document.body.appendChild(gridObj.element);
                 gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
                 (gridObj.rowDragAndDropModule as any).dragStart({ target: "" });
                 (gridObj1.rowDragAndDropModule as any).dragStart({ target: gridObj.element });
                 (gridObj.rowDragAndDropModule as any).drag({ target: gridObj.element, event: { clientX: 10, clientY: 10, target: gridObj.element } });
                 (gridObj.rowDragAndDropModule as any).dragStop({ helper: gridObj.element, event: { clientX: 10, clientY: 10, target: gridObj.element } });
                 (gridObj.rowDragAndDropModule as any).getTargetIdx(null);
+                gridObj.notify('rows-added', { records: [{ OrderID: 343434 }], toIndex: 1 });
             });
 
 
@@ -478,84 +479,84 @@ describe('Row Drag and Drop module', () => {
     });
 
     describe('Row Drag and Drop module', () => {
-        describe('Reorder row functionalities', () => {
-            let gridObj: Grid;
-            let gridObj1: Grid;
-            let elem: HTMLElement = createElement('div', { id: 'Grid' });
-            let elem1: HTMLElement = createElement('div', { id: 'Grid1' });
-            let dataBound: EmitType<Object>;
-            let actionComplete: (e?: Object) => void;
-            let dataBound1: EmitType<Object>;
-            let actionComplete1: (e?: Object) => void;
-            let rows: any;
-            let rows1: any;
-            window['browserDetails'].isIE = false;
+        // describe('Reorder row functionalities', () => {
+        //     let gridObj: Grid;
+        //     let gridObj1: Grid;
+        //     let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        //     let elem1: HTMLElement = createElement('div', { id: 'Grid1' });
+        //     let dataBound: EmitType<Object>;
+        //     let actionComplete: (e?: Object) => void;
+        //     let dataBound1: EmitType<Object>;
+        //     let actionComplete1: (e?: Object) => void;
+        //     let rows: any;
+        //     let rows1: any;
+        //     window['browserDetails'].isIE = false;
 
-            beforeAll((done: Function) => {
-                let dataBound: EmitType<Object> = () => { done(); };
-                document.body.appendChild(elem);
-                gridObj = new Grid(
-                    {
-                        dataSource: JSON.parse(JSON.stringify(<any>data)),
-                        allowRowDragAndDrop: true,
-                        rowDropSettings: { targetID: 'Grid1' },
-                        allowSelection: true,
-                        selectionSettings: { type: 'multiple', mode: 'row' },
-                        columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                        { field: 'ShipCity' }],
-                        allowSorting: true,
-                        allowPaging: false,
-                        pageSettings: { pageSize: 6, currentPage: 1 },
-                        actionComplete: actionComplete,
-                        dataBound: dataBound
-                    });
-                gridObj.appendTo('#Grid');
+        //     beforeAll((done: Function) => {
+        //         let dataBound: EmitType<Object> = () => { done(); };
+        //         document.body.appendChild(elem);
+        //         gridObj = new Grid(
+        //             {
+        //                 dataSource: JSON.parse(JSON.stringify(<any>data)),
+        //                 allowRowDragAndDrop: true,
+        //                 rowDropSettings: { targetID: 'Grid1' },
+        //                 allowSelection: true,
+        //                 selectionSettings: { type: 'multiple', mode: 'row' },
+        //                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+        //                 { field: 'ShipCity' }],
+        //                 allowSorting: true,
+        //                 allowPaging: false,
+        //                 pageSettings: { pageSize: 6, currentPage: 1 },
+        //                 actionComplete: actionComplete,
+        //                 dataBound: dataBound
+        //             });
+        //         gridObj.appendTo('#Grid');
 
-                document.body.appendChild(elem1);
-                gridObj1 = new Grid(
-                    {
-                        dataSource: [],
-                        allowRowDragAndDrop: true,
-                        rowDropSettings: { targetID: 'Grid' },
-                        allowSelection: true,
-                        selectionSettings: { type: 'multiple', mode: 'row' },
-                        columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                        { field: 'ShipCity' }],
-                        allowSorting: true,
-                        allowPaging: false,
-                        pageSettings: { pageSize: 6, currentPage: 1 },
-                        actionComplete: actionComplete1,
-                        dataBound: dataBound1
-                    });
-                gridObj1.appendTo('#Grid1');
-            });
+        //         document.body.appendChild(elem1);
+        //         gridObj1 = new Grid(
+        //             {
+        //                 dataSource: [],
+        //                 allowRowDragAndDrop: true,
+        //                 rowDropSettings: { targetID: 'Grid' },
+        //                 allowSelection: true,
+        //                 selectionSettings: { type: 'multiple', mode: 'row' },
+        //                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+        //                 { field: 'ShipCity' }],
+        //                 allowSorting: true,
+        //                 allowPaging: false,
+        //                 pageSettings: { pageSize: 6, currentPage: 1 },
+        //                 actionComplete: actionComplete1,
+        //                 dataBound: dataBound1
+        //             });
+        //         gridObj1.appendTo('#Grid1');
+        //     });
 
-            it('row drop method for coverage', () => {
-                gridObj.selectRow(1);
-                let target: HTMLElement = createElement('div', { id: 'Grid1', attrs: { 'action': 'grouping1' } });
-                gridObj.element.appendChild(target);
+        //     // it('row drop method for coverage', () => {
+        //     //     gridObj.selectRow(1, true);
+        //     //     let target: HTMLElement = createElement('div', { id: 'Grid1', attrs: { 'action': 'grouping1' } });
+        //     //     gridObj.element.appendChild(target);
 
-                (gridObj1.rowDragAndDropModule as any).columnDrop({
-                    droppedElement: target,
-                    target: gridObj1.getContentTable().querySelector('.e-emptyrow').children[0]
-                });
+        //     //     (gridObj1.rowDragAndDropModule as any).columnDrop({
+        //     //         droppedElement: target,
+        //     //         target: gridObj1.getContentTable().querySelector('.e-emptyrow').children[0]
+        //     //     });
 
-                gridObj.rowDropSettings.targetID = undefined;
-                gridObj1.rowDropSettings.targetID = undefined;
-                gridObj.dataBind();
-                gridObj1.dataBind();
-                (gridObj1.rowDragAndDropModule as any).columnDrop({
-                    droppedElement: target,
-                    target: gridObj1.getContentTable().querySelector('td')
-                });
-            });
+        //     //     gridObj.rowDropSettings.targetID = undefined;
+        //     //     gridObj1.rowDropSettings.targetID = undefined;
+        //     //     gridObj.dataBind();
+        //     //     gridObj1.dataBind();
+        //     //     (gridObj1.rowDragAndDropModule as any).columnDrop({
+        //     //         droppedElement: target,
+        //     //         target: gridObj1.getContentTable().querySelector('td')
+        //     //     });
+        //     // });
 
 
-            afterAll(() => {
-                remove(elem);
-                remove(elem1);
-            });
-        });
+        //     afterAll(() => {
+        //         remove(elem);
+        //         remove(elem1);
+        //     });
+        // });
     });
 
 

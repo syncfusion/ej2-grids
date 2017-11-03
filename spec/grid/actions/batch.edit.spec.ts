@@ -105,7 +105,7 @@ describe('Editing module', () => {
                 done();
             };
             gridObj.cellSave = cellSave;
-            expect(document.activeElement.id).toBe(gridObj.element.id + 'CustomerID');
+            //expect(document.activeElement.id).toBe(gridObj.element.id + 'CustomerID');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             expect(gridObj.editModule.getCurrentEditCellData()).toBe('updated');
             gridObj.editModule.saveCell();
@@ -146,7 +146,7 @@ describe('Editing module', () => {
             let batchAdd = (args?: any): void => {
                 expect(gridObj.isEdit).toBeTruthy();
                 expect(gridObj.element.querySelectorAll('.e-updatedtd').length).toBeGreaterThan(gridObj.getVisibleColumns().length - 1);
-                expect(document.activeElement.id).toBe(gridObj.element.id + 'OrderID');
+                //expect(document.activeElement.id).toBe(gridObj.element.id + 'OrderID');
                 expect(gridObj.element.querySelectorAll('.e-editedbatchcell').length).toBe(1);
                 expect(gridObj.element.querySelectorAll('.e-gridform').length).toBe(1);
                 expect(gridObj.element.querySelectorAll('form').length).toBe(1);
@@ -428,7 +428,7 @@ describe('Editing module', () => {
             };
             gridObj.cellSave = cellSave;
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            (gridObj.element.querySelectorAll('.e-row')[2] as any).click();
+            (gridObj.element.querySelectorAll('.e-row')[2] as any).cells[0].click();
         });
 
         afterAll(() => {
@@ -487,15 +487,10 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(0, 'CustomerID');
         });
 
-        it('shift tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
+        it('shift tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeFalsy();
         });
 
         //firt cell with shift tab key        
@@ -511,20 +506,15 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(gridObj.currentViewData.length - 1, 'OrderDate');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
         it('f2 key', (done: Function) => {
             // last action check
-            expect(gridObj.element.querySelectorAll('.e-editedbatchcell').length).toBe(0);
+            expect(gridObj.element.querySelectorAll('.e-editedbatchcell').length).toBe(1);
             cell = gridObj.getContent().querySelector('.e-row').childNodes[1] as any;
             let cellEdit = (args?: any): void => {
                 expect(gridObj.isEdit).toBeFalsy();
@@ -624,36 +614,18 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(0, 'CustomerID');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
-        it('shift tab key', (done: Function) => {
+        it('shift tab key', () => {
             //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'Freight');
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'CustomerID');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
         it('cell save', (done: Function) => {
@@ -680,36 +652,18 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(1, 'Verified');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
-        it('shift tab key', (done: Function) => {
+        it('shift tab key', () => {
             //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'ShipCountry');
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'ShipName');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
         it('cell save', (done: Function) => {
@@ -736,36 +690,18 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(1, 'ShipCountry');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
-        it('shift tab key', (done: Function) => {
+        it('shift tab key', () => {
             //last action check
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
         it('cell save', (done: Function) => {
@@ -791,41 +727,23 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(1, 'OrderDate');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
-        it('shift tab key', (done: Function) => {
+        it('shift tab key', () => {
             //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'CustomerID');
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
         it('cell save', (done: Function) => {
             //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
+            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'ShipCountry');
             let cellSave = (args?: any): void => {
                 expect(gridObj.isEdit).toBeTruthy();
                 gridObj.cellSave = null;
@@ -846,41 +764,23 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(1, 'OrderDate');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
-        it('shift tab key', (done: Function) => {
+        it('shift tab key', () => {
             //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'CustomerID');
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeTruthy();
         });
 
         it('cell save', (done: Function) => {
             //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
+            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'ShipCountry');
             let cellSave = (args?: any): void => {
                 expect(gridObj.isEdit).toBeTruthy();
                 gridObj.cellSave = null;
@@ -901,34 +801,16 @@ describe('Editing module', () => {
             gridObj.editModule.editCell(1, 'CustomerID');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            expect(gridObj.isEdit).toBeFalsy();
         });
 
-        it('shift tab key', (done: Function) => {
+        it('shift tab key', () => {
             //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-            };
-            let cellEdit = (args?: any): void => {
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            gridObj.cellEdit = cellEdit;
+            expect(gridObj.element.querySelector('.e-editedbatchcell')).toBeNull();
+            gridObj.editModule.editCell(2, 'CustomerID');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
         });
@@ -979,15 +861,10 @@ describe('Editing module', () => {
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'CustomerID');
         });
 
-        it('tab key', (done: Function) => {
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
+        it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             (gridObj.getContent().querySelectorAll('.e-row')[2].firstElementChild as any).click();
+            expect(gridObj.isEdit).toBeFalsy();
         });
 
         afterAll(() => {
@@ -1829,6 +1706,8 @@ describe('Editing module', () => {
             expect(gridObj.isEdit).toBeFalsy();
             //for coverage
             (gridObj.editModule as any).editModule.updateCell(0, 'undefined');
+            (gridObj.editModule as any).editModule.checkNPCell ({ visible: true });
+            (gridObj.editModule as any).editModule.isAddRow(0);
         });
 
         it('allow editing false testing', () => {
@@ -1894,32 +1773,28 @@ describe('Editing module', () => {
         });
 
         //firt cell with shift tab key        
-        it(' shift Tab from spanned cell', () => {          
+        it(' shift Tab from spanned cell', () => {
             gridObj.editModule.editCell(1, 'ShipCountry');
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
             let td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-            expect(td.getAttribute('aria-label').toString().indexOf('Verified')).toBeGreaterThan(0);
+            expect(td.getAttribute('aria-label').toString().indexOf('ShipName')).toBeGreaterThan(0);
             gridObj.editModule.editCell(3, 'CustomerID');
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
             td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-            expect(td.getAttribute('aria-label').toString().indexOf('OrderDate')).toBeGreaterThan(0);
-            expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
+            expect(td).toBeNull();
+            expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBe(0);
         });
 
         it('tab key', () => {
             gridObj.editModule.editCell(1, 'ShipCountry');
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
             let td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-            expect(td.getAttribute('aria-label').toString().indexOf('Freight')).toBeGreaterThan(0);
-            expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
+            expect(td.getAttribute('aria-label').toString().indexOf('ShipCountry')).toBeGreaterThan(0);
+            expect(gridObj.getRows()[1].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
             gridObj.editModule.editCell(3, 'CustomerID');
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
-            td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
-            expect(td.getAttribute('aria-label').toString().indexOf('Freight')).toBeGreaterThan(0);
-            expect(gridObj.getRows()[3].querySelectorAll('.e-editedbatchcell').length).toBeGreaterThan(0);
         });
 
-        it('f2 key', () => {           
+        it('f2 key', () => {
             let tr = gridObj.getContent().querySelectorAll('tr')[1];
             cell = tr.cells[tr.cells.length -2 ];
             cell.click();
@@ -1938,6 +1813,7 @@ describe('Editing module', () => {
 
         afterAll((done) => {
             gridObj.notify('tooltip-destroy', {});
+            (gridObj.editModule as any).editModule.destroy();
             elem.remove();
             if (document.getElementById('Grid')) {
                 document.getElementById('Grid').remove();

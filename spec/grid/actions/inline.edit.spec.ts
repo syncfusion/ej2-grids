@@ -435,7 +435,7 @@ describe('Editing module', () => {
             };
             gridObj.actionComplete = actionComplete;
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
-            (gridObj.element.querySelectorAll('.e-row')[2] as any).click();
+            (gridObj.element.querySelectorAll('.e-row')[2] as any).cells[0].click();
         });
 
         it('Add complete method with data testing', (done: Function) => {
@@ -843,7 +843,7 @@ describe('Editing module', () => {
             };
             gridObj.actionComplete = actionComplete;
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
+            gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: (<any>gridObj.getContent().querySelector('.e-row')).cells[0] } as any);
         });
 
         it('group column method - ok', (done: Function) => {

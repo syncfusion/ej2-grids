@@ -67,29 +67,29 @@ let data1: Object[] = (() => {
 
 describe('Virtualization testing', () => {
 
-    describe('enableVirtualization enabled', () => {
-        let grid: Grid;
-        let rows: HTMLTableRowElement;
-        beforeAll((done: Function) => {
-            grid = createGrid(
-                {
-                    dataSource: data,
-                    columns: count500,
-                    enableVirtualization: true,
-                    height: 300
-                },
-                done
-            );
-        });
-        it('check pageSize', () => {
-            //expect(grid.pageSettings.pageSize).toBeGreaterThanOrEqual(~~(300 / 37) * 2);
-            expect(1).toBe(1);
-        });
-        afterAll(() => {
-            grid['virtualscrollModule'].destroy();
-            destroy(grid);
-        });
-    });
+    // describe('enableVirtualization enabled', () => {
+    //     let grid: Grid;
+    //     let rows: HTMLTableRowElement;
+    //     beforeAll((done: Function) => {
+    //         grid = createGrid(
+    //             {
+    //                 dataSource: data,
+    //                 columns: count500,
+    //                 enableVirtualization: true,
+    //                 height: 300
+    //             },
+    //             done
+    //         );
+    //     });
+    //     it('check pageSize', () => {
+    //         //expect(grid.pageSettings.pageSize).toBeGreaterThanOrEqual(~~(300 / 37) * 2);
+    //         expect(1).toBe(1);
+    //     });
+    //     afterAll(() => {
+    //         grid['virtualscrollModule'].destroy();
+    //         destroy(grid);
+    //     });
+    // });
 
     describe('horizontal scroll with row virtualization', () => {
         let grid: Grid;

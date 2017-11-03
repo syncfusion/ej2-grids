@@ -27,6 +27,7 @@ export class DialogEditRender {
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator) {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
+        if (this.parent.isDestroyed) { return; }
         this.parent.on(events.dialogDestroy, this.destroy, this);
         this.parent.on(events.destroy, this.destroy, this);
     }

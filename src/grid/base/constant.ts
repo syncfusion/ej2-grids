@@ -92,6 +92,12 @@ export const resizeStop: string = 'resizeStop';
 export const checkBoxChange: string = 'checkBoxChange';
 /** @hidden */
 export const beforeCopy: string = 'beforeCopy';
+/** @hidden */
+export const filterChoiceRequest: string = 'filterchoicerequest';
+/** @hidden */
+export const filterAfterOpen: string = 'filterafteropen';
+/** @hidden */
+export const filterBeforeOpen: string = 'filterbeforeopen';
 
 /**
  * Specifies grid internal events
@@ -106,6 +112,8 @@ export const dataReady: string = 'data-ready';
 export const contentReady: string = 'content-ready';
 /** @hidden */
 export const uiUpdate: string = 'ui-update';
+/** @hidden */
+export const onEmpty: string = 'on-empty';
 /** @hidden */
 export const inBoundModelChanged: string = 'inbound-model-changed';
 /** @hidden */
@@ -158,6 +166,8 @@ export const columnSelectionComplete: string = 'columnselected';
 export const cellSelectionBegin: string = 'cellselecting';
 /** @hidden */
 export const cellSelectionComplete: string = 'cellselected';
+/** @hidden */
+export const cellFocused: string = 'cellfocused';
 /** @hidden */
 export const keyPressed: string = 'key-pressed';
 /** @hidden */
@@ -238,3 +248,9 @@ export const beforePdfExport: string = 'beforePdfExport';
 export const pdfExportComplete: string = 'pdfExportComplete';
 /** @hidden */
 export const pdfQueryCellInfo: string = 'pdfQueryCellInfo';
+/** @hidden */
+export const accessPredicate: string = 'access-predicate';
+/** @hidden */
+export const contextMenuClick: string = 'contextMenuClick';
+/** @hidden */
+export const contextMenuBeforeOpen: string = 'contextMenuBeforeOpen';

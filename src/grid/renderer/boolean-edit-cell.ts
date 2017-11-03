@@ -1,5 +1,6 @@
 import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IEditCell, IGrid } from '../base/interface';
+import { Row } from '../models/row';
 import { Column } from '../models/column';
 import { CheckBox, ChangeEventArgs } from '@syncfusion/ej2-buttons';
 import { extend } from '@syncfusion/ej2-base';
@@ -51,7 +52,8 @@ export class BooleanEditCell implements IEditCell {
             this.editType = this.parent.editSettings.mode;
             this.editRow = args.row as HTMLElement;
             if (args.requestType !== 'add') {
-                chkState = this.parent.getRowObjectFromUID(args.row.getAttribute('data-uid')).isSelected;
+                let row: Row<Column> = this.parent.getRowObjectFromUID(args.row.getAttribute('data-uid'));
+                chkState = row ? row.isSelected : false;
             }
             addRemoveActiveClasses([].slice.call(args.row.querySelectorAll('.e-rowcell')), chkState, ...this.activeClasses);
         }

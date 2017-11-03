@@ -7,6 +7,8 @@ import { RenderType, CellType } from '../base/enum';
 import { ReturnType } from '../base/type';
 import { Data } from '../actions/data';
 import { Column } from '../models/column';
+import { Row } from '../models/row';
+import { Cell } from '../models/cell';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
 import { prepareColumns, calculateAggregate, setFormatter } from '../base/util';
@@ -153,6 +155,10 @@ export class Render {
         this.contentRenderer.renderEmpty(<HTMLElement>tbody);
         if (isTrigger) {
             this.parent.trigger(events.dataBound, {});
+            this.parent.notify(
+                events.onEmpty,
+                { rows: [new Row<Column>({ isDataRow: true, cells: [new Cell<Column>({ isDataCell: true, visible: true })]})] }
+            );
         }
     }
 
@@ -303,7 +309,7 @@ export class Render {
         this.data.getData({}, newQuery).then((r: ReturnType) => {
             this.updateGroupInfo(curFilter, r.result);
             deferred.resolve(e);
-        });
+        }).catch((e: Object) => deferred.reject(e));
         return deferred.promise;
     }
 
@@ -315,7 +321,7 @@ export class Render {
     }
 
     private updateGroupInfo(current: Object[], untouched: Object[]): Object[] {
-        let dm: DataManager = new DataManager(untouched);
+        let dm: DataManager = new DataManager(<JSON[]>untouched);
         current.forEach((element: Group, index: number, array: Object[]) => {
             let uGroup: Group = dm.executeLocal(new Query()
                 .where(new Predicate('field', '==', element.field).and(this.getPredicate('key', 'equal', element.key))))[0];

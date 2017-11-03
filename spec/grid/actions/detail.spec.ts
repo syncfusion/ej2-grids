@@ -40,7 +40,7 @@ describe('Detail template module', () => {
                     { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
                     { field: 'Freight', width: 120, format: 'C', textAlign: 'right' },
                     { field: 'ShipCity', headerText: 'Ship City', width: 150 }
-                ],
+                    ],
             });
         grid1.appendTo((e.detailElement as Element).querySelector('#detailgrid') as HTMLElement);
     }
@@ -179,16 +179,22 @@ describe('Detail template module', () => {
             expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowcollapse').length).toBe(1);
         });
 
-        it('Alt Down shortcut testing', () => {
+        it('Alt Down shortcut testing', (done: Function) => {
+            gridObj.element.focus();
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            gridObj.rowSelected = () => {
+                gridObj.keyboardModule.keyAction(leftArgs);
+                gridObj.keyboardModule.keyAction(args);
+                expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(3);
+                expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toBe(1);
+                expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toBe('');
+                gridObj.keyboardModule.keyAction(args);
+                expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toBe(1);
+                gridObj.rowSelected = null;
+                done();
+            };
             gridObj.selectRow(2, true);
-            gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(3);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toBe(1);
-            expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toBe('');
-
-            gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toBe(1);
         });
 
         it('Alt Up shortcut testing', () => {
@@ -226,6 +232,8 @@ describe('Detail template module', () => {
         it('Alt Down shortcut with selection disabled testing', () => {
             gridObj.allowSelection = false;
             gridObj.dataBind();
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            gridObj.keyboardModule.keyAction(leftArgs);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toBe('none');
@@ -251,13 +259,19 @@ describe('Detail template module', () => {
             gridObj.groupModule.groupColumn('OrderID');
         });
 
-        it('Alt Down shortcut with grouping testing', () => {
+        it('Alt Down shortcut with grouping testing', (done: Function) => {
+            gridObj.element.focus();
             gridObj.allowSelection = true;
             gridObj.dataBind();
+            gridObj.rowSelected = () => {
+                let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
+                let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+                gridObj.keyboardModule.keyAction(leftArgs);
+                gridObj.keyboardModule.keyAction(args);
+                expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toBe('');
+                done();
+            };
             gridObj.selectRow(1, true);
-            let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            gridObj.keyboardModule.keyAction(args);
-            expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toBe('');
         });
 
         it('Expand method with grouping testing', () => {
@@ -429,6 +443,8 @@ describe('Detail template module', () => {
         it('Alt Down shortcut testing', () => {
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.selectRow(2, true);
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            gridObj.keyboardModule.keyAction(leftArgs);
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(3);
             expect(gridObj.getDataRows()[2].querySelectorAll('.e-detailrowexpand').length).toBe(1);
@@ -477,6 +493,8 @@ describe('Detail template module', () => {
         it('Alt Down shortcut with selection disabled testing', () => {
             gridObj.allowSelection = false;
             gridObj.dataBind();
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            gridObj.keyboardModule.keyAction(leftArgs);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[2] as HTMLElement).style.display).toBe('none');
@@ -506,6 +524,8 @@ describe('Detail template module', () => {
             gridObj.allowSelection = true;
             gridObj.dataBind();
             gridObj.selectRow(1, true);
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            gridObj.keyboardModule.keyAction(leftArgs);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
             expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toBe('');
@@ -533,6 +553,50 @@ describe('Detail template module', () => {
 
         afterAll(() => {
             (gridObj.detailRowModule as any).destroy();
+            elem.remove();
+        });
+    });
+
+    describe('Keyboard operation', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionComplete: Function;
+
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { 
+                gridObj.element.focus();
+                gridObj.dataBound = null;
+                done();
+            };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    allowPaging: true,
+                    detailTemplate: '#detailtemplate',
+                    detailDataBound: detail,
+                    allowGrouping: true,
+                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    allowFiltering: true,
+                    allowSorting: true,
+                    allowReordering: true,
+                    columns: [
+                        { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right' },
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
+                        { field: 'Freight', width: 120, format: 'C', textAlign: 'right' },
+                        { field: 'ShipCity', headerText: 'Ship City', width: 150 }
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('Detail expand testing', () => {
+            let target: any = (gridObj.getDataRows()[0].querySelector('.e-detailrowcollapse') as HTMLElement);
+            gridObj.keyboardModule.keyAction(<any>{ action: 'enter', target: target, preventDefault: () => {} });
+            expect(target.classList.contains('e-detailrowexpand')).toBeTruthy();
+        });
+
+        afterAll(() => {
             elem.remove();
         });
     });

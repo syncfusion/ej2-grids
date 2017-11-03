@@ -1,21 +1,19 @@
 
-import { isNullOrUndefined, getValue, L10n, } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, getValue, L10n, remove } from '@syncfusion/ej2-base';
 import { createElement, Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
-import { IGrid, IValueFormatter } from '../base/interface';
+import { IGrid, IValueFormatter, IFilterArgs } from '../base/interface';
 import { PredicateModel } from '../base/grid-model';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { Column } from '../models/column';
 import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
-import { Query, DataManager } from '@syncfusion/ej2-data';
 import { FlMenuOptrUI } from './filter-menu-operator';
 import { StringFilterUI } from './string-filter-ui';
 import { NumberFilterUI } from './number-filter-ui';
 import { BooleanFilterUI } from './boolean-filter-ui';
 import { DateFilterUI } from './date-filter-ui';
-import { parentsUntil } from '../base/util';
 
 /**
  * `filter menu` render boolean column.
@@ -49,32 +47,19 @@ export class FilterMenuRenderer {
         this.l10n = this.serviceLocator.getService<L10n>('localization');
     }
 
-    private openDialog(args: {
-        type?: string, field?: string, displayName?: string,
-        query?: Query, dataSource?: DataManager | Object[], filteredColumns?: PredicateModel, sortedColumns?: Column,
-        blank?: string, localizedStrings?: {}, pos?: { X: 0, Y: 0 }, target?: Element, coluid?: string, isNextMenuOpen?: boolean
-    }): void {
-        if (args.isNextMenuOpen) {
-            let ele: Element;
-            this.closeDialog(ele, args.isNextMenuOpen);
-        }
-        let column: Column = this.parent.getColumnByUid(args.coluid);
+    private openDialog(args: IFilterArgs): void {
+        let column: Column = this.parent.getColumnByField(args.field);
         if (isNullOrUndefined(column.filter) || (isNullOrUndefined(column.filter.type) || column.filter.type === 'menu')) {///
             this.renderDlgContent(args.target, column);
         }
 
     }
 
-    private closeDialog(target?: Element, isNextMenuOpen?: boolean): void {
-        let elem: Element = parentsUntil(target, 'e-popup');
-        let calEle: boolean = !isNullOrUndefined(target) && !target.classList.contains('e-day');
-        if (calEle && target.classList.contains('e-cell')) {
-            calEle = !target.firstElementChild.classList.contains('e-day');
-        }
-        if ((!isNullOrUndefined(this.dlgObj) && !isNullOrUndefined(document.getElementById(this.dlgObj.element.id)))
-            && (isNextMenuOpen || (isNullOrUndefined(elem) && calEle && !this.dlgObj.open))) {
+    private closeDialog(): void {
+        let elem: Element = document.getElementById(this.dlgObj.element.id);
+        if (this.dlgObj && !this.dlgObj.isDestroyed && elem) {
             this.dlgObj.destroy();
-            document.getElementById(this.dlgObj.element.id).remove();
+            remove(elem);
         }
     }
 
@@ -219,4 +204,9 @@ export class FilterMenuRenderer {
         let flIcon: Element = this.parent.element.querySelector('[e-mappinguid="' + flMenuSelector + '"]');
         flIcon.classList.remove('e-filtered');
     }
+
+    public destroy(): void {
+        //destroy
+    }
+
 }

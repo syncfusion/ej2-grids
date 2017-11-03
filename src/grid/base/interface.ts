@@ -1,6 +1,6 @@
-import { Component, NumberFormatOptions, DateFormatOptions, EmitType } from '@syncfusion/ej2-base';
+import { Component, NumberFormatOptions, DateFormatOptions, EmitType, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
-import { ItemModel } from '@syncfusion/ej2-navigations';
+import { ItemModel, MenuItemModel } from '@syncfusion/ej2-navigations';
 import { ButtonModel } from '@syncfusion/ej2-buttons';
 import { Column, ColumnModel } from '../models/column';
 import {
@@ -11,7 +11,7 @@ import { PageSettingsModel, AggregateRowModel } from '../models/models';
 import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel } from './grid-model';
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
-import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems, CommandButtonType } from './enum';
+import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems, CommandButtonType, ContextMenuItem } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
 import { Edit } from '../actions/edit';
@@ -20,6 +20,7 @@ import { NumericTextBoxModel } from '@syncfusion/ej2-inputs';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { Data } from '../actions/data';
 import { DatePickerModel } from '@syncfusion/ej2-calendars';
+import { Matrix } from '../services/focus-strategy';
 
 /**
  * Specifies grid interfaces.
@@ -267,6 +268,12 @@ export interface IGrid extends Component<HTMLElement> {
     toolbar?: ToolbarItems[] | string[] | ItemModel[];
 
     /**
+     * Specifies the context menu items for Grid.
+     * @default null
+     */
+    contextMenuItems?: ContextMenuItem[] | ContextMenuItemModel[];
+
+    /**
      * @hidden
      * It used to render toolbar template
      * @default null
@@ -336,6 +343,12 @@ export interface IGrid extends Component<HTMLElement> {
     refreshHeader?(): void;
     getDataRows?(): Element[];
     getPrimaryKeyFieldNames?(): string[];
+    autoFitColumns(fieldNames: string | string[]): void;
+    groupColumn(columnName: string): void;
+    ungroupColumn(columnName: string): void;
+    ensureModuleInjected(module: Function): Boolean;
+    isContextMenuOpen(): Boolean;
+    goToPage(pageNo: number): void;
     print(): void;
     /* tslint:disable-next-line:no-any */
     excelExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any>;
@@ -356,6 +369,7 @@ export interface IGrid extends Component<HTMLElement> {
     getDataModule?(): Data;
     refreshTooltip?(): void;
     copy?(withHeader?: boolean): void;
+    getLocaleConstants?(): Object;
 }
 
 /** @hidden */
@@ -443,14 +457,6 @@ export interface IFilterMUI {
 /**
  * @hidden
  */
-export interface IFilterMenuUI {
-    ui?: IFilterMUI;
-    type?: string;
-}
-
-/**
- * @hidden
- */
 export interface ICustomOptr {
     stringOperator?: { [key: string]: Object }[];
     numberOperator?: { [key: string]: Object }[];
@@ -485,8 +491,8 @@ export interface ICellFormatter {
  * @hidden
  */
 export interface IIndex {
-    rowIndex: number;
-    cellIndex: number;
+    rowIndex?: number;
+    cellIndex?: number;
 }
 /**
  * @hidden
@@ -1075,4 +1081,120 @@ export interface CommandModel {
      * Define the button model
      */
     buttonOption?: CommandButtonOptions;
+}
+
+/**
+ * @hidden
+ */
+export interface CheckBoxChangeEventArgs extends ICancel {
+    /** Defines the checked state. */
+    checked?: boolean;
+    /** Defines the selected row indexes. */
+    selectedRowIndexes?: number[];
+    /** Defines the target element for selection. */
+    target?: Element;
+}
+
+/**
+ * @hidden
+ */
+export interface BeforeCopyEventArgs extends ICancel {
+    /** Defines the grid copied data. */
+    data?: string;
+}
+
+/**
+ * @hidden
+ */
+export interface IFocus {
+    matrix: Matrix;
+    onKeyPress?: Function;
+    onClick?: Function;
+    onFocus?: Function;
+    jump?: (action: string, current: number[]) => boolean;
+    getFocusInfo?: () => FocusInfo;
+    selector?: (row: Row<Column>, cell: Cell<Column>) => boolean;
+    generateRows?: (rows: Row<Column>[]) => void;
+    getInfo?: (e?: KeyboardEventArgs) => FocusedContainer;
+    validator?: () => Function;
+}
+/**
+ * @hidden
+ */
+export interface FocusInfo {
+    element?: HTMLElement;
+    elementToFocus?: HTMLElement;
+    outline?: boolean;
+    class?: string;
+}
+/**
+ * @hidden
+ */
+export interface CellFocusArgs {
+    element?: HTMLElement;
+    parent?: HTMLElement;
+    indexes?: number[];
+    byKey?: boolean;
+    byClick?: boolean;
+    keyArgs?: KeyboardEventArgs;
+    container: FocusedContainer;
+    outline?: boolean;
+}
+/**
+ * @hidden
+ */
+export interface FocusedContainer {
+    isContent?: boolean;
+    isDataCell?: boolean;
+    isFrozen?: boolean;
+    isStacked?: boolean;
+    isSelectable?: boolean;
+    indexes?: number[];
+}
+export interface ContextMenuItemModel extends MenuItemModel {
+    target?: string;
+}
+
+/**
+ * @hidden
+ */
+export interface IFilter {
+    type?: string;
+    dataSource?: Object[] | DataManager;
+    hideSearchbox?: boolean;
+    itemTemplate?: string;
+    ui?: IFilterMUI;
+}
+
+/**
+ * @hidden
+ */
+export interface IFilterArgs {
+    type?: string;
+    field?: string;
+    displayName?: string;
+    query?: Query;
+    dataSource?: Object[] | DataManager;
+    format?: string;
+    filteredColumns?: Object[];
+    sortedColumns?: string[];
+    localizedStrings?: Object;
+    position?: { X: number, Y: number };
+    formatFn?: Function;
+    parserFn?: Function;
+    hideSearchbox?: boolean;
+    allowCaseSensitive?: boolean;
+    handler?: Function;
+    template?: Function;
+    target?: Element;
+}
+
+/**
+ * Defines the context menu item model.
+ */
+export interface ContextMenuItemModel extends MenuItemModel {
+    /**
+     * Define the target to show the menu item.
+     */
+    target?: string;
 }

@@ -3,7 +3,8 @@ import { remove, classList, createElement } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from '../base/interface';
-import { BatchAddArgs, CellEditArgs, CellSaveArgs } from '../base/interface';
+import { BatchAddArgs, CellEditArgs, CellSaveArgs, CellFocusArgs } from '../base/interface';
+import { CellType } from '../base/enum';
 import { parentsUntil, inArray } from '../base/util';
 import * as events from '../base/constant';
 import { EditRender } from '../renderer/edit-renderer';
@@ -15,6 +16,7 @@ import { ServiceLocator } from '../services/service-locator';
 import { IModelGenerator } from '../base/interface';
 import { RowModelGenerator } from '../services/row-model-generator';
 import { Column } from '../models/column';
+import { FocusStrategy } from '../services/focus-strategy';
 
 /**
  * `BatchEdit` module is used to handle batch editing actions.
@@ -26,6 +28,7 @@ export class BatchEdit {
     private form: Element;
     public formObj: FormValidator;
     private renderer: EditRender;
+    private focus: FocusStrategy;
     private dataBoundFunction: Function;
     private cellDetails: {
         rowData?: Object, field?: string, value?: string,
@@ -37,6 +40,7 @@ export class BatchEdit {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.renderer = renderer;
+        this.focus = serviceLocator.getService<FocusStrategy>('focus');
         this.addEventListener();
     }
 
@@ -47,7 +51,7 @@ export class BatchEdit {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.dblclick, this.dblClickHandler, this);
-        this.parent.on(events.keyPressed, this.keyPressHandler, this);
+        this.parent.on(events.cellFocused, this.onCellFocused, this);
         this.dataBoundFunction = this.dataBound.bind(this);
         this.parent.addEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.on(events.doubleTap, this.dblClickHandler, this);
@@ -60,7 +64,7 @@ export class BatchEdit {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.dblclick, this.dblClickHandler);
-        this.parent.off(events.keyPressed, this.keyPressHandler);
+        this.parent.on(events.cellFocused, this.onCellFocused);
         this.parent.removeEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.off(events.doubleTap, this.dblClickHandler);
     }
@@ -94,40 +98,36 @@ export class BatchEdit {
         }
     }
 
-    private keyPressHandler(e: KeyboardEventArgs): void {
+    private onCellFocused(e: CellFocusArgs): void {
+        let clear: boolean = !e.container.isContent || !e.container.isDataCell;
+        if (!e.byKey || clear) {
+            return;
+        }
+        let [rowIndex, cellIndex]: number[] = e.container.indexes;
         let isEdit: boolean = this.parent.isEdit;
-        let actions: string[] = ['tab', 'shiftTab', 'enter', 'f2'];
-        if (!document.querySelectorAll('.e-popup-open').length && actions.indexOf(e.action) > -1) {
-            this.saveCell();
+        if (!document.querySelectorAll('.e-popup-open').length) {
             isEdit = isEdit && !this.validateFormObj();
-            switch (e.action) {
+            switch (e.keyArgs.action) {
                 case 'tab':
-                    if (isEdit) {
-                        this.editNextCell();
-                    }
-                    break;
                 case 'shiftTab':
                     if (isEdit) {
-                        this.editPrevCell();
+                        this.editCellFromIndex(rowIndex, cellIndex);
                     }
                     break;
                 case 'enter':
-                    e.preventDefault();
-                    if (isEdit && this.cellDetails.rowIndex + 1 < this.parent.getDataRows().length) {
-                        this.editCell(this.cellDetails.rowIndex + 1, this.cellDetails.column.field);
+                case 'shiftEnter':
+                    e.keyArgs.preventDefault();
+                    if (isEdit) {
+                        this.editCell(rowIndex, this.cellDetails.column.field);
                     }
                     break;
                 case 'f2':
-                    this.editCellFromIndex(this.cellDetails.rowIndex, this.cellDetails.cellIndex);
+                    this.editCellFromIndex(rowIndex, cellIndex);
+                    this.focus.focus();
                     break;
             }
-            if (this.parent.isEdit || !(this.cellDetails.cellIndex === 0 && this.cellDetails.rowIndex === 0) ||
-                !(this.cellDetails.rowIndex === this.parent.getDataRows().length &&
-                    this.cellDetails.cellIndex === this.parent.columns.length - 1)) {
-                e.preventDefault();
-            }
         }
-        this.reFocusOnError(e);
+        this.reFocusOnError(e.keyArgs);
     }
 
     private reFocusOnError(e: KeyboardEventArgs): void {
@@ -141,59 +141,6 @@ export class BatchEdit {
         return this.parent.getDataRows()[index].classList.contains('e-insertedrow');
     }
 
-    private editNextCell(): void {
-        let oldIdx: number = this.cellDetails.cellIndex;
-        let oldRowIdx: number = this.cellDetails.rowIndex;
-        let cellIdx: number = this.findNextEditableCell(this.cellDetails.cellIndex + 1, this.isAddRow(this.cellDetails.rowIndex));
-        let tr: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
-        let cellIndex: number = this.getColIndex([].slice.apply(tr.cells), cellIdx);
-        if (cellIndex === -1 && cellIdx > -1) {
-            this.cellDetails.cellIndex = cellIdx;
-            this.editNextCell();
-        } else if (cellIdx > -1 && cellIndex < tr.cells.length && cellIndex > -1) {
-            this.cellDetails.cellIndex = cellIdx;
-        } else if (this.cellDetails.rowIndex + 1 < this.parent.getDataRows().length) {
-            this.cellDetails.rowIndex++;
-            this.cellDetails.cellIndex = this.findNextEditableCell(0, this.isAddRow(this.cellDetails.rowIndex));
-            let row: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
-            if (this.getColIndex([].slice.apply(row.cells), this.cellDetails.cellIndex) === -1) {
-                this.editNextCell();
-            }
-        }
-        if (oldIdx !== this.cellDetails.cellIndex || oldRowIdx !== this.cellDetails.rowIndex) {
-            this.editCellFromIndex(this.cellDetails.rowIndex, this.cellDetails.cellIndex);
-        }
-    }
-
-    private editPrevCell(): void {
-        let oldIdx: number = this.cellDetails.cellIndex;
-        let oldRowIdx: number = this.cellDetails.rowIndex;
-        let cellIdx: number = this.findPrevEditableCell(this.cellDetails.cellIndex - 1, this.isAddRow(this.cellDetails.rowIndex));
-        let tr: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
-        if (cellIdx > -1 && this.getColIndex([].slice.apply(tr.cells), cellIdx) === -1) {
-            this.cellDetails.cellIndex = cellIdx;
-            this.editPrevCell();
-        } else if (cellIdx > -1) {
-            this.cellDetails.cellIndex = cellIdx;
-        } else if (this.cellDetails.rowIndex - 1 > -1) {
-            this.cellDetails.rowIndex--;
-            let tr: HTMLTableRowElement = this.parent.getDataRows()[this.cellDetails.rowIndex] as HTMLTableRowElement;
-            this.cellDetails.cellIndex = this.findPrevEditableCell(
-                this.parent.columns.length - 1, this.isAddRow(this.cellDetails.rowIndex));
-            if (this.cellDetails.cellIndex >= tr.cells.length) {
-                let index: number = parseInt(tr.cells[tr.cells.length - 1].getAttribute('aria-colindex'), 10);
-                if (this.checkNPCell(this.parent.getColumns()[index])) {
-                    this.cellDetails.cellIndex = index;
-                } else {
-                    this.cellDetails.cellIndex = this.findPrevEditableCell(index, this.isAddRow(this.cellDetails.rowIndex));
-                }
-            }
-        }
-        if (oldIdx !== this.cellDetails.cellIndex || oldRowIdx !== this.cellDetails.rowIndex) {
-            this.editCellFromIndex(this.cellDetails.rowIndex, this.cellDetails.cellIndex);
-        }
-    }
-
     private editCellFromIndex(rowIdx: number, cellIdx: number): void {
         this.cellDetails.rowIndex = rowIdx;
         this.cellDetails.cellIndex = cellIdx;
@@ -201,8 +148,8 @@ export class BatchEdit {
     }
 
     public closeEdit(): void {
-        let gObj: IGridEx = this.parent as IGridEx;
-        let rows: Row<Column>[] = gObj.contentModule.getRows();
+        let gObj: IGrid = this.parent;
+        let rows: Row<Column>[] = this.parent.getRowsObject();
         let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let tr: HTMLElement;
         if (gObj.isEdit) {
@@ -274,7 +221,7 @@ export class BatchEdit {
             deletedRecords: [],
             changedRecords: []
         };
-        let rows: Row<Column>[] = (this.parent as IGridEx).contentModule.getRows() as Row<Column>[];
+        let rows: Row<Column>[] = this.parent.getRowsObject() as Row<Column>[];
         for (let row of rows) {
             if (row.isDirty) {
                 switch (row.edit) {
@@ -297,7 +244,7 @@ export class BatchEdit {
      * @hidden   
      */
     public removeRowObjectFromUID(uid: string): void {
-        let rows: Row<Column>[] = (this.parent as IGridEx).contentModule.getRows() as Row<Column>[];
+        let rows: Row<Column>[] = this.parent.getRowsObject() as Row<Column>[];
         let i: number = 0;
         for (let len: number = rows.length; i < len; i++) {
             if (rows[i].uid === uid) {
@@ -311,7 +258,7 @@ export class BatchEdit {
      * @hidden   
      */
     public addRowObject(row: Row<Column>): void {
-        ((this.parent as IGridEx).contentModule.getRows() as Row<Column>[]).unshift(row);
+        this.parent.getRowsObject().unshift(row);
     }
 
 
@@ -346,8 +293,8 @@ export class BatchEdit {
         gObj.selectRow(index);
         delete args.row;
         gObj.trigger(events.batchDelete, args);
+        gObj.notify(events.batchDelete, { rows: this.parent.getRowsObject() });
         gObj.notify(events.toolbarRefresh, {});
-        gObj.element.focus();
     }
 
     private refreshRowIdx(): void {
@@ -397,6 +344,7 @@ export class BatchEdit {
         let index: number;
         for (let i: number = 0; i < this.parent.groupSettings.columns.length; i++) {
             tr.insertBefore(createElement('td', { className: 'e-indentcell' }), tr.firstChild);
+            modelData[0].cells.unshift(new Cell<Column>({ cellType: CellType.Indent }));
         }
         let tbody: Element = gObj.getContentTable().querySelector('tbody');
         tr.classList.add('e-insertedrow');
@@ -407,6 +355,7 @@ export class BatchEdit {
         modelData[0].edit = 'add';
         this.addRowObject(modelData[0]);
         this.refreshRowIdx();
+        this.focus.forgetPrevious();
         gObj.selectRow(0);
         if (!data) {
             index = this.findNextEditableCell(0, true);
@@ -418,25 +367,13 @@ export class BatchEdit {
             columnObject: col, columnIndex: index, primaryKey: args.primaryKey, cell: tr.cells[index]
         };
         gObj.trigger(events.batchAdd, args1);
+        gObj.notify(events.batchAdd, { rows: this.parent.getRowsObject() });
     }
 
     private findNextEditableCell(columnIndex: number, isAdd: boolean): number {
         let cols: Column[] = this.parent.columns as Column[];
         let endIndex: number = cols.length;
         for (let i: number = columnIndex; i < endIndex; i++) {
-            if (!isAdd && this.checkNPCell(cols[i])) {
-                return i;
-            } else if (isAdd && !cols[i].template && cols[i].visible && cols[i].allowEditing) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private findPrevEditableCell(columnIndex: number, isAdd: boolean): number {
-        let cols: Column[] = this.parent.columns as Column[];
-        for (let i: number = columnIndex; i > -1; i--) {
-            //prev
             if (!isAdd && this.checkNPCell(cols[i])) {
                 return i;
             } else if (isAdd && !cols[i].template && cols[i].visible && cols[i].allowEditing) {
@@ -614,11 +551,4 @@ export class BatchEdit {
         let row: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getDataRows()[index].getAttribute('data-uid'));
         return row.changes ? row.changes : row.data;
     }
-}
-
-/**
- * @hidden
- */
-interface IGridEx extends IGrid {
-    contentModule: { getRows: Function };
 }
