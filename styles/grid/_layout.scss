@@ -90,12 +90,35 @@
       height: $grid-bigger-filterbarcell-text-input;
     }
 
+    .e-ftrchk {
+      padding-bottom: $grid-bigger-checkbox-padding-topbottom;
+      padding-top: $grid-bigger-checkbox-padding-topbottom;
+    }
+
+    .e-dialog.e-checkboxfilter,
+    .e-dialog.e-flmenu {
+      min-width: 260px;
+    }
+
+    .e-filtermenudiv {
+      margin: $grid-bigger-fltrdiv-margin;
+    }
+
     .e-sortfilterdiv {
       margin: $grid-bigger-sortdiv-margin;
     }
 
+    .e-gridheader .e-fltr-icon .e-sortfilterdiv {
+      margin: $grid-bigger-fltricon-sortdiv-margin;
+
+    }
+
     .e-gridheader .e-rightalign .e-sortfilterdiv {
       margin: $grid-bigger-sortdiv-rightalign-margin;
+    }
+
+    .e-gridheader .e-rightalign.e-fltr-icon .e-sortfilterdiv {
+      margin: $grid-bigger-fltricon-sortdiv-rightalign-margin;
     }
 
     .e-rowcell,
@@ -795,8 +818,8 @@
       padding: $grid-headercelldiv-right-align-padding;
     }
 
-    .e-gridheader .e-sortfilter .e-rightalign.e-fltr-icon .e-headercelldiv {
-      padding: $grid-headercelldiv-fltricon-padding;
+    .e-gridheader .e-sortfilter .e-fltr-icon .e-headercelldiv {
+      margin: $grid-headercelldiv-fltricon-margin;
    }
 
     .e-gridheader .e-sortfilter .e-headercelldiv,
@@ -845,6 +868,15 @@
       float: left;
       margin: $grid-sortnumber-rightalign-margin;
     }
+
+    .e-gridheader .e-fltr-icon .e-sortfilterdiv {
+      margin: $grid-sortdiv-filtericon-margin;
+    }
+
+    .e-gridheader .e-rightalign.e-fltr-icon .e-sortfilterdiv {
+      margin: $grid-sortdiv-filtericon-rightalign-margin;
+    }
+
 
     &.e-wrap .e-gridheader .e-rightalign .e-sortnumber {
       margin: $grid-textwrap-srotnumber-rightalign-margin;
@@ -1013,13 +1045,14 @@
       width: 1px;
     }
 
-    .e-checkboxfilter {
-      min-width: 200px;
+    .e-dialog.e-checkboxfilter,
+    .e-dialog.e-flmenu {
+      min-width: 250px;
     }
 
     .e-ftrchk {
-      padding-bottom: 7px;
-      padding-top: 7px;
+      padding-bottom: $grid-checkbox-padding-topbottom;
+      padding-top: $grid-checkbox-padding-topbottom;
     }
 
     .e-filterdiv,

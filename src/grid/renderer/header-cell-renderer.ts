@@ -17,7 +17,6 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
     private ariaService: AriaService = new AriaService();
     private hTxtEle: Element = createElement('span', { className: 'e-headertext' });
     private sortEle: Element = createElement('div', { className: 'e-sortfilterdiv e-icons' });
-    private fltrMenuEle: Element = createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
     private gui: Element = createElement('div');
     private chkAllBox: Element = createElement('input', { className: 'e-checkselectall', attrs: { 'type': 'checkbox' } });
     /**
@@ -36,8 +35,8 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
      */
     public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
         let node: Element = this.element.cloneNode() as Element;
-
-        return this.prepareHeader(cell, node);
+        let fltrMenuEle: Element = createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
+        return this.prepareHeader(cell, node, fltrMenuEle);
     }
 
     /**
@@ -47,14 +46,15 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
      */
     public refresh(cell: Cell<Column>, node: Element): Element {
         this.clean(node);
-        return this.prepareHeader(cell, node);
+        let fltrMenuEle: Element = createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
+        return this.prepareHeader(cell, node, fltrMenuEle);
     }
 
     private clean(node: Element): void {
         node.innerHTML = '';
     }
 
-    private prepareHeader(cell: Cell<Column>, node: Element): Element {
+    private prepareHeader(cell: Cell<Column>, node: Element, fltrMenuEle: Element): Element {
         let column: Column = cell.column; let ariaAttr: IAriaOptions<boolean> = {};
         //Prepare innerHtml
         let innerDIV: HTMLDivElement = <HTMLDivElement>this.getGui();
@@ -92,11 +92,20 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
         if ((this.parent.allowFiltering && this.parent.filterSettings.type !== 'filterbar') &&
             (column.allowFiltering && isNullOrUndefined(column.template))) {
-            attributes(this.fltrMenuEle, {
+            attributes(fltrMenuEle, {
                 'e-mappinguid': 'e-flmenu-' + column.uid,
             });
-            node.appendChild(this.fltrMenuEle.cloneNode());
             node.classList.add('e-fltr-icon');
+            let matchFlColumns: Object[] = [];
+            if (this.parent.filterSettings.columns.length && this.parent.filterSettings.columns.length !== matchFlColumns.length) {
+                for (let index: number = 0; index < this.parent.filterSettings.columns.length; index++) {
+                    if (this.parent.filterSettings.columns[index].field === column.field) {
+                        fltrMenuEle.classList.add('e-filtered');
+                        matchFlColumns.push(column.field);
+                    }
+                }
+            }
+            node.appendChild(fltrMenuEle.cloneNode());
         }
 
         if (cell.className) {

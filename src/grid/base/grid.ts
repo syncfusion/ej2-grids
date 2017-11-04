@@ -559,6 +559,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private isMediaQuery: boolean = false;
     private isInitialLoad: boolean = false;
     private dataBoundFunction: Function;
+    private isFilterTypeChanges: string = '';
     /** @hidden */
     public recordsCount: number;
     /**
@@ -2010,7 +2011,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'filterSettings':
                 this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
-                this.headerModule.refreshUI();
+                if (this.isFilterTypeChanges === '' || this.isFilterTypeChanges !== this.filterSettings.type) {
+                    this.headerModule.refreshUI();
+                }
+                this.isFilterTypeChanges = this.filterSettings.type;
                 break;
             case 'searchSettings':
                 this.notify(events.inBoundModelChanged, { module: 'search', properties: newProp.searchSettings });

@@ -399,7 +399,11 @@ export class Filter implements IAction {
                     delete this.values[field];
                 }
                 cols.splice(i, 1);
-                this.parent.getColumnHeaderByField(field).removeAttribute('aria-filtered');
+                let fltrElement: Element = this.parent.getColumnHeaderByField(field);
+                fltrElement.removeAttribute('aria-filtered');
+                if (this.filterSettings.type !== 'filterbar') {
+                    fltrElement.querySelector('.e-icon-filter').classList.remove('e-filtered');
+                }
                 this.isRemove = true;
                 this.parent.notify(events.modelChanged, {
                     requestType: 'filtering', type: events.actionBegin

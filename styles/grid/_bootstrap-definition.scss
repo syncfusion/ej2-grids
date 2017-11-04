@@ -195,5 +195,16 @@ $grid-device-groupheadercell-span-line-height: 33px;
 $grid-edit-checkbox-bigger-padding-left: 8px;
 $grid-edit-checkbox-bigger-padding-top: 8px;
 $grid-cell-focus-shadow: 0 0 0 1px $input-border-focus inset;
-$grid-headercelldiv-fltricon-padding: 0 2em 0 .5em;
+$grid-headercelldiv-fltricon-margin: -5px 15px -5px;
+$grid-filtered-color: $brand-primary;
+$grid-checkbox-padding-topbottom: 8px;
+$grid-bigger-checkbox-padding-topbottom: 9px;
+$grid-fltrdiv-margin: -20px -7px;
+$grid-rtl-fltrdiv-margin: -20px -7px;
+$grid-bigger-fltrdiv-margin: -21px -7px;
 $grid-icon-save: '\e964';
+$grid-sortdiv-filtericon-margin: -29px 10px;
+$grid-sortdiv-filtericon-rightalign-margin: -29px -5px;
+$grid-bigger-fltricon-sortdiv-rightalign-margin: -31px -5px;
+$grid-bigger-fltricon-sortdiv-margin: -31px 10px;
+
