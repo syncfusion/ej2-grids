@@ -14,12 +14,19 @@ export class FocusStrategy {
     public parent: IGrid;
     public currentInfo: FocusInfo = {};
     public oneTime: boolean = true;
+    public swap: boolean;
     public content: IFocus; public header: IFocus; public active: IFocus;
     private forget: boolean = true;
+    private skipFocus: boolean = false;
     private prevIndexes: IIndex = {};
     constructor(parent: IGrid) {
         this.parent = parent;
         this.addEventListener();
+    }
+
+    protected focusCheck(e: Event): void {
+        let target: HTMLElement = <HTMLElement>e.target;
+        this.skipFocus = closest(target, 'e-pager') !== null;
     }
 
     protected onFocus(): void {
@@ -27,7 +34,10 @@ export class FocusStrategy {
         this.setActive(true);
         let current: number[] = this.getContent().matrix.get(0, -1, [0, 1], null, this.getContent().validator());
         this.getContent().matrix.select(current[0], current[1]);
-        this.focus();
+        if (this.skipFocus) {
+            this.focus();
+            this.skipFocus = false;
+        }
     }
 
     public onClick(e: Event | { target: Element }, force?: boolean): void {
@@ -40,21 +50,31 @@ export class FocusStrategy {
     }
 
     protected onKeyPress(e: KeyboardEventArgs): void {
-        if (this.parent.editSettings.mode !== 'batch' && (this.parent.isEdit || ['insert', 'f2', 'delete'].indexOf(e.action) > -1)) {
+        if (this.skipOn(e)) {
             return;
         }
         let bValue: number[] = this.getContent().matrix.current;
         this.currentInfo.outline = true;
-        let swap: boolean = this.getContent().jump(e.action, bValue);
-        if (swap) {
+        this.swap = this.getContent().jump(e.action, bValue);
+        if (this.swap) {
             let isHeader: boolean = this.header === this.getContent();
             this.setActive(isHeader); let rowInitVal: number = isHeader ? -1 : this.header.matrix.matrix.length;
             let current: number[] = this.getContent().matrix.get(rowInitVal, bValue[1], [0, 0], e.action, this.getContent().validator());
             this.getContent().matrix.current = [rowInitVal, current[1]];
+            this.prevIndexes = {};
         }
         e.preventDefault();
         this.getContent().onKeyPress(e);
         this.focus(e);
+    }
+
+    private skipOn(e: KeyboardEventArgs): boolean {
+        let target: HTMLElement = <HTMLElement>e.target; if (!target) { return false; }
+        return (this.parent.editSettings.mode !== 'batch' && (this.parent.isEdit || ['insert', 'f2', 'delete'].indexOf(e.action) > -1)
+        || (closest(document.activeElement, '.e-filterbarcell') !== null && ['leftArrow', 'rightArrow'].indexOf(e.action) > -1)
+        || (closest(target, '.e-gridcontent') === null && closest(target, '.e-gridheader') === null)
+        || (e.action === 'space' && (!target.classList.contains('e-gridchkbox') && closest(target, '.e-gridchkbox') === null
+        && closest(target, '.e-headerchkcelldiv') === null)));
     }
 
     public getFocusedElement(): HTMLElement {
@@ -105,6 +125,7 @@ export class FocusStrategy {
             byKey: !isNullOrUndefined(e),
             byClick: isNullOrUndefined(e),
             keyArgs: e,
+            isJump: this.swap,
             container: this.getContent().getInfo(e),
             outline: !isNullOrUndefined(e)
         });
@@ -132,6 +153,7 @@ export class FocusStrategy {
 
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        EventHandler.add(this.parent.element, 'mousedown', this.focusCheck, this);
         EventHandler.add(this.parent.element, 'focus', this.onFocus, this);
         this.parent.on(event.keyPressed, this.onKeyPress, this);
         this.parent.on(event.click, this.onClick, this);
@@ -148,6 +170,7 @@ export class FocusStrategy {
 
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        EventHandler.remove(this.parent.element, 'mousedown', this.focusCheck);
         EventHandler.remove(this.parent.element, 'focus', this.onFocus);
         this.parent.off(event.keyPressed, this.onKeyPress);
         this.parent.off(event.click, this.onClick);
@@ -173,7 +196,7 @@ export class FocusStrategy {
     public clearOutline(): void {
         this.getContent().matrix.current = this.getContent().matrix.get(0, -1, [0, 1], 'downArrow', this.getContent().validator());
         if (!this.currentInfo.element || !this.currentInfo.elementToFocus) { return; }
-        removeClass([this.currentInfo.element, this.currentInfo.elementToFocus], [ 'e-focus', 'e-focused']);
+        removeClass([this.currentInfo.element, this.currentInfo.elementToFocus], ['e-focus', 'e-focused']);
     }
 
     public getPrevIndexes(): IIndex {
@@ -216,7 +239,7 @@ export class Matrix {
 
     public first(vector: number[], index: number, navigator: number[], moveTo?: boolean, action?: string): number {
         if (((index < 0 || index === vector.length) && this.inValid(vector[index])
-        && (action !== 'upArrow' && action !== 'downArrow')) || !vector.some((v: number) => v === 1)) {
+            && (action !== 'upArrow' && action !== 'downArrow')) || !vector.some((v: number) => v === 1)) {
             return null;
         }
         return !this.inValid(vector[index]) ? index :
@@ -293,13 +316,14 @@ export class ContentFocus implements IFocus {
         if (!isPresent && !this.indexesByKey(action)) { return null; }
         if (!this.shouldFocusChange(e)) { return this.matrix.current; }
         let [rowIndex, cellIndex, rN, cN]: number[] = this.indexesByKey(action) || [...this.matrix.current, ...navigator];
-        let current: number[] = this.matrix.get(rowIndex, cellIndex, [rN, cN] , action, this.validator());
+        let current: number[] = this.matrix.get(rowIndex, cellIndex, [rN, cN], action, this.validator());
         return current;
     }
 
     public onClick(e: Event, force?: boolean): void | boolean {
         let target: HTMLTableCellElement = <HTMLTableCellElement>e.target;
         target = <HTMLTableCellElement>(target.classList.contains('e-rowcell') ? target : closest(target, 'td'));
+        if (!target) { return; }
         let [rowIndex, cellIndex]: number[] = [(<HTMLTableRowElement>target.parentElement).rowIndex, target.cellIndex];
         let [oRowIndex, oCellIndex]: number[] = this.matrix.current;
         let val: number = getValue(`${rowIndex}.${cellIndex}`, this.matrix.matrix);
@@ -321,19 +345,19 @@ export class ContentFocus implements IFocus {
         let child: HTMLElement[] = [].slice
             .call(element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]'));
 
-            /* Select the first focusable child element
-             * if no child found then select the cell itself.
-             */
+        /* Select the first focusable child element
+         * if no child found then select the cell itself.
+         */
         return child.length ? child[0] : element;
     }
 
     public selector(row: Row<Column>, cell: Cell<Column>): boolean {
         let types: CellType[] = [CellType.Expand, CellType.GroupCaption, CellType.CaptionSummary, CellType.GroupSummary];
         return ((row.isDataRow && cell.visible && (cell.isDataCell || cell.isTemplate))
-        || (row.isDataRow && cell.cellType === CellType.DetailExpand)
-        || (!row.isDataRow && types.indexOf(cell.cellType) > -1)
-        || (cell.column && cell.column.type === 'checkbox'))
-        && !(row.edit === 'delete' && row.isDirty);
+            || (row.isDataRow && cell.cellType === CellType.DetailExpand)
+            || (!row.isDataRow && types.indexOf(cell.cellType) > -1)
+            || (cell.column && cell.column.type === 'checkbox'))
+            && !(row.edit === 'delete' && row.isDirty);
     }
 
     public jump(action: string, current: number[]): boolean {
@@ -348,7 +372,7 @@ export class ContentFocus implements IFocus {
         let info: FocusInfo = this.getFocusInfo(); let [rIndex, cIndex]: number[] = this.matrix.current;
         let isData: boolean = info.element.classList.contains('e-rowcell');
         let isSelectable: boolean = isData || (e && e.action !== 'enter' && (info.element.classList.contains('e-detailrowcollapse')
-        || info.element.classList.contains('e-detailrowexpand')));
+            || info.element.classList.contains('e-detailrowexpand')));
         let [rowIndex, cellIndex]: number[] = [Math.min(parseInt(info.element.parentElement.getAttribute('aria-rowindex'), 10), rIndex),
         Math.min(parseInt(info.element.getAttribute('aria-colindex'), 10), cIndex)];
         return { isContent: true, isDataCell: isData, indexes: [rowIndex, cellIndex], isSelectable: isSelectable };
@@ -399,7 +423,7 @@ export class HeaderFocus extends ContentFocus implements IFocus {
         info.element = (<HTMLTableElement>this.parent.getHeaderTable())
             .rows[rowIndex].cells[cellIndex];
         info.elementToFocus = this.getFocusable(info.element);
-        info.outline =  !info.element.classList.contains('e-filterbarcell');
+        info.outline = !info.element.classList.contains('e-filterbarcell');
         return info;
     }
 
@@ -421,7 +445,7 @@ export class HeaderFocus extends ContentFocus implements IFocus {
     }
 
     public getInfo(): FocusedContainer {
-        return { isContent: false };
+        return { isContent: false, isHeader: true };
     }
 
     public validator(): Function {
@@ -432,5 +456,5 @@ export class HeaderFocus extends ContentFocus implements IFocus {
         if (rIndex < 0 || cIndex < 0) { return true; }
         let cell: Element = (<HTMLTableElement>this.parent.getHeaderTable()).rows[rIndex].cells[cIndex];
         return e.action === 'enter' ? !cell.classList.contains('e-headercell') : true;
-     }
+    }
 }

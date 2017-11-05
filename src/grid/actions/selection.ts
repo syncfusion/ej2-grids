@@ -346,6 +346,7 @@ export class Selection implements IAction {
             let target: Element = this.focus.getPrevIndexes().cellIndex ?
                 (<HTMLTableRowElement>selectedRow).cells[this.focus.getPrevIndexes().cellIndex] :
                 selectedRow.querySelector('.e-selectionbackground:not(.e-hide)');
+            if (!target) { return; }
             this.focus.onClick({ target }, true);
         }
     }
@@ -1220,16 +1221,17 @@ export class Selection implements IAction {
     }
 
     private onCellFocused(e: CellFocusArgs): void {
-        let clear: boolean = (!e.container.isContent || !e.container.isSelectable) &&
+        let clear: boolean = ((e.container.isHeader && e.isJump) || (e.container.isContent && !e.container.isSelectable)) &&
             !(e.byKey && e.keyArgs.action === 'space');
+        let headerAction: boolean = e.container.isHeader && !(e.byKey && e.keyArgs.action === 'space');
         if (!e.byKey || clear) {
             if (clear) { this.clearSelection(); }
             return;
         }
         let [rowIndex, cellIndex]: number[] = e.container.isContent ? e.container.indexes : e.indexes;
         let prev: IIndex = this.focus.getPrevIndexes();
-        if (['ctrlPlusA', 'escape'].indexOf(e.keyArgs.action) === -1 && e.keyArgs.action !== 'space' &&
-            rowIndex === prev.rowIndex && cellIndex === prev.cellIndex) { return; }
+        if (headerAction || (['ctrlPlusA', 'escape'].indexOf(e.keyArgs.action) === -1 && e.keyArgs.action !== 'space' &&
+            rowIndex === prev.rowIndex && cellIndex === prev.cellIndex)) { return; }
         this.preventFocus = true;
         switch (e.keyArgs.action) {
             case 'downArrow':

@@ -1575,4 +1575,59 @@ describe('Grouping module', () => {
         });
     });
 
+    describe('expand and collapse on enter', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => {
+                gridObj.element.focus();
+                done(); 
+            };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'ShipCity', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    allowSelection: true,
+                    groupSettings: { columns: ['OrderID'] },
+                    allowPaging: true,
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('collapse check', () => {
+            gridObj.keyboardModule.keyAction(<any>{ action: 'enter', target: (<any>gridObj.contentModule.getTable()).rows[0].cells[0],
+        preventDefault: () => {} });
+            expect((<any>gridObj.contentModule.getTable()).rows[0].querySelector('.e-recordpluscollapse')).not.toBeNull();
+        });
+        it('expand check', () => {
+            gridObj.keyboardModule.keyAction(<any>{ action: 'enter', target: (<any>gridObj.contentModule.getTable()).rows[0].cells[0],
+            preventDefault: () => {} });
+            expect((<any>gridObj.contentModule.getTable()).rows[0].querySelector('.e-recordplusexpand')).not.toBeNull();
+        });
+        it('collapse check with edit', () => {
+            gridObj.isEdit = true;
+            gridObj.keyboardModule.keyAction(<any>{ action: 'enter', target: (<any>gridObj.contentModule.getTable()).rows[0].cells[0],
+        preventDefault: () => {} });
+            expect((<any>gridObj.contentModule.getTable()).rows[0].querySelector('.e-recordplusexpand')).not.toBeNull();
+            gridObj.isEdit = false;
+        });
+        afterAll(() => {
+            gridObj.destroy();
+            elem.remove();
+        });
+    });
+
 });

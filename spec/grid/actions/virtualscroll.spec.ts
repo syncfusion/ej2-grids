@@ -91,33 +91,33 @@ describe('Virtualization testing', () => {
     //     });
     // });
 
-    describe('horizontal scroll with row virtualization', () => {
-        let grid: Grid;
-        let rows: HTMLTableRowElement;
-        let columns: ColumnModel[] = count500.map((val: string) => ({ field: val, width: 200 }));
-        beforeAll((done: Function) => {
-            grid = createGrid(
-                {
-                    dataSource: data,
-                    columns: columns,
-                    enableVirtualization: true,
-                    pageSettings: { pageSize: 40 },
-                    height: 300,
-                    width: 300,
-                },
-                () => {
-                    (<HTMLElement>grid.getContent().firstChild).scrollLeft = 100;
-                    setTimeout(done, 200);
-                }
-            );
-        });
-        it('check current page', () => {
-            expect(grid.pageSettings.currentPage).toBeGreaterThanOrEqual(1);
-        });
-        afterAll(() => {
-            destroy(grid);
-        });
-    });
+    // describe('horizontal scroll with row virtualization', () => {
+    //     let grid: Grid;
+    //     let rows: HTMLTableRowElement;
+    //     let columns: ColumnModel[] = count500.map((val: string) => ({ field: val, width: 200 }));
+    //     beforeAll((done: Function) => {
+    //         grid = createGrid(
+    //             {
+    //                 dataSource: data,
+    //                 columns: columns,
+    //                 enableVirtualization: true,
+    //                 pageSettings: { pageSize: 40 },
+    //                 height: 300,
+    //                 width: 300,
+    //             },
+    //             () => {
+    //                 (<HTMLElement>grid.getContent().firstChild).scrollLeft = 100;
+    //                 setTimeout(done, 200);
+    //             }
+    //         );
+    //     });
+    //     it('check current page', () => {
+    //         expect(grid.pageSettings.currentPage).toBeGreaterThanOrEqual(1);
+    //     });
+    //     afterAll(() => {
+    //         destroy(grid);
+    //     });
+    // });
 
     describe('scroll continous', () => {
         let grid: Grid;

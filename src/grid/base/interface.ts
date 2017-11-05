@@ -1145,6 +1145,7 @@ export interface CellFocusArgs {
     byKey?: boolean;
     byClick?: boolean;
     keyArgs?: KeyboardEventArgs;
+    isJump?: boolean;
     container: FocusedContainer;
     outline?: boolean;
 }
@@ -1153,6 +1154,7 @@ export interface CellFocusArgs {
  */
 export interface FocusedContainer {
     isContent?: boolean;
+    isHeader?: boolean;
     isDataCell?: boolean;
     isFrozen?: boolean;
     isStacked?: boolean;

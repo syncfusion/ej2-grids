@@ -1586,9 +1586,9 @@ describe('Grid Touch Selection', () => {
             expect(gridObj.getRows()[0].children[3].hasAttribute('aria-selected')).toBeFalsy();
         });
         it('press down arrow', () => {
-            let args: any = { action: 'downArrow', preventDefault: preventDefault };
+            let args: any = { action: 'downArrow', preventDefault: preventDefault, target: document.activeElement };
             gridObj.keyboardModule.keyAction(args);
-            expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeFalsy();
+            expect(gridObj.getRows()[0].children[3].classList.contains('e-cellselectionbackground')).toBeTruthy();
         });
 
         it('press ctrl+home arrow', () => {

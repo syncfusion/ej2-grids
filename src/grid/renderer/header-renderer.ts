@@ -418,6 +418,7 @@ export class HeaderRender implements IRenderer {
         table.removeChild(table.childNodes[0]);
         let colGroup: Element = createElement('colgroup');
         let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
+        this.rows = findHeaderRow.rows;
         table.insertBefore(findHeaderRow.thead, table.firstChild);
         this.updateColGroup(colGroup);
         table.insertBefore(this.setColGroup(colGroup), table.firstChild);

@@ -9,6 +9,7 @@ import { ServiceLocator } from '../services/service-locator';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { AriaService } from '../services/aria-service';
+import { FocusStrategy } from '../services/focus-strategy';
 
 /**
  * 
@@ -80,6 +81,7 @@ export class Group implements IAction {
     private sortedColumns: string[];
     private l10n: L10n;
     private aria: AriaService = new AriaService();
+    private focus: FocusStrategy;
 
     /**
      * Constructor for Grid group module
@@ -90,6 +92,7 @@ export class Group implements IAction {
         this.groupSettings = groupSettings;
         this.serviceLocator = serviceLocator;
         this.sortedColumns = sortedColumns;
+        this.focus = serviceLocator.getService<FocusStrategy>('focus');
         this.addEventListener();
     }
 
@@ -209,6 +212,13 @@ export class Group implements IAction {
                 break;
             case 'ctrlUpArrow':
                 this.collapseAll();
+                break;
+            case 'enter':
+                if (this.parent.isEdit) { return; }
+                let element: HTMLElement = this.focus.getFocusedElement();
+                let row: Element = element.parentElement.querySelector('[class^="e-record"]');
+                if (!row) { break; }
+                this.expandCollapseRows(row);
                 break;
         }
     }

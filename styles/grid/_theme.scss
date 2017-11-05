@@ -12,6 +12,10 @@
       box-shadow: $grid-cell-focus-shadow;
     }
 
+    &.e-rlines .e-focused .e-rhandler {
+      border: 0 none;
+    }
+
     .e-gridheader .e-icons:not(.e-icon-hide):not(.e-check) {
       color: $grid-icon-default-color;
     }
