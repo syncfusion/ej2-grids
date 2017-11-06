@@ -78,10 +78,10 @@ describe('Grid clipboard copy testing - row type selection', () => {
     //     Browser.userAgent = browUa;
     // });
 
-    it('Check clipboard area after destroy', () => {
-        gridObj.clipboardModule.destroy();
-        expect(document.querySelectorAll('.e-clipboard').length === 0).toBeTruthy();
-    });
+    // it('Check clipboard area after destroy', () => {
+    //     gridObj.clipboardModule.destroy();
+    //     expect(document.querySelectorAll('.e-clipboard').length === 0).toBeTruthy();
+    // });
 
     afterAll(() => {
         remove(elem);

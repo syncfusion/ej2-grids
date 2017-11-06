@@ -123,79 +123,79 @@ describe('Theme', () => {
         }, 500);
     });
 });
-describe('Grouping with aggregates export testing', () => {
+// describe('Grouping with aggregates export testing', () => {
 
-    let gridObj: Grid;
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
-    let actionBegin: (e?: Object) => void;
-    let actionComplete: (e?: Object) => void;
+//     let gridObj: Grid;
+//     let elem: HTMLElement = createElement('div', { id: 'Grid' });
+//     let actionBegin: (e?: Object) => void;
+//     let actionComplete: (e?: Object) => void;
 
-    afterEach(() => {
-        remove(elem);
-    });
-    beforeEach(() => {
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-        document.body.appendChild(elem);
-        gridObj = new Grid(
-            {
-                dataSource: data,
-                allowExcelExport: true,
-                allowPdfExport: true,
-                allowPaging: true,
-                allowGrouping: true,
-                groupSettings: { columns: ['Verified', 'ShipRegion', 'ShipCountry'] },
-                toolbar: ['excelexport'],
-                pageSettings: { pageCount: 5 },
-                excelQueryCellInfo: excelQueryCellInfo,
-                columns: [
-                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'right', width: 120 },
-                    { field: 'OrderDate', headerText: 'Order Date', headerTextAlign: 'right', textAlign: 'right', width: 135, format: 'yMd' },
-                    { field: 'Freight', headerText: 'Freight($)', textAlign: 'right', width: 120, format: 'C2' },
-                    { field: 'ShipCountry', headerText: 'Ship Country', width: 140 },
-                    { field: 'ShipRegion', width: 140 },
-                    { field: 'Verified', width: 140 },
-                    { field: 'ShipPostalCode', width: 140 },
-                ],
-                aggregates: [{
-                    columns: [
-                        {
-                            type: 'min',
-                            field: 'Freight',
-                            format: 'C2',
-                            groupFooterTemplate: 'Min: ${min}'
-                        },
-                        {
-                            type: 'max',
-                            field: 'OrderDate',
-                            format: { type: 'date', skeleton: 'medium' },
-                            groupFooterTemplate: 'Max: ${max}'
-                        }, {
-                            type: 'max',
-                            field: 'Freight',
-                            format: 'C2',
-                            groupCaptionTemplate: 'Max: ${max}'
-                        }, {
-                            type: 'max',
-                            field: 'OrderDate',
-                            format: { type: 'date', skeleton: 'medium' },
-                            groupCaptionTemplate: 'Max: ${max}'
-                        }
-                    ]
-                }]
-            });
-        gridObj.appendTo('#Grid');
-        gridObj.dataBind();
-    });
+//     afterEach(() => {
+//         remove(elem);
+//     });
+//     beforeEach(() => {
+//         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+//         document.body.appendChild(elem);
+//         gridObj = new Grid(
+//             {
+//                 dataSource: data,
+//                 allowExcelExport: true,
+//                 allowPdfExport: true,
+//                 allowPaging: true,
+//                 allowGrouping: true,
+//                 groupSettings: { columns: ['Verified', 'ShipRegion', 'ShipCountry'] },
+//                 toolbar: ['excelexport'],
+//                 pageSettings: { pageCount: 5 },
+//                 excelQueryCellInfo: excelQueryCellInfo,
+//                 columns: [
+//                     { field: 'OrderID', headerText: 'Order ID', textAlign: 'right', width: 120 },
+//                     { field: 'OrderDate', headerText: 'Order Date', headerTextAlign: 'right', textAlign: 'right', width: 135, format: 'yMd' },
+//                     { field: 'Freight', headerText: 'Freight($)', textAlign: 'right', width: 120, format: 'C2' },
+//                     { field: 'ShipCountry', headerText: 'Ship Country', width: 140 },
+//                     { field: 'ShipRegion', width: 140 },
+//                     { field: 'Verified', width: 140 },
+//                     { field: 'ShipPostalCode', width: 140 },
+//                 ],
+//                 aggregates: [{
+//                     columns: [
+//                         {
+//                             type: 'min',
+//                             field: 'Freight',
+//                             format: 'C2',
+//                             groupFooterTemplate: 'Min: ${min}'
+//                         },
+//                         {
+//                             type: 'max',
+//                             field: 'OrderDate',
+//                             format: { type: 'date', skeleton: 'medium' },
+//                             groupFooterTemplate: 'Max: ${max}'
+//                         }, {
+//                             type: 'max',
+//                             field: 'Freight',
+//                             format: 'C2',
+//                             groupCaptionTemplate: 'Max: ${max}'
+//                         }, {
+//                             type: 'max',
+//                             field: 'OrderDate',
+//                             format: { type: 'date', skeleton: 'medium' },
+//                             groupCaptionTemplate: 'Max: ${max}'
+//                         }
+//                     ]
+//                 }]
+//             });
+//         gridObj.appendTo('#Grid');
+//         gridObj.dataBind();
+//     });
 
-    it('Grouped Grid Exporting', (done) => {
+//     it('Grouped Grid Exporting', (done) => {
 
-        gridObj.excelExport();
-        setTimeout(() => {
-            expect('').toBe('');
-            done();
-        }, 500);
-    });
-});
+//         gridObj.excelExport();
+//         setTimeout(() => {
+//             expect('').toBe('');
+//             done();
+//         }, 500);
+//     });
+// });
 describe('Grouping export testing', () => {
 
     let gridObj: Grid;
