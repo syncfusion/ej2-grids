@@ -28,7 +28,7 @@ import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Filter, Page, Selection, Group, Edit, Sort, Reorder, Toolbar);
 
-describe('Editing module', () => {
+describe('Batch Editing module', () => {
 
     let dataSource: Function = (): Object[] => {
         let datasrc: Object[] = [];
@@ -1693,8 +1693,7 @@ describe('Editing module', () => {
         it('save', (done: Function) => {
             let cellSave = (args?: any): void => {
                 expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-                expect(document.querySelectorAll('.e-griderror').length).toBe(0);
+                gridObj.cellSave = null;              
                 done();
             };
             gridObj.cellSave = cellSave;
@@ -1703,6 +1702,7 @@ describe('Editing module', () => {
         });
 
         it('allow adding false testing', () => {
+            expect(document.querySelectorAll('.e-griderror').length).toBe(0);
             gridObj.editSettings.allowAdding = false;
             gridObj.dataBind();
             (gridObj.editModule as any).editModule.bulkAddRow();

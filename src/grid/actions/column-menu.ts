@@ -6,7 +6,7 @@ import { parentsUntil } from '../base/util';
 import { Column } from '../models/column';
 import { ServiceLocator } from '../services/service-locator';
 import * as events from '../base/constant';
-import { OffsetPosition, calculatePosition, isCollide, fit } from '@syncfusion/ej2-popups';
+import { OffsetPosition, calculatePosition } from '@syncfusion/ej2-popups';
 import { createCheckBox } from '@syncfusion/ej2-buttons';
 import { Group } from '../actions/group';
 import { Sort } from '../actions/sort';
@@ -70,8 +70,11 @@ export class ColumnMenu implements IAction {
      * @hidden
      */
     public destroy(): void {
+        this.columnMenu.destroy();
         this.removeEventListener();
         this.unwireFilterEvents();
+        this.unwireEvents();
+        remove(this.element);
     }
 
     public columnMenuHandlerClick(e: Event): void {
@@ -86,15 +89,21 @@ export class ColumnMenu implements IAction {
     }
 
     private openColumnMenu(e: Event): void {
+        let pos: OffsetPosition = { top: 0, left: 0 };
+        this.element.style.cssText = 'display:block;visibility:hidden';
+        let elePos: ClientRect = this.element.getBoundingClientRect();
+        this.element.style.cssText = 'display:none;visibility:visible';
         this.headerCell = this.getHeaderCell(e);
-        let pos: OffsetPosition;
-        if (this.parent.enableRtl) {
-            pos = calculatePosition(this.headerCell, 'left', 'bottom');
+        if (Browser.isDevice) {
+            pos.top = ((window.innerHeight / 2) - (elePos.height / 2));
+            pos.left = ((window.innerWidth / 2) - (elePos.width / 2));
         } else {
-            pos = calculatePosition(this.headerCell, 'right', 'bottom');
-            this.element.style.cssText = 'display:block;visibility:hidden';
-            pos.left -= this.element.getBoundingClientRect().width;
-            this.element.style.cssText = 'display:none;visibility:visible';
+            if (this.parent.enableRtl) {
+                pos = calculatePosition(this.headerCell, 'left', 'bottom');
+            } else {
+                pos = calculatePosition(this.headerCell, 'right', 'bottom');
+                pos.left -= elePos.width;
+            }
         }
         this.columnMenu.open(pos.top, pos.left);
         e.preventDefault();
@@ -391,7 +400,9 @@ export class ColumnMenu implements IAction {
     private createChooserItems(): ColumnMenuItemModel[] {
         let items: ColumnMenuItemModel[] = [];
         for (let col of this.parent.getColumns()) {
-            items.push({ id: this.generateID(col.field, this.CHOOSER), text: col.headerText ? col.headerText : col.field });
+            if (col.showInColumnChooser) {
+                items.push({ id: this.generateID(col.field, this.CHOOSER), text: col.headerText ? col.headerText : col.field });
+            }
         }
         return items;
     }
@@ -418,25 +429,23 @@ export class ColumnMenu implements IAction {
     }
 
     private setPosition(li: Element, ul: HTMLElement): void {
-        let x: string = this.parent.enableRtl ? 'left' : 'right';
-        let offset: OffsetPosition = calculatePosition(li, x, 'top');
-        let top: number = offset.top;
-        let left: number = offset.left;
-        let collide: string[] = isCollide(ul, this.parent.element, this.parent.enableRtl ? left - ul.offsetWidth : left, top);
-        let xCollision: boolean = collide.indexOf('left') > -1 || collide.indexOf('right') > -1;
-        if (xCollision) {
-            offset = calculatePosition(li, this.parent.enableRtl ? 'right' : 'left', 'top');
-            left = offset.left;
+        let gridPos: ClientRect = this.parent.element.getBoundingClientRect();
+        let liPos: ClientRect = li.getBoundingClientRect();
+        let left: number = liPos.left - gridPos.left;
+        let top: number = liPos.top - gridPos.top;
+        if (gridPos.height < top) {
+            top = top - ul.offsetHeight + liPos.height;
+        } else if (gridPos.height < top + ul.offsetHeight) {
+            top = gridPos.height - ul.offsetHeight;
         }
-        if (this.parent.enableRtl || xCollision) {
-            left = (this.parent.enableRtl && xCollision) ? left : left - ul.offsetWidth;
+        left += (this.parent.enableRtl ? - ul.offsetWidth : liPos.width);
+        if (gridPos.width <= left + ul.offsetWidth) {
+            left -= liPos.width + ul.offsetWidth;
+        } else if (left < 0) {
+            left += ul.offsetWidth + liPos.width;
         }
-        if (collide.indexOf('bottom') > -1) {
-            offset = fit(ul, this.parent.element, { X: false, Y: true }, { top: top, left: left });
-            top = offset.top;
-        }
-        ul.style.top = top - 8 + 'px';
-        ul.style.left = left - 9 + 'px';
+        ul.style.top = top + 'px';
+        ul.style.left = left + 'px';
     }
 
     private filterPosition(e: Event): void {

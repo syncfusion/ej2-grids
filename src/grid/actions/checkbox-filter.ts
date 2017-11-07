@@ -15,13 +15,15 @@ import { getActualProperties } from '../base/util';
 import { Dialog } from '@syncfusion/ej2-popups';
 import { Input } from '@syncfusion/ej2-inputs';
 import { createSpinner, hideSpinner, showSpinner } from '@syncfusion/ej2-popups';
+import { getFilterMenuPostion } from '../base/util';
 /**
  * @hidden
  * `CheckBoxFilter` module is used to handle filtering action.
  */
 export class CheckBoxFilter {
-    //Internal variables 
-    protected menu: Element;
+    //Internal variables     
+    protected sBox: HTMLElement;
+    protected isExcel: boolean;
     protected id: string;
     protected colType: string;
     protected fullData: Object[];
@@ -49,6 +51,8 @@ export class CheckBoxFilter {
     protected values: Object = {};
     private cBoxTrue: Element = createCheckBox(false, { checked: true, label: ' ' });
     private cBoxFalse: Element = createCheckBox(false, { checked: false, label: ' ' });
+    private itemsCnt: number;
+    private result: Object;
 
     //Module declarations
     protected parent: IGrid;
@@ -76,6 +80,10 @@ export class CheckBoxFilter {
                 className: 'e-chk-hidden', attrs: { 'type': 'checkbox' }
             }),
             this.cBoxFalse.firstChild);
+        this.cBoxFalse.querySelector('.e-frame').classList.add('e-uncheck');
+        if (this.parent.enableRtl) {
+            addClass([this.cBoxTrue, this.cBoxFalse], ['e-rtl']);
+        }
     }
 
     protected initLocale(constants: Object): void {
@@ -151,7 +159,7 @@ export class CheckBoxFilter {
         }
     }
 
-    private updateModel(options: IFilterArgs): void {
+    protected updateModel(options: IFilterArgs): void {
         this.options = options;
         this.options.dataSource = options.dataSource;
         this.updateDataSource();
@@ -166,18 +174,14 @@ export class CheckBoxFilter {
         extend(this.defaultConstants, options.localizedStrings);
     }
 
-    public openDialog(options: IFilterArgs): void {
-        this.updateModel(options);
+    protected getAndSetChkElem(options: IFilterArgs): HTMLElement {
         this.dlg = createElement('div', {
             id: this.id + this.options.type + '_excelDlg',
             className: 'e-checkboxfilter e-filter-popup'
         });
-        this.spinner = createElement('div', { className: 'e-spinner' });
-        this.cBox = createElement('div', {
-            id: this.id + this.options.type + '_CheckBoxList',
-            className: 'e-checkboxlist e-fields'
-        }) as HTMLElement;
-        let sBox: Element = createElement('div', { className: 'e-searchcontainer' });
+
+        this.sBox = createElement('div', { className: 'e-searchcontainer' });
+
         if (!options.hideSearchbox) {
             this.sInput = createElement('input', {
                 id: this.id + '_SearchBox',
@@ -190,7 +194,7 @@ export class CheckBoxFilter {
             });
             this.searchBox = createElement('span', { className: 'e-searchbox e-fields' });
             this.searchBox.appendChild(this.sInput);
-            sBox.appendChild(this.searchBox);
+            this.sBox.appendChild(this.searchBox);
             Input.createInput({
                 element: this.sInput as HTMLInputElement, floatLabelType: 'Never', properties: {
                     placeholder: this.getLocalizedLabel('Search')
@@ -199,34 +203,45 @@ export class CheckBoxFilter {
             this.searchBox.querySelector('.e-input-group').appendChild(this.sIcon);
         }
 
+        this.spinner = createElement('div', { className: 'e-spinner' }); //for spinner
+        this.cBox = createElement('div', {
+            id: this.id + this.options.type + '_CheckBoxList',
+            className: 'e-checkboxlist e-fields'
+        }) as HTMLElement;
+
+
         this.spinner.appendChild(this.cBox);
-        sBox.appendChild(this.spinner);
-        this.dlg.appendChild(sBox);
+        this.sBox.appendChild(this.spinner);
+        return this.sBox;
+    }
+
+    protected showDialog(options: IFilterArgs): void {
         let args: Object = {
             requestType: events.filterBeforeOpen, filterModel: this,
             columnName: this.options.field, columnType: this.options.type
         };
         this.parent.trigger(events.actionBegin, args);
         this.dialogObj = new Dialog({
-            visible: true, content: sBox as HTMLElement,
+            visible: false, content: this.sBox as HTMLElement,
             close: this.closeDialog.bind(this),
-            width: 200, height: 280,
+            width: (!isNullOrUndefined(parentsUntil(options.target, 'e-bigger')))
+                || this.parent.element.classList.contains('e-device') ? 260 : 250,
             target: this.parent.element, animationSettings:
             { effect: 'None' },
             buttons: [{
                 click: this.btnClick.bind(this),
-                buttonModel: { content: this.getLocalizedLabel('Filter'), cssClass: 'e-primary', isPrimary: true }
+                buttonModel: { content: this.getLocalizedLabel(this.isExcel ? 'OK' : 'Filter'), cssClass: 'e-primary', isPrimary: true }
             },
             {
                 click: this.btnClick.bind(this),
-                buttonModel: { cssClass: 'e-flat', content: this.getLocalizedLabel('Clear') }
+                buttonModel: { cssClass: 'e-flat', content: this.getLocalizedLabel(this.isExcel ? 'Cancel' : 'Clear') }
             }],
-            created: this.dialogCreated.bind(this)
+            created: this.dialogCreated.bind(this),
+            open: this.dialogOpen.bind(this)
         });
-        if (!Browser.isDevice) {
-            this.dialogObj.position = options.position;
-        }
         this.dialogObj.appendTo(this.dlg as HTMLElement);
+        this.dialogObj.element.style.maxHeight = '800px';
+        this.dialogObj.show();
         this.wireEvents();
         createSpinner({ target: this.spinner });
         showSpinner(this.spinner);
@@ -234,11 +249,23 @@ export class CheckBoxFilter {
     }
 
     private dialogCreated(e: {}): void {
+        if (!Browser.isDevice) {
+            getFilterMenuPostion(this.options.target, this.dialogObj);
+        } else {
+            this.dialogObj.position = { X: 'center', Y: 'center' };
+        }
         this.parent.notify(events.filterDialogCreated, e);
+    }
+
+    public openDialog(options: IFilterArgs): void {
+        this.updateModel(options);
+        this.getAndSetChkElem(options);
+        this.showDialog(options);
     }
 
     public closeDialog(): void {
         if (this.dialogObj && !this.dialogObj.isDestroyed) {
+            this.parent.notify(events.filterMenuClose, { field: this.options.field });
             this.dialogObj.destroy();
             remove(this.dlg);
             this.dlg = null;
@@ -246,9 +273,10 @@ export class CheckBoxFilter {
     }
 
     private btnClick(e: MouseEvent): void {
-        if (this.getLocalizedLabel('Filter').toLowerCase() === (e.target as HTMLInputElement).innerText.toLowerCase()) {
+        let text: string = (e.target as HTMLInputElement).innerText.toLowerCase();
+        if (this.getLocalizedLabel(this.isExcel ? 'OK' : 'Filter').toLowerCase() === text) {
             this.fltrBtnHandler();
-        } else {
+        } else if (this.getLocalizedLabel('Clear').toLowerCase() === text) {
             this.options.handler({ action: 'clear-filter', field: this.options.field });
         }
         this.closeDialog();
@@ -256,13 +284,23 @@ export class CheckBoxFilter {
 
     private fltrBtnHandler(): void {
         let checked: Element[] = [].slice.call(this.cBox.querySelectorAll('.e-check:not(.e-selectall)'));
-        let optr: string = this.options.type === 'string' ? 'startswith' : 'equal';
+        if (this.fullData.length === checked.length) {
+            return;
+        }
+        let optr: string = 'equal';
         let caseSen: boolean = this.options.type === 'string' ?
             this.options.allowCaseSensitive : true;
-        let defaults: Object = {
+        let defaults: { predicate?: string, field?: string, operator?: string, matchcase?: boolean } = {
             field: this.options.field, predicate: 'or',
             operator: optr, matchcase: caseSen
         };
+        let isNotEqual: boolean = this.itemsCnt !== checked.length && this.itemsCnt - checked.length < checked.length;
+        if (isNotEqual) {
+            optr = 'notequal';
+            checked = [].slice.call(this.cBox.querySelectorAll('.e-uncheck:not(.e-selectall)'));
+            defaults.predicate = 'and';
+            defaults.operator = 'notequal';
+        }
         let value: string;
         let fObj: PredicateModel;
         let coll: PredicateModel[] = [];
@@ -271,8 +309,8 @@ export class CheckBoxFilter {
             fObj = extend({}, { value: value }, defaults) as {
                 field: string, predicate: string, operator: string, matchcase: boolean, value: string
             };
-            if (!value.length) {
-                fObj.operator = 'equal';
+            if (value && !value.toString().length) {
+                fObj.operator = isNotEqual ? 'notequal' : 'equal';
             }
             coll.push(this.options.type === 'date' ? CheckBoxFilter.setDateObject(fObj) : fObj);
         }
@@ -327,24 +365,29 @@ export class CheckBoxFilter {
         this.processDataSource(query);
     }
 
+    private getPredicateFromCols(columns: Object[]): Predicate {
+        let predicate: Predicate;
+        let predicates: Predicate = CheckBoxFilter.getPredicate(columns);
+        for (let prop of Object.keys(predicates)) {
+            let and: string = 'and';
+            let obj: Predicate | string = predicates[prop] as Predicate | string;
+            predicate = !isNullOrUndefined(predicate) ?
+                (predicate as Object)[and](obj as string) as Predicate :
+                obj as Predicate;
+        }
+        return predicate;
+    }
+
     private getAllData(): void {
         let query: Query = new Query();
         if ((this.options.filteredColumns.length)) {
-            let predicate: Predicate;
             let cols: Object[] = [];
             for (let i: number = 0; i < this.options.filteredColumns.length; i++) {
                 if ((this.options.filteredColumns[i] as { field: string }).field !== this.options.field) {
                     cols.push(this.options.filteredColumns[i]);
                 }
             }
-            let predicates: Predicate = CheckBoxFilter.getPredicate(cols);
-            for (let prop of Object.keys(predicates)) {
-                let and: string = 'and';
-                let obj: Predicate | string = predicates[prop] as Predicate | string;
-                predicate = !isNullOrUndefined(predicate) ?
-                    (predicate as Object)[and](obj as string) as Predicate :
-                    obj as Predicate;
-            }
+            let predicate: Predicate = this.getPredicateFromCols(cols);
             if (predicate) {
                 query.where(predicate);
             }
@@ -381,9 +424,23 @@ export class CheckBoxFilter {
                 dataSource: this.fullData
             };
         this.parent.trigger(events.actionBegin, args);
-        let result: Object = new DataManager(args.dataSource as JSON[]).executeLocal(query);
+        let result: Object = new DataManager(args.dataSource as JSON[]).executeLocal(args.query);
         let res: { result: Object[] } = result as { result: Object[] };
+        this.updateResult();
         this.createFilterItems(res.result, isInitial);
+    }
+
+    private updateResult(): void {
+        this.result = {};
+        let predicate: Predicate = this.getPredicateFromCols(this.options.filteredColumns);
+        let query: Query = new Query();
+        if (predicate) {
+            query.where(predicate);
+        }
+        let result: Object[] = new DataManager(this.fullData as JSON[]).executeLocal(query);
+        for (let res of result) {
+            this.result[res[this.options.field]] = true;
+        }
     }
 
     private clickHandler(e: MouseEvent): void {
@@ -406,9 +463,11 @@ export class CheckBoxFilter {
     private updateAllCBoxes(checked: boolean): void {
         let cBoxes: Element[] = [].slice.call(this.cBox.querySelectorAll('.e-frame'));
         for (let cBox of cBoxes) {
-            removeClass([cBox], ['e-check', 'e-stop']);
+            removeClass([cBox], ['e-check', 'e-stop', 'e-uncheck']);
             if (checked) {
                 cBox.classList.add('e-check');
+            } else {
+                cBox.classList.add('e-uncheck');
             }
         }
     }
@@ -417,10 +476,17 @@ export class CheckBoxFilter {
         return elem.querySelectorAll('e-check').length > 0;
     }
 
+    private dialogOpen(): void {
+        if (this.parent.element.classList.contains('e-device')) {
+            this.dialogObj.element.querySelector('.e-input-group').classList.remove('e-input-focus');
+            (<HTMLElement>this.dialogObj.element.querySelector('.e-checkboxlist')).focus();
+        }
+    }
+
     private toogleCheckbox(elem: Element): void {
         let span: Element = elem.querySelector('.e-frame');
-        span.classList.contains('e-check') ? span.classList.remove('e-check') :
-            span.classList.add('e-check');
+        span.classList.contains('e-check') ? classList(span, ['e-uncheck'], ['e-check']) :
+            classList(span, ['e-check'], ['e-uncheck']);
     }
 
     private createCboxWithWrap(value: string, checked: boolean, uid: string): Element {
@@ -459,23 +525,26 @@ export class CheckBoxFilter {
         } else {
             btn.disabled = true;
         }
-        removeClass([elem], ['e-check', 'e-stop']);
+        removeClass([elem], ['e-check', 'e-stop', 'e-uncheck']);
         addClass([elem], className);
     }
 
     private createFilterItems(data: Object[], isInitial?: boolean): void {
         let cBoxes: Element = createElement('div');
+        this.itemsCnt = data.length;
         if (data.length || isInitial) {
             let selectAll: Element = this.createCboxWithWrap(
                 this.getLocalizedLabel('SelectAll'), false, getUid('cbox'));
             selectAll.querySelector('.e-frame').classList.add('e-selectall');
             cBoxes.appendChild(selectAll);
+            let isColFiltered: number = new DataManager(this.options.filteredColumns as JSON[]).executeLocal(
+                new Query().where('field', 'equal', this.options.field)).length;
             for (let i: number = 0; i < data.length; i++) {
                 let uid: string = getUid('cbox');
                 this.values[uid] = data[i][this.options.field];
                 let value: string = this.valueFormatter.toView(data[i][this.options.field], this.options.formatFn) as string;
                 cBoxes.appendChild(
-                    this.createCboxWithWrap(value, this.getCheckedState(this.options.filteredColumns, this.values[uid]), uid));
+                    this.createCboxWithWrap(value, this.getCheckedState(isColFiltered, this.values[uid]), uid));
             }
             this.cBox.innerHTML = cBoxes.innerHTML;
             this.updateIndeterminatenBtn();
@@ -491,15 +560,11 @@ export class CheckBoxFilter {
         hideSpinner(this.spinner);
     }
 
-    private getCheckedState(columns: Object[], value: string): boolean {
-        let isColFiltered: number = new DataManager(columns as JSON[]).executeLocal(
-            new Query().where('field', 'equal', this.options.field)).length;
+    private getCheckedState(isColFiltered: number | boolean, value: string): boolean {
         if (!this.isFiltered || !isColFiltered) {
             return true;
         } else {
-            let res: Object[] = new DataManager(columns as JSON[]).executeLocal(new Query().where(
-                'field', 'equal', this.options.field).where('value', 'equal', value));
-            return res.length > 0;
+            return this.result[value];
         }
     }
 

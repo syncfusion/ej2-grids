@@ -7,13 +7,14 @@ import { PredicateModel } from '../base/grid-model';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { Column } from '../models/column';
-import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
+import { Dialog } from '@syncfusion/ej2-popups';
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
 import { FlMenuOptrUI } from './filter-menu-operator';
 import { StringFilterUI } from './string-filter-ui';
 import { NumberFilterUI } from './number-filter-ui';
 import { BooleanFilterUI } from './boolean-filter-ui';
 import { DateFilterUI } from './date-filter-ui';
+import { getFilterMenuPostion, parentsUntil } from '../base/util';
 import * as events from '../base/constant';
 
 /**
@@ -32,6 +33,7 @@ export class FilterMenuRenderer {
     private customFilterOperators: Object;
     private dropOptr: DropDownList;
     private flMuiObj: FlMenuOptrUI;
+    private col: Column;
 
     private colTypes: Object = {
         'string': StringFilterUI, 'number': NumberFilterUI, 'date': DateFilterUI, 'boolean': BooleanFilterUI, 'datetime': DateFilterUI
@@ -49,9 +51,9 @@ export class FilterMenuRenderer {
     }
 
     private openDialog(args: IFilterArgs): void {
-        let column: Column = this.parent.getColumnByField(args.field);
-        if (isNullOrUndefined(column.filter) || (isNullOrUndefined(column.filter.type) || column.filter.type === 'menu')) {///
-            this.renderDlgContent(args.target, column);
+        this.col = this.parent.getColumnByField(args.field);
+        if (isNullOrUndefined(this.col.filter) || (isNullOrUndefined(this.col.filter.type) || this.col.filter.type === 'menu')) {///
+            this.renderDlgContent(args.target, this.col);
         }
 
     }
@@ -59,6 +61,7 @@ export class FilterMenuRenderer {
     private closeDialog(): void {
         let elem: Element = document.getElementById(this.dlgObj.element.id);
         if (this.dlgObj && !this.dlgObj.isDestroyed && elem) {
+            this.parent.notify(events.filterMenuClose, { field: this.col.field });
             this.dlgObj.destroy();
             remove(elem);
         }
@@ -76,7 +79,7 @@ export class FilterMenuRenderer {
             enableRtl: this.parent.enableRtl,
             created: this.dialogCreated.bind(this, target, column),
             position: this.parent.element.classList.contains('e-device') ? { X: 'center', Y: 'center' } : { X: '', Y: '' },
-            target: this.parent.element.classList.contains('e-device') ? document.body : null,
+            target: this.parent.element.classList.contains('e-device') ? document.body : this.parent.element,
             buttons: [{
                 click: this.filterBtnClick.bind(this, column),
                 buttonModel: {
@@ -88,7 +91,7 @@ export class FilterMenuRenderer {
                 buttonModel: { content: this.l10n.getConstant('ClearButton'), cssClass: 'e-flmenu-cancelbtn' }
             }],
             content: mainDiv,
-            width: 250,
+            width: (!isNullOrUndefined(parentsUntil(target, 'e-bigger'))) || this.parent.element.classList.contains('e-device') ? 260 : 250,
             animationSettings: { effect: 'None' },
             cssClass: 'e-filter-popup'
         });
@@ -96,27 +99,14 @@ export class FilterMenuRenderer {
     }
 
     private dialogCreated(target: Element, column: Column): void {
-        if (target.classList.contains('e-filtermenudiv')) {
-            if (!Browser.isDevice) {
-                let elementVisible: string = this.dlgObj.element.style.display;
-                this.dlgObj.element.style.display = 'block';
-                let dlgWidth: number = this.dlgObj.width as number;
-                let newpos: { top: number, left: number } = calculateRelativeBasedPosition
-                    ((<HTMLElement>target), this.dlgObj.element);
-                this.dlgObj.element.style.display = elementVisible;
-                this.dlgObj.element.style.top = newpos.top + target.getBoundingClientRect().height + 'px';
-                let leftPos: number = ((newpos.left - dlgWidth) + target.clientWidth);
-                if (leftPos < 1) {
-                    this.dlgObj.element.style.left = (dlgWidth + leftPos) - 16 + 'px'; // right calculation
-                } else {
-                    this.dlgObj.element.style.left = leftPos + -4 + 'px';
-                }
-            }
-            this.renderFilterUI(target, column);
-            this.parent.notify(events.filterDialogCreated, {});
-            this.dlgObj.show();
-            this.writeMethod(column, this.dlgObj.element.querySelector('#' + column.uid + '-flmenu'));
+        if (!Browser.isDevice) {
+            getFilterMenuPostion(target, this.dlgObj);
         }
+        this.renderFilterUI(target, column);
+        this.parent.notify(events.filterDialogCreated, {});
+        this.dlgObj.element.style.maxHeight = '350px';
+        this.dlgObj.show();
+        this.writeMethod(column, this.dlgObj.element.querySelector('#' + column.uid + '-flmenu'));
     }
 
     private renderFilterUI(target: Element, col: Column): void {
@@ -128,13 +118,13 @@ export class FilterMenuRenderer {
     }
 
     private renderOperatorUI(dlgConetntEle: Element, target: Element, column: Column): void {
-        this.flMuiObj.renderOperatorUI(dlgConetntEle, target, column);
+        this.flMuiObj.renderOperatorUI(dlgConetntEle, target, column, this.dlgObj);
     }
 
     private renderFlValueUI(dlgConetntEle: Element, target: Element, column: Column): void {
         let valueDiv: HTMLElement = createElement('div', { className: 'e-flmenu-valuediv' });
         dlgConetntEle.appendChild(valueDiv);
-        let args: Object = { target: valueDiv, column: column };
+        let args: Object = { target: valueDiv, column: column, getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj };
         let instanceofFilterUI: NumberFilterUI | StringFilterUI | DateFilterUI =
             new this.colTypes[column.type](this.parent, this.serviceLocator, this.parent.filterSettings);
         if (!isNullOrUndefined(column.filter) && !isNullOrUndefined(column.filter.ui)
@@ -143,9 +133,15 @@ export class FilterMenuRenderer {
             if (typeof temp === 'string') {
                 temp = getValue(temp, window);
             }
-            (column.filter.ui.create as Function)({ column: column, target: valueDiv, getOptrInstance: this.flMuiObj });
+            (column.filter.ui.create as Function)({
+                column: column, target: valueDiv,
+                getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj
+            });
         } else {
-            instanceofFilterUI.create({ column: column, target: valueDiv, getOptrInstance: this.flMuiObj, localizeText: this.l10n });
+            instanceofFilterUI.create({
+                column: column, target: valueDiv,
+                getOptrInstance: this.flMuiObj, localizeText: this.l10n, dialogObj: this.dlgObj
+            });
         }
     }
 
@@ -191,8 +187,9 @@ export class FilterMenuRenderer {
             instanceofFilterUI.read(targ, col, flOptrValue, this.filterObj);
 
         }
-        let flMenuSelector: string = 'e-flmenu-' + col.uid;
-        let flIcon: Element = this.parent.element.querySelector('[e-mappinguid="' + flMenuSelector + '"]');
+        let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
+        let column: Element = this.parent.element.querySelector('[e-mappinguid="' + col.uid + '"]').parentElement;
+        let flIcon: Element = column.querySelector(iconClass);
         if (flIcon) { flIcon.classList.add('e-filtered'); }
         this.dlgObj.destroy();
         document.getElementById(this.dlgObj.element.id).remove();
@@ -202,15 +199,16 @@ export class FilterMenuRenderer {
         this.filterObj.removeFilteredColsByField(column.field);
         this.dlgObj.destroy();
         this.dlgObj.element.remove();
-        let flMenuSelector: string = 'e-flmenu-' + column.uid;
-        let flIcon: Element = this.parent.element.querySelector('[e-mappinguid="' + flMenuSelector + '"]');
+        let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
+        let col: Element = this.parent.element.querySelector('[e-mappinguid="' + column.uid + '"]').parentElement;
+        let flIcon: Element = col.querySelector(iconClass);
         if (flIcon) {
             flIcon.classList.remove('e-filtered');
         }
+
     }
 
     public destroy(): void {
         //destroy
     }
-
 }

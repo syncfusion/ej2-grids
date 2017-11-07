@@ -9,6 +9,8 @@ import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { FlMenuOptrUI } from './filter-menu-operator';
 import { L10n, } from '@syncfusion/ej2-base';
+import { Dialog, Popup } from '@syncfusion/ej2-popups';
+import { getZIndexCalcualtion } from '../base/util';
 /**
  * `datefilterui` render date column.
  * @hidden
@@ -22,6 +24,7 @@ export class DateFilterUI implements IFilterMUI {
     private value: string;
     private datePickerObj: DatePicker;
     private fltrSettings: FilterSettings;
+    private dialogObj: Dialog;
 
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator, filterSettings?: FilterSettings) {
         this.parent = parent;
@@ -29,11 +32,14 @@ export class DateFilterUI implements IFilterMUI {
         this.fltrSettings = filterSettings;
     }
 
-    public create(args: { column: Column, target: HTMLElement, getOptrInstance: FlMenuOptrUI, localizeText: L10n }): void {
+    public create(args: {
+        column: Column, target: HTMLElement,
+        getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
+    }): void {
         let intl: Internationalization = new Internationalization();
         let colFormat: string = args.column.format as string;
         let format: string = intl.getDatePattern({ type: 'date', skeleton: colFormat }, false);
-
+        this.dialogObj = args.dialogObj;
         this.inputElem = createElement('input', { className: 'e-flmenu-input', id: 'dateui-' + args.column.uid });
         args.target.appendChild(this.inputElem);
         this.datePickerObj = new DatePicker({
@@ -43,6 +49,7 @@ export class DateFilterUI implements IFilterMUI {
             width: '100%',
             locale: this.parent.locale,
             enableRtl: this.parent.enableRtl,
+            open: this.openPopup.bind(this),
         });
         this.datePickerObj.appendTo(this.inputElem);
     }
@@ -57,5 +64,9 @@ export class DateFilterUI implements IFilterMUI {
         let dateuiObj: DatePicker = (<EJ2Intance>document.querySelector('#dateui-' + column.uid)).ej2_instances[0];
         let filterValue: Date = dateuiObj.value;
         filterObj.filterByColumn(column.field, filterOptr, filterValue, 'and', true);
+    }
+
+    private openPopup(args: { popup: Popup }): void {
+        // getZIndexCalcualtion(args, this.dialogObj);
     }
 }

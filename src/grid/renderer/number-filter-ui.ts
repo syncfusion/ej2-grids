@@ -7,6 +7,7 @@ import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { FlMenuOptrUI } from './filter-menu-operator';
 import { L10n, } from '@syncfusion/ej2-base';
+import { Dialog } from '@syncfusion/ej2-popups';
 
 /**
  * `numberfilterui` render number column.
@@ -28,7 +29,10 @@ export class NumberFilterUI implements IFilterMUI {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
     }
-    public create(args: { column: Column, target: HTMLElement, getOptrInstance: FlMenuOptrUI, localizeText: L10n }): void {
+    public create(args: {
+        column: Column, target: HTMLElement,
+        getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
+    }): void {
         this.instance = createElement('input', { className: 'e-flmenu-input', id: 'numberui-' + args.column.uid });
         args.target.appendChild(this.instance);
         this.numericTxtObj = new NumericTextBox({

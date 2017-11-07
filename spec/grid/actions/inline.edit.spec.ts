@@ -26,7 +26,7 @@ import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Filter, Page, Selection, Group, Edit, Sort, Reorder, Toolbar, DetailRow);
 
-describe('Editing module', () => {
+describe('Inline Editing module', () => {
 
     let dataSource: Function = (): Object[] => {
         let datasrc: Object[] = [];

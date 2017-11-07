@@ -7,7 +7,7 @@
       color: $grid-icon-color;
     }
 
-    .e-focused {
+    .e-focused:not(.e-menu-item) {
       box-shadow: $grid-cell-focus-shadow;
     }
 
@@ -380,15 +380,16 @@
 
   .e-tooltip-wrap.e-griderror .e-arrow-tip-inner.e-tip-top,
   .e-tooltip-wrap.e-griderror .e-arrow-tip-outer.e-tip-top {
-    border-bottom: 7px solid $grid-val-error-bg-color;
+    border-bottom: 8px solid $grid-val-error-bg-color;
   }
 
   .e-tooltip-wrap.e-griderror .e-arrow-tip-outer.e-tip-bottom,
   .e-tooltip-wrap.e-griderror .e-arrow-tip-inner.e-tip-bottom {
-    border-top: 7px solid $grid-val-error-bg-color;
+    border-top: 8px solid $grid-val-error-bg-color;
   }
 
-  .e-griderror .e-error {
+  .e-tooltip-wrap.e-griderror .e-tip-content,
+  .e-tooltip-wrap.e-griderror .e-tip-content label {
     color: $grid-val-error-color;
   }
 

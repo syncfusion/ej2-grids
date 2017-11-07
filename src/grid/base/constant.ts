@@ -264,4 +264,5 @@ export const columnMenuOpen: string = 'columnMenuOpen';
 export const filterOpen: string = 'filterOpen';
 /** @hidden */
 export const filterDialogCreated: string = 'filterDialogCreated';
-
+/** @hidden */
+export const filterMenuClose: string = 'filter-menu-close';

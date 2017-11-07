@@ -4,6 +4,10 @@
     user-select: none;
   }
 
+  .e-emptyicon {
+    opacity: 0;
+  }
+
   .e-device .e-flmenu-valuediv {
     padding: $grid-flmenu-device-padding;
   }
@@ -148,6 +152,10 @@
 
     .e-groupdroparea.e-grouped {
       padding: $grid-bigger-groupedcell-padding;
+    }
+
+    &.e-bigger .e-columnmenu {
+      top: 17px;
     }
 
     .e-groupheadercell,
@@ -826,6 +834,11 @@
       padding: $grid-headercelldiv-right-align-padding;
     }
 
+    .e-gridheader .e-sortfilter .e-rightalign.e-fltr-icon .e-headercelldiv {
+      margin: $grid-headercelldiv-rightalign-fltricon-padding;
+   }
+
+
     .e-gridheader .e-sortfilter .e-fltr-icon .e-headercelldiv {
       margin: $grid-headercelldiv-fltricon-margin;
    }
@@ -1049,7 +1062,7 @@
     }
 
     .e-checkboxlist {
-      height: 160px;
+      height: 200px;
       margin-top: 5px;
       min-height: 160px;
       overflow-y: auto;
@@ -1069,6 +1082,28 @@
     .e-ftrchk {
       padding-bottom: $grid-checkbox-padding-topbottom;
       padding-top: $grid-checkbox-padding-topbottom;
+    }
+
+    .e-checkboxfilter .e-dlg-content {
+      height: 200px;
+    }
+
+    .e-excelfilter .e-contextmenu-wrapper,
+    .e-excelfilter .e-contextmenu-wrapper ul {
+      display: block;
+    }
+
+    .e-excelfilter .e-contextmenu-wrapper ul {
+      padding-bottom: 4px;
+      position: static;
+    }
+
+    .e-excel-menu {
+      z-index: 1000;
+    }
+
+    .e-excelfilter .e-dlg-content {
+      padding-top: 0;
     }
 
     .e-filterdiv,
@@ -1425,6 +1460,24 @@
     .e-toolbar-item.e-cc.e-ccdiv.e-cc-toolbar {
       margin-top: $grid-columnchooser-toolbardiv-margin-top;
       padding: $grid-columnchooser-toolbardiv-padding;
+    }
+
+    .e-edit-dialog .e-dlg-content {
+      position:  relative;
+    }
+
+    // sass-lint:disable-all
+    .e-griderror label {
+      display: inline !important;
+    }
+    // sass-lint:enable-all
+
+    .e-tooltip-wrap.e-griderror {
+      z-index: 1000;
+    }
+
+    .e-tooltip-wrap.e-griderror .e-arrow-tip.e-tip-top {
+      left: 44%;
     }
 
     .e-normaledit .e-rowcell {

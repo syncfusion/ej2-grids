@@ -2,13 +2,14 @@ import { IGrid, IFilterMUI, EJ2Intance } from '../base/interface';
 import { Column } from '../models/column';
 import { FilterSettings } from '../base/grid';
 import { L10n, } from '@syncfusion/ej2-base';
-import { distinctStringValues } from '../base/util';
+import { distinctStringValues, getZIndexCalcualtion } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
 import { Filter } from '../actions/filter';
 import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { FlMenuOptrUI } from './filter-menu-operator';
+import { Dialog, Popup } from '@syncfusion/ej2-popups';
 /**
  * `boolfilterui` render boolean column.
  * @hidden
@@ -22,16 +23,21 @@ export class BooleanFilterUI implements IFilterMUI {
     private value: string;
     private filterSettings: FilterSettings;
     private dropInstance: DropDownList;
+    private dialogObj: Dialog;
 
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator, filterSettings?: FilterSettings) {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.filterSettings = filterSettings;
     }
-    public create(args: { column: Column, target: HTMLElement, getOptrInstance: FlMenuOptrUI, localizeText: L10n }): void {
+    public create(args: {
+        column: Column, target: HTMLElement,
+        getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
+    }): void {
         let data: DataManager | Object[];
         this.elem = createElement('input', { className: 'e-flmenu-input', id: 'bool-ui-' + args.column.uid });
         args.target.appendChild(this.elem);
+        this.dialogObj = args.dialogObj;
         this.dropInstance = new DropDownList({
             dataSource: this.parent.dataSource instanceof DataManager ?
                 this.parent.dataSource : new DataManager(this.parent.dataSource),
@@ -41,6 +47,7 @@ export class BooleanFilterUI implements IFilterMUI {
             cssClass: 'e-popup-flmenu',
             locale: this.parent.locale,
             enableRtl: this.parent.enableRtl,
+            open: this.openPopup.bind(this),
             actionComplete: this.ddActionComplete
 
         });
@@ -61,5 +68,9 @@ export class BooleanFilterUI implements IFilterMUI {
 
     private ddActionComplete(e: { result: string[] }): void {
         e.result = distinctStringValues(e.result);
+    }
+
+    private openPopup(args: { popup: Popup }): void {
+        getZIndexCalcualtion(args, this.dialogObj);
     }
 }

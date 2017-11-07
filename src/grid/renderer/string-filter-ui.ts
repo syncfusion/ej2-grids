@@ -9,6 +9,8 @@ import { createElement } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { FlMenuOptrUI } from './filter-menu-operator';
+import { Dialog, Popup } from '@syncfusion/ej2-popups';
+import { getZIndexCalcualtion } from '../base/util';
 
 /**
  * `string filterui` render string column.
@@ -24,16 +26,21 @@ export class StringFilterUI implements IFilterMUI {
     public actObj: AutoComplete;
     private filterSettings: FilterSettings;
     private filter: Filter;
+    private dialogObj: Dialog;
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator, filterSettings?: FilterSettings) {
         this.parent = parent;
         this.serLocator = serviceLocator;
         this.filterSettings = filterSettings;
     }
-    public create(args: { column: Column, target: HTMLElement, getOptrInstance: FlMenuOptrUI, localizeText: L10n }): void {
+    public create(args: {
+        column: Column, target: HTMLElement,
+        getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
+    }): void {
         let data: DataManager | Object[];
         let floptr: 'Contains' | 'StartsWith' | 'EndsWith';
         this.instance = createElement('input', { className: 'e-flmenu-input', id: 'strui-' + args.column.uid });
         args.target.appendChild(this.instance);
+        this.dialogObj = args.dialogObj;
         this.actObj = new AutoComplete({
             dataSource: this.parent.dataSource instanceof DataManager ?
                 this.parent.dataSource : new DataManager(this.parent.dataSource),
@@ -41,6 +48,7 @@ export class StringFilterUI implements IFilterMUI {
             locale: this.parent.locale,
             enableRtl: this.parent.enableRtl,
             sortOrder: 'Ascending',
+            open: this.openPopup.bind(this),
             cssClass: 'e-popup-flmenu',
             focus: () => {
                 this.actObj.filterType = args.getOptrInstance.getFlOperator() as 'StartsWith' | 'Contains' | 'EndsWith';
@@ -70,6 +78,10 @@ export class StringFilterUI implements IFilterMUI {
         let actuiObj: AutoComplete = (<EJ2Intance>document.querySelector('#strui-' + column.uid)).ej2_instances[0];
         let filterValue: string | number = actuiObj.value;
         filterObj.filterByColumn(column.field, filterOptr, filterValue, 'and', false);
+    }
+
+    private openPopup(args: { popup: Popup }): void {
+        getZIndexCalcualtion(args, this.dialogObj);
     }
 
 }

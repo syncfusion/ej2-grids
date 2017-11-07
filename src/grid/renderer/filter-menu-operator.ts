@@ -7,6 +7,7 @@ import { PredicateModel } from '../base/grid-model';
 import { IGrid } from '../base/interface';
 import { ServiceLocator } from '../services/service-locator';
 import { Query, DataManager } from '@syncfusion/ej2-data';
+import { Dialog, Popup } from '@syncfusion/ej2-popups';
 
 /**
  * `filter operators` render boolean column.
@@ -21,6 +22,7 @@ export class FlMenuOptrUI {
     private dropOptr: DropDownList;
     private customOptr: { [key: string]: Object }[];
     private optrData: Object;
+    private dialogObj: Dialog;
 
     constructor(parent?: IGrid, customFltrOperators?: Object, serviceLocator?: ServiceLocator, filterSettings?: FilterSettings) {
         this.parent = parent;
@@ -33,7 +35,8 @@ export class FlMenuOptrUI {
     /**
      * @hidden
      */
-    public renderOperatorUI(dlgConetntEle: Element, target: Element, column: Column): void {
+    public renderOperatorUI(dlgConetntEle: Element, target: Element, column: Column, dlgObj: Dialog): void {
+        this.dialogObj = dlgObj;
         let optr: string = column.type + 'Operator';
         this.optrData = this.customOptr = (!isNullOrUndefined(this.parent.filterSettings.operators) &&
             !isNullOrUndefined(this.parent.filterSettings.operators[optr])) ?
@@ -47,9 +50,14 @@ export class FlMenuOptrUI {
         this.dropOptr = new DropDownList({
             dataSource: dropDatasource,
             fields: { text: 'text', value: 'value' },
+            open: this.dropDownOpen.bind(this),
             text: selectedValue
         });
         this.dropOptr.appendTo('#' + column.uid + '-floptr');
+    }
+
+    private dropDownOpen(args: { popup: Popup }): void {
+        args.popup.element.style.zIndex = (this.dialogObj.zIndex + 1).toString();
     }
 
     private dropSelectedVal(col: Column, optr: string): string {

@@ -32,3 +32,4 @@ export * from './actions/command-column';
 export * from './actions/checkbox-filter';
 export * from './actions/context-menu';
 export * from './actions/column-menu';
+export * from './actions/excel-filter';

@@ -2,7 +2,7 @@ import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs } from '@syncfusi
 import { extend, getValue } from '@syncfusion/ej2-base';
 import { remove, createElement } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
-import { IGrid, IAction, NotifyArgs, EJ2Intance, IEdit } from '../base/interface';
+import { IGrid, IAction, NotifyArgs, IEdit } from '../base/interface';
 import * as events from '../base/constant';
 import { EditRender } from '../renderer/edit-renderer';
 import { ServiceLocator } from '../services/service-locator';
@@ -16,7 +16,6 @@ import { BatchEdit } from './batch-edit';
 import { DialogEdit } from './dialog-edit';
 import { Dialog } from '@syncfusion/ej2-popups';
 import { parentsUntil, changeButtonType } from '../base/util';
-import { Tooltip } from '@syncfusion/ej2-popups';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { DatePickerEditCell } from '../renderer/datepicker-edit-cell';
 
@@ -358,10 +357,9 @@ export class Edit implements IAction {
     }
 
     private destroyToolTip(): void {
-        let elements: Element[] = [].slice.call(this.parent.element.querySelectorAll('td.e-tooltip'));
+        let elements: Element[] = [].slice.call(this.parent.getContentTable().querySelectorAll('.e-griderror'));
         for (let elem of elements) {
-            (elem as EJ2Intance).ej2_instances[0].destroy();
-            //remove(elem);
+            remove(elem);
         }
     }
 
@@ -609,7 +607,7 @@ export class Edit implements IAction {
         }
         this.parent.editModule.formObj = new FormValidator(form, {
             rules: rules as { [name: string]: { [rule: string]: Object } },
-            validationComplete: (args: { status: string, inputName: string, element: HTMLElement }) => {
+            validationComplete: (args: { status: string, inputName: string, element: HTMLElement, message: string }) => {
                 this.validationComplete(args);
             },
             customPlacement: (inputElement: HTMLElement, error: HTMLElement) => {
@@ -620,33 +618,56 @@ export class Edit implements IAction {
 
     private valErrorPlacement(inputElement: HTMLElement, error: HTMLElement): void {
         if (this.parent.isEdit) {
-            let td: HTMLElement = parentsUntil(inputElement, 'e-rowcell') as HTMLElement;
-            if (!(td as EJ2Intance).ej2_instances || !((td as EJ2Intance).ej2_instances as Object[]).length) {
-                let tooltip: Tooltip = new Tooltip({
-                    opensOn: 'custom', content: error, position: 'bottom center', cssClass: 'e-griderror',
-                    animation: { open: { effect: 'None' }, close: { effect: 'None' } }
-                });
-                tooltip.appendTo(td);
-                tooltip.open(td);
+            let id: string = error.getAttribute('for');
+            let parentElem: Element = this.parent.editSettings.mode !== 'dialog' ? this.parent.getContentTable() :
+                this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper');
+            let elem: Element = parentElem.querySelector('#' + id + '_Error');
+            if (!elem) {
+                this.createTooltip(inputElement, error, id, '');
             } else {
-                ((td as EJ2Intance).ej2_instances[0] as Tooltip).content = error;
+                elem.querySelector('.e-tip-content').innerHTML = error.innerHTML;
             }
         }
     }
 
-    private validationComplete(args: { status: string, inputName: string, element: HTMLElement }): void {
+    private validationComplete(args: { status: string, inputName: string, element: HTMLElement, message: string }): void {
         if (this.parent.isEdit) {
-            let elem: Element = parentsUntil(document.getElementById(this.parent.element.id + args.inputName), 'e-rowcell');
-            if (elem && (elem as EJ2Intance).ej2_instances && ((elem as EJ2Intance).ej2_instances as string[]).length) {
-                let tObj: Tooltip = (elem as EJ2Intance).ej2_instances[0];
+            let parentElem: Element = this.parent.editSettings.mode !== 'dialog' ? this.parent.getContentTable() :
+                this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper');
+            let elem: HTMLElement = parentElem.querySelector('#' + args.inputName + '_Error') as HTMLElement;
+            if (elem) {
                 if (args.status === 'failure') {
-                    tObj.open(parentsUntil(args.element, 'e-rowcell') as HTMLElement);
+                    elem.style.display = '';
                 } else {
-                    tObj.close();
+                    elem.style.display = 'none';
                 }
-                tObj.refresh();
             }
         }
+    }
+
+    private createTooltip(element: Element, error: HTMLElement, name: string, display: string): void {
+        let table: Element = this.parent.editSettings.mode !== 'dialog' ? this.parent.getContentTable() :
+            this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper').querySelector('.e-dlg-content');
+        let client: ClientRect = table.getBoundingClientRect();
+        let inputClient: ClientRect = parentsUntil(element, 'e-rowcell').getBoundingClientRect();
+        let div: HTMLElement = createElement('div', {
+            className: 'e-tooltip-wrap e-popup e-griderror',
+            id: name + '_Error',
+            styles: 'display:' + display + ';top:' +
+            (inputClient.bottom - client.top + table.scrollTop + 9) + 'px;left:' +
+            (inputClient.left - client.left + table.scrollLeft + inputClient.width / 2) + 'px;'
+        });
+
+        let content: Element = createElement('div', { className: 'e-tip-content' });
+        content.appendChild(error);
+        let arrow: Element = createElement('div', { className: 'e-arrow-tip e-tip-top' });
+        arrow.appendChild(createElement('div', { className: 'e-arrow-tip-outer e-tip-top' }));
+        arrow.appendChild(createElement('div', { className: 'e-arrow-tip-inner e-tip-top' }));
+        div.appendChild(content);
+        div.appendChild(arrow);
+        table.appendChild(div);
+
+        div.style.left = (parseInt(div.style.left, 10) - div.offsetWidth / 2) + 'px';
     }
 
 }

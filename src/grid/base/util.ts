@@ -7,6 +7,7 @@ import { DataUtil } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { ColumnModel, AggregateColumnModel } from '../models/models';
 import { AggregateType } from './enum';
+import { Dialog, calculateRelativeBasedPosition, Popup } from '@syncfusion/ej2-popups';
 
 
 //https://typescript.codeplex.com/discussions/401501
@@ -408,4 +409,27 @@ export function distinctStringValues(result: string[]): string[] {
         }
     }
     return res;
+}
+
+/** @hidden */
+
+export function getFilterMenuPostion(target: Element, dialogObj: Dialog): void {
+    let elementVisible: string = dialogObj.element.style.display;
+    dialogObj.element.style.display = 'block';
+    let dlgWidth: number = dialogObj.width as number;
+    let newpos: { top: number, left: number } = calculateRelativeBasedPosition
+        ((<HTMLElement>target), dialogObj.element);
+    dialogObj.element.style.display = elementVisible;
+    dialogObj.element.style.top = (newpos.top + target.getBoundingClientRect().height) - 5 + 'px';
+    let leftPos: number = ((newpos.left - dlgWidth) + target.clientWidth);
+    if (leftPos < 1) {
+        dialogObj.element.style.left = (dlgWidth + leftPos) - 16 + 'px'; // right calculation
+    } else {
+        dialogObj.element.style.left = leftPos + -4 + 'px';
+    }
+}
+
+/** @hidden */
+export function getZIndexCalcualtion(args: { popup: Popup }, dialogObj: Dialog): void {
+    args.popup.element.style.zIndex = (dialogObj.zIndex + 1).toString();
 }

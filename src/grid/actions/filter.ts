@@ -17,6 +17,7 @@ import { FilterCellRenderer } from '../renderer/filter-cell-renderer';
 import { parentsUntil } from '../base/util';
 import { FilterMenuRenderer } from '../renderer/filter-menu-renderer';
 import { CheckBoxFilter } from '../actions/checkbox-filter';
+import { ExcelFilter } from '../actions/excel-filter';
 
 /**
  * 
@@ -40,12 +41,13 @@ export class Filter implements IAction {
     private contentRefresh: boolean = true;
     private values: Object = {};
     private nextFlMenuOpen: string = '';
-    private type: Object = { 'menu': FilterMenuRenderer, 'checkbox': CheckBoxFilter };
+    private type: Object = { 'menu': FilterMenuRenderer, 'checkbox': CheckBoxFilter, 'excel': ExcelFilter };
     private filterModule: { openDialog: Function, closeDialog: Function, destroy: Function };
     private filterOperators: IFilterOperator = {
         contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
         lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
     };
+    private fltrDlgDetails: { field?: string, isOpen?: boolean } = { field: '', isOpen: false };
 
     private customOperators: Object;
     //Module declarations
@@ -244,13 +246,15 @@ export class Filter implements IAction {
         this.parent.on(events.columnPositionChanged, this.columnPositionChanged, this);
         this.parent.on(events.headerRefreshed, this.render, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
-        document.addEventListener(events.click, this.clickHandler.bind(this));
+        this.parent.on(events.filterMenuClose, this.filterMenuClose, this);
+        EventHandler.add(document, 'click', this.clickHandler, this);
         this.parent.on(events.filterOpen, this.columnMenuFilter, this);
     }
     /**
      * @hidden
      */
     public removeEventListener(): void {
+        EventHandler.remove(document, 'click', this.clickHandler);
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.uiUpdate, this.enableAfterRender);
         this.parent.off(events.filterComplete, this.onActionComplete);
@@ -258,8 +262,12 @@ export class Filter implements IAction {
         this.parent.off(events.keyPressed, this.keyUpHandler);
         this.parent.off(events.columnPositionChanged, this.columnPositionChanged);
         this.parent.off(events.headerRefreshed, this.render);
-        document.removeEventListener(events.click, this.clickHandler);
         this.parent.off(events.filterOpen, this.columnMenuFilter);
+        this.parent.off(events.filterMenuClose, this.filterMenuClose);
+    }
+
+    private filterMenuClose(args: { field: string }): void {
+        this.fltrDlgDetails.isOpen = false;
     }
 
     private columnMenuFilter(args: { col: Column, target: Element, isClose: boolean, id: string }): void {
@@ -286,7 +294,7 @@ export class Filter implements IAction {
             sortedColumns: gObj.sortSettings.columns, formatFn: col.getFormatter(),
             parserFn: col.getParser(), query: gObj.query, template: col.getFilterItemTemplate(),
             hideSearchbox: isNullOrUndefined(col.filter.hideSearchbox) ? false : col.filter.hideSearchbox,
-            handler: this.filterHandler.bind(this), localizedStrings: gObj.getLocaleConstants(),
+            handler: this.filterHandler.bind(this), localizedStrings: {},
             position: { X: left, Y: top }
         });
     }
@@ -719,15 +727,19 @@ export class Filter implements IAction {
                 let gClient: ClientRect = gObj.element.getBoundingClientRect();
                 let fClient: ClientRect = target.getBoundingClientRect();
                 this.column = col;
+                if (this.fltrDlgDetails.field === col.field && this.fltrDlgDetails.isOpen) {
+                    return;
+                }
                 if (this.filterModule) {
                     this.filterModule.closeDialog();
                 }
+                this.fltrDlgDetails = { field: col.field, isOpen: true };
                 this.filterDialogOpen(this.column, target, fClient.right - gClient.left, fClient.bottom - gClient.top);
             } else {
                 if (this.filterModule &&
                     (!parentsUntil(target, 'e-popup-wrapper')
-                    && (!closest(target, '.e-filter-item.e-menu-item'))
-                    && (!parentsUntil(target, 'e-popup')))) {
+                        && (!closest(target, '.e-filter-item.e-menu-item'))
+                        && (!parentsUntil(target, 'e-popup')))) {
                     this.filterModule.closeDialog(target);
                 }
             }
@@ -739,6 +751,7 @@ export class Filter implements IAction {
         action: string, filterCollection: { field: string, predicate: string, operator: string, matchcase: boolean, value: string },
         field: string, ejpredicate: Predicate
     }): void {
+        let filterIconElement: Element;
         let dataManager: DataManager = new DataManager(this.filterSettings.columns as JSON[]);
         let query: Query = new Query().where('field', this.filterOperators.equal, args.field);
         let result: { field: string }[] = dataManager.executeLocal(query) as { field: string }[];
@@ -754,10 +767,18 @@ export class Filter implements IAction {
                 this.filterSettings.columns.splice(index, 1);
             }
         }
+        let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
+        filterIconElement = this.parent.getColumnHeaderByField(args.field).querySelector(iconClass);
         if (args.action === 'filtering') {
             this.filterSettings.columns = this.filterSettings.columns.concat(args.filterCollection);
+            if (this.filterSettings.columns.length && filterIconElement) {
+                filterIconElement.classList.add('e-filtered');
+            }
         } else {
             this.filterSettings.columns = this.filterSettings.columns;
+            if (filterIconElement) {
+                filterIconElement.classList.remove('e-filtered');
+            }
             this.parent.refresh(); //hot-fix onpropertychanged not working for object { array }           
         }
         this.parent.dataBind();

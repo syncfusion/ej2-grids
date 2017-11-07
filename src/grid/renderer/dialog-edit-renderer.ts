@@ -53,7 +53,7 @@ export class DialogEditRender {
         this.setLocaleObj();
         this.dialogObj = new Dialog({
             header: this.isEdit ? this.l10n.getConstant('EditFormTitle') + args.primaryKeyValue[0] :
-                this.l10n.getConstant('AddFormTitle'), isModal: true, visible: true,
+                this.l10n.getConstant('AddFormTitle'), isModal: true, visible: true, cssClass: 'e-edit-dialog',
             content: this.getEditElement(elements) as HTMLElement, showCloseIcon: true, allowDragging: true, close: this.destroy.bind(this),
             closeOnEscape: true, width: '330px', target: gObj.element, animationSettings: { effect: 'None' },
             buttons: [{
