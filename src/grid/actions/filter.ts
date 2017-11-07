@@ -1,4 +1,4 @@
-import { EventHandler, L10n, isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { EventHandler, L10n, isNullOrUndefined, extend, closest } from '@syncfusion/ej2-base';
 import { getActualPropFromColl, isActionPrevent } from '../base/util';
 import { remove, createElement, matches } from '@syncfusion/ej2-base';
 import { DataUtil, Predicate, Query, DataManager } from '@syncfusion/ej2-data';
@@ -245,7 +245,7 @@ export class Filter implements IAction {
         this.parent.on(events.headerRefreshed, this.render, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
         document.addEventListener(events.click, this.clickHandler.bind(this));
-
+        this.parent.on(events.filterOpen, this.columnMenuFilter, this);
     }
     /**
      * @hidden
@@ -259,6 +259,36 @@ export class Filter implements IAction {
         this.parent.off(events.columnPositionChanged, this.columnPositionChanged);
         this.parent.off(events.headerRefreshed, this.render);
         document.removeEventListener(events.click, this.clickHandler);
+        this.parent.off(events.filterOpen, this.columnMenuFilter);
+    }
+
+    private columnMenuFilter(args: { col: Column, target: Element, isClose: boolean, id: string }): void {
+        this.column = args.col;
+        let ele: Element = closest(args.target, '#' + args.id);
+        if (args.isClose && !ele) {
+            this.filterModule.closeDialog();
+        } else if (ele) {
+            this.filterDialogOpen(this.column, args.target);
+        }
+    }
+
+    private filterDialogOpen(col: Column, target: Element, left?: number, top?: number): void {
+        let gObj: IGrid = this.parent;
+        if (this.filterModule) {
+            this.filterModule.closeDialog();
+        }
+        this.filterModule = new this.type[col.filter.type || this.parent.filterSettings.type]
+            (this.parent, gObj.filterSettings, this.serviceLocator, this.customOperators, this);
+        this.filterModule.openDialog({
+            type: col.type, field: col.field, displayName: col.headerText,
+            dataSource: col.filter.dataSource || gObj.dataSource, format: col.format,
+            filteredColumns: gObj.filterSettings.columns, target: target,
+            sortedColumns: gObj.sortSettings.columns, formatFn: col.getFormatter(),
+            parserFn: col.getParser(), query: gObj.query, template: col.getFilterItemTemplate(),
+            hideSearchbox: isNullOrUndefined(col.filter.hideSearchbox) ? false : col.filter.hideSearchbox,
+            handler: this.filterHandler.bind(this), localizedStrings: gObj.getLocaleConstants(),
+            position: { X: left, Y: top }
+        });
     }
 
     /** 
@@ -692,21 +722,12 @@ export class Filter implements IAction {
                 if (this.filterModule) {
                     this.filterModule.closeDialog();
                 }
-                this.filterModule = new this.type[col.filter.type || this.parent.filterSettings.type]
-                    (this.parent, gObj.filterSettings, this.serviceLocator, this.customOperators, this);
-                this.filterModule.openDialog({
-                    type: col.type, field: col.field, displayName: col.headerText,
-                    dataSource: col.filter.dataSource || gObj.dataSource, format: col.format,
-                    filteredColumns: gObj.filterSettings.columns, target: target,
-                    sortedColumns: gObj.sortSettings.columns, formatFn: col.getFormatter(),
-                    parserFn: col.getParser(), query: gObj.query, template: col.getFilterItemTemplate(),
-                    hideSearchbox: isNullOrUndefined(col.filter.hideSearchbox) ? false : col.filter.hideSearchbox,
-                    handler: this.filterHandler.bind(this), localizedStrings: gObj.getLocaleConstants(),
-                    position: { X: fClient.right - gClient.left, Y: fClient.bottom - gClient.top }
-                });
+                this.filterDialogOpen(this.column, target, fClient.right - gClient.left, fClient.bottom - gClient.top);
             } else {
                 if (this.filterModule &&
-                    (!parentsUntil(target, 'e-popup-wrapper') && (!parentsUntil(target, 'e-popup')))) {
+                    (!parentsUntil(target, 'e-popup-wrapper')
+                    && (!closest(target, '.e-filter-item.e-menu-item'))
+                    && (!parentsUntil(target, 'e-popup')))) {
                     this.filterModule.closeDialog(target);
                 }
             }

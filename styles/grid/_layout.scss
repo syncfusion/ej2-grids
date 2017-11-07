@@ -121,6 +121,10 @@
       margin: $grid-bigger-fltricon-sortdiv-rightalign-margin;
     }
 
+    &.e-rtl .e-gridheader .e-sortfilter .e-fltr-icon .e-headercelldiv {
+      padding: $grid-rtl-headercelldiv-fltricon-padding;
+    }
+
     .e-rowcell,
     .e-summarycell,
     .e-emptyrow td {
@@ -249,7 +253,9 @@
       padding-top: 0;
     }
 
-    .e-unboundcell {
+    .e-unboundcell,
+    .e-editedrow .e-normaledit .e-unboundcell,
+    .e-addedrow .e-normaledit .e-unboundcell {
       padding-bottom: 6px;
       padding-top: 6px;
     }
@@ -653,7 +659,9 @@
       padding-right: $grid-first-last-rowcell-padding;
     }
 
-    .e-unboundcell {
+    .e-unboundcell,
+    .e-editedrow .e-normaledit .e-unboundcell,
+    .e-addedrow .e-normaledit .e-unboundcell {
       padding-bottom: 4px;
       padding-top: 4px;
     }
@@ -890,8 +898,16 @@
       margin: $grid-textwrap-sorticon-margin;
     }
 
-    &.e-contextmenu-wrapper {
-      position: static;
+    .e-columnmenu {
+      padding: 5px;
+      position: absolute;
+      right: 5px;
+      top: 11px;
+    }
+
+    &.e-rtl .e-columnmenu {
+      left: 5px;
+      right: auto;
     }
 
     [class^='e-'] {

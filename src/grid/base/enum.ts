@@ -345,3 +345,25 @@ export type ContextMenuItem =
 'lastPage' |
 /**  Go to the next page */
 'nextPage';
+
+/** 
+ * Defines the default items of Column menu.
+ */
+export type ColumnMenuItem =
+/**  Auto fit the size of all columns */
+'autoFitAll' |
+/**  Auto fit the current column */
+'autoFit' |
+/**  Group by current column */
+'group' |
+/**  Ungroup by current column */
+'ungroup' |
+/**  Sort the current column in ascending order */
+'sortAscending' |
+/**  Sort the current column in descending order */
+'sortDescending' |
+/**  show the column chooser */
+'columnChooser' |
+/**  show the Filter popup */
+'filter';
+

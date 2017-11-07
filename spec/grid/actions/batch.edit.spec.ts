@@ -865,6 +865,9 @@ describe('Editing module', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             (gridObj.getContent().querySelectorAll('.e-row')[2].firstElementChild as any).click();
             expect(gridObj.isEdit).toBeFalsy();
+            gridObj.isEdit = true;
+            (gridObj.editModule as any).editModule.validateFormObj = () => true;
+            (gridObj.editModule as any).editModule.onBeforeCellFocused({ byClick: true, clickArgs: { preventDefault: () => {} } });
         });
 
         afterAll(() => {

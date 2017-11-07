@@ -220,7 +220,8 @@ export class CheckBoxFilter {
             {
                 click: this.btnClick.bind(this),
                 buttonModel: { cssClass: 'e-flat', content: this.getLocalizedLabel('Clear') }
-            }]
+            }],
+            created: this.dialogCreated.bind(this)
         });
         if (!Browser.isDevice) {
             this.dialogObj.position = options.position;
@@ -232,10 +233,15 @@ export class CheckBoxFilter {
         this.getAllData();
     }
 
+    private dialogCreated(e: {}): void {
+        this.parent.notify(events.filterDialogCreated, e);
+    }
+
     public closeDialog(): void {
         if (this.dialogObj && !this.dialogObj.isDestroyed) {
             this.dialogObj.destroy();
             remove(this.dlg);
+            this.dlg = null;
         }
     }
 

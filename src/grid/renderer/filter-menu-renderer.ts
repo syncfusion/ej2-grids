@@ -14,6 +14,7 @@ import { StringFilterUI } from './string-filter-ui';
 import { NumberFilterUI } from './number-filter-ui';
 import { BooleanFilterUI } from './boolean-filter-ui';
 import { DateFilterUI } from './date-filter-ui';
+import * as events from '../base/constant';
 
 /**
  * `filter menu` render boolean column.
@@ -112,6 +113,7 @@ export class FilterMenuRenderer {
                 }
             }
             this.renderFilterUI(target, column);
+            this.parent.notify(events.filterDialogCreated, {});
             this.dlgObj.show();
             this.writeMethod(column, this.dlgObj.element.querySelector('#' + column.uid + '-flmenu'));
         }
@@ -191,7 +193,7 @@ export class FilterMenuRenderer {
         }
         let flMenuSelector: string = 'e-flmenu-' + col.uid;
         let flIcon: Element = this.parent.element.querySelector('[e-mappinguid="' + flMenuSelector + '"]');
-        flIcon.classList.add('e-filtered');
+        if (flIcon) { flIcon.classList.add('e-filtered'); }
         this.dlgObj.destroy();
         document.getElementById(this.dlgObj.element.id).remove();
     }
@@ -202,7 +204,9 @@ export class FilterMenuRenderer {
         this.dlgObj.element.remove();
         let flMenuSelector: string = 'e-flmenu-' + column.uid;
         let flIcon: Element = this.parent.element.querySelector('[e-mappinguid="' + flMenuSelector + '"]');
-        flIcon.classList.remove('e-filtered');
+        if (flIcon) {
+            flIcon.classList.remove('e-filtered');
+        }
     }
 
     public destroy(): void {

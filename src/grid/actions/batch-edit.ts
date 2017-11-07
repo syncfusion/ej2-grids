@@ -1,4 +1,4 @@
-import { extend, KeyboardEventArgs, addClass, removeClass } from '@syncfusion/ej2-base';
+import { extend, addClass, removeClass } from '@syncfusion/ej2-base';
 import { remove, classList, createElement } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
@@ -51,6 +51,7 @@ export class BatchEdit {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.dblclick, this.dblClickHandler, this);
+        this.parent.on(events.beforeCellFocused, this.onBeforeCellFocused, this);
         this.parent.on(events.cellFocused, this.onCellFocused, this);
         this.dataBoundFunction = this.dataBound.bind(this);
         this.parent.addEventListener(events.dataBound, this.dataBoundFunction);
@@ -64,6 +65,7 @@ export class BatchEdit {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.dblclick, this.dblClickHandler);
+        this.parent.off(events.beforeCellFocused, this.onBeforeCellFocused);
         this.parent.on(events.cellFocused, this.onCellFocused);
         this.parent.removeEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.off(events.doubleTap, this.dblClickHandler);
@@ -98,6 +100,18 @@ export class BatchEdit {
         }
     }
 
+    private onBeforeCellFocused(e: CellFocusArgs): void {
+        if (this.parent.isEdit && this.validateFormObj() &&
+        (e.byClick || (['tab', 'shiftTab', 'enter', 'shiftEnter'].indexOf(e.keyArgs.action) > -1))) {
+            e.cancel = true;
+            if (e.byClick) {
+                e.clickArgs.preventDefault();
+             } else {
+                 e.keyArgs.preventDefault();
+             }
+        }
+    }
+
     private onCellFocused(e: CellFocusArgs): void {
         let clear: boolean = !e.container.isContent || !e.container.isDataCell;
         if (!e.byKey || clear) {
@@ -126,14 +140,6 @@ export class BatchEdit {
                     this.focus.focus();
                     break;
             }
-        }
-        this.reFocusOnError(e.keyArgs);
-    }
-
-    private reFocusOnError(e: KeyboardEventArgs): void {
-        if (this.validateFormObj() && (e.action === 'tab' || e.action === 'shiftTab')) {
-            (e.target as HTMLElement).focus();
-            e.preventDefault();
         }
     }
 

@@ -1,5 +1,5 @@
 import { EventHandler, getValue, KeyboardEventArgs, closest, isNullOrUndefined, addClass, removeClass } from '@syncfusion/ej2-base';
-import { IGrid, IFocus, FocusInfo, FocusedContainer, IIndex } from '../base/interface';
+import { IGrid, IFocus, FocusInfo, FocusedContainer, IIndex, CellFocusArgs } from '../base/interface';
 import { CellType } from '../base/enum';
 import * as event from '../base/constant';
 import { Row } from '../models/row';
@@ -42,7 +42,11 @@ export class FocusStrategy {
 
     public onClick(e: Event | { target: Element }, force?: boolean): void {
         let isContent: boolean = !isNullOrUndefined(closest(<HTMLElement>e.target, '.e-gridcontent'));
-        if (!isContent && isNullOrUndefined(closest(<HTMLElement>e.target, '.e-gridheader'))) { return; }
+        if (!isContent && isNullOrUndefined(closest(<HTMLElement>e.target, '.e-gridheader')) ||
+        (<HTMLElement>e.target).classList.contains('e-filtermenudiv')) { return; }
+        let beforeArgs: CellFocusArgs = { cancel: false, byKey: false, byClick: !isNullOrUndefined(e.target), clickArgs: <Event>e };
+        this.parent.notify(event.beforeCellFocused, beforeArgs);
+        if (beforeArgs.cancel) { return; }
         this.setActive(isContent);
         let returnVal: boolean = this.getContent().onClick(e, force);
         if (returnVal === false) { return; }
@@ -53,6 +57,9 @@ export class FocusStrategy {
         if (this.skipOn(e)) {
             return;
         }
+        let beforeArgs: CellFocusArgs = { cancel: false, byKey: true, byClick: false, keyArgs: e };
+        this.parent.notify(event.beforeCellFocused, beforeArgs);
+        if (beforeArgs.cancel) { return; }
         let bValue: number[] = this.getContent().matrix.current;
         this.currentInfo.outline = true;
         this.swap = this.getContent().jump(e.action, bValue);
@@ -146,6 +153,7 @@ export class FocusStrategy {
             cFocus.generateRows(e.rows);
             let actions: string[] = ['paging', 'grouping'];
             if (e.args && actions.indexOf(e.args.requestType) > -1) {
+                this.skipFocus = true;
                 this.onFocus();
             }
         };

@@ -1,6 +1,6 @@
 import { Component, NumberFormatOptions, DateFormatOptions, EmitType, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
-import { ItemModel, MenuItemModel } from '@syncfusion/ej2-navigations';
+import { ItemModel, MenuItemModel, BeforeOpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
 import { ButtonModel } from '@syncfusion/ej2-buttons';
 import { Column, ColumnModel } from '../models/column';
 import {
@@ -161,6 +161,12 @@ export interface IGrid extends Component<HTMLElement> {
     allowGrouping?: boolean;
 
     /**
+     * Specifies whether the column menu is show or not.
+     * @default null
+     */
+    showColumnMenu?: boolean;
+
+    /**
      * Specifies the groupSettings for Grid.
      * @default []
      */
@@ -280,6 +286,12 @@ export interface IGrid extends Component<HTMLElement> {
     contextMenuItems?: ContextMenuItem[] | ContextMenuItemModel[];
 
     /**
+     * Specifies the column menu items for Grid.
+     * @default null
+     */
+    columnMenuItems?: string[] | ContextMenuItemModel[];
+
+    /**
      * @hidden
      * It used to render toolbar template
      * @default null
@@ -355,6 +367,8 @@ export interface IGrid extends Component<HTMLElement> {
     ensureModuleInjected(module: Function): Boolean;
     isContextMenuOpen(): Boolean;
     goToPage(pageNo: number): void;
+    showColumn(columnName: string | string[], showBy?: string): void;
+    hideColumn(columnName: string | string[], hideBy?: string): void;
     print(): void;
     /* tslint:disable-next-line:no-any */
     excelExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any>;
@@ -1145,9 +1159,11 @@ export interface CellFocusArgs {
     byKey?: boolean;
     byClick?: boolean;
     keyArgs?: KeyboardEventArgs;
+    clickArgs?: Event;
     isJump?: boolean;
-    container: FocusedContainer;
+    container?: FocusedContainer;
     outline?: boolean;
+    cancel?: boolean;
 }
 /**
  * @hidden
@@ -1207,4 +1223,12 @@ export interface ContextMenuItemModel extends MenuItemModel {
      * Define the target to show the menu item.
      */
     target?: string;
+}
+
+export interface ColumnMenuItemModel extends MenuItemModel {
+    hide?: boolean;
+}
+
+export interface ColumnMenuOpenEventArgs extends BeforeOpenCloseMenuEventArgs {
+    column?: Column;
 }

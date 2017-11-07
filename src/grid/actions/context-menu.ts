@@ -110,17 +110,18 @@ export class ContextMenu implements IAction {
         this.l10n = this.serviceLocator.getService<L10n>('localization');
         this.element = createElement('ul', { id: this.gridID + '_cmenu' }) as HTMLUListElement;
         this.parent.element.appendChild(this.element);
+        let target: string = '#' + this.gridID;
         this.contextMenu = new Menu({
             items: this.getMenuItems(),
             enableRtl: this.parent.enableRtl,
             enablePersistence: this.parent.enablePersistence,
             locale: this.parent.locale,
-            target: '#' + this.gridID,
+            target: target,
             select: this.contextMenuItemClick.bind(this),
             beforeOpen: this.contextMenuBeforeOpen.bind(this),
             onOpen: this.contextMenuOpen.bind(this),
             onClose: this.contextMenuOnClose.bind(this),
-            cssClass: 'e-grid'
+            cssClass: 'e-grid-menu'
         });
         this.contextMenu.appendTo(this.element);
     }
@@ -228,15 +229,19 @@ export class ContextMenu implements IAction {
     private contextMenuOnClose(args: OpenCloseMenuEventArgs): void {
         let parent: string = 'parentObj';
         if (args.items.length > 0 && args.items[0][parent] instanceof Menu) {
-            this.contextMenu.showItems(this.hiddenItems);
-            this.contextMenu.enableItems(this.disableItems);
-            this.hiddenItems = [];
-            this.disableItems = [];
-            this.isOpen = false;
+            this.updateItemStatus();
         }
     }
     private getLocaleText(item: string): string {
         return this.l10n.getConstant(this.localeText[item]);
+    }
+
+    private updateItemStatus(): void {
+        this.contextMenu.showItems(this.hiddenItems);
+        this.contextMenu.enableItems(this.disableItems);
+        this.hiddenItems = [];
+        this.disableItems = [];
+        this.isOpen = false;
     }
 
     private contextMenuBeforeOpen(args: BeforeOpenCloseMenuEventArgs): void {
@@ -269,7 +274,18 @@ export class ContextMenu implements IAction {
         this.contextMenu.enableItems(this.disableItems, false);
         this.contextMenu.hideItems(this.hiddenItems);
         this.eventArgs = args.event;
-        this.parent.trigger(events.contextMenuBeforeOpen, args);
+        this.parent.trigger(events.contextMenuOpen, args);
+        if (this.hiddenItems.indexOf('Export') >= 0) {
+            if (this.hiddenItems.length === this.parent.contextMenuItems.length - 2) {
+                this.updateItemStatus();
+                args.cancel = true;
+            }
+        } else {
+            if (this.hiddenItems.length === this.parent.contextMenuItems.length) {
+                this.updateItemStatus();
+                args.cancel = true;
+            }
+        }
     }
 
     private ensureDisabledStatus(item: string): Boolean {

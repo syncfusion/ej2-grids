@@ -167,6 +167,8 @@ export const cellSelectionBegin: string = 'cellselecting';
 /** @hidden */
 export const cellSelectionComplete: string = 'cellselected';
 /** @hidden */
+export const beforeCellFocused: string = 'beforecellfocused';
+/** @hidden */
 export const cellFocused: string = 'cellfocused';
 /** @hidden */
 export const keyPressed: string = 'key-pressed';
@@ -253,4 +255,13 @@ export const accessPredicate: string = 'access-predicate';
 /** @hidden */
 export const contextMenuClick: string = 'contextMenuClick';
 /** @hidden */
-export const contextMenuBeforeOpen: string = 'contextMenuBeforeOpen';
+export const contextMenuOpen: string = 'contextMenuOpen';
+/** @hidden */
+export const columnMenuClick: string = 'contextMenuClick';
+/** @hidden */
+export const columnMenuOpen: string = 'columnMenuOpen';
+/** @hidden */
+export const filterOpen: string = 'filterOpen';
+/** @hidden */
+export const filterDialogCreated: string = 'filterDialogCreated';
+

@@ -91,7 +91,8 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         node.appendChild(this.sortEle.cloneNode());
 
         if ((this.parent.allowFiltering && this.parent.filterSettings.type !== 'filterbar') &&
-            (column.allowFiltering && isNullOrUndefined(column.template))) {
+            (column.allowFiltering && isNullOrUndefined(column.template)) &&
+            !(this.parent.showColumnMenu && column.showColumnMenu)) {
             attributes(fltrMenuEle, {
                 'e-mappinguid': 'e-flmenu-' + column.uid,
             });
@@ -122,6 +123,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         if (column.allowGrouping) {
             ariaAttr.grabbed = false;
         }
+        node = this.extendPrepareHeader(column, node);
         if (!isNullOrUndefined(column.headerTemplate)) {
             if (column.headerTemplate.indexOf('#') !== -1) {
                 innerDIV.innerHTML = document.querySelector(column.headerTemplate).innerHTML.trim();
@@ -130,11 +132,6 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
             }
         }
 
-        if (this.parent.allowResizing) {
-            let handler: HTMLElement = createElement('div');
-            handler.className = column.allowResizing ? 'e-rhandler e-rcursor' : 'e-rsuppress';
-            node.appendChild(handler);
-        }
         this.ariaService.setOptions(<HTMLElement>node, ariaAttr);
 
         if (!isNullOrUndefined(column.headerTextAlign) || !isNullOrUndefined(column.textAlign)) {
@@ -152,6 +149,20 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         }
         node.setAttribute('aria-rowspan', (!isNullOrUndefined(cell.rowSpan) ? cell.rowSpan : 1).toString());
         node.setAttribute('aria-colspan', '1');
+        return node;
+    }
+
+    private extendPrepareHeader(column: Column, node: Element): Element {
+        if (this.parent.showColumnMenu && column.showColumnMenu) {
+            node.appendChild(createElement('div', { className: 'e-icons e-columnmenu' }));
+            node.classList.add('e-fltr-icon');
+        }
+
+        if (this.parent.allowResizing) {
+            let handler: HTMLElement = createElement('div');
+            handler.className = column.allowResizing ? 'e-rhandler e-rcursor' : 'e-rsuppress';
+            node.appendChild(handler);
+        }
         return node;
     }
 

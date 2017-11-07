@@ -93,7 +93,7 @@ export class DialogEditRender {
         let tbody: Element = createElement('tbody');
         let cols: Column[] = gObj.columns as Column[];
         for (let i: number = 0; i < cols.length; i++) {
-            if (!cols[i].visible) {
+            if (!cols[i].visible || cols[i].commands || cols[i].commandsTemplate) {
                 continue;
             }
             let tr: Element = createElement('tr');

@@ -301,6 +301,7 @@ export class Sort implements IAction {
             !(e.target as Element).classList.contains('e-stackedheadercell') &&
             !(e.target as Element).classList.contains('e-stackedheadercelldiv') &&
             !(e.target as Element).classList.contains('e-rhandler') &&
+            !(e.target as Element).classList.contains('e-columnmenu') &&
             !(e.target as Element).classList.contains('e-filtermenudiv')) {
             let gObj: IGrid = this.parent;
             let colObj: Column = gObj.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;

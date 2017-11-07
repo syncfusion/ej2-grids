@@ -1,7 +1,8 @@
   @include export-module('grid-icons') {
   /*! component icons */
 
-  .e-grid {
+  .e-grid,
+  .e-grid-menu {
 
     .e-icon-ascending::before {
       content: $grid-grouped-sort-icon;
@@ -87,6 +88,10 @@
 
     .e-edit::before {
       content: $grid-edit-icon;
+    }
+
+    .e-columnmenu::before {
+      content: '\e984';
     }
 
     .e-delete::before {

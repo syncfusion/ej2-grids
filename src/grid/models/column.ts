@@ -154,6 +154,14 @@ export class Column {
 
     public allowGrouping: boolean = true;
 
+    /**         
+     * If `showColumnMenu` set to false, then it disable the column menu of a particular column.  
+     * By default column menu will show for all columns
+     * @default true    
+     */
+
+    public showColumnMenu: boolean = true;
+
     /**    
      * If `enableGroupByFormat` set to true, then it groups the particular column by formatted values.     
      * @default true   

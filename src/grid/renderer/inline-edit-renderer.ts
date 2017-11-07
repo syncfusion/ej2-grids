@@ -1,6 +1,6 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, isNullOrUndefined, addClass } from '@syncfusion/ej2-base';
 
 /**
  * Edit render module is used to render grid edit row.
@@ -72,6 +72,8 @@ export class InlineEditRender {
                 td.appendChild(elements[col.uid]);
                 if (col.editType === 'booleanedit') {
                     td.classList.add('e-boolcell');
+                } else if (col.commands || col.commandsTemplate) {
+                    addClass([td], 'e-unboundcell');
                 }
                 tr.appendChild(td);
             }

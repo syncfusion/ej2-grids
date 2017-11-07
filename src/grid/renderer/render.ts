@@ -2,7 +2,7 @@ import { L10n, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base';
 import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
-import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
+import { IGrid, NotifyArgs, IValueFormatter, SaveEventArgs } from '../base/interface';
 import { RenderType, CellType } from '../base/enum';
 import { ReturnType } from '../base/type';
 import { Data } from '../actions/data';
@@ -84,6 +84,9 @@ export class Render {
         this.parent.trigger(events.actionBegin, e);
         if (e.cancel) {
             return;
+        }
+        if (e.requestType as string === 'save' && (<SaveEventArgs>e).action === 'add') {
+            this.parent.isEdit = false;
         }
         this.refreshDataManager(e);
     }

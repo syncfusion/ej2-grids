@@ -11,17 +11,17 @@ import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompi
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';
-import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs } from './interface';
+import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ColumnMenuOpenEventArgs  } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
-import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs } from './interface';
+import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs, CheckBoxChangeEventArgs } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
-import { WrapMode, ToolbarItems, ContextMenuItem } from './enum';
+import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem } from './enum';
 import { Data } from '../actions/data';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { ServiceLocator } from '../services/service-locator';
@@ -58,6 +58,7 @@ import { Clipboard } from '../actions/clipboard';
 import { CommandColumn } from '../actions/command-column';
 import { ContextMenu } from '../actions/context-menu';
 import { BeforeOpenCloseMenuEventArgs, MenuEventArgs } from '@syncfusion/ej2-navigations';
+import { ColumnMenu } from '../actions/column-menu';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -649,7 +650,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         SortAscending: 'Sort Ascending',
         SortDescending: 'Sort Descending',
         EditRecord: 'Edit Record',
-        DeleteRecord: 'Delete Record'
+        DeleteRecord: 'Delete Record',
+        FilterMenu: 'Filter',
+        Columnchooser: 'Columns'
     };
     private keyConfigs: { [key: string]: string } = {
         downArrow: 'downarrow',
@@ -797,6 +800,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * `contextMenuModule` is used to manipulate context menu items in the Grid.
      */
     public contextMenuModule: ContextMenu;
+
+    /**
+     * `columnMenuModule` is used to manipulate column menu items in the Grid.
+     */
+    public columnMenuModule: ColumnMenu;
 
     /**
      * `editModule` is used to handle Grid content manipulation.
@@ -1010,6 +1018,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property(false)
     public allowGrouping: boolean;
+
+    /**    
+     * If `showColumnMenu` set to true, then it will enable the column menu options in each columns.  
+     * @default false    
+     */
+    @Property(false)
+    public showColumnMenu: boolean;
 
     /**    
      * Configures the group settings. 
@@ -1240,6 +1255,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property()
     public contextMenuItems: ContextMenuItem[] | ContextMenuItemModel[];
+
+    /**    
+     * `columnMenuItems` defines both built-in and custom column menu items.
+     * <br><br> 
+     * The available default items are   
+     * * `autoFitAll` - Auto fit the size of all columns. 
+     * * `autoFit` - Auto fit the current column.
+     * * `group` - Group by current column. 
+     * * `ungroup` - Ungroup by current column.
+     * * `sortAscending` - Sort the current column in ascending order.
+     * * `sortDescending` - Sort the current column in descending order.
+     * * `filter` - Filter options will show based on filterSettings property like checkbox filter, excel filter
+     * @default null
+     */
+    @Property()
+    public columnMenuItems: ColumnMenuItem[] | ColumnMenuItemModel[];
 
     /**
      * @hidden
@@ -1569,6 +1600,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public contextMenuClick: EmitType<MenuEventArgs>;
 
     /** 
+     * Triggers before column menu opens.
+     * @event
+     */
+    @Event()
+    public columnMenuOpen: EmitType<ColumnMenuOpenEventArgs>;
+
+    /** 
+     * Triggers when click on column menu.
+     * @event
+     */
+    @Event()
+    public columnMenuClick: EmitType<MenuEventArgs>;
+
+    /** 
      * Triggers when the check box in checkbox type column is changed.
      * @event
      */
@@ -1746,6 +1791,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.serviceLocator]
             });
         }
+
+        if (this.showColumnMenu) {
+            modules.push({
+                member: 'columnMenu',
+                args: [this, this.serviceLocator]
+            });
+        }
+
     }
 
     /**
@@ -1998,6 +2051,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 if (this.contextMenuItems) {
                     (<EJ2Intance>this.contextMenuModule.getContextMenu()).ej2_instances[0].enableRtl = newProp.enableRtl;
                     (<EJ2Intance>this.contextMenuModule.getContextMenu()).ej2_instances[0].dataBind();
+                }
+                if (this.showColumnMenu) {
+                    (<EJ2Intance>this.columnMenuModule.getColumnMenu()).ej2_instances[0].enableRtl = newProp.enableRtl;
+                    (<EJ2Intance>this.columnMenuModule.getColumnMenu()).ej2_instances[0].dataBind();
                 }
                 break;
             case 'enableAltRow':
@@ -3266,6 +3323,26 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public ensureModuleInjected(module: Function): boolean {
         return this.getInjectedModules().indexOf(module) >= 0;
+    }
+
+    /** 
+     * Shows a column by column name. 
+     * @param  {string|string[]} columnName - Defines a single or collection of column names to show. 
+     * @param  {string} showBy - Defines the column key either as field name or header text. 
+     * @return {void} 
+     */
+    public showColumn(columnName: string | string[], showBy?: string): void {
+        this.showHider.show(columnName, showBy);
+    }
+
+    /** 
+     * Hides a column by column name. 
+     * @param  {string|string[]} columnName - Defines a single or collection of column names to hide. 
+     * @param  {string} hideBy - Defines the column key either as field name or header text. 
+     * @return {void} 
+     */
+    public hideColumn(columnName: string | string[], hideBy?: string): void {
+        this.showHider.hide(columnName, hideBy);
     }
 
 }

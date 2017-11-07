@@ -1,5 +1,5 @@
 import { MouseEventArgs, Draggable, Droppable, L10n, DropEventArgs, KeyboardEventArgs } from '@syncfusion/ej2-base';
-import { createElement, closest, remove, classList } from '@syncfusion/ej2-base';
+import { createElement, closest, remove, classList, addClass, removeClass } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { GroupSettingsModel, SortDescriptorModel } from '../base/grid-model';
@@ -286,12 +286,12 @@ export class Group implements IAction {
             let indent: number = trgt.parentElement.querySelectorAll('.e-indentcell').length;
             let expand: boolean = false;
             if (trgt.classList.contains('e-recordpluscollapse')) {
-                trgt.className = 'e-recordplusexpand';
+                addClass([trgt], 'e-recordplusexpand'); removeClass([trgt], 'e-recordpluscollapse');
                 trgt.firstElementChild.className = 'e-icons e-gdiagonaldown e-icon-gdownarrow';
                 expand = true;
             } else {
                 isHide = true;
-                trgt.className = 'e-recordpluscollapse';
+                removeClass([trgt], 'e-recordplusexpand'); addClass([trgt], 'e-recordpluscollapse');
                 trgt.firstElementChild.className = 'e-icons e-gnextforward e-icon-grightarrow';
             }
             this.aria.setExpand(trgt, expand);
@@ -319,7 +319,7 @@ export class Group implements IAction {
                 }
             }
             for (let i: number = 0, len: number = toExpand.length; i < len; i++) {
-                toExpand[i].className = 'e-recordpluscollapse';
+                removeClass([toExpand[i]], 'e-recordplusexpand'); addClass([toExpand[i]], 'e-recordpluscollapse');
                 toExpand[i].firstElementChild.className = 'e-icons e-gnextforward e-icon-grightarrow';
                 this.expandCollapseRows(toExpand[i]);
             }
@@ -590,16 +590,18 @@ export class Group implements IAction {
             for (let i: number = 0, len: number = headers.length; i < len; i++) {
                 if (!(headers[i].classList.contains('e-emptycell'))) {
                     let column: Column = this.parent.getColumnByUid(headers[i].getAttribute('e-mappinguid'));
-                    if (headers[i].querySelectorAll('.e-grptogglebtn').length) {
-                        remove(headers[i].querySelectorAll('.e-grptogglebtn')[0] as Element);
-                    }
-                    if (!isRemove) {
-                        headers[i].appendChild(createElement(
-                            'span', {
-                                className: 'e-grptogglebtn e-icons ' +
-                                (this.groupSettings.columns.indexOf(column.field) > -1 ? 'e-toggleungroup e-icon-ungroup'
-                                    : 'e-togglegroup e-icon-group'), attrs: { tabindex: '-1', 'aria-label': 'Group button' }
-                            }));
+                    if (!this.parent.showColumnMenu || (this.parent.showColumnMenu && !column.showColumnMenu)) {
+                        if (headers[i].querySelectorAll('.e-grptogglebtn').length) {
+                            remove(headers[i].querySelectorAll('.e-grptogglebtn')[0] as Element);
+                        }
+                        if (!isRemove) {
+                            headers[i].appendChild(createElement(
+                                'span', {
+                                    className: 'e-grptogglebtn e-icons ' +
+                                    (this.groupSettings.columns.indexOf(column.field) > -1 ? 'e-toggleungroup e-icon-ungroup'
+                                        : 'e-togglegroup e-icon-group'), attrs: { tabindex: '-1', 'aria-label': 'Group button' }
+                                }));
+                        }
                     }
                 }
             }

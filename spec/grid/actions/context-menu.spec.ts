@@ -145,7 +145,7 @@ describe('context menu module', () => {
             expect(gridObj.contextMenuModule.contextMenu.locale).toBe(gridObj.locale);
             expect(gridObj.contextMenuModule.contextMenu.enablePersistence).toBe(gridObj.enablePersistence);
             expect(gridObj.contextMenuModule.contextMenu.target).toBe('#' + gridObj.element.id);
-            expect(gridObj.contextMenuModule.contextMenu.cssClass).toBe('e-grid');
+            expect(gridObj.contextMenuModule.contextMenu.cssClass).toBe('e-grid-menu');
             expect(gridObj.contextMenuModule.contextMenu.items.length).toBe(gridObj.contextMenuItems.length - 3 + 1);
             expect((gridObj.contextMenuModule as any).getModuleName()).toBe('contextMenu');
             expect(gridObj.contextMenuModule.getContextMenu()).toBe((gridObj.contextMenuModule as any).element);

@@ -8,12 +8,7 @@
     }
 
     .e-focused {
-      border: 0;
       box-shadow: $grid-cell-focus-shadow;
-    }
-
-    &.e-rlines .e-focused .e-rhandler {
-      border: 0 none;
     }
 
     .e-gridheader .e-icons:not(.e-icon-hide):not(.e-check) {
@@ -153,6 +148,10 @@
       color: $grid-sortnumber-color;
     }
 
+    .e-col-menu.e-filter-popup {
+      box-shadow: $grid-column-menu-sub-menu-box-shadow;
+    }
+
     td.e-active {
       background: $grid-row-selection-bg-color;
       color: $grid-row-selection-color;
@@ -236,6 +235,10 @@
     &.e-rlines .e-headercell .e-rhandler,
     &.e-rlines .e-headercell .e-rsuppress {
       border-right: 1px solid $grid-header-border-color;
+    }
+
+    &.e-rlines .e-focused .e-rhandler {
+      border: 0 none;
     }
 
     &.e-rlines .e-headercell.e-stackedheadercell {

@@ -109,7 +109,7 @@ export class EditRender {
                 let cellRenderer: ICellRenderer<{}> = cellRendererFact.getCellRenderer(CellType.CommandColumn);
                 let cells: Cell<Column>[] = model.generateRows(args.rowData)[0].cells;
                 let td: Element = cellRenderer.render(
-                    cells[i], args.rowData, <{ [x: string]: string }>{'index': args.row.getAttribute('aria-rowindex')});
+                    cells[i], args.rowData, <{ [x: string]: string }>{'index': args.row ? args.row.getAttribute('aria-rowindex') : 0 });
                 let div: Element = td.firstElementChild;
                 div.setAttribute('textAlign', td.getAttribute('textAlign'));
                 elements[col.uid] = div;
