@@ -2004,8 +2004,10 @@
       & .e-columnheader .e-headercelldiv {
         height: Auto;
         line-height: 18px;
+        overflow-wrap: break-word;
         text-overflow: clip;
         white-space: normal;
+        word-wrap: break-word;
       }
     }
 
@@ -2020,8 +2022,10 @@
     & .e-gridcontent.e-wrap .e-rowcell {
       height: Auto;
       line-height: $grid-wrap-line-height;
+      overflow-wrap: break-word;
       text-overflow: clip;
       white-space: normal;
+      word-wrap: break-word;
     }
 
     & .e-stackedheadercelldiv {
