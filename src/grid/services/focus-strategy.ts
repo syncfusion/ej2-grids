@@ -351,7 +351,7 @@ export class ContentFocus implements IFocus {
 
     protected getFocusable(element: HTMLElement): HTMLElement {
         let child: HTMLElement[] = [].slice
-            .call(element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]'));
+            .call(element.querySelectorAll('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"]'));
 
         /* Select the first focusable child element
          * if no child found then select the cell itself.

@@ -23,6 +23,7 @@
 
     .e-pagerconstant {
       margin-bottom: $pager-bigger-dropdown-constant-margin;
+      margin-left: $pager-bigger-constant-margin-left;
     }
 
     .e-pagercontainer {
@@ -31,14 +32,15 @@
 
     &.e-rtl .e-pagercontainer {
       margin: $pager-bigger-container-rtl-margin;
+      margin-top: $pager-bigger-rtl-pagercontainer-margin-top;
 	}
 
     @media (max-width: 769px) {
       padding: $pager-device-padding;
 
-      .e-pagerdropdown {
-        margin-top: 0 px;
-    }
+      &.e-rtl div.e-parentmsgbar {
+        margin-right: 0;
+      }
 
       div.e-parentmsgbar {
         padding: $pager-device-messabar-padding;
@@ -58,6 +60,7 @@
 
     &.e-rtl div.e-parentmsgbar {
       margin-left: $pager-bigger-rtl-parentmsgbar-margin-left;
+      margin-top: $pager-bigger-rtl-parentmsgbar-margin-top;
    }
 
     .e-numericitem {
@@ -83,6 +86,23 @@
     &.e-rtl .e-currentitem {
       margin: $pager-bigger-rtl-numeric-margin;
       padding: $pager-bigger-rtl-activeitem-padding;
+      }
+
+    &.e-rtl {
+      & .e-pp,
+      & .e-np,
+      & .e-pp:hover,
+      & .e-np:hover {
+        margin-top: $pager-tripledot-rtl-bigger-margin-top;
+        }
+
+      & .e-pagerdropdown {
+        margin: $pager-rtl-pagerdropdown-bigger-margin;
+        }
+
+      & .e-pagerconstant {
+        margin: $pager-rtl-pagerconstant-bigger-margin-top;
+            }
       }
 
     .e-pagercontainer .e-firstpage,
@@ -370,7 +390,7 @@
       & .e-pagercontainer,
       & div,
       & a {
-        float: right;
+        float: initial;
       }
 
       & .e-parentmsgbar {
@@ -379,8 +399,11 @@
       }
 
       & .e-pagerdropdown {
-        margin-right: 10px;
-        margin-top: 10px;
+        margin: $pager-rtl-pagerdropdown-margin;
+      }
+
+      & .e-pagerconstant {
+        margin: $pager-rtl-pagerconstant-margin-top;
       }
 
       & .e-pagerexternalmsg {
@@ -484,6 +507,14 @@
         padding: $pager-activeitem-padding;
       }
 
+      & .e-pp,
+      & .e-np,
+      & .e-pp:hover,
+      & .e-np:hover {
+        margin-top: $pager-tripledot-rtl-margin-top;
+        padding: $pager-tripledot-rtl-padding;
+      }
+
       @media (max-width: 769px) {
         .e-mfirst,
         .e-mprev,
@@ -491,6 +522,12 @@
         .e-mlast {
           border: 0;
         }
+
+        &.e-rtl div.e-parentmsgbar {
+          float: initial;
+          margin-left: 0;
+          margin-top: $pager-rtl-pagermsgbar-device-margin-top;
+           }
 
         .e-parentmsgbar {
           float: right;
