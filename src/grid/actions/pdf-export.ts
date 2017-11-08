@@ -217,6 +217,7 @@ export class PdfExport {
             /* tslint:disable-next-line:max-line-length */
             let value: string = dataSourceItems.field + ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ' + dataSourceItems.count + (dataSource.count > 1 ? ' items' : ' item');
             row.cells.getCell(groupIndex).value = value;
+            row.cells.getCell(groupIndex + 1).style.stringFormat = new PdfStringFormat(PdfTextAlignment.Left);
             row.style.setBorder(border);
             row.style.setFont(font);
             row.style.setTextBrush(brush);
