@@ -8,6 +8,7 @@ import { Grid } from '../../../src/grid/base/grid';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Group } from '../../../src/grid/actions/group';
 import { Page } from '../../../src/grid/actions/page';
+import { Freeze } from '../../../src/grid/actions/freeze';
 import { CellType } from '../../../src/grid/base/enum';
 import { ValueFormatter } from '../../../src/grid/services/value-formatter';
 import { Column } from '../../../src/grid/models/column';
@@ -15,7 +16,7 @@ import { Selection } from '../../../src/grid/actions/selection';
 import { filterData } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
-Grid.Inject(Filter, Page, Selection, Group);
+Grid.Inject(Filter, Page, Selection, Group, Freeze);
 
 function getEventObject(eventType: string, eventName: string): Object {
     let tempEvent: any = document.createEvent(eventType);
@@ -73,7 +74,7 @@ describe('Filtering module', () => {
 
         it('Filter string column testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-               expect(gridObj.element.querySelectorAll('.e-row').length).toBe(3);
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(3);
                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"CustomerID","operator":"startswith","value":"VINET","predicate":"and","matchCase":false,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
@@ -213,7 +214,7 @@ describe('Filtering module', () => {
         it('Filter date column testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
                 //expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
-               // expect(gridObj.filterSettings.columns.length).toBe(1);
+                // expect(gridObj.filterSettings.columns.length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -237,8 +238,8 @@ describe('Filtering module', () => {
 
         it('Filter number format column testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Freight","operator":"equal","value":32.38,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Freight","operator":"equal","value":32.38,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -261,8 +262,8 @@ describe('Filtering module', () => {
 
         it('Filter number format with formated value testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Freight","operator":"equal","value":32.38,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Freight","operator":"equal","value":32.38,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -285,8 +286,8 @@ describe('Filtering module', () => {
 
         it('Filter number with < operator testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(4);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"lessthan","value":10252,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(4);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"lessthan","value":10252,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -333,8 +334,8 @@ describe('Filtering module', () => {
 
         it('Filter number with < operator testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(5);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"lessthanorequal","value":10252,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(5);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"lessthanorequal","value":10252,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -429,8 +430,8 @@ describe('Filtering module', () => {
 
         it('Filter string with * operator testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(4);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"CustomerID","operator":"startswith","value":"v","predicate":"and","matchCase":false,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(4);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"CustomerID","operator":"startswith","value":"v","predicate":"and","matchCase":false,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -501,8 +502,8 @@ describe('Filtering module', () => {
 
         it('Filter boolean format true column testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(35);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":true,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(35);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":true,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -515,8 +516,8 @@ describe('Filtering module', () => {
 
         it('Filter boolean format 0 column testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(36);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":false,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(36);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":false,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -529,8 +530,8 @@ describe('Filtering module', () => {
 
         it('Filter boolean format 1 column testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(35);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":true,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(35);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":true,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -544,8 +545,8 @@ describe('Filtering module', () => {
 
         it('Filter boolean format false column testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(36);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":false,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(36);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"Verified","operator":"equal","value":false,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -605,8 +606,8 @@ describe('Filtering module', () => {
 
         it('filterByColumn method testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"equal","value":10248,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]')
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"equal","value":10248,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]')
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -618,8 +619,8 @@ describe('Filtering module', () => {
             gridObj.filterByColumn('OrderID', 'equal', 10248, 'and', true);
             expect(orderIDElement.disabled).toBeFalsy();
             setTimeout(() => {
-                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
-                 expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"equal","value":10248,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
+                expect(getString(gridObj.filterSettings.columns)).toBe('[{"field":"OrderID","operator":"equal","value":10248,"predicate":"and","matchCase":true,"actualFilterValue":{},"actualOperator":{}}]');
                 done();
                 done();
             }, 500);
@@ -627,7 +628,7 @@ describe('Filtering module', () => {
 
         it('removeFilteredColsByField false testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
-               // expect(orderIDElement.value).toBe('');
+                // expect(orderIDElement.value).toBe('');
                 (<any>gridObj.filterModule).generateCell(gridObj.getColumns()[1], CellType.Filter);
                 done();
             };
@@ -652,7 +653,7 @@ describe('Filtering module', () => {
 
         it('filter clear button testing', () => {
             orderIDElement.value = '10248';
-            (<any>gridObj.filterModule).updateSpanClass({ type: 'mousedown', target: orderIDElement.nextElementSibling, preventDefault: ()=>{} });
+            (<any>gridObj.filterModule).updateSpanClass({ type: 'mousedown', target: orderIDElement.nextElementSibling, preventDefault: () => { } });
             expect(orderIDElement.value).toBe('');
             orderIDElement.focus();
             gridObj.element.focus(); //for coverage    
@@ -832,9 +833,9 @@ describe('Filtering module', () => {
             //for coverage
             (<any>gridObj.filterModule).lastFilterElement = element;
             (<any>gridObj.filterModule).isSpanClicked = false;
-            (<any>gridObj.filterModule).updateSpanClass({ type: 'focusin', target: gridObj.element, preventDefault: ()=>{ }});
+            (<any>gridObj.filterModule).updateSpanClass({ type: 'focusin', target: gridObj.element, preventDefault: () => { } });
             (<any>gridObj.filterModule).isSpanClicked = true;
-            (<any>gridObj.filterModule).updateSpanClass({ type: 'focusin', target: gridObj.element, preventDefault: ()=>{ }});
+            (<any>gridObj.filterModule).updateSpanClass({ type: 'focusin', target: gridObj.element, preventDefault: () => { } });
         });
 
         afterAll(() => {
@@ -955,9 +956,130 @@ describe('Filtering module', () => {
             setTimeout(function () {
                 done();
             }, 1000);
-    
+
         });
     });
 
+    describe('Filterbar with Freeze pane', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let filterElement: HTMLInputElement;
+        let orderIDElement: HTMLInputElement;
+        let keyup: any = getEventObject('KeyboardEvent', 'keyup');
+        keyup.keyCode = 13;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    frozenColumns: 2,
+                    frozenRows: 2,
+                    allowFiltering: true,
+                    allowPaging: false,
+                    filterSettings: { type: 'filterbar', showFilterBarStatus: true },
+                    columns: [{ field: 'OrderID', type: 'number', visible: true }, { field: 'CustomerID', type: 'string' },
+                    { field: 'EmployeeID', type: 'number' }, { field: 'Freight', format: 'C2', type: 'number' },
+                    { field: 'ShipCity' }, { field: 'Verified', type: 'boolean' }, { field: 'ShipName', allowFiltering: false },
+                    { field: 'ShipCountry', type: 'string' }, { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date' },
+                    { field: 'ShipAddress', allowFiltering: true, visible: false }],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('Filter string column testing', (done: Function) => {
+            actionComplete = (args?: Object): void => {
+                expect(gridObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody').children[0].children[1].innerHTML).toBe('VINET');
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            filterElement = gridObj.element.querySelector('#CustomerID_filterBarcell') as HTMLInputElement;
+            filterElement.value = 'VINET';
+            filterElement.focus();
+            keyup.target = filterElement;
+            EventHandler.trigger(gridObj.getHeaderContent() as HTMLElement, 'keyup', keyup);
+        });
+
+        it('Filter on movable content', (done: Function) => {
+            actionComplete = (args?: Object): void => {
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            orderIDElement = gridObj.element.querySelector('#ShipCity_filterBarcell') as HTMLInputElement;
+            orderIDElement.value = 'REIMS';
+            orderIDElement.focus();
+            keyup.target = orderIDElement;
+            EventHandler.trigger(gridObj.getHeaderContent() as HTMLElement, 'keyup', keyup);
+        });
+
+        it('Render empty', (done: Function) => {
+            actionComplete = (args?: Object): void => {
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            orderIDElement = gridObj.element.querySelector('#OrderID_filterBarcell') as HTMLInputElement;
+            orderIDElement.value = '2';
+            orderIDElement.focus();
+            keyup.target = orderIDElement;
+            EventHandler.trigger(gridObj.getHeaderContent() as HTMLElement, 'keyup', keyup);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
+    describe('Filterbar with Freeze pane', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        let filterElement: HTMLInputElement;
+        let orderIDElement: HTMLInputElement;
+        let keyup: any = getEventObject('KeyboardEvent', 'keyup');
+        keyup.keyCode = 13;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: filterData,
+                    frozenRows: 2,
+                    allowFiltering: true,
+                    allowPaging: false,
+                    filterSettings: { type: 'filterbar', showFilterBarStatus: true },
+                    columns: [{ field: 'OrderID', type: 'number', visible: true }, { field: 'CustomerID', type: 'string' },
+                    { field: 'EmployeeID', type: 'number' }, { field: 'Freight', format: 'C2', type: 'number' },
+                    { field: 'ShipCity' }, { field: 'Verified', type: 'boolean' }, { field: 'ShipName', allowFiltering: false },
+                    { field: 'ShipCountry', type: 'string' }, { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date' },
+                    { field: 'ShipAddress', allowFiltering: true, visible: false }],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('Render empty', (done: Function) => {
+            actionComplete = (args?: Object): void => {
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            orderIDElement = gridObj.element.querySelector('#OrderID_filterBarcell') as HTMLInputElement;
+            orderIDElement.value = '2';
+            orderIDElement.focus();
+            keyup.target = orderIDElement;
+            EventHandler.trigger(gridObj.getHeaderContent() as HTMLElement, 'keyup', keyup);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
 
 });

@@ -261,12 +261,6 @@ export interface IGrid extends Component<HTMLElement> {
     dataSource?: Object | DataManager;
 
     /**
-     * Defines the row height for Grid rows.
-     * @default null
-     */
-    rowHeight?: number;
-
-    /**
      * Specifies the query for Grid.
      * @default []
      */
@@ -304,6 +298,18 @@ export interface IGrid extends Component<HTMLElement> {
      * @default null
      */
     pagerTemplate?: string;
+
+    /**
+     * Defines frozen rows
+     * @default 0
+     */
+    frozenRows?: number;
+
+    /**
+     * Defines frozen columns
+     * @default 0
+     */
+    frozenColumns?: number;
 
     isEdit?: boolean;
 
@@ -747,8 +753,6 @@ export interface RowDataBoundEventArgs {
     data?: Object;
     /** Defines the row element. */
     row?: Element;
-    /** Defines the row height */
-    rowHeight?: number;
 }
 
 export interface QueryCellInfoEventArgs {
@@ -771,6 +775,8 @@ export interface PdfQueryCellInfoEventArgs {
     /** Defines the value of the current cell. */
     /* tslint:disable:no-any */
     value?: any;
+    /** Defines the no. of columns to be spanned */
+    colSpan?: number;
 }
 
 export interface ExcelQueryCellInfoEventArgs {

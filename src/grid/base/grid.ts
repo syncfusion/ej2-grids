@@ -11,7 +11,7 @@ import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompi
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';
-import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ColumnMenuOpenEventArgs  } from './interface';
+import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ColumnMenuOpenEventArgs } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';
@@ -560,7 +560,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private isMediaQuery: boolean = false;
     private isInitialLoad: boolean = false;
     private dataBoundFunction: Function;
-    private isFilterTypeChanges: string = '';
     /** @hidden */
     public recordsCount: number;
     /**
@@ -1175,13 +1174,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property([])
     public dataSource: Object | DataManager;
 
-    /**
-     * Defines the row height for Grid rows.
-     * @default null
-     */
-    @Property(null)
-    public rowHeight: number;
-
     /**    
      * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html) 
      * which will execute along with data processing.    
@@ -1287,6 +1279,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property()
     public pagerTemplate: string;
+
+    /**
+     * Defines frozen rows
+     * @default 0
+     */
+    @Property()
+    public frozenRows: number;
+
+    /**
+     * Defines frozen columns
+     * @default 0
+     */
+    @Property()
+    public frozenColumns: number;
 
     /** 
      * Triggers when the component is created.
@@ -1766,6 +1772,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.serviceLocator]
             });
         }
+        if (this.frozenColumns || this.frozenRows) {
+            modules.push({ member: 'freeze', args: [this, this.serviceLocator] });
+        }
         if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
             modules.push({
                 member: 'edit',
@@ -2068,10 +2077,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'filterSettings':
                 this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
-                if (this.isFilterTypeChanges === '' || this.isFilterTypeChanges !== this.filterSettings.type) {
-                    this.headerModule.refreshUI();
-                }
-                this.isFilterTypeChanges = this.filterSettings.type;
                 break;
             case 'searchSettings':
                 this.notify(events.inBoundModelChanged, { module: 'search', properties: newProp.searchSettings });

@@ -135,6 +135,20 @@
       border-color: $grid-header-border-color;
   }
 
+    .e-frozenhdrcont > .e-table tbody tr:last-child td,
+    .e-frozenhdrcont .e-frozenheader > .e-table tbody tr:last-child td,
+    .e-frozenhdrcont .e-movableheader > .e-table tbody tr:last-child td {
+      border-bottom-color: $frozen-border-color;
+    }
+
+    .e-frozenheader > .e-table tr,
+    .e-frozencontent > .e-table tr {
+      & th:last-child,
+      & td:last-child {
+        border-right-color: $frozen-border-color;
+    }
+  }
+
     &.e-gridhover tr[role='row']:not(.e-editedrow):hover .e-rowcell,
     &.e-gridhover tr[role='row']:hover .e-detailrowcollapse,
     &.e-gridhover tr[role='row']:hover .e-detailrowexpand {

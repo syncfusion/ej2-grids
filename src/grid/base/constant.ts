@@ -255,6 +255,8 @@ export const accessPredicate: string = 'access-predicate';
 /** @hidden */
 export const contextMenuClick: string = 'contextMenuClick';
 /** @hidden */
+export const freezeRefresh: string = 'freezerefresh';
+/** @hidden */
 export const contextMenuOpen: string = 'contextMenuOpen';
 /** @hidden */
 export const columnMenuClick: string = 'contextMenuClick';

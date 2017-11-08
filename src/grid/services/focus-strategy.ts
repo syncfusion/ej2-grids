@@ -78,10 +78,10 @@ export class FocusStrategy {
     private skipOn(e: KeyboardEventArgs): boolean {
         let target: HTMLElement = <HTMLElement>e.target; if (!target) { return false; }
         return (this.parent.editSettings.mode !== 'batch' && (this.parent.isEdit || ['insert', 'f2', 'delete'].indexOf(e.action) > -1)
-        || (closest(document.activeElement, '.e-filterbarcell') !== null && ['leftArrow', 'rightArrow'].indexOf(e.action) > -1)
-        || (closest(target, '.e-gridcontent') === null && closest(target, '.e-gridheader') === null)
-        || (e.action === 'space' && (!target.classList.contains('e-gridchkbox') && closest(target, '.e-gridchkbox') === null
-        && closest(target, '.e-headerchkcelldiv') === null)));
+            || (closest(document.activeElement, '.e-filterbarcell') !== null && ['leftArrow', 'rightArrow'].indexOf(e.action) > -1)
+            || (closest(target, '.e-gridcontent') === null && closest(target, '.e-gridheader') === null)
+            || (e.action === 'space' && (!target.classList.contains('e-gridchkbox') && closest(target, '.e-gridchkbox') === null
+                && closest(target, '.e-headerchkcelldiv') === null)));
     }
 
     public getFocusedElement(): HTMLElement {
@@ -160,7 +160,7 @@ export class FocusStrategy {
     }
 
     public addEventListener(): void {
-        if (this.parent.isDestroyed) { return; }
+        if (this.parent.isDestroyed || this.parent.frozenColumns || this.parent.frozenRows) { return; }
         EventHandler.add(this.parent.element, 'mousedown', this.focusCheck, this);
         EventHandler.add(this.parent.element, 'focus', this.onFocus, this);
         this.parent.on(event.keyPressed, this.onKeyPress, this);

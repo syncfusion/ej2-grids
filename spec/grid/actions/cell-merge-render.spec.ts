@@ -149,6 +149,8 @@ describe('Cell Merge', () => {
                 });
                 it('cell merge check on cell recreate', () => {
                     let cRender = new ContentRender(grid, grid.serviceLocator);
+                    cRender.renderPanel();
+                    cRender.renderTable();
                     (grid as any).inViewIndexes = [3,4,5];
                     (cRender as any).contentTable = document.createElement('table');
                     (cRender as any).contentTable.innerHTML = '<tbody></tbody>';

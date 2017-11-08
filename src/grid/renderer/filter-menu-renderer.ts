@@ -1,4 +1,3 @@
-
 import { isNullOrUndefined, getValue, L10n, remove } from '@syncfusion/ej2-base';
 import { createElement, Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
@@ -191,14 +190,12 @@ export class FilterMenuRenderer {
         let column: Element = this.parent.element.querySelector('[e-mappinguid="' + col.uid + '"]').parentElement;
         let flIcon: Element = column.querySelector(iconClass);
         if (flIcon) { flIcon.classList.add('e-filtered'); }
-        this.dlgObj.destroy();
-        document.getElementById(this.dlgObj.element.id).remove();
+        this.closeDialog();
     }
 
     private clearBtnClick(column: Column): void {
         this.filterObj.removeFilteredColsByField(column.field);
-        this.dlgObj.destroy();
-        this.dlgObj.element.remove();
+        this.closeDialog();
         let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
         let col: Element = this.parent.element.querySelector('[e-mappinguid="' + column.uid + '"]').parentElement;
         let flIcon: Element = col.querySelector(iconClass);

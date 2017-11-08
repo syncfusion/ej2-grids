@@ -1302,6 +1302,10 @@ export class Selection implements IAction {
 
     private applyDownUpKey(rowIndex?: number, cellIndex?: number): void {
         let gObj: IGrid = this.parent;
+        if (this.isChkSelection && this.isChkAll) {
+            this.checkSelectAllAction(false);
+            this.checkedTarget = null;
+        }
         if (this.isRowType()) {
             this.selectRow(rowIndex, true);
             this.applyUpDown(gObj.selectedRowIndex);

@@ -85,7 +85,6 @@ export class ExcelFilter extends CheckBoxFilter {
         // this.removeEventListener();
         super.destroy();
         remove(this.cmenu);
-        this.unwireEvents();
     }
 
     private createMenu(type: string, isFiltered: boolean): void {
@@ -188,6 +187,7 @@ export class ExcelFilter extends CheckBoxFilter {
 
     public closeDialog(): void {
         super.closeDialog();
+        this.unwireEvents();
     }
 
     private selectHandler(e: MenuEventArgs): void {

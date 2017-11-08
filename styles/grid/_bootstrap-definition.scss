@@ -192,6 +192,7 @@ $grid-columnchooser-li-padding: 8px 0;
 $grid-edit-input-bigger-margin: 2px;
 $grid-device-ungroupbutton-line-height: 37px;
 $grid-device-groupheadercell-span-line-height: 33px;
+$frozen-border-color: $brand-primary;
 $grid-edit-checkbox-bigger-padding-left: 8px;
 $grid-edit-checkbox-bigger-padding-top: 8px;
 $grid-cell-focus-shadow: 0 0 0 1px $input-border-focus inset;
@@ -209,4 +210,7 @@ $grid-sortdiv-filtericon-rightalign-margin: -29px -11px;
 $grid-bigger-fltricon-sortdiv-rightalign-margin: -31px -20px;
 $grid-bigger-fltricon-sortdiv-margin: -31px 10px;
 $grid-column-menu-sub-menu-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
-
+$grid-bigger-checkbox-filter-min-height: 360px;
+$grid-checkbox-filter-min-height: 348px;
+$grid-column-menu-top: 8px;
+$grid-column-menu-top-touch: 10px;

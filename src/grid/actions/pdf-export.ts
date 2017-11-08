@@ -696,19 +696,33 @@ export class PdfExport {
             // create a new row and set default style properties
             let gridRow: PdfGridRow = this.setRecordThemeStyle(pdfGrid.rows.addRow(), border);
             for (let j: number = 0; j < columns.length; j++) {
-                /* tslint:disable-next-line:no-any */
+                /* tslint:disable:no-any */
                 let value: any = items[columns[j].field];
-                /* tslint:disable-next-line:no-any */
+                let data: any = items;
                 let args: any = {
+                    data: data,
                     value: value,
                     column: columns[j],
-                    style: undefined
+                    style: undefined,
+                    colSpan: 1
                 };
+                /* tslint:enable:no-any */
                 gObj.trigger(events.pdfQueryCellInfo, args);
                 let cell: PdfGridCell = gridRow.cells.getCell(j + startIndex);
                 cell.value = this.exportValueFormatter.formatCellValue(args);
                 if (args.style !== undefined) {
                     this.processCellStyle(cell, args);
+                }
+                if (args.colSpan > 1) {
+                    if ((j + startIndex + 1 + args.colSpan) > gridRow.cells.count) {
+                        args.colSpan = gridRow.cells.count - (j + startIndex + 1);
+                    }
+                    cell.columnSpan = args.colSpan;
+                    for (let i: number = 1; i < cell.columnSpan; i++) {
+                        let spanCell: PdfGridCell = gridRow.cells.getCell(j + startIndex + i);
+                        spanCell.value = '';
+                    }
+                    j += (args.colSpan - 1);
                 }
             }
         }

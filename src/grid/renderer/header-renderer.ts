@@ -322,8 +322,16 @@ export class HeaderRender implements IRenderer {
     }
 
     private getHeaderCells(rows: Row<Column>[]): Row<Column>[] {
-        let cols: Column[] = this.parent.enableColumnVirtualization ? this.parent.getColumns() : this.parent.columns as Column[];
-
+        let column: Column[];
+        if (this.parent.frozenColumns) {
+            if (this.parent.getHeaderTable() && this.parent.getHeaderTable().querySelector('thead')) {
+                column = this.parent.columns.slice(this.parent.frozenColumns, this.parent.columns.length) as Column[];
+            } else {
+                column = this.parent.columns.slice(0, this.parent.frozenColumns) as Column[];
+            }
+        }
+        let cols: Column[] = this.parent.enableColumnVirtualization ? this.parent.getColumns()
+            : (this.parent.frozenColumns ? column : this.parent.columns as Column[]);
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             rows = this.appendCells(cols[i], rows, 0, i === 0, false, i === (len - 1));
         }

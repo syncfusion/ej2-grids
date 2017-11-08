@@ -248,16 +248,12 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
     }
 
     public getBlockHeight(): number {
-        return this.getBlockSize() * this.getRowHeight();
+        return this.getBlockSize() * getRowHeight();
     }
 
     public isEndBlock(index: number): boolean {
         let totalBlocks: number = this.getTotalBlocks();
         return index >= totalBlocks || index === totalBlocks - 1;
-    }
-
-    private getRowHeight(): number {
-        return this.parent.rowHeight ? this.parent.rowHeight : getRowHeight();
     }
 
     public getTotalBlocks(): number {
@@ -302,7 +298,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
             .forEach((block: number) => {
                 let tmp: number = (this.vgenerator.cache[block] || []).length; let rem: number = this.count % bSize;
                 let size: number = block in this.vgenerator.cache ?
-                    tmp * this.getRowHeight() : rem && block === total ? rem * this.getRowHeight() : this.getBlockHeight();
+                    tmp * getRowHeight() : rem && block === total ? rem * getRowHeight() : this.getBlockHeight();
                 // let size: number = this.parent.groupSettings.columns.length && block in this.vgenerator.cache ?
                 // tmp * getRowHeight() : this.getBlockHeight();
                 this.offsets[block] = (this.offsets[block - 1] | 0) + size;

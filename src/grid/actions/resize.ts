@@ -184,7 +184,12 @@ export class Resize implements IAction {
         if (this.parent.isDestroyed) {
             return;
         }
-        this.parent.on(events.headerRefreshed, this.render, this);
+        if (this.parent.frozenColumns) {
+            this.parent.on(events.freezeRefresh, this.render, this);
+        } else {
+            this.parent.on(events.headerRefreshed, this.render, this);
+        }
+
     }
     /**
      * @hidden
@@ -222,7 +227,9 @@ export class Resize implements IAction {
     }
 
     private getResizeHandlers(): HTMLElement[] {
-        return [].slice.call(this.parent.getHeaderTable().querySelectorAll('.' + resizeClassList.root));
+        return this.parent.frozenColumns ?
+            [].slice.call(this.parent.getHeaderContent().querySelectorAll('.' + resizeClassList.root))
+            : [].slice.call(this.parent.getHeaderTable().querySelectorAll('.' + resizeClassList.root));
     }
 
     private setHandlerHeight(): void {
@@ -398,7 +405,7 @@ export class Resize implements IAction {
         this.parent.element.appendChild(this.helper);
         let height: number = (<HTMLElement>this.parent.getContent()).offsetHeight - this.getScrollBarWidth();
         let rect: HTMLElement = closest(this.element, resizeClassList.header) as HTMLElement;
-        let tr: HTMLElement[] = [].slice.call(this.parent.getHeaderTable().querySelectorAll('tr'));
+        let tr: HTMLElement[] = [].slice.call(this.parent.getHeaderContent().querySelectorAll('tr'));
         for (let i: number = tr.indexOf(rect.parentElement); i < tr.length; i++) {
             height += tr[i].offsetHeight;
         }

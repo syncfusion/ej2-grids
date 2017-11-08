@@ -14,6 +14,7 @@ import { data, image, rData, employeeData } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 import { PdfExport } from '../../../src/grid/actions/pdf-export';
 import { DataManager, Query, ODataV4Adaptor } from '@syncfusion/ej2-data';
+import { QueryCellInfoEventArgs } from '../../../src/grid/base/interface';
 Grid.Inject(Page, Group, Selection, Toolbar, PdfExport);
 
 describe('PDF Export with Grid Theme', () => {
@@ -456,6 +457,65 @@ describe('PDF export for Grid with hidden columns in stacked headers', () => {
         gridObj.destroy();
     });
 });
+describe('PDF Export with QueryCellInfo', () => {
+    let gridObj: Grid;
+    let elem: HTMLElement = createElement('div', { id: 'Grid' });
+    let actionBegin: (e?: Object) => void;
+    let actionComplete: (e?: Object) => void;
+
+    beforeEach(function () {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    });
+    beforeAll(() => {
+        document.body.appendChild(elem);
+        gridObj = new Grid({
+            allowPdfExport: true,
+            dataSource: data.slice(0, 25),
+            toolbar: ['pdfexport'],
+            pdfQueryCellInfo: QueryCellEvent,
+            columns: [
+                {
+                    headerText: 'Order Details', headerTextAlign: 'right', columns: [
+                        { field: 'OrderDate', headerText: 'Order Date', textAlign: 'center', width: 135, format: 'yMd' },
+                        { field: 'Freight', headerText: 'Freight($)', textAlign: 'right', width: 120, format: 'C2' },
+                    ]
+                },
+                { field: 'OrderID', headerText: 'Order ID', textAlign: 'right', width: 120 },
+                {
+                    headerText: 'Ship Details', columns: [
+                        { field: 'ShipPostalCode', headerText: 'Ship Postal Code', textAlign: 'center', width: 145 },
+                        { field: 'ShipCountry', headerText: 'Ship Country', width: 140 },
+                    ]
+                }
+            ]
+        });
+        gridObj.appendTo('#Grid');
+        gridObj.toolbarClick = (args: Object) => {
+            if (args['item'].id === 'Grid_pdfexport') {
+                let pdfExportProperties: any;
+                gridObj.pdfExport(pdfExportProperties);
+            }
+        }
+    });
+    it('QueryCellEvent with column span', (done) => {
+        gridObj.dataBind();
+        (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_pdfexport')).click();
+        setTimeout(() => {
+            expect('').toBe('');
+            done();
+        }, 500);
+    });
+    afterAll(() => {
+        remove(elem);
+        gridObj.destroy();
+    });
+});
+function QueryCellEvent(args: QueryCellInfoEventArgs): void {
+    let data: any = args.data;
+    if (args.column.field == 'Freight' && data.Freight > 50) {
+        args.colSpan = 2;
+    }
+}
 describe('PDF Export with pdfQueryCellInfo', () => {
     let gridObj: Grid;
     let elem: HTMLElement = createElement('div', { id: 'Grid' });
@@ -526,6 +586,7 @@ function pdfQueryCellInfo(args: any): void {
         }
     }
     if (args.column.field === 'Freight' && args.value > 50) {
+        args.colSpan = 2;
         args.style = { backgroundColor: '#64FA50', textBrushColor: '#FFFF50', textPenColor: '#000000', strikeout: true, border: { width: 3 } };
     }
 }

@@ -1901,6 +1901,10 @@ describe('Grid Touch Selection', () => {
                     gridObj.keyboardModule.keyAction(args);
                 }
                 (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                args.action = 'downArrow';
+                args.target = (gridObj.element.querySelector('.e-checkbox') as HTMLElement);
+                gridObj.keyboardModule.keyAction(args);
+                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
                 expect(!chkAllObj.indeterminate).toBeTruthy();
             });
 

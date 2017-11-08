@@ -97,7 +97,6 @@ export class CheckBoxFilter {
      */
     public destroy(): void {
         this.closeDialog();
-        this.unWireEvents();
     }
 
 
@@ -267,6 +266,7 @@ export class CheckBoxFilter {
         if (this.dialogObj && !this.dialogObj.isDestroyed) {
             this.parent.notify(events.filterMenuClose, { field: this.options.field });
             this.dialogObj.destroy();
+            this.unWireEvents();
             remove(this.dlg);
             this.dlg = null;
         }
@@ -355,7 +355,7 @@ export class CheckBoxFilter {
         if (this.options.type === 'date' || this.options.type === 'datetime') {
             parsed = this.valueFormatter.fromView(val, this.options.parserFn, this.options.type);
             operator = 'equal';
-            if (isNullOrUndefined(parsed)) {
+            if (isNullOrUndefined(parsed) && val.length) {
                 return;
             }
         }
@@ -457,6 +457,7 @@ export class CheckBoxFilter {
                 this.toogleCheckbox(elem.parentElement);
             }
             this.updateIndeterminatenBtn();
+            (elem.querySelector('.e-chk-hidden') as HTMLElement).focus();
         }
     }
 

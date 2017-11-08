@@ -56,7 +56,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
             row.data = extend({}, row.changes);
             this.refreshMergeCells(row);
         }
-        let node: Element = this.parent.getContent().querySelector('[data-uid=' + row.uid + ']');
+        let node: Element = this.parent.element.querySelector('[data-uid=' + row.uid + ']');
         let tr: Element = this.refreshRow(row, columns, attributes, rowTemplate);
         let cells: HTMLTableDataCellElement[] = [].slice.call((tr as HTMLTableRowElement).cells);
         node.innerHTML = '';
@@ -95,20 +95,13 @@ export class RowRenderer<T> implements IRowRenderer<T> {
                     td = cellMerge.render(cellArgs, row, i, td);
                 }
             }
-            if ( !row.cells[i].isSpanned) {
+            if (!row.cells[i].isSpanned) {
                 tr.appendChild(td);
             }
 
         }
-        let args: RowDataBoundEventArgs = { row: tr, rowHeight: this.parent.rowHeight };
         if (row.isDataRow) {
-            this.parent.trigger(rowDataBound, extend(rowArgs, args));
-        }
-        if (this.parent.enableVirtualization) {
-            rowArgs.rowHeight = this.parent.rowHeight;
-        }
-        if (rowArgs.rowHeight) {
-            (tr as HTMLElement).style.height = rowArgs.rowHeight + 'px';
+            this.parent.trigger(rowDataBound, extend(rowArgs, <RowDataBoundEventArgs>{ row: tr }));
         }
         if (row.cssClass) {
             tr.classList.add(row.cssClass);
@@ -116,7 +109,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         return tr;
     }
     private refreshMergeCells(row: Row<T>): Row<T> {
-        for ( let cell of row.cells ){
+        for (let cell of row.cells) {
             cell.isSpanned = false;
         }
         return row;

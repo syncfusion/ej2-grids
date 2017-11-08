@@ -318,7 +318,7 @@ export class Filter implements IAction {
         let filterCell: HTMLInputElement;
         this.column = gObj.getColumnByField(fieldName);
         if (this.filterSettings.type === 'filterbar') {
-            filterCell = this.element.querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement;
+            filterCell = gObj.getHeaderContent().querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement;
         }
         if (!isNullOrUndefined(this.column.allowFiltering) && !this.column.allowFiltering) {
             return;
@@ -378,6 +378,9 @@ export class Filter implements IAction {
                         this.parent.updateExternalMessage('');
                     }
                     break;
+                case 'type':
+                    this.parent.refreshHeader();
+                    break;
             }
         }
     }
@@ -419,6 +422,7 @@ export class Filter implements IAction {
      * @hidden
      */
     public removeFilteredColsByField(field: string, isClearFilterBar?: boolean): void {
+        let fCell: HTMLInputElement;
         let cols: PredicateModel[] = this.filterSettings.columns;
         if (isActionPrevent(this.parent)) {
             this.parent.notify(
@@ -433,7 +437,7 @@ export class Filter implements IAction {
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             if (cols[i].field === field) {
                 if (this.filterSettings.type === 'filterbar' && !isClearFilterBar) {
-                    (this.element.querySelector('#' + cols[i].field + '_filterBarcell') as HTMLInputElement).value = '';
+                    fCell = this.parent.getHeaderContent().querySelector('#' + cols[i].field + '_filterBarcell') as HTMLInputElement;
                     delete this.values[field];
                 }
                 cols.splice(i, 1);
@@ -570,7 +574,8 @@ export class Filter implements IAction {
     }
 
     private onTimerTick(): void {
-        let filterElement: HTMLInputElement = (this.element.querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement);
+        let filterElement: HTMLInputElement = (this.parent.getHeaderContent()
+            .querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement);
         let filterValue: string = JSON.parse(JSON.stringify(filterElement.value));
         this.stopTimer();
         if (this.value === '') {
@@ -736,10 +741,11 @@ export class Filter implements IAction {
                 this.fltrDlgDetails = { field: col.field, isOpen: true };
                 this.filterDialogOpen(this.column, target, fClient.right - gClient.left, fClient.bottom - gClient.top);
             } else {
+                let datepickerEle: boolean = target.classList.contains('e-day'); // due to datepicker popup cause
                 if (this.filterModule &&
                     (!parentsUntil(target, 'e-popup-wrapper')
                         && (!closest(target, '.e-filter-item.e-menu-item'))
-                        && (!parentsUntil(target, 'e-popup')))) {
+                        && (!parentsUntil(target, 'e-popup'))) && !datepickerEle) {
                     this.filterModule.closeDialog(target);
                 }
             }

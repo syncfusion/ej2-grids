@@ -344,6 +344,8 @@ $grid-add-icon: '\e7f9';
 $grid-print-icon: '\e813';
 $grid-delete-icon: '\e84e';
 $grid-edit-checkbox-bigger-padding-left: 21px;
+$frozen-border: 1px solid;
+$frozen-border-color: #ff4081;
 $grid-filtermenu-icon: '\e7ee';
 $grid-fltrdiv-float: right;
 $grid-fltrdiv-text-align: right;
@@ -366,4 +368,7 @@ $grid-bigger-fltricon-sortdiv-rightalign-margin: -17px 2px;
 $grid-bigger-fltricon-sortdiv-margin: -15px 18px;
 $grid-rtl-headercelldiv-fltricon-padding: 0 1.6em 0 10px;
 $grid-sortnumber-filtericon-rightalign-margin: 8px 2px 0 5px;
-
+$grid-bigger-checkbox-filter-min-height: 352px;
+$grid-checkbox-filter-min-height: 322px;
+$grid-column-menu-top: 11px;
+$grid-column-menu-top-touch: 11px;

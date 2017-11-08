@@ -319,7 +319,7 @@ export class Sort implements IAction {
     private keyPressed(e: KeyboardEventArgs): void {
         if (!this.parent.isEdit && (e.action === 'enter' || e.action === 'ctrlEnter' || e.action === 'shiftEnter')) {
             let target: Element = this.focus.getFocusedElement();
-            if (!target || !target.classList.contains('e-headercell')) { return; }
+            if (!target || !target.classList.contains('e-headercell') || (this.parent.frozenColumns || this.parent.frozenRows)) { return; }
             let col: Column = this.parent.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;
             this.initiateSort(target, e, col);
         }

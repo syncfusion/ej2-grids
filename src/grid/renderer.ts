@@ -22,3 +22,4 @@ export * from './renderer/dropdown-edit-cell';
 export * from './renderer/numeric-edit-cell';
 export * from './renderer/datepicker-edit-cell';
 export * from './renderer/command-column-renderer';
+export * from './renderer/freeze-renderer';

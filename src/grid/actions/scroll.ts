@@ -19,6 +19,7 @@ export class Scroll implements IAction {
     private content: HTMLDivElement;
     private header: HTMLDivElement;
     private widthService: ColumnWidthService;
+    private pageY: number;
 
     /**
      * Constructor for the Grid scrolling.
@@ -142,12 +143,89 @@ export class Scroll implements IAction {
         };
     }
 
+    private onFreezeContentScroll(scrollTarget: HTMLElement): Function {
+        let element: HTMLElement = scrollTarget;
+        return (e: Event) => {
+            if (this.content.querySelector('tbody') === null) {
+                return;
+            }
+            let target: HTMLElement = <HTMLElement>e.target;
+            let top: number = target.scrollTop;
+            if (this.previousValues.top === top) {
+                return;
+            }
+            element.scrollTop = top;
+            this.previousValues.top = top;
+            if (this.parent.isDestroyed) { return; }
+        };
+    }
+
+    private onWheelScroll(scrollTarget: HTMLElement): Function {
+        let element: HTMLElement = scrollTarget;
+        return (e: WheelEvent) => {
+            if (this.content.querySelector('tbody') === null) {
+                return;
+            }
+            let top: number = element.scrollTop + e.deltaY;
+            if (this.previousValues.top === top) {
+                return;
+            }
+            e.preventDefault();
+            this.parent.getContent().querySelector('.e-frozencontent').scrollTop = top;
+            element.scrollTop = top;
+            this.previousValues.top = top;
+        };
+    }
+
+    private onTouchScroll(scrollTarget: HTMLElement): Function {
+        let element: HTMLElement = scrollTarget;
+        return (e: PointerEvent | TouchEvent) => {
+            let pageY: number = this.getPointY(e);
+            let top: number = element.scrollTop + (this.pageY - pageY);
+            if (this.previousValues.top === top) {
+                return;
+            }
+            e.preventDefault();
+            this.parent.getContent().querySelector('.e-frozencontent').scrollTop = top;
+            element.scrollTop = top;
+            this.pageY = pageY;
+            this.previousValues.top = top;
+        };
+    }
+
+    private setPageY(): Function {
+        return (e: PointerEvent | TouchEvent) => {
+            this.pageY = this.getPointY(e);
+        };
+    }
+
+    private getPointY(e: PointerEvent | TouchEvent): number {
+        if ((e as TouchEvent).touches && (e as TouchEvent).touches.length) {
+            return (e as TouchEvent).touches[0].pageY;
+        } else {
+            return (e as PointerEvent).pageY;
+        }
+    }
+
     private wireEvents(): void {
         if (this.oneTimeReady) {
             this.content = <HTMLDivElement>this.parent.getContent().firstChild;
             this.header = <HTMLDivElement>this.parent.getHeaderContent().firstChild;
-            EventHandler.add(this.content, 'scroll', this.onContentScroll(this.header), this);
-            EventHandler.add(this.header, 'scroll', this.onContentScroll(this.content), this);
+            let mCont: HTMLElement = this.content.querySelector('.e-movablecontent') as HTMLElement;
+            let fCont: HTMLElement = this.content.querySelector('.e-frozencontent') as HTMLElement;
+            let mHdr: HTMLElement = this.header.querySelector('.e-movableheader') as HTMLElement;
+            if (this.parent.frozenColumns) {
+                EventHandler.add(mCont, 'scroll', this.onContentScroll(mHdr), this);
+                EventHandler.add(mCont, 'scroll', this.onFreezeContentScroll(fCont), this);
+                EventHandler.add(fCont, 'scroll', this.onFreezeContentScroll(mCont), this);
+                EventHandler.add(mHdr, 'scroll', this.onContentScroll(mCont), this);
+                EventHandler.add(fCont, 'mousewheel', this.onWheelScroll(mCont), this);
+                EventHandler.add(fCont, 'touchstart', this.setPageY(), this);
+                EventHandler.add(fCont, 'touchmove', this.onTouchScroll(mCont), this);
+            } else {
+                EventHandler.add(this.content, 'scroll', this.onContentScroll(this.header), this);
+                EventHandler.add(this.header, 'scroll', this.onContentScroll(this.content), this);
+            }
             if (this.parent.aggregates.length) {
                 EventHandler.add(
                     <HTMLDivElement>this.parent.getFooterContent().firstChild, 'scroll', this.onContentScroll(this.content), this);
@@ -166,8 +244,8 @@ export class Scroll implements IAction {
         if (!this.parent.enableColumnVirtualization) {
             this.content.scrollLeft = this.previousValues.left;
         }
-
     }
+
     /** 
      * @hidden
      */
