@@ -573,6 +573,93 @@ describe('Grid base module', () => {
         });
     });
 
+    describe('Persistence checking', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', template: '<div>12<div>'},
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+
+        it('Save PersistData', () => {
+            let persistdata: string = gridObj.getPersistData();
+            window.localStorage.setItem((<any>gridObj).getModuleName() + gridObj.element.id, persistdata);
+            let dummyGridObj = JSON.parse(persistdata);
+            expect(dummyGridObj.columns[4].template).toBeUndefined();
+            gridObj.destroy();
+        });
+
+        it('Retrive Data', (done)=> {
+            gridObj = new Grid( {
+                dataSource: data, allowPaging: false,
+                columns: [
+                    { headerText: 'OrderID', field: 'OrderID' },
+                    { headerText: 'CustomerID', field: 'CustomerID' },
+                    { headerText: 'EmployeeID', field: 'EmployeeID' },
+                    { headerText: 'ShipCountry', field: 'ShipCountry' },
+                    { headerText: 'ShipCity', template: '<div>12<div>'},
+                ],
+                dataBound: () => {
+                    done();
+                }
+            });
+            gridObj.appendTo('#Grid');
+            (<any>gridObj).mergePersistGridData();
+            expect((<Column>gridObj.columns[4]).template).toBe('<div>12<div>');
+        });
+
+        afterAll(() => {
+            window.localStorage.removeItem((<any>gridObj).getModuleName() + elem.id);
+            remove(elem);
+        });
+    });
+
+    describe('media columns testing', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+
+        it('getDataModule tets', () => {
+            let gdata = gridObj.getDataModule();
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+    });
+
+
     // describe('media columns testing', () => {
     //     let gridObj: Grid;
     //     let elem: HTMLElement = createElement('div', { id: 'Grid' });

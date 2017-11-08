@@ -49,7 +49,7 @@ export class ColumnWidthService {
         let fWidth: string = formatUnit(width);
         let headerCol: HTMLTableColElement;
         let mHdr: Element = this.parent.getHeaderContent().querySelector('.e-movableheader');
-        if (index >= this.parent.frozenColumns && mHdr && mHdr.querySelector('colgroup')) {
+        if (this.parent.frozenColumns && index >= this.parent.frozenColumns && mHdr && mHdr.querySelector('colgroup')) {
             headerCol = (<HTMLTableColElement>mHdr.querySelector('colgroup').children[index - this.parent.frozenColumns]);
         } else {
             headerCol = (<HTMLTableColElement>header.querySelector('colgroup').children[index]);
@@ -58,7 +58,7 @@ export class ColumnWidthService {
             headerCol.style.width = fWidth;
         }
         let contentCol: HTMLTableColElement;
-        if (index >= this.parent.frozenColumns) {
+        if (this.parent.frozenColumns && index >= this.parent.frozenColumns) {
             contentCol = (<HTMLTableColElement>this.parent.getContent().querySelector('.e-movablecontent')
                 .querySelector('colgroup').children[index - this.parent.frozenColumns]);
         } else {

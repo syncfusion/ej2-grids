@@ -10,7 +10,7 @@ import { Filter } from '../actions/filter';
 import { FlMenuOptrUI } from './filter-menu-operator';
 import { L10n, } from '@syncfusion/ej2-base';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
-import { getZIndexCalcualtion } from '../base/util';
+
 /**
  * `datefilterui` render date column.
  * @hidden
@@ -66,7 +66,7 @@ export class DateFilterUI implements IFilterMUI {
         filterObj.filterByColumn(column.field, filterOptr, filterValue, 'and', true);
     }
 
-    private openPopup(args: { popup: Popup }): void {
-        // getZIndexCalcualtion(args, this.dialogObj);
+    private openPopup(args: { popupElement: Popup }): void {
+        args.popupElement.element.style.zIndex = (this.dialogObj.zIndex + 1).toString();
     }
 }

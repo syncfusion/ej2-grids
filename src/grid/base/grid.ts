@@ -1,5 +1,5 @@
-import { Component, ModuleDeclaration, ChildProperty, Browser, closest } from '@syncfusion/ej2-base';
-import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { Component, ModuleDeclaration, ChildProperty, Browser, closest, extend } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
 import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
@@ -560,6 +560,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private isMediaQuery: boolean = false;
     private isInitialLoad: boolean = false;
     private dataBoundFunction: Function;
+    private freezeRefresh: Function = Component.prototype.refresh;
     /** @hidden */
     public recordsCount: number;
     /**
@@ -1284,14 +1285,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Defines frozen rows
      * @default 0
      */
-    @Property()
+    @Property(0)
     public frozenRows: number;
 
     /**
      * Defines frozen columns
      * @default 0
      */
-    @Property()
+    @Property(0)
     public frozenColumns: number;
 
     /** 
@@ -1639,6 +1640,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     constructor(options?: GridModel, element?: string | HTMLElement) {
         super(options, <HTMLElement | string>element);
+        setValue('mergePersistData', this.mergePersistGridData, this);
     }
 
     /**
@@ -1657,7 +1659,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             searchSettings: ['fields', 'operator', 'ignoreCase'],
             sortSettings: [], columns: [], selectedRowIndex: []
         };
-        let ignoreOnColumn: string[] = ['edit', 'filterBarTemplate', 'headerTemplate', 'template'];
+        let ignoreOnColumn: string[] =  ['filter', 'edit', 'filterBarTemplate', 'headerTemplate', 'template',
+        'commandTemplate', 'commands'];
         keyEntity.forEach((value: string) => {
             let currentObject: Object = this[value];
             for (let val of ignoreOnPersist[value]) {
@@ -1978,10 +1981,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     break;
                 case 'height':
                 case 'width':
-                    this.notify(events.uiUpdate, {
-                        module: 'scroll',
-                        properties: { width: newProp.width, height: newProp.height }
-                    });
+                    this.notify(events.uiUpdate, { module: 'scroll', properties: { width: newProp.width, height: newProp.height } });
                     break;
                 case 'allowReordering':
                     this.notify(events.uiUpdate, { module: 'reorder', enable: this.allowReordering });
@@ -2025,6 +2025,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.updateColumnObject();
                     requireGridRefresh = true;
                     break;
+                case 'frozenColumns':
+                case 'frozenRows':
+                    this.freezeRefresh(); break;
                 default:
                     this.extendedPropertyChange(prop, newProp);
             }
@@ -3208,6 +3211,29 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             return true;
         }
         return false;
+    }
+
+    private mergePersistGridData(): void {
+        let data: string = window.localStorage.getItem(this.getModuleName() + this.element.id);
+        if (!(isNullOrUndefined(data) || (data === ''))) {
+            let dataObj: Grid = JSON.parse(data);
+            let keys: string[] = Object.keys(dataObj);
+            this.isProtectedOnChange = true;
+            for (let key of keys) {
+                if ((typeof this[key] === 'object') && !isNullOrUndefined(this[key])) {
+                    if (Array.isArray(this[key])) {
+                        this[key].forEach((element: Object, index: number) => {
+                            extend(element, dataObj[key][index]);
+                        });
+                    } else {
+                        extend(this[key], dataObj[key]);
+                    }
+                } else {
+                    this[key] = dataObj[key];
+                }
+            }
+            this.isProtectedOnChange = false;
+        }
     }
 
     private isDetail(): boolean {

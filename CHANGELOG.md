@@ -13,6 +13,7 @@ The Grid component is used to display and manipulate tabular data with configura
 - Selection - Provides the option to select the grid rows single or multiple.
 - Filtering - Offers filter bar or menu , or checkbox at each column to filter data.
 - Editing -  Provides the options to dynamically insert, delete and update records.
+- Virtualization - Provides the options to load large amount of data without performance degradation.
 - Aggregates - Provides built in types are sum , average, min, max, count.
 - Paging - Provides the option to easily switch between pages using the pager bar.
 - Reordering - Allows you to drag any column and drop it at any position in the Grid’s column header row, allowing columns to be repositioned.
