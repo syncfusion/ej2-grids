@@ -240,10 +240,10 @@ export class FilterSettings extends ChildProperty<FilterSettings> {
     @Collection<PredicateModel[]>([], Predicate)
     public columns: PredicateModel[];
 
-    /**  
-     * @hidden 
-     * Defines options for filtering type. The available options are      
-     * * `excel` - Specifies the filter type as excel. 
+    /**   
+     * Defines options for filtering type. The available options are 
+     * * `menu` - Specifies the filter type as menu. 
+     * * `checkbox` - Specifies the filter type as checkbox.      
      * * `filterbar` - Specifies the filter type as filterbar.  
      * @default filterbar 
      */

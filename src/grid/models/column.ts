@@ -309,7 +309,62 @@ export class Column {
     public filterBarTemplate: IFilterUI;
 
     /**
-     *  Defines the filter options to customize filtering for the particular column.
+     *  It is used to customize the default filter options for a specific columns. 
+     * * type -  Specifies the filter type as menu or checkbox.
+     * * ui - to render custom component for specific column it has following functions.
+     * * create – It is used for creating custom components. 
+     * * read -  It is used for read the value from the component.
+     * * write - It is used to apply component model as dynamically.
+     * 
+     *  ``` html
+     * <div id="Grid"></div>
+     * ```
+     * ```typescript
+     * let gridObj: Grid = new Grid({ 
+     * dataSource: filterData, 
+     * allowFiltering: true,
+     * filterSettings: { type: 'menu'},
+     *  columns: [
+     *      {
+     *          field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right', filter: {
+     *              ui: {
+     *                  create: (args: { target: Element, column: Object }) => {
+     *                      let db: Object = new DataManager(data);
+     *                      let flValInput: HTMLElement = createElement('input', { className: 'flm-input' });
+     *                      args.target.appendChild(flValInput);
+     *                      this.dropInstance = new DropDownList({
+     *                          dataSource: new DataManager(data),
+     *                          fields: { text: 'OrderID', value: 'OrderID' },
+     *                          placeholder: 'Select a value',
+     *                          popupHeight: '200px'
+     *                      });
+     *                      this.dropInstance.appendTo(flValInput);
+     *                  },
+     *                  write: (args: {
+     *                      column: Object, target: Element, parent: any,
+     *                      filteredValue: number | string
+     *                  }) => {
+     *                      this.dropInstance.value = args.filteredValue;
+     *                  },
+     *                  read: (args: { target: Element, column: any, operator: string, fltrObj: Filter }) => {
+     *                      args.fltrObj.filterByColumn(args.column.field, args.operator, this.dropInstance.value);
+     *
+     *                  }
+     *              }
+     *          }
+     *      },
+     *      { field: 'CustomerID', headerText: 'Customer Name', width: 150 },
+     *      { field: 'EmployeeID', headerText: 'Employee ID', width: 150 },
+     *      {
+     *          field: 'ShipCountry', headerText: 'Ship Country', filter: {
+     *              type: 'checkbox'
+     *          }, width: 150
+     *      }
+     *  ]
+     * }); 
+     * gridObj.appendTo('#Grid'); 
+     * ```
+     * 
      *  @default null
      */
 

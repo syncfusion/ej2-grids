@@ -2,121 +2,26 @@
 
 ## [Unreleased]
 
-## 1.0.25-preview (2017-10-26)
-
 ### Grid
 
-#### New Features
+The Grid component is used to display and manipulate tabular data with configuration options to control the way the data is presented and manipulated.
 
-- Pager template feature added.
-- Column clip mode feature added.
-- Improved toolbar item template support.
+#### Key features
 
-#### Bug Fixes
-
-- Grid width shrinks with static column width fixed.
-
-## 1.0.22-preview (2017-10-16)
-
-### Grid
-
-#### New Features
-
-- `selectRow` and `selectCell` toggle option added.
-- Show loader on Grid actions feature added.
-
-#### Bug Fixes
-
-- Validation tooltip is not destroyed issue fixed.
-- `ng-template` with state maintenance circular reference issue fixed.
-
-## 1.0.21-preview (2017-10-06)
-
-### Grid
-
-#### New Features
-
-- Exporting feature added.
-- Page size dropdown feature added.
-
-#### Bug Fixes
-
-- Offline mode issue fixed.
-
-## 1.0.19-preview (2017-09-28)
-
-### Grid
-
-#### New Features
-
-- Bootstrap theme added.
-- Exporting feature added.
-- Auto wrap feature improved.
-- Dynamic columns support added.
-
-#### Bug Fixes
-
-- Editing events issue fixed.
-- Resizing at faster mouse move bug fixed.
-
-## 1.0.18-preview (2017-09-20)
-
-### Grid
-
-#### New Features
-
-- Grid Resize feature added.
-
-## 1.0.17-preview (2017-09-14)
-
-### Grid
-
-#### New Features
-
-- Batch editing support added.
-- Inline and dialog editing features optimized.
-
-## 1.0.16-preview (2017-09-08)
-
-### Grid
-
-#### New Features
-
-- Editing feature added.
-- Column chooser feature added.
-
-## 1.0.14-preview (2017-08-31)
-
-### Grid
-
-#### New Features
-
-- UI Virtualization added.
-
-#### Bug Fixes
-
-- Hierarchy feature in Angular issue fixed.
-- Rollup bundling issue fixed.
-
-## 1.0.11-preview (2017-08-03)
-
-### Grid
-
-#### New Features
-
-- Aggregates added.
-- Improved Grid web accessibility.
-
-#### Bug Fixes
-
-- `recalcIndentWidth` method improved.
-- Grouping `items` locale issue fixed.
-
-## 1.0.10-preview (2017-07-05)
-
-### Grid
-
-#### New Features
-
-- Detail Template added.
-- Hierarchy Grid added.
+- Data sources - Bind the Grid component with an array of JavaScript objects or DataManager.
+- Sorting and grouping - Supports n levels of sorting and grouping.
+- Selection - Provides the option to select the grid rows single or multiple.
+- Filtering - Offers filter bar or menu , or checkbox at each column to filter data.
+- Editing -  Provides the options to dynamically insert, delete and update records.
+- Aggregates - Provides built in types are sum , average, min, max, count.
+- Paging - Provides the option to easily switch between pages using the pager bar.
+- Reordering - Allows you to drag any column and drop it at any position in the Grid’s column header row, allowing columns to be repositioned.
+- Resize - Allow you to resize the grid column width dynamically.
+- Frozen Rows And Columns - Provides the options to freeze certain rows or columns to scroll remaining movable content.
+- Clipboard - Provides an option to copy selected rows or cells data into clipboard.
+- Column Spanning - Provides an option to allows to span the multiple adjacent cells.
+- Stacked Header - It can be stacked or grouped in order to show multiple level of column headers.
+- Hierarchy Grid - It is used to display table data in hierarchical structure which can show or hide by clicking on expand or collapse button.
+- Print and Exporting - Provides the option to print and exporting grid records.
+- RTL support - Provides a full-fledged right-to-left mode which aligns content in the Grid component from right to left.
+- Localization - Provides inherent support to localize the UI.

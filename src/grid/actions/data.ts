@@ -225,25 +225,32 @@ export class Data implements IDataProcessor {
 
     /** @hidden */
     public getDatePredicate(filterObject: PredicateModel): Predicate {
+        let datePredicate: Predicate;
         let prevDate: Date;
         let nextDate: Date;
         let prevObj: PredicateModel = extend({}, getActualProperties(filterObject)) as PredicateModel;
         let nextObj: PredicateModel = extend({}, getActualProperties(filterObject)) as PredicateModel;
         let value: Date = new Date(filterObject.value as string);
-        prevDate = new Date(value.setDate(value.getDate() - 1));
-        nextDate = new Date(value.setDate(value.getDate() + 2));
-        prevObj.value = prevDate;
-        nextObj.value = nextDate;
-        if (filterObject.operator === 'equal') {
-            prevObj.operator = 'greaterthan';
-            nextObj.operator = 'lessthan';
-        } else if (filterObject.operator === 'notequal') {
-            prevObj.operator = 'lessthanorequal';
-            nextObj.operator = 'greaterthanorequal';
+        if (filterObject.operator === 'equal' || filterObject.operator === 'notequal') {
+            prevDate = new Date(value.setDate(value.getDate() - 1));
+            nextDate = new Date(value.setDate(value.getDate() + 2));
+            prevObj.value = prevDate;
+            nextObj.value = nextDate;
+            if (filterObject.operator === 'equal') {
+                prevObj.operator = 'greaterthan';
+                nextObj.operator = 'lessthan';
+            } else if (filterObject.operator === 'notequal') {
+                prevObj.operator = 'lessthanorequal';
+                nextObj.operator = 'greaterthanorequal';
+            }
+            let predicateSt: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
+            let predicateEnd: Predicate = new Predicate(nextObj.field, nextObj.operator, nextObj.value, false);
+            datePredicate = filterObject.operator === 'equal' ? predicateSt.and(predicateEnd) : predicateSt.or(predicateEnd);
+        } else {
+            let predicates: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
+            datePredicate = predicates;
         }
-        let predicateSt: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
-        let predicateEnd: Predicate = new Predicate(nextObj.field, nextObj.operator, nextObj.value, false);
-        return filterObject.operator === 'equal' ? predicateSt.and(predicateEnd) : predicateSt.or(predicateEnd);
+        return datePredicate;
     }
 
     private addRows(e: { toIndex: number, records: Object[] }): void {
