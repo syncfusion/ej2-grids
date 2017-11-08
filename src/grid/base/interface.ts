@@ -779,7 +779,20 @@ export interface PdfQueryCellInfoEventArgs {
     colSpan?: number;
 }
 
+export interface PdfQueryCellInfoEventArgs {
+    /** Defines the column of the current cell. */
+    column?: Column;
+    /** Defines the style of the current cell. */
+    /* tslint:disable:no-any */
+    style?: any;
+    /** Defines the value of the current cell. */
+    /* tslint:disable:no-any */
+    value?: any;
+}
+
 export interface ExcelQueryCellInfoEventArgs {
+    /** Defines the row data associated with this cell. */
+    data?: Object;
     /** Defines the column of the current cell. */
     /* tslint:disable:no-any */
     column: any;
@@ -789,6 +802,8 @@ export interface ExcelQueryCellInfoEventArgs {
     /** Defines the style of the current cell. */
     /* tslint:disable:no-any */
     style?: any;
+    /** Defines the number of columns to be spanned */
+    colSpan?: number;
 }
 
 export interface RowDragEventArgs {

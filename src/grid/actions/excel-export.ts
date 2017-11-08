@@ -1,7 +1,7 @@
-import { IGrid } from '../base/interface';
+import { IGrid, ExcelQueryCellInfoEventArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { Workbook } from '@syncfusion/ej2-excel-export';
-import { isNullOrUndefined, getEnumValue, compile } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, getEnumValue, compile, extend } from '@syncfusion/ej2-base';
 import { Data } from '../actions/data';
 import { ReturnType } from '../base/type';
 import { ExportHelper, ExportValueFormatter } from './export-helper';
@@ -353,17 +353,23 @@ export class ExcelExport {
                 let value: any = record[r][headerRow.columns[c].field];
                 if (!isNullOrUndefined(value)) {
                     /* tslint:disable-next-line:no-any */
-                    let args: { column: any, value?: any, style?: any } = {
-                        column: headerRow.columns[c], value: value, style: undefined
-                    };
-                    gObj.trigger(events.excelQueryCellInfo, args);
+                    let excelCellArgs: any = { data: record[r], column: headerRow.columns[c] };
+                    gObj.trigger(events.excelQueryCellInfo, extend(
+                        excelCellArgs,
+                        <ExcelQueryCellInfoEventArgs>{
+                            column: headerRow.columns[c], data: record[r],
+                            value: value, style: undefined, colSpan: 1
+                        }));
                     /* tslint:disable-next-line:no-any */
                     let cell: any = {};
                     cell.index = index + level;
-                    cell.value = args.value;
-                    if (args.style !== undefined) {
+                    cell.value = excelCellArgs.value;
+                    if (excelCellArgs.colSpan > 1) {
+                        cell.colSpan = excelCellArgs.colSpan;
+                    }
+                    if (excelCellArgs.style !== undefined) {
                         let styleIndex: number = this.getColumnStyle(gObj, index + level);
-                        cell.style = this.mergeOptions(this.styles[styleIndex], args.style);
+                        cell.style = this.mergeOptions(this.styles[styleIndex], excelCellArgs.style);
                     } else {
                         cell.style = { name: gObj.element.id + 'column' + (index + level) };
                     }
