@@ -27,6 +27,7 @@ export class CheckBoxFilter {
     protected id: string;
     protected colType: string;
     protected fullData: Object[];
+    protected filteredData: Object[];
     protected isFiltered: boolean | number;
     protected dlg: Element;
     protected dialogObj: Dialog;
@@ -284,9 +285,6 @@ export class CheckBoxFilter {
 
     private fltrBtnHandler(): void {
         let checked: Element[] = [].slice.call(this.cBox.querySelectorAll('.e-check:not(.e-selectall)'));
-        if (this.fullData.length === checked.length) {
-            return;
-        }
         let optr: string = 'equal';
         let caseSen: boolean = this.options.type === 'string' ?
             this.options.allowCaseSensitive : true;
@@ -380,6 +378,16 @@ export class CheckBoxFilter {
 
     private getAllData(): void {
         let query: Query = new Query();
+        query.requiresCount(); //consider take query
+        this.options.dataSource = this.options.dataSource instanceof DataManager ?
+            this.options.dataSource : new DataManager(this.options.dataSource as JSON[]);
+        let promise: Promise<Object> = this.options.dataSource.executeQuery(query);
+        promise.then((e: ReturnType) => this.dataSuccess(e));
+    }
+
+    private dataSuccess(e: ReturnType): void {
+        this.fullData = e.result;
+        let query: Query = new Query();
         if ((this.options.filteredColumns.length)) {
             let cols: Object[] = [];
             for (let i: number = 0; i < this.options.filteredColumns.length; i++) {
@@ -393,16 +401,10 @@ export class CheckBoxFilter {
             }
         }
         query.select(this.options.field);
-        query.requiresCount(); //consider take query
-        this.options.dataSource = this.options.dataSource instanceof DataManager ?
-            this.options.dataSource : new DataManager(this.options.dataSource as JSON[]);
-        let promise: Promise<Object> = this.options.dataSource.executeQuery(query);
-        promise.then((e: ReturnType) => this.dataSuccess(e));
-    }
+        let result: Object[] = new DataManager(this.fullData as JSON[]).executeLocal(query);
+        let res: { records: Object[] } = CheckBoxFilter.getDistinct(result, this.options.field) as { records: Object[] };
+        this.filteredData = res.records;
 
-    private dataSuccess(e: ReturnType): void {
-        let result: { records: Object[] } = CheckBoxFilter.getDistinct(e.result, this.options.field) as { records: Object[] };
-        this.fullData = result.records;
         this.processDataSource(null, true);
         let args: Object = {
             requestType: events.filterAfterOpen,
@@ -410,7 +412,6 @@ export class CheckBoxFilter {
         };
         this.parent.trigger(events.actionComplete, args);
     }
-
 
     private processDataSource(query?: Query, isInitial?: boolean): void {
         showSpinner(this.spinner);
@@ -421,7 +422,7 @@ export class CheckBoxFilter {
             filterModel: CheckBoxFilter, query: Query
         } = {
                 requestType: events.filterChoiceRequest, filterModel: this, query: query,
-                dataSource: this.fullData
+                dataSource: this.filteredData
             };
         this.parent.trigger(events.actionBegin, args);
         let result: Object = new DataManager(args.dataSource as JSON[]).executeLocal(args.query);
