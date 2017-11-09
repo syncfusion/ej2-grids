@@ -6,8 +6,6 @@
 
 The Grid component is used to display and manipulate tabular data with configuration options to control the way the data is presented and manipulated.
 
-#### Key features
-
 - Data sources - Bind the Grid component with an array of JavaScript objects or DataManager.
 - Sorting and grouping - Supports n levels of sorting and grouping.
 - Selection - Provides the option to select the grid rows single or multiple.

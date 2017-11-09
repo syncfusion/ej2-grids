@@ -3103,6 +3103,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public wireEvents(): void {
         EventHandler.add(this.element, 'click', this.mouseClickHandler, this);
+        EventHandler.add(this.element, 'touchend', this.mouseClickHandler, this);
         EventHandler.add(this.element, 'focusout', this.focusOutHandler, this);
         EventHandler.add(this.getContent(), 'dblclick', this.dblClickHandler, this);
         if (this.allowKeyboard) {
@@ -3123,6 +3124,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public unwireEvents(): void {
         EventHandler.remove(this.element, 'click', this.mouseClickHandler);
+        EventHandler.remove(this.element, 'touchend', this.mouseClickHandler);
         EventHandler.remove(this.element, 'focusout', this.focusOutHandler);
     }
     /**
@@ -3163,7 +3165,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private mouseClickHandler(e: MouseEvent & TouchEvent): void {
-        if (this.isChildGrid(e) ||
+        if (this.isChildGrid(e) || (parentsUntil(e.target as Element, 'e-gridpopup') && e.touches) ||
             this.element.querySelectorAll('.e-cloneproperties').length || this.checkEdit(e)) {
             return;
         }

@@ -501,8 +501,7 @@ export class HeaderRender implements IRenderer {
                 dragStart: this.dragStart,
                 drag: this.drag,
                 dragStop: this.dragStop,
-                abort: '.e-rhandler',
-                preventDefault: false
+                abort: '.e-rhandler'
             });
         }
     }
