@@ -781,7 +781,6 @@ export class Filter implements IAction {
                 filterIconElement.classList.add('e-filtered');
             }
         } else {
-            this.filterSettings.columns = this.filterSettings.columns;
             if (filterIconElement) {
                 filterIconElement.classList.remove('e-filtered');
             }
