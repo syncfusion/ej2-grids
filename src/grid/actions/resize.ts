@@ -406,6 +406,13 @@ export class Resize implements IAction {
         let height: number = (<HTMLElement>this.parent.getContent()).offsetHeight - this.getScrollBarWidth();
         let rect: HTMLElement = closest(this.element, resizeClassList.header) as HTMLElement;
         let tr: HTMLElement[] = [].slice.call(this.parent.getHeaderContent().querySelectorAll('tr'));
+        if (this.parent.frozenColumns) {
+            if (rect.parentElement.children.length !== this.parent.frozenColumns) {
+                tr.splice(0, tr.length / 2);
+            } else {
+                tr.splice(tr.length / 2, tr.length / 2);
+            }
+        }
         for (let i: number = tr.indexOf(rect.parentElement); i < tr.length; i++) {
             height += tr[i].offsetHeight;
         }
@@ -415,7 +422,8 @@ export class Resize implements IAction {
     }
 
     private getScrollBarWidth(height?: boolean): number {
-        let ele: HTMLElement = this.parent.getContent().firstChild as HTMLElement;
+        let ele: HTMLElement = this.parent.frozenColumns ? this.parent.getContent().querySelector('.e-movablecontent') as HTMLElement
+        : this.parent.getContent().firstChild as HTMLElement;
         return (ele.scrollHeight > ele.clientHeight && height) ||
             ele.scrollWidth > ele.clientWidth ? getScrollBarWidth() : 0;
     }

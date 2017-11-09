@@ -1,7 +1,8 @@
   @include export-module('pager-icons') {
   /*! component icons */
 
-  .e-pager {
+  .e-pager,
+  .e-grid-menu {
 
     .e-icon-last::before {
       content: $pager-last-content-icon;

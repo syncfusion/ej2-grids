@@ -1282,14 +1282,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public pagerTemplate: string;
 
     /**
-     * Defines frozen rows
+     * Defines the frozen rows for the grid content
      * @default 0
      */
     @Property(0)
     public frozenRows: number;
 
     /**
-     * Defines frozen columns
+     * Defines the frozen columns for the grid content
      * @default 0
      */
     @Property(0)

@@ -52,8 +52,15 @@ export class Scroll implements IAction {
      * @hidden
      */
     public setHeight(): void {
+        let mHdrHeight: number = 0;
         let content: HTMLElement = (<HTMLElement>this.parent.getContent().firstChild);
-        content.style.height = formatUnit(this.parent.height);
+        if (this.parent.frozenRows) {
+            mHdrHeight =
+                (this.parent.getHeaderContent().querySelector('tbody') as HTMLElement).offsetHeight;
+            content.style.height = formatUnit((this.parent.height as number) - mHdrHeight);
+        } else {
+            content.style.height = formatUnit(this.parent.height);
+        }
         this.ensureOverflow(content);
     }
     /**
@@ -220,7 +227,7 @@ export class Scroll implements IAction {
                 EventHandler.add(mCont, 'scroll', this.onFreezeContentScroll(fCont), this);
                 EventHandler.add(fCont, 'scroll', this.onFreezeContentScroll(mCont), this);
                 EventHandler.add(mHdr, 'scroll', this.onContentScroll(mCont), this);
-                EventHandler.add(fCont, 'mousewheel', this.onWheelScroll(mCont), this);
+                EventHandler.add(fCont, 'wheel', this.onWheelScroll(mCont), this);
                 EventHandler.add(fCont, 'touchstart', this.setPageY(), this);
                 EventHandler.add(fCont, 'touchmove', this.onTouchScroll(mCont), this);
             } else {
@@ -259,7 +266,11 @@ export class Scroll implements IAction {
     }
 
     private ensureOverflow(content: HTMLElement): void {
-        content.style.overflowY = this.parent.height === 'auto' ? 'auto' : 'scroll';
+        if (this.parent.frozenColumns) {
+            (content.querySelector('.e-movablecontent') as HTMLElement).style.overflowY = this.parent.height === 'auto' ? 'auto' : 'scroll';
+        } else {
+            content.style.overflowY = this.parent.height === 'auto' ? 'auto' : 'scroll';
+        }
     }
 
     private onPropertyChanged(e: NotifyArgs): void {

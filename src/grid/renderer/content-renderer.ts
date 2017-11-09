@@ -203,7 +203,7 @@ export class ContentRender implements IRenderer {
                     hdrTbody.innerHTML = '';
                     hdrTbody.appendChild(hdrfrag);
                 }
-                if (gObj.frozenRows && idx === 0) {
+                if (gObj.frozenRows && idx === 0 && (cont as HTMLElement).offsetHeight === gObj.height) {
                     (cont as HTMLElement).style.height =
                         ((cont as HTMLElement).offsetHeight -
                             gObj.getHeaderContent().querySelector('tbody').offsetHeight) + 'px';

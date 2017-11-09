@@ -268,9 +268,6 @@ export class ContextMenu implements IAction {
                 }
             }
         }
-        if (args.event && closest(args.event.target as Element, menuClass.pager)) {
-            this.element.classList.add('e-pager');
-        }
         this.contextMenu.enableItems(this.disableItems, false);
         this.contextMenu.hideItems(this.hiddenItems);
         this.eventArgs = args.event;

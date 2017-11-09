@@ -42,12 +42,12 @@ describe('Freeze render module', () => {
             (<HTMLElement>ele).scrollTop = 10;
             raise(gridObj, 'scroll', ele);
             (<HTMLElement>gridObj.getContent().querySelector('.e-frozencontent')).scrollTop = 20;
-            raise(gridObj, 'mousewheel', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
+            raise(gridObj, 'wheel', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
             gridObj.isDestroyed = true;
             (<HTMLElement>ele).scrollTop = 10;
             raise(gridObj, 'scroll', ele);
             (<HTMLElement>gridObj.getContent().querySelector('.e-frozencontent')).scrollTop = 20;
-            raise(gridObj, 'mousewheel', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
+            raise(gridObj, 'wheel', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
             raise(gridObj, 'touchstart', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
             (<HTMLElement>gridObj.getContent().querySelector('.e-frozencontent')).scrollTop = 30;
             raise(gridObj, 'touchmove', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
@@ -60,7 +60,7 @@ describe('Freeze render module', () => {
             (<HTMLElement>ele).scrollTop = 10;
             raise(gridObj, 'scroll', ele);
             (<HTMLElement>gridObj.getContent().querySelector('.e-frozencontent')).scrollTop = 20;
-            raise(gridObj, 'mousewheel', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
+            raise(gridObj, 'wheel', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
         });
 
         let raise: Function = (gridObj: Grid, type: string, ele: HTMLElement) => {
