@@ -52,14 +52,12 @@ export class ColumnMenu implements IAction {
 
     public wireEvents(): void {
         this.getColumnMenuHandlers().forEach((ele: HTMLElement) => {
-            EventHandler.add(ele, 'click', this.columnMenuHandlerClick, this);
             EventHandler.add(ele, 'mousedown', this.columnMenuHandlerDown, this);
         });
     }
 
     public unwireEvents(): void {
         this.getColumnMenuHandlers().forEach((ele: HTMLElement) => {
-            EventHandler.remove(ele, 'click', this.columnMenuHandlerClick);
             EventHandler.remove(ele, 'mousedown', this.columnMenuHandlerDown);
         });
     }
@@ -78,13 +76,15 @@ export class ColumnMenu implements IAction {
     }
 
     public columnMenuHandlerClick(e: Event): void {
-        if (!this.isOpen) {
-            this.openColumnMenu(e);
-        } else if (this.isOpen && this.headerCell !== this.getHeaderCell(e)) {
-            this.columnMenu.close();
-            this.openColumnMenu(e);
-        } else {
-            this.columnMenu.close();
+        if ((e.target as HTMLElement).classList.contains('e-columnmenu')) {
+            if (!this.isOpen) {
+                this.openColumnMenu(e);
+            } else if (this.isOpen && this.headerCell !== this.getHeaderCell(e)) {
+                this.columnMenu.close();
+                this.openColumnMenu(e);
+            } else {
+                this.columnMenu.close();
+            }
         }
     }
 
@@ -125,6 +125,7 @@ export class ColumnMenu implements IAction {
         this.parent.on(events.headerRefreshed, this.wireEvents, this);
         this.parent.on(events.initialEnd, this.render, this);
         this.parent.on(events.filterDialogCreated, this.filterPosition, this);
+        this.parent.on(events.click, this.columnMenuHandlerClick, this);
     }
 
     /**
@@ -135,6 +136,7 @@ export class ColumnMenu implements IAction {
         this.parent.off(events.headerRefreshed, this.unwireEvents);
         this.parent.off(events.initialEnd, this.render);
         this.parent.off(events.filterDialogCreated, this.filterPosition);
+        this.parent.off(events.click, this.columnMenuHandlerClick);
     }
 
     private render(): void {

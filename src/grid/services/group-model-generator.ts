@@ -83,7 +83,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
             extend(data, captionCells.data); let cIndex: number = 0;
             captionCells.cells.some((cell: Cell<Column>, index: number) => { cIndex = index; return cell.visible && cell.isDataCell; });
             visibles = captionCells.cells.slice(cIndex).filter((cell: Cell<Column>) => cell.visible);
-            if (visibles[0].column.field === this.parent.getVisibleColumns()[0].field) {
+            if (captionCells.visible && visibles[0].column.field === this.parent.getVisibleColumns()[0].field) {
                 visibles = visibles.slice(1);
             }
             if (this.parent.getVisibleColumns().length === 1) {
