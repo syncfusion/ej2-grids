@@ -1,4 +1,4 @@
-import { createElement, remove, classList, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, remove, classList, addClass, isNullOrUndefined, Browser } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { EventHandler, L10n, closest } from '@syncfusion/ej2-base';
@@ -8,7 +8,8 @@ import { IGrid, IAction } from '../base/interface';
 import * as events from '../base/constant';
 import { ShowHide } from './show-hide';
 import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
-import { changeButtonType } from '../base/util';
+import { changeButtonType, createCboxWithWrap, toogleCheckbox, parentsUntil } from '../base/util';
+import { createCheckBox } from '@syncfusion/ej2-buttons';
 
 /**
  * 
@@ -37,7 +38,9 @@ export class ColumnChooser implements IAction {
     private stateChangeColumns: Column[] = [];
     private dlgDiv: HTMLElement;
     private isInitialOpen: boolean = false;
-
+    private isCustomizeOpenCC: boolean = false;
+    private cBoxTrue: Element = createCheckBox(true, { checked: true, label: ' ' });
+    private cBoxFalse: Element = createCheckBox(true, { checked: false, label: ' ' });
     /**
      * Constructor for the Grid ColumnChooser module
      * @hidden
@@ -46,11 +49,28 @@ export class ColumnChooser implements IAction {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.addEventListener();
+        this.cBoxTrue.insertBefore(
+            createElement('input', {
+                className: 'e-chk-hidden e-cc e-cc-chbox', attrs: { type: 'checkbox' }
+            }),
+            this.cBoxTrue.firstChild);
+        this.cBoxFalse.insertBefore(
+            createElement('input', {
+                className: 'e-chk-hidden e-cc e-cc-chbox', attrs: { 'type': 'checkbox' }
+            }),
+            this.cBoxFalse.firstChild);
+        this.cBoxFalse.querySelector('.e-frame').classList.add('e-uncheck');
+        if (this.parent.enableRtl) {
+            addClass([this.cBoxTrue, this.cBoxFalse], ['e-rtl']);
+        }
     }
 
     private destroy(): void {
         this.removeEventListener();
         this.unWireEvents();
+        if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.element) {
+            this.dlgObj.destroy();
+        }
     }
 
     /**
@@ -61,6 +81,7 @@ export class ColumnChooser implements IAction {
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.initialEnd, this.render, this);
         this.parent.addEventListener(events.dataBound, this.hideDialog.bind(this));
+        this.parent.on(events.destroy, this.destroy, this);
     }
 
     /**
@@ -70,6 +91,7 @@ export class ColumnChooser implements IAction {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.initialEnd, this.render);
+        this.parent.off(events.destroy, this.destroy);
     }
 
     private render(): void {
@@ -80,22 +102,25 @@ export class ColumnChooser implements IAction {
 
     private clickHandler(e: MouseEvent): void {
         let targetElement: Element = e.target as Element;
-        if (!isNullOrUndefined(closest(targetElement, '.e-cc')) || !isNullOrUndefined(closest(targetElement, '.e-cc-toolbar'))) {
-            if (targetElement.classList.contains('e-columnchooser-btn') || targetElement.classList.contains('e-cc-toolbar')) {
-                if ((this.initialOpenDlg && this.dlgObj.visible) || !this.isDlgOpen) {
-                    this.isDlgOpen = true;
-                    return;
-                }
+        if (!this.isCustomizeOpenCC) {
+            if (!isNullOrUndefined(closest(targetElement, '.e-cc')) || !isNullOrUndefined(closest(targetElement, '.e-cc-toolbar'))) {
+                if (targetElement.classList.contains('e-columnchooser-btn') || targetElement.classList.contains('e-cc-toolbar')) {
+                    if ((this.initialOpenDlg && this.dlgObj.visible) || !this.isDlgOpen) {
+                        this.isDlgOpen = true;
+                        return;
+                    }
 
-            } else if (targetElement.classList.contains('e-cc-cancel')) {
-                (<HTMLInputElement>targetElement.parentElement.querySelector('.e-ccsearch')).value = '';
-                this.columnChooserSearch('');
-                this.removeCancelIcon();
-            }
-        } else {
-            if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.visible) {
-                this.dlgObj.hide();
-                this.isDlgOpen = false;
+                } else if (targetElement.classList.contains('e-cc-cancel')) {
+                    (<HTMLInputElement>targetElement.parentElement.querySelector('.e-ccsearch')).value = '';
+                    this.columnChooserSearch('');
+                    this.removeCancelIcon();
+                }
+            } else {
+                if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.visible && !targetElement.classList.contains('e-toolbar-items')) {
+                    this.dlgObj.hide();
+                    // this.unWireEvents();
+                    this.isDlgOpen = false;
+                }
             }
         }
     }
@@ -103,6 +128,7 @@ export class ColumnChooser implements IAction {
     private hideDialog(): void {
         if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.visible) {
             this.dlgObj.hide();
+            // this.unWireEvents();
             this.isDlgOpen = false;
         }
     }
@@ -133,7 +159,7 @@ export class ColumnChooser implements IAction {
             if (!isNullOrUndefined(closest(target, '.e-bigger'))) {
                 this.dlgObj.width = 253;
             }
-            if (this.parent.element.classList.contains('e-device')) {
+            if (Browser.isDevice) {
                 this.dlgObj.target = document.body;
                 this.dlgObj.position = { X: 'center', Y: 'center' };
                 this.dlgObj.refreshPosition();
@@ -147,10 +173,9 @@ export class ColumnChooser implements IAction {
             }
             this.removeCancelIcon();
             this.dlgObj.show();
-            this.wireEvents();
 
         } else {
-            this.unWireEvents();
+            // this.unWireEvents();
             this.hideDialog();
             this.addcancelIcon();
         }
@@ -165,6 +190,7 @@ export class ColumnChooser implements IAction {
      */
 
     public openColumnChooser(X?: number, Y?: number): void {
+        this.isCustomizeOpenCC = true;
         if (this.dlgObj.visible) {
             this.hideDialog();
             return;
@@ -186,10 +212,23 @@ export class ColumnChooser implements IAction {
             this.dlgObj.element.style.top = Y + 'px';
             this.dlgObj.element.style.left = X + 'px';
         }
+        this.dlgObj.beforeOpen = this.customDialogOpen.bind(this);
         this.dlgObj.show();
         this.isInitialOpen = true;
-        this.wireEvents();
+        this.dlgObj.beforeClose = this.customDialogClose.bind(this);
     }
+
+
+    private customDialogOpen(): void {
+        let searchElement: Element = (this.dlgObj.content as Element).querySelector('input.e-ccsearch');
+        EventHandler.add(searchElement, 'keyup', this.columnChooserManualSearch, this);
+
+    }
+    private customDialogClose(): void {
+        let searchElement: Element = (this.dlgObj.content as Element).querySelector('input.e-ccsearch');
+        EventHandler.remove(searchElement, 'keyup', this.columnChooserManualSearch);
+    }
+
 
     private renderDlgContent(): void {
         let y: number;
@@ -228,6 +267,7 @@ export class ColumnChooser implements IAction {
         });
         this.dlgObj.appendTo(this.dlgDiv);
         changeButtonType(this.dlgObj.element);
+        this.wireEvents();
     }
 
     private renderChooserList(): HTMLElement {
@@ -280,7 +320,7 @@ export class ColumnChooser implements IAction {
 
     private columnStateChange(stateColumns: string[], state: boolean): void {
         for (let index: number = 0; index < stateColumns.length; index++) {
-            let colUid: string = stateColumns[index].replace('e-cc', '');
+            let colUid: string = stateColumns[index];
             let currentCol: Column = this.parent.getColumnByUid(colUid);
             currentCol.visible = state;
             this.stateChangeColumns.push(currentCol);
@@ -290,30 +330,25 @@ export class ColumnChooser implements IAction {
     private clearActions(): void {
         this.hideColumn = [];
         this.showColumn = [];
-        this.unWireEvents();
+        // this.unWireEvents();
         this.hideDialog();
         this.addcancelIcon();
     }
 
-    private checkstatecolumn(e: { checked: boolean, event: MouseEvent }): void {
-        // let targetEle: HTMLInputElement = e.target as HTMLInputElement;
-        // let uncheckColumn: string = targetEle.id;
-        let targetEle: Element = e.event.target as Element;
-        let uncheckColumn: string = targetEle.id;
-
-        if (e.checked) {
-            if (this.hideColumn.indexOf(uncheckColumn) !== -1) {
-                this.hideColumn.splice(this.hideColumn.indexOf(uncheckColumn), 1);
+    private checkstatecolumn(isChecked: boolean, coluid: string): void {
+        if (isChecked) {
+            if (this.hideColumn.indexOf(coluid) !== -1) {
+                this.hideColumn.splice(this.hideColumn.indexOf(coluid), 1);
             }
-            if (this.showColumn.indexOf(uncheckColumn) === -1) {
-                this.showColumn.push(uncheckColumn);
+            if (this.showColumn.indexOf(coluid) === -1) {
+                this.showColumn.push(coluid);
             }
         } else {
-            if (this.showColumn.indexOf(uncheckColumn) !== -1) {
-                this.showColumn.splice(this.showColumn.indexOf(uncheckColumn), 1);
+            if (this.showColumn.indexOf(coluid) !== -1) {
+                this.showColumn.splice(this.showColumn.indexOf(coluid), 1);
             }
-            if (this.hideColumn.indexOf(uncheckColumn) === -1) {
-                this.hideColumn.push(uncheckColumn);
+            if (this.hideColumn.indexOf(coluid) === -1) {
+                this.hideColumn.push(coluid);
             }
         }
     }
@@ -351,13 +386,35 @@ export class ColumnChooser implements IAction {
     }
 
     private wireEvents(): void {
+        EventHandler.add(this.dlgObj.element, 'click', this.checkBoxClickHandler, this);
         let searchElement: Element = (this.dlgObj.content as Element).querySelector('input.e-ccsearch');
         EventHandler.add(searchElement, 'keyup', this.columnChooserManualSearch, this);
     }
 
     private unWireEvents(): void {
+        if (this.dlgObj.element) {
+            EventHandler.remove(this.dlgObj.element, 'click', this.checkBoxClickHandler);
+        }
         let searchElement: Element = (this.dlgObj.content as Element).querySelector('input.e-ccsearch');
         EventHandler.remove(searchElement, 'keyup', this.columnChooserManualSearch);
+    }
+
+    private checkBoxClickHandler(e: MouseEvent): void {
+        let checkstate: boolean;
+        let elem: Element = parentsUntil(e.target as Element, 'e-checkbox-wrapper');
+        if (elem) {
+            toogleCheckbox(elem.parentElement);
+            (elem.querySelector('.e-chk-hidden') as HTMLElement).focus();
+            if (elem.querySelector('.e-check')) {
+                checkstate = true;
+            } else if (elem.querySelector('.e-uncheck')) {
+                checkstate = false;
+            } else {
+                return;
+            }
+            let columnUid: string = parentsUntil(elem, 'e-ccheck').getAttribute('uid');
+            this.checkstatecolumn(checkstate, columnUid);
+        }
     }
 
     private refreshCheckboxList(gdCol: Column[], searchVal?: string): HTMLElement {
@@ -374,7 +431,8 @@ export class ColumnChooser implements IAction {
         this.columnChooserSearch('');
         for (let i: number = 0; i < this.parent.element.querySelectorAll('.e-cc-chbox').length; i++) {
             let element: HTMLInputElement = this.parent.element.querySelectorAll('.e-cc-chbox')[i] as HTMLInputElement;
-            let column: Column = this.parent.getColumnByUid(element.id.replace('e-cc', ''));
+            let columnUID: string = parentsUntil(element, 'e-ccheck').getAttribute('uid');
+            let column: Column = this.parent.getColumnByUid(columnUID);
             if (column.visible) {
                 element.checked = true;
             } else {
@@ -384,6 +442,12 @@ export class ColumnChooser implements IAction {
 
     }
 
+    private createCheckBox(label: string, checked: boolean, uid: string): Element {
+        let cbox: Element = checked ? this.cBoxTrue.cloneNode(true) as Element : this.cBoxFalse.cloneNode(true) as Element;
+        cbox.querySelector('.e-label').innerHTML = label;
+        return createCboxWithWrap(uid, cbox, 'e-ccheck');
+    }
+
     private renderCheckbox(column: Column): void {
         let cclist: HTMLElement;
         let hideColState: boolean;
@@ -391,23 +455,11 @@ export class ColumnChooser implements IAction {
         let checkBoxObj: CheckBox;
         if (column.showInColumnChooser) {
             cclist = createElement('li', { className: 'e-cclist e-cc', styles: 'list-style:None', id: 'e-ccli_' + column.uid });
-            let cclabe: HTMLElement = createElement('label', { className: 'e-cc' });
-            let cccheckboxlist: HTMLElement = createElement('input', {
-                className: 'e-cc e-cc-chbox ',
-                id: 'e-cc' + column.uid, attrs: { type: 'checkbox' }
-            });
-            cclabe.appendChild(cccheckboxlist);
-            hideColState = this.hideColumn.indexOf('e-cc' + column.uid) === -1 ? false : true;
-            showColState = this.showColumn.indexOf('e-cc' + column.uid) === -1 ? false : true;
-            checkBoxObj = new CheckBox({ label: column.headerText, checked: true, change: this.checkstatecolumn.bind(this) });
-            if ((column.visible && !hideColState) || showColState) {
-                checkBoxObj.checked = true;
-            } else {
-                checkBoxObj.checked = false;
-            }
-
-            checkBoxObj.appendTo(cccheckboxlist);
-            cclist.appendChild(cclabe);
+            hideColState = this.hideColumn.indexOf(column.uid) === -1 ? false : true;
+            showColState = this.showColumn.indexOf(column.uid) === -1 ? false : true;
+            let cccheckboxlist: Element =
+                this.createCheckBox(column.headerText, (column.visible && !hideColState) || showColState, column.uid);
+            cclist.appendChild(cccheckboxlist);
             this.ulElement.appendChild(cclist);
         }
     }
@@ -440,9 +492,10 @@ export class ColumnChooser implements IAction {
     }
 
     private mOpenDlg(): void {
-        this.dlgObj.element.querySelector('.e-cc-searchdiv').classList.remove('e-input-focus');
-        let chele: Element = this.dlgObj.element.querySelectorAll('.e-cc-chbox')[0];
-        (<HTMLElement>chele).focus();
+        if (Browser.isDevice) {
+            this.dlgObj.element.querySelector('.e-cc-searchdiv').classList.remove('e-input-focus');
+            (<HTMLElement>this.dlgObj.element.querySelectorAll('.e-cc-chbox')[0]).focus();
+        }
     }
 
     // internally use

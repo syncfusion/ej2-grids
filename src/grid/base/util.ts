@@ -433,3 +433,18 @@ export function getFilterMenuPostion(target: Element, dialogObj: Dialog): void {
 export function getZIndexCalcualtion(args: { popup: Popup }, dialogObj: Dialog): void {
     args.popup.element.style.zIndex = (dialogObj.zIndex + 1).toString();
 }
+
+/** @hidden */
+export function toogleCheckbox(elem: Element): void {
+    let span: Element = elem.querySelector('.e-frame');
+    span.classList.contains('e-check') ? classList(span, ['e-uncheck'], ['e-check']) :
+        classList(span, ['e-check'], ['e-uncheck']);
+}
+
+/** @hidden */
+export function createCboxWithWrap(uid: string, elem: Element, className?: string): Element {
+    let div: Element = createElement('div', { className: className });
+    div.appendChild(elem);
+    div.setAttribute('uid', uid);
+    return div;
+}
