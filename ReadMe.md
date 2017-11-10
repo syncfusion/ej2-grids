@@ -1,3 +1,5 @@
+[![coverage](http://ej2.syncfusion.com/coverage/ej2-grids/coverage.svg)](http://ej2.syncfusion.com/coverage/ej2-grids)
+
 # Grid Overview
 
 The Grid control is used to display and manipulate tabular data with configuration options to control the way the data is presented and manipulated.
