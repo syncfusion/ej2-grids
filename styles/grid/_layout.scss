@@ -617,10 +617,21 @@
     }
 
     .e-gridheader {
-      border-bottom-style: $grid-border-type;
-      border-bottom-width: $grid-bottom-border-size;
       border-top-style: $grid-border-type;
       border-top-width: $grid-border-size;
+    }
+
+    .e-gridheader {
+      & thead tr:last-child th {
+        border-bottom-style: $grid-border-type;
+        border-bottom-width: $grid-bottom-border-size;
+      }
+    }
+
+    .e-frozenhdrcont {
+      & tbody tr:first-child td {
+        border-top-width: 0;
+      }
     }
 
     &.e-bothlines .e-filterbarcell,
