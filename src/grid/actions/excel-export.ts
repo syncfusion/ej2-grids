@@ -37,6 +37,7 @@ export class ExcelExport {
     private includeHiddenColumn: boolean = false;
     private isCsvExport: boolean = false;
     private exportValueFormatter: ExportValueFormatter;
+    private isElementIdChanged: boolean = false;
     /**
      * Constructor for the Grid Excel Export module
      * @hidden
@@ -53,6 +54,7 @@ export class ExcelExport {
     private init(gObj: IGrid): void {
         if (gObj.element !== null && gObj.element.id === '') {
             gObj.element.id = new Date().toISOString();
+            this.isElementIdChanged = true;
         }
         this.parent = gObj;
         if (this.parent.isDestroyed) { return; }
@@ -256,6 +258,9 @@ export class ExcelExport {
             } else {
                 let book: Workbook = new Workbook(this.book, 'xlsx');
                 book.save('Export.xlsx');
+            }
+            if (this.isElementIdChanged) {
+                gObj.element.id = '';
             }
         }
     }
