@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## 15.4.17-preview (2017-11-13)
+
 ### Grid
 
 Grid component is used to display and manipulate tabular data with configuration options to control the way the data is presented and manipulated.
