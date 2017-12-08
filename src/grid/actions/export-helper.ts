@@ -5,38 +5,45 @@ import { CellType } from '../base/enum';
 import { isNullOrUndefined, DateFormatOptions, Internationalization } from '@syncfusion/ej2-base';
 import { Cell } from '../models/cell';
 import { ValueFormatter } from './../services/value-formatter';
+import { Query } from '@syncfusion/ej2-data';
+import { Data } from '../actions/data';
 /**
  * @hidden
  * `ExportHelper` for `PdfExport` & `ExcelExport`
  */
 export class ExportHelper {
-    public parent : IGrid;
+    public parent: IGrid;
     private colDepth: number;
     private hideColumnInclude: boolean = false;
-    public constructor(parent : IGrid) {
+    public constructor(parent: IGrid) {
         this.parent = parent;
     }
+    public static getQuery(parent: IGrid, data: Data): Query {
+        return data.isRemote() ?
+            data.generateQuery(true).requiresCount().take(parent.pageSettings.totalRecordsCount) :
+            data.generateQuery(true).requiresCount();
+    }
     /* tslint:disable:no-any */
-    public getHeaders(column : any[], isHideColumnInclude?: boolean) : {rows : any[], columns : Column[]} {
+    public getHeaders(column: any[], isHideColumnInclude?: boolean): { rows: any[], columns: Column[] } {
         if (isHideColumnInclude) {
             this.hideColumnInclude = true;
         } else {
             this.hideColumnInclude = false;
         }
-        let cols : any[] = column;
+        let cols: any[] = column;
         this.colDepth = this.measureColumnDepth(cols);
-        let rows : Row<Column>[] = [];
-        let actualColumns : Column[] = [];
-        for (let i : number = 0; i < this.colDepth; i++) {
+        let rows: Row<Column>[] = [];
+        let actualColumns: Column[] = [];
+        for (let i: number = 0; i < this.colDepth; i++) {
             rows[i] = new Row<Column>({});
             rows[i].cells = [];
         }
         rows = this.processColumns(rows);
         rows = this.processHeaderCells(rows);
         for (let row of rows) {
-            for (let i : number = 0; i < row.cells.length; i++) {
-                let cell : any = row.cells[i];
-                if (cell.visible === undefined && cell.cellType !== 9) {
+            for (let i: number = 0; i < row.cells.length; i++) {
+                let cell: any = row.cells[i];
+                if (cell.visible === undefined && cell.cellType !== CellType.StackedHeader) {
                     row.cells = this.removeCellFromRow(row.cells, i);
                     i = i - 1;
                 }
@@ -46,21 +53,26 @@ export class ExportHelper {
                 }
             }
         }
-        for (let i : number = 0; i < cols.length; i++) {
+        for (let i: number = 0; i < cols.length; i++) {
             this.generateActualColumns(cols[i], actualColumns);
         }
-        return {rows : rows, columns : actualColumns};
+        return { rows: rows, columns: actualColumns };
     }
-    private generateActualColumns(column : any, actualColumns : Column[]) : void {/* tslint:enable:no-any */
+    public getConvertedWidth(input: string): number {
+        let value: number = parseFloat(input);
+        /* tslint:disable-next-line:max-line-length */
+        return (input.indexOf('%') !== -1) ? (this.parent.element.getBoundingClientRect().width * value / 100) : value;
+    }
+    private generateActualColumns(column: any, actualColumns: Column[]): void {/* tslint:enable:no-any */
         if (!column.columns) {
             if (column.visible || this.hideColumnInclude) {
                 actualColumns.push(column);
             }
         } else {
             if (column.visible || this.hideColumnInclude) {
-                let colSpan : number = this.getCellCount(column, 0);
+                let colSpan: number = this.getCellCount(column, 0);
                 if (colSpan !== 0) {
-                    for (let i : number = 0; i < column.columns.length; i++) {
+                    for (let i: number = 0; i < column.columns.length; i++) {
                         /* tslint:disable-next-line:max-line-length */
                         this.generateActualColumns(column.columns[i], actualColumns);
                     }
@@ -68,12 +80,12 @@ export class ExportHelper {
             }
         }
     }
-    private removeCellFromRow(cells : Cell<Column>[], cellIndex : number) : Cell<Column>[] {
-        let resultCells : Cell<Column>[] = [];
-        for (let i : number = 0; i < cellIndex; i++ ) {
+    private removeCellFromRow(cells: Cell<Column>[], cellIndex: number): Cell<Column>[] {
+        let resultCells: Cell<Column>[] = [];
+        for (let i: number = 0; i < cellIndex; i++) {
             resultCells.push(cells[i]);
         }
-        for (let i : number = (cellIndex + 1); i < cells.length; i++ ) {
+        for (let i: number = (cellIndex + 1); i < cells.length; i++) {
             resultCells.push(cells[i]);
         }
         return resultCells;
@@ -89,7 +101,7 @@ export class ExportHelper {
     private appendGridCells(
         cols: Column, gridRows: Row<Column>[], index: number, isFirstObj: boolean, isFirstColumn: boolean, isLastColumn: boolean): Row<Column>[] {
         /* tslint:enable */
-        let lastCol: string = isLastColumn ? 'e-lastcell' : '' ;
+        let lastCol: string = isLastColumn ? 'e-lastcell' : '';
         if (!cols.columns) {
             gridRows[index].cells.push(this.generateCell(
                 cols, CellType.Header, this.colDepth - index,
@@ -153,9 +165,9 @@ export class ExportHelper {
         return rows;
     }
     /* tslint:disable:no-any */
-    private getCellCount(column : any, count : number) : number {/* tslint:enable:no-any */
+    private getCellCount(column: any, count: number): number {/* tslint:enable:no-any */
         if (column.columns) {
-            for (let i : number = 0; i < column.columns.length; i++) {
+            for (let i: number = 0; i < column.columns.length; i++) {
                 count = this.getCellCount(column.columns[i], count);
             }
         } else {
@@ -166,10 +178,10 @@ export class ExportHelper {
         return count;
     }
     /* tslint:disable:no-any */
-    private measureColumnDepth(column : any[]) : number {/* tslint:enable:no-any */
-        let max : number = 0;
-        for (let i : number = 0; i < column.length; i++) {
-            let depth : number = this.checkDepth(column[i], 0);
+    private measureColumnDepth(column: any[]): number {/* tslint:enable:no-any */
+        let max: number = 0;
+        for (let i: number = 0; i < column.length; i++) {
+            let depth: number = this.checkDepth(column[i], 0);
             if (max < depth) {
                 max = depth;
             }
@@ -177,10 +189,10 @@ export class ExportHelper {
         return max + 1;
     }
     /* tslint:disable:no-any */
-    private checkDepth(col : any, index : number) : number {/* tslint:enable:no-any */
+    private checkDepth(col: any, index: number): number {/* tslint:enable:no-any */
         if (col.columns) {
             index++;
-            for (let i : number = 0; i < col.columns.length; i++) {
+            for (let i: number = 0; i < col.columns.length; i++) {
                 index = this.checkDepth(col.columns[i], index);
             }
         }
@@ -201,6 +213,17 @@ export class ExportValueFormatter {
         this.valueFormatter = new ValueFormatter();
         this.internationalization = new Internationalization();
     }
+
+    /* tslint:disable-next-line:no-any */
+    private returnFormattedValue(args: any, customFormat: DateFormatOptions): string {
+        if (!isNullOrUndefined(args.value)) {
+            return this.valueFormatter.getFormatFunction(customFormat)(args.value);
+        } else {
+            return '';
+        }
+    }
+
+
     /* tslint:disable-next-line:no-any */
     public formatCellValue(args: any): string {
         if (args.column.type === 'number' && args.column.format !== undefined && args.column.format !== '') {
@@ -218,7 +241,7 @@ export class ExportValueFormatter {
                 } else {
                     format = { type: 'dateTime', skeleton: args.column.format };
                 }
-                return this.valueFormatter.getFormatFunction(format)(args.value);
+                return this.returnFormattedValue(args, format);
             } else {
                 if (args.column.format instanceof Object && args.column.format.type === undefined) {
                     return (args.value.toString());
@@ -233,7 +256,7 @@ export class ExportValueFormatter {
                     } else {
                         customFormat = { type: 'dateTime', format: args.column.format.format, skeleton: args.column.format.skeleton };
                     }
-                    return this.valueFormatter.getFormatFunction(customFormat)(args.value);
+                    return this.returnFormattedValue(args, customFormat);
                 }
             }
         } else {

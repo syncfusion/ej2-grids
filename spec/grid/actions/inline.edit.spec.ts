@@ -21,6 +21,7 @@ import { Selection } from '../../../src/grid/actions/selection';
 import { NumericEditCell } from '../../../src/grid/renderer/numeric-edit-cell';
 import { DropDownEditCell } from '../../../src/grid/renderer/dropdown-edit-cell';
 import { DatePicker } from '@syncfusion/ej2-calendars';
+import { createGrid, destroy,  getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
@@ -39,13 +40,10 @@ describe('Inline Editing module', () => {
 
     describe('Inline editing render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let actionComplete: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
@@ -67,10 +65,8 @@ describe('Inline Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('Edit start - args.cancel', (done: Function) => {
@@ -225,8 +221,8 @@ describe('Inline Editing module', () => {
                 }
             };
             gridObj.actionBegin = actionBegin;
-            (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updated';
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'OrderID') as any).value = 10247;
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updated';
             (gridObj.editModule as any).editModule.endEdit();
         });
 
@@ -341,7 +337,7 @@ describe('Inline Editing module', () => {
             gridObj.actionBegin = actionBegin;
             //toolbar status check
             expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updatednew';
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updatednew';
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_cancel' } });
         });
 
@@ -375,7 +371,6 @@ describe('Inline Editing module', () => {
                     expect(gridObj.element.querySelectorAll('.e-normaledit').length).toBe(0);
                     expect(gridObj.element.querySelectorAll('.e-gridform').length).toBe(0);
                     expect(gridObj.element.querySelectorAll('form').length).toBe(0);
-
                     //form destroy check
                     expect(gridObj.editModule.formObj.isDestroyed).toBeTruthy();
                     //updatated data cehck
@@ -399,8 +394,8 @@ describe('Inline Editing module', () => {
             gridObj.actionBegin = actionBegin;
             //toolbar status check
             expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
-            (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updatednew';
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'OrderID') as any).value = 10247;
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updatednew';
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_cancel' } });
         });
 
@@ -465,11 +460,7 @@ describe('Inline Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            gridObj.destroy();
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+           destroy(gridObj);
         });
     });
 
@@ -562,8 +553,8 @@ describe('Inline Editing module', () => {
     //             }
     //         };
     //         gridObj.actionComplete = actionComplete;
-    //         (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
-    //         (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updated';
+    //         (gridObj.element.querySelector('#'+ gridObj.element.id +'OrderID') as any).value = 10247;
+    //         (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updated';
     //         gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
     //     });
 
@@ -605,7 +596,7 @@ describe('Inline Editing module', () => {
     //             }
     //         };
     //         gridObj.actionComplete = actionComplete;
-    //         (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updatednew';
+    //         (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updatednew';
     //         gridObj.keyboardModule.keyAction({ action: 'escape', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
     //     });
 
@@ -662,14 +653,11 @@ describe('Inline Editing module', () => {
 
     describe('Disable editing, edit mode change and delete alert', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let preventDefault: Function = new Function();
         let actionBegin: () => void;
         let actionComplete: (args: any) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
@@ -691,10 +679,8 @@ describe('Inline Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('editing disable testing', () => {
@@ -773,24 +759,18 @@ describe('Inline Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
 
     describe('Group, and text align', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let preventDefault: Function = new Function();
         let actionBegin: () => void;
         let actionComplete: (args: any) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
@@ -812,10 +792,8 @@ describe('Inline Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                },done);
         });
 
         it('text align check', (done: Function) => {
@@ -891,23 +869,17 @@ describe('Inline Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('detail row editing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let preventDefault: Function = new Function();
         let actionBegin: () => void;
         let actionComplete: (args: any) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
@@ -930,10 +902,8 @@ describe('Inline Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                },done);
         });
 
         it('detail row edit check', (done: Function) => {
@@ -963,10 +933,7 @@ describe('Inline Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
@@ -1078,14 +1045,11 @@ describe('Inline Editing module', () => {
 
     describe('validation testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let preventDefault: Function = new Function();
         let actionBegin: () => void;
         let actionComplete: (args: any) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
@@ -1107,10 +1071,8 @@ describe('Inline Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                },done);
         });
 
         it('edit row check', (done: Function) => {
@@ -1170,29 +1132,14 @@ describe('Inline Editing module', () => {
                 }
             };
             gridObj.actionComplete = actionComplete;
-            (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updated';
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'OrderID') as any).value = 10247;
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updated';
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_update' } });
-        });
-
-        it('for coverage', () => {
-            (gridObj.renderModule.data.dataManager as any).remove=()=>{};
-            (gridObj.renderModule.data.dataManager as any).insert=()=>{};
-            (gridObj.renderModule.data.dataManager as any).executeQuery=()=>{};
-            (gridObj.renderModule.data.dataManager as any).ready=false;
-            (gridObj.renderModule.data as any).getData();
-            (gridObj.renderModule.data as any).getData({data:[{}], foreignKeyData :'df', requestType:''});
-            (gridObj.renderModule.data as any).getData({data:[{}], foreignKeyData :'', requestType:'delete'});
-            (gridObj.renderModule.data as any).getData({data:[{}], foreignKeyData :'', requestType:'save'});
-            
         });
 
         afterAll((done) => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
             setTimeout(function () {
                 done();
             }, 1000);

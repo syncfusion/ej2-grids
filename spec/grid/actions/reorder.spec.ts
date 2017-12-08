@@ -204,7 +204,6 @@ describe('Reorder module', () => {
 
             gridObj.allowReordering = false;
             gridObj.dataBind();
-            (gridObj.headerModule as any).helper();
             gridObj.allowReordering = true;
             gridObj.dataBind();
             (gridObj.headerModule as any).helper({ sender: { target: gridObj.getColumnHeaderByField('OrderID').children[0] } });

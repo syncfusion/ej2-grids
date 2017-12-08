@@ -309,61 +309,202 @@ export type CommandButtonType =
  * Defines the default items of context menu.
  */
 export type ContextMenuItem =
-/**  Auto fit the size of all columns */
-'autoFitAll' |
-/**  Auto fit the current column */
-'autoFit' |
-/**  Group by current column */
-'group' |
-/**  Ungroup by current column */
-'ungroup' |
-/**  Edit the current record */
-'edit' |
-/**  Delete the current record */
-'delete' |
-/**  Save the edited record */
-'save' |
-/**  Cancel the edited state */
-'cancel' |
-/**  Copy the selected records */
-'copy' |
-/**  Export the grid as Pdf format */
-'pdfExport' |
-/**  Export the grid as Excel format */
-'excelExport' |
-/**  Export the grid as CSV format */
-'csvExport' |
-/**  Sort the current column in ascending order */
-'sortAscending' |
-/**  Sort the current column in descending order */
-'sortDescending' |
-/**  Go to the first page */
-'firstPage' |
-/**  Go to the previous page */
-'prevPage' |
-/**  Go to the last page */
-'lastPage' |
-/**  Go to the next page */
-'nextPage';
+    /**  Auto fit the size of all columns */
+    'autoFitAll' |
+    /**  Auto fit the current column */
+    'autoFit' |
+    /**  Group by current column */
+    'group' |
+    /**  Ungroup by current column */
+    'ungroup' |
+    /**  Edit the current record */
+    'edit' |
+    /**  Delete the current record */
+    'delete' |
+    /**  Save the edited record */
+    'save' |
+    /**  Cancel the edited state */
+    'cancel' |
+    /**  Copy the selected records */
+    'copy' |
+    /**  Export the grid as Pdf format */
+    'pdfExport' |
+    /**  Export the grid as Excel format */
+    'excelExport' |
+    /**  Export the grid as CSV format */
+    'csvExport' |
+    /**  Sort the current column in ascending order */
+    'sortAscending' |
+    /**  Sort the current column in descending order */
+    'sortDescending' |
+    /**  Go to the first page */
+    'firstPage' |
+    /**  Go to the previous page */
+    'prevPage' |
+    /**  Go to the last page */
+    'lastPage' |
+    /**  Go to the next page */
+    'nextPage';
 
 /** 
  * Defines the default items of Column menu.
  */
 export type ColumnMenuItem =
-/**  Auto fit the size of all columns */
-'autoFitAll' |
-/**  Auto fit the current column */
-'autoFit' |
-/**  Group by current column */
-'group' |
-/**  Ungroup by current column */
-'ungroup' |
-/**  Sort the current column in ascending order */
-'sortAscending' |
-/**  Sort the current column in descending order */
-'sortDescending' |
-/**  show the column chooser */
-'columnChooser' |
-/**  show the Filter popup */
-'filter';
+    /**  Auto fit the size of all columns */
+    'autoFitAll' |
+    /**  Auto fit the current column */
+    'autoFit' |
+    /**  Group by current column */
+    'group' |
+    /**  Ungroup by current column */
+    'ungroup' |
+    /**  Sort the current column in ascending order */
+    'sortAscending' |
+    /**  Sort the current column in descending order */
+    'sortDescending' |
+    /**  show the column chooser */
+    'columnChooser' |
+    /**  show the Filter popup */
+    'filter';
 
+/**
+ * Defines Predefined toolbar items.
+ */
+export enum ToolbarItem {
+    Add,
+    Edit,
+    Update,
+    Delete,
+    Cancel,
+    Print,
+    Search,
+    ColumnChooser,
+    PdfExport,
+    ExcelExport,
+    CsvExport,
+    WordExport
+}
+
+export type PdfPageSize =
+    'letter' |
+    'note' |
+    'legal' |
+    'a0' |
+    'a1' |
+    'a2' |
+    'a3' |
+    'a4' |
+    'a5' |
+    'a6' |
+    'a7' |
+    'a8' |
+    'a9' |
+    'b0' |
+    'b1' |
+    'b2' |
+    'b3' |
+    'b4' |
+    'b5' |
+    'archa' |
+    'archb' |
+    'archc' |
+    'archd' |
+    'arche' |
+    'flsa' |
+    'halfletter' |
+    'letter11x17' |
+    'ledger';
+
+export type PageOrientation =
+    'landscape' |
+    'portrait';
+
+export type ContentType =
+    'image' |
+    'line' |
+    'pagenumber' |
+    'text';
+
+export type PdfPageNumberType =
+    'lowerlatin' |
+    'lowerroman' |
+    'upperlatin' |
+    'upperroman' |
+    'numeric' |
+    'arabic';
+
+export type PdfDashStyle =
+    'solid' |
+    'dash' |
+    'dot' |
+    'dashdot' |
+    'dashdotdot';
+
+/**
+ * Defines PDF horizontal alignment.
+ */
+export type PdfHAlign =
+    /** left alignment */
+    'left' |
+    /** right alignment */
+    'right' |
+    /** center alignment */
+    'center' |
+    /** justify alignment */
+    'justify';
+
+/**
+ * Defines PDF vertical alignment.
+ */
+export type PdfVAlign =
+    /** top alignment */
+    'top' |
+    /** bottom alignment */
+    'bottom' |
+    /** middle alignment */
+    'middle';
+
+
+/**
+ * Defines Export Type.
+ */
+export type ExportType =
+    /** Current page in grid is exported. */
+    'currentpage' |
+    /** All pages of the grid is exported. */
+    'allpages';
+
+/**
+ * Defines Excel horizontal alignment.
+ */
+export type ExcelHAlign =
+    /** left alignment  */
+    'left' |
+    /** right alignment  */
+    'right' |
+    /** center alignment  */
+    'center' |
+    /** fill alignment  */
+    'fill';
+
+/**
+ * Defines Excel vertical alignment.
+ */
+export type ExcelVAlign =
+    /** top alignment  */
+    'top' |
+    /** bottom alignment  */
+    'bottom' |
+    /** center alignment  */
+    'center' |
+    /** justify alignment  */
+    'justify';
+
+/**
+ * Defines border line style.
+ */
+export type BorderLineStyle =
+    /** thin line style  */
+    'thin' |
+    /** thick line style  */
+    'thick';

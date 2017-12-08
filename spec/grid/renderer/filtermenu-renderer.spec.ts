@@ -51,11 +51,11 @@ describe('Filter menu renderer module', () => {
                             field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right', filter: {
                                 ui: {
                                     create: (args: { target: Element, column: Object }) => {
-                                        let db: Object = new DataManager(filterData);
+                                        let db: Object = new DataManager(filterData as JSON[]);
                                         let flValInput: HTMLElement = createElement('input', { className: 'e-flmenu-input' });
                                         args.target.appendChild(flValInput);
                                         this.dropInstance = new DropDownList({
-                                            dataSource: new DataManager(filterData),
+                                            dataSource: new DataManager(filterData as JSON[]),
                                             fields: { text: 'OrderID', value: 'OrderID' },
                                             placeholder: 'Select a value',
                                             popupHeight: '200px'
@@ -107,11 +107,11 @@ describe('Filter menu renderer module', () => {
             let e: any = {};
             let ele: Element = (<HTMLElement>gridObj.element.querySelectorAll('.e-filtermenudiv')[0]);
             e = { target: ele };
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             expect((<Column>gridObj.columns[1]).allowFiltering).toBeFalsy();
             (<HTMLInputElement>document.querySelector('.e-flmenu-valuediv input')).value = '10249';
             (<any>gridObj).filterModule.filterModule.filterBtnClick(gridObj.columns[0]);
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             (<any>gridObj).filterModule.filterModule.clearBtnClick(gridObj.columns[0])
         });
 
@@ -123,11 +123,11 @@ describe('Filter menu renderer module', () => {
             let e: any = {};
             let ele: Element = (<HTMLElement>gridObj.element.querySelectorAll('.e-filtermenudiv')[1]);
             e = { target: ele };
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             expect((<Column>gridObj.columns[1]).allowFiltering).toBeFalsy();
             (<HTMLInputElement>document.querySelector('.e-flmenu-valuediv input')).value = '7/4/1996';
             (<any>gridObj).filterModule.filterModule.filterBtnClick(gridObj.columns[2]);
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             (<any>gridObj).filterModule.filterModule.clearBtnClick(gridObj.columns[2]);
         });
 
@@ -140,11 +140,11 @@ describe('Filter menu renderer module', () => {
             let e: any = {};
             let ele: Element = (<HTMLElement>gridObj.element.querySelectorAll('.e-filtermenudiv')[2]);
             e = { target: ele };
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             expect((<Column>gridObj.columns[1]).allowFiltering).toBeFalsy();
             (<HTMLInputElement>document.querySelector('.e-flmenu-valuediv input')).value = '32.38';
             (<any>gridObj).filterModule.filterModule.filterBtnClick(gridObj.columns[3]);
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             (<any>gridObj).filterModule.filterModule.clearBtnClick(gridObj.columns[3]);
         });
 
@@ -156,11 +156,11 @@ describe('Filter menu renderer module', () => {
             let e: any = {};
             let ele: Element = (<HTMLElement>gridObj.element.querySelectorAll('.e-filtermenudiv')[3]);
             e = { target: ele };
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             expect((<Column>gridObj.columns[1]).allowFiltering).toBeFalsy();
             (<HTMLInputElement>document.querySelector('.e-flmenu-valuediv input')).value = 'reims';
             (<any>gridObj).filterModule.filterModule.filterBtnClick(gridObj.columns[4]);
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             (<any>gridObj).filterModule.filterModule.clearBtnClick(gridObj.columns[4])
         });
 
@@ -172,11 +172,11 @@ describe('Filter menu renderer module', () => {
             let e: any = {};
             let ele: Element = (<HTMLElement>gridObj.element.querySelectorAll('.e-filtermenudiv')[5]);
             e = { target: ele };
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             expect((<Column>gridObj.columns[1]).allowFiltering).toBeFalsy();
             (<HTMLInputElement>document.querySelector('.e-flmenu-valuediv input')).value = 'true';
             (<any>gridObj).filterModule.filterModule.filterBtnClick(gridObj.columns[6]);
-            (<any>gridObj).filterModule.clickHandler(e);
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
             (<any>gridObj).filterModule.filterModule.clearBtnClick(gridObj.columns[6])
         });
         afterAll(() => {

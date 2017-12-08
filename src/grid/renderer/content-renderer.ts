@@ -12,6 +12,7 @@ import { ServiceLocator } from '../services/service-locator';
 import { AriaService } from '../services/aria-service';
 import { RowModelGenerator } from '../services/row-model-generator';
 import { GroupModelGenerator } from '../services/group-model-generator';
+import { getScrollBarWidth } from '../base/util';
 
 
 /**
@@ -26,23 +27,27 @@ export class ContentRender implements IRenderer {
     private rowElements: Element[];
     public colgroup: Element;
     private isLoaded: boolean = true;
+    private tbody: HTMLElement;
     private drop: Function = (e: DropEventArgs) => {
         this.parent.notify(events.columnDrop, { target: e.target, droppedElement: e.droppedElement });
         remove(e.droppedElement);
     }
     private args: NotifyArgs;
     private rafCallback: Function = (args: NotifyArgs) => () => {
+        this.ariaService.setBusy(<HTMLElement>this.getPanel().firstChild, false);
+        if (this.parent.isDestroyed) { return; }
+        this.parent.notify(events.contentReady, { rows: this.rows, args: args });
         if (this.isLoaded) {
-            this.ariaService.setBusy(<HTMLElement>this.getPanel().firstChild, false);
-            if (this.parent.isDestroyed) { return; }
-            this.parent.notify(events.contentReady, { rows: this.rows, args: args });
             this.parent.trigger(events.dataBound, {});
-            if (args) {
-                let action: string = (args.requestType || '').toLowerCase() + '-complete';
-                this.parent.notify(action, args);
+            if (this.parent.allowTextWrap) {
+                this.parent.notify(events.freezeRender, { case: 'textwrap' });
             }
-            this.parent.hideSpinner();
         }
+        if (args) {
+            let action: string = (args.requestType || '').toLowerCase() + '-complete';
+            this.parent.notify(action, args);
+        }
+        this.parent.hideSpinner();
     }
     //Module declarations
     protected parent: IGrid;
@@ -120,27 +125,30 @@ export class ContentRender implements IRenderer {
      */
     public refreshContentRows(args: NotifyArgs = {}): void {
         let gObj: IGrid = this.parent;
+        if (gObj.currentViewData.length === 0) {
+            return;
+        }
         let dataSource: Object = gObj.currentViewData;
         let frag: DocumentFragment = document.createDocumentFragment();
         let hdrfrag: DocumentFragment = document.createDocumentFragment();
         let columns: Column[] = <Column[]>gObj.getColumns();
         let tr: Element;
-        let tbody: Element;
+        let hdrTbody: HTMLElement;
         let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         this.rowElements = []; this.rows = [];
         let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args);
         let idx: number = modelData[0].cells[0].index;
         let fCont: Element = this.getPanel().querySelector('.e-frozencontent');
-        let mCont: Element = this.getPanel().querySelector('.e-movablecontent');
-        let cont: Element = this.getPanel().querySelector('.e-content');
+        let mCont: HTMLElement = this.getPanel().querySelector('.e-movablecontent') as HTMLElement;
+        let cont: HTMLElement = this.getPanel().querySelector('.e-content') as HTMLElement;
         if (this.parent.enableColumnVirtualization) {
             let cellMerge: CellMergeRender<Column> = new CellMergeRender(this.serviceLocator, this.parent);
             cellMerge.updateVirtualCells(modelData);
         }
         if (this.parent.frozenColumns && idx >= this.parent.frozenColumns) {
-            tbody = mCont.querySelector('tbody');
+            this.tbody = mCont.querySelector('tbody');
         } else {
-            tbody = this.getTable().querySelector('tbody');
+            this.tbody = this.getTable().querySelector('tbody');
         }
         for (let i: number = 0, len: number = modelData.length; i < len; i++) {
             if (!gObj.rowTemplate) {
@@ -170,43 +178,39 @@ export class ContentRender implements IRenderer {
             }
             this.ariaService.setOptions(this.getTable() as HTMLElement, { colcount: gObj.getColumns().length.toString() });
         }
+        if (gObj.frozenRows) {
+            hdrTbody = gObj.frozenColumns ? gObj.getHeaderContent().querySelector(idx === 0 ? '.e-frozenheader'
+                : '.e-movableheader').querySelector('tbody') : gObj.getHeaderTable().querySelector('tbody');
+            hdrTbody.innerHTML = '';
+            hdrTbody.appendChild(hdrfrag);
+        }
+        if (gObj.frozenRows && idx === 0 && cont.offsetHeight === Number(gObj.height)) {
+            cont.style.height = (cont.offsetHeight - hdrTbody.offsetHeight) + 'px';
+        }
+        if (gObj.frozenColumns && idx === 0) {
+            (this.getPanel().firstChild as HTMLElement).style.overflowY = 'hidden';
+        }
         this.args = args;
         getUpdateUsingRaf<HTMLElement>(
             () => {
-                let hdrTbody: Element;
-                remove(tbody);
-                tbody = createElement('tbody');
+                remove(this.tbody);
+                this.tbody = createElement('tbody');
                 if (gObj.frozenColumns) {
-                    tbody.appendChild(frag);
+                    this.tbody.appendChild(frag);
                     if (idx === 0) {
                         this.isLoaded = false;
-                        fCont.querySelector('table').appendChild(tbody);
-                        (this.getPanel().firstChild as HTMLElement).style.overflowY = 'hidden';
+                        fCont.querySelector('table').appendChild(this.tbody);
                     } else {
+                        if (this.tbody.childElementCount < 1) {
+                            this.tbody.appendChild(createElement('tr').appendChild(createElement('td')));
+                        }
                         this.isLoaded = true;
-                        mCont.querySelector('table').appendChild(tbody);
+                        mCont.querySelector('table').appendChild(this.tbody);
+                        (fCont as HTMLElement).style.height = ((mCont.offsetHeight) - getScrollBarWidth()) + 'px';
+                        mCont.style.overflow = 'scroll';
                     }
-                    if (gObj.frozenRows) {
-                        hdrTbody = gObj.getHeaderContent().querySelector(idx === 0 ? '.e-frozenheader'
-                            : '.e-movableheader').querySelector('tbody');
-                        hdrTbody.innerHTML = '';
-                        hdrTbody.appendChild(hdrfrag);
-                    }
-                    (fCont as HTMLElement).style.height
-                        = (((mCont as HTMLElement).offsetHeight) - 17) + 'px';
-                    (mCont as HTMLElement).style.overflow = 'scroll';
                 } else {
-                    this.appendContent(tbody, frag, args);
-                }
-                if (gObj.frozenRows && !gObj.frozenColumns) {
-                    hdrTbody = gObj.getHeaderTable().querySelector('tbody');
-                    hdrTbody.innerHTML = '';
-                    hdrTbody.appendChild(hdrfrag);
-                }
-                if (gObj.frozenRows && idx === 0 && (cont as HTMLElement).offsetHeight === gObj.height) {
-                    (cont as HTMLElement).style.height =
-                        ((cont as HTMLElement).offsetHeight -
-                            gObj.getHeaderContent().querySelector('tbody').offsetHeight) + 'px';
+                    this.appendContent(this.tbody, frag, args);
                 }
                 if (gObj.frozenColumns && idx === 0) {
                     this.refreshContentRows(args);

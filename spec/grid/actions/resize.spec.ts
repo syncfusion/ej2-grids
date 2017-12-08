@@ -279,7 +279,7 @@ describe('Resize module', () => {
             expect((gridObj.getContentTable() as HTMLElement).style.width).toBe(width);
         });
         it('grid lines', () => {
-            expect(gridObj.element.classList.contains(resizeClassList.lines)).toBeTruthy();
+            expect(gridObj.element.classList.contains('e-resize-lines')).toBeTruthy();
         });
         it('calc position', () => {
             let off = gridObj.resizeModule.calcPos(document.body);
@@ -473,6 +473,8 @@ describe('Resize module', () => {
         afterAll(() => {
             gridObj.destroy();
             remove(elem);
+            let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
+            Browser.userAgent = desktop;
         });
 
         it('resize start', () => {
@@ -579,6 +581,7 @@ describe('Resize module', () => {
             );
         });
         it('width test case', () => {
+            expect(grid.element.classList.contains('e-resize-lines')).toBe(true);
             expect(grid.getFooterContent()).not.toBeNull();
             expect(grid.getFooterContentTable()).not.toBeNull();
             expect((grid.getFooterContentTable() as HTMLElement).style.width).toBeDefined();

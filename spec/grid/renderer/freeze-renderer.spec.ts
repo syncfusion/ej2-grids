@@ -33,6 +33,26 @@ describe('Freeze render module', () => {
             gridObj.appendTo('#Grid');
         });
 
+        it('Frozen Header testing', () => {
+            expect(gridObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody').childElementCount).toBe(2);
+            expect(gridObj.getHeaderContent().querySelector('.e-frozenheader')
+                .querySelector('tbody').children[0].childElementCount).toBe(2);
+            expect(gridObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tr').children[0].childElementCount).toBe(2);
+        });
+
+        it('Movable Header testing', () => {
+            expect(gridObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody').childElementCount).toBe(2);
+        });
+
+        it('Frozen Content testing', () => {
+            expect(gridObj.getContent().querySelector('.e-frozencontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
+            expect(gridObj.getContent().querySelector('.e-frozencontent').querySelector('tbody').children[0].childElementCount).toBe(2);
+        });
+
+        it('Movable Content testing', () => {
+            expect(gridObj.getContent().querySelector('.e-movablecontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
+        });
+
         it('check scroll left header/content sync', () => {
             let ele: HTMLElement = gridObj.getContent().querySelector('.e-movablecontent') as HTMLElement;
             (<HTMLElement>ele).scrollLeft = 10;
@@ -51,10 +71,13 @@ describe('Freeze render module', () => {
             raise(gridObj, 'touchstart', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
             (<HTMLElement>gridObj.getContent().querySelector('.e-frozencontent')).scrollTop = 30;
             raise(gridObj, 'touchmove', <HTMLElement>gridObj.getContent().querySelector('.e-frozencontent'));
+            raise(gridObj, 'touchstart', <HTMLElement>gridObj.getHeaderContent().querySelector('.e-movableheader'));
+            (<HTMLElement>gridObj.getHeaderContent().querySelector('.e-movableheader')).scrollLeft = 30;
+            raise(gridObj, 'touchmove', <HTMLElement>gridObj.getHeaderContent().querySelector('.e-movableheader'));
             let args = { target: gridObj.getContent().querySelector('.e-frozencontent'), touches: [{ pageY: 200 }] };
-            gridObj.scrollModule.getPointY(args);
-            let arg = { target: gridObj.getContent().querySelector('.e-frozencontent')};
-            gridObj.scrollModule.getPointY(arg);
+            gridObj.scrollModule.getPointXY(args);
+            let arg = { target: gridObj.getContent().querySelector('.e-frozencontent') };
+            gridObj.scrollModule.getPointXY(arg);
             remove(gridObj.getContent().querySelector('tbody'));
             remove(gridObj.getContent().querySelector('tbody'));
             (<HTMLElement>ele).scrollTop = 10;
@@ -86,6 +109,7 @@ describe('Freeze render module', () => {
     describe('Freeze Row', () => {
         let gridObj: Grid;
         let elem: Element = createElement('div', { id: 'Grid' });
+        let dBound: () => void;
         beforeAll((done: Function) => {
             let dataBound: EmitType<Object> = () => { done(); };
             document.body.appendChild(elem);
@@ -106,8 +130,25 @@ describe('Freeze render module', () => {
             gridObj.appendTo('#Grid');
         });
 
-        it('header content rendering', () => {
-            // Test case for header content rendering
+        it('Frozen Header testing', () => {
+            expect(gridObj.getHeaderContent().querySelector('tbody').childElementCount).toBe(2);
+        });
+
+        it('Movable Content testing', () => {
+            expect(gridObj.getContent().querySelector('tbody').childElementCount).toBeGreaterThan(1);
+        });
+
+        it('on property change', () => {
+            dBound = (args?: Object): void => {
+                expect(gridObj.getContent().querySelector('.e-frozencontent').querySelector('tbody').children[0].childElementCount).toBe(2);
+                expect(gridObj.getContent().querySelector('.e-movablecontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
+                expect(gridObj.getHeaderContent().querySelector('.e-frozenheader')
+                    .querySelector('tbody').children[0].childElementCount).toBe(2);
+                expect(gridObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody').childElementCount).toBe(2);
+            };
+            gridObj.frozenColumns = 2;
+            gridObj.dataBound = dBound;
+            gridObj.dataBind();
         });
 
         afterAll(() => {
@@ -140,8 +181,13 @@ describe('Freeze render module', () => {
             gridObj.appendTo('#Grid');
         });
 
-        it('header content rendering', () => {
-            // Test case for header content rendering
+        it('Frozen Content testing', () => {
+            expect(gridObj.getContent().querySelector('.e-frozencontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
+            expect(gridObj.getContent().querySelector('.e-frozencontent').querySelector('tbody').children[0].childElementCount).toBe(2);
+        });
+
+        it('Movable Content testing', () => {
+            expect(gridObj.getContent().querySelector('.e-movablecontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
         });
 
         afterAll(() => {

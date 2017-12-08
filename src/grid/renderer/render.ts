@@ -2,7 +2,7 @@ import { L10n, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base';
 import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
-import { IGrid, NotifyArgs, IValueFormatter, SaveEventArgs } from '../base/interface';
+import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
 import { RenderType, CellType } from '../base/enum';
 import { ReturnType } from '../base/type';
 import { Data } from '../actions/data';
@@ -85,9 +85,6 @@ export class Render {
         if (e.cancel) {
             return;
         }
-        if (e.requestType as string === 'save' && (<SaveEventArgs>e).action === 'add') {
-            this.parent.isEdit = false;
-        }
         this.refreshDataManager(e);
     }
 
@@ -103,6 +100,7 @@ export class Render {
         if (args.requestType !== 'virtualscroll') {
             this.parent.showSpinner();
         }
+        this.parent.isEdit = false;
         let ready: Promise<Object> = this.data.dataManager.ready;
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
         let dataManager: Promise<Object> = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount());
@@ -178,14 +176,14 @@ export class Render {
                     columns[i].type = value.getDay ? (value.getHours() > 0 || value.getMinutes() > 0 ||
                         value.getSeconds() > 0 || value.getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
                 }
-                if (typeof (columns[i].format) === 'string') {
-                    setFormatter(this.locator, columns[i]);
-                } else if (!columns[i].format && columns[i].type === 'number') {
-                    columns[i].setParser(
-                        fmtr.getParserFunction({ format: 'n2' } as NumberFormatOptions));
-                }
             } else {
                 columns[i].type = columns[i].type || null;
+            }
+            if (typeof (columns[i].format) === 'string') {
+                setFormatter(this.locator, columns[i]);
+            } else if (!columns[i].format && columns[i].type === 'number') {
+                columns[i].setParser(
+                    fmtr.getParserFunction({ format: 'n2' } as NumberFormatOptions));
             }
         }
     }

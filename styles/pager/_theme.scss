@@ -1,6 +1,6 @@
   @include export-module('pager-theme') {
   /*! Pager theme */
-  .e-pager {
+  #{&}.e-pager {
     background-color: $pager-bg-color;
     border-color: $pager-border-color;
     color: $pager-color;

@@ -12,6 +12,7 @@ import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel 
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
 import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems, CommandButtonType, ContextMenuItem } from './enum';
+import { MultipleExportType, ExportType, ExcelHAlign, ExcelVAlign, BorderLineStyle, ToolbarItem  } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
 import { Edit } from '../actions/edit';
@@ -21,6 +22,10 @@ import { FormValidator } from '@syncfusion/ej2-inputs';
 import { Data } from '../actions/data';
 import { DatePickerModel } from '@syncfusion/ej2-calendars';
 import { Matrix } from '../services/focus-strategy';
+import {
+    PdfPageSize, PageOrientation, ContentType, PdfPageNumberType, PdfDashStyle,
+    PdfHAlign, PdfVAlign
+} from './enum';
 
 /**
  * Specifies grid interfaces.
@@ -271,7 +276,7 @@ export interface IGrid extends Component<HTMLElement> {
      * Specifies the toolbar for Grid.
      * @default null
      */
-    toolbar?: ToolbarItems[] | string[] | ItemModel[];
+    toolbar?: ToolbarItems[] | string[] | ItemModel[] | ToolbarItem[];
 
     /**
      * Specifies the context menu items for Grid.
@@ -331,6 +336,7 @@ export interface IGrid extends Component<HTMLElement> {
     getPager?(): Element;
     setGridPager?(value: Element): void;
     getRowByIndex?(index: number): Element;
+    getRowInfo?(target: Element): RowInfo;
     selectRow?(index: number, isToggle?: boolean): void;
     getColumnHeaderByIndex?(index: number): Element;
     getColumnByField?(field: string): Column;
@@ -414,6 +420,7 @@ export interface IRenderer {
     getRowElements?(): Element[];
     setSelection?(uid: string, set: boolean, clearAll: boolean): void;
     getRowByIndex?(index: number): Element;
+    getRowInfo?(target: Element): RowInfo;
 }
 
 /**
@@ -620,6 +627,21 @@ export interface IModelGenerator<T> {
     refreshRows?(input?: Row<T>[]): Row<T>[];
 }
 
+export interface RowInfo {
+    /** returns particular cell element */
+    cell?: Element;
+    /** returns particular cell index */
+    cellIndex?: number;
+    /** returns particular row element */
+    row?: Element;
+    /** returns particular rowIndex */
+    rowIndex?: number;
+    /** returns particular row data */
+    rowData?: Object;
+    /** return particular column information  */
+    column?: Object;
+}
+
 export interface ActionEventArgs {
     /** Defines the current action. */
     requestType?: Action;
@@ -771,39 +793,175 @@ export interface PdfQueryCellInfoEventArgs {
     column?: Column;
     /** Defines the style of the current cell. */
     /* tslint:disable:no-any */
-    style?: any;
+    style?: PdfStyle;
     /** Defines the value of the current cell. */
     /* tslint:disable:no-any */
-    value?: any;
+    value?: Date | string | number | boolean;
     /** Defines the no. of columns to be spanned */
     colSpan?: number;
-}
-
-export interface PdfQueryCellInfoEventArgs {
-    /** Defines the column of the current cell. */
-    column?: Column;
-    /** Defines the style of the current cell. */
-    /* tslint:disable:no-any */
-    style?: any;
-    /** Defines the value of the current cell. */
-    /* tslint:disable:no-any */
-    value?: any;
 }
 
 export interface ExcelQueryCellInfoEventArgs {
     /** Defines the row data associated with this cell. */
     data?: Object;
     /** Defines the column of the current cell. */
-    /* tslint:disable:no-any */
-    column: any;
+    column: Column;
     /** Defines the value of the current cell. */
-    /* tslint:disable:no-any */
-    value?: any;
+    value?: Date | string | number | boolean;
     /** Defines the style of the current cell. */
-    /* tslint:disable:no-any */
-    style?: any;
+    style?: ExcelStyle;
     /** Defines the number of columns to be spanned */
     colSpan?: number;
+}
+
+export interface MultipleExport {
+    /** Indicates whether to append the multiple grid in same sheet or different sheet */
+    type?: MultipleExportType;
+    /**  Defines the number of blank rows between the multiple grid data */
+    blankRows?: number;
+}
+export interface ExcelRow {
+    /**  Defines the index for cells */
+    index?: number;
+    /**  Defines the cells in a row */
+    cells?: ExcelCell[];
+
+}
+export interface Border {
+    /**  Defines the color of border */
+    color?: string;
+    /**  Defines the line style of border */
+    lineStyle?: BorderLineStyle;
+}
+export interface ExcelStyle {
+    /** Defines the color of font */
+    fontColor?: string;
+    /** Defines the name of font */
+    fontName?: string;
+    /** Defines the size of font */
+    fontSize?: number;
+    /** Defines the horizontal alignment for cell style */
+    hAlign?: ExcelHAlign;
+    /** Defines the vertical alignment for cell style */
+    vAlign?: ExcelVAlign;
+    /** Defines the bold style for fonts  */
+    bold?: boolean;
+    /** Defines the italic style for fonts */
+    italic?: boolean;
+    /** Defines the underline style for fonts */
+    underline?: boolean;
+    /** Defines the background color for cell style */
+    backColor?: string;
+    /** Defines the wrapText for cell style */
+    wrapText?: boolean;
+    /** Defines the borders for cell style */
+    borders?: Border;
+}
+export interface PdfStyle {
+    /** Defines the horizontal alignment */
+    textAlignment?: PdfHAlign;
+    /** Defines the brush color of font */
+    textBrushColor?: string;
+    /** Defines the pen color of font */
+    textPenColor?: string;
+    /** Defines the font family */
+    fontFamily?: string;
+    /** Defines the font size */
+    fontSize?: number;
+    /** Defines the font bold */
+    bold?: boolean;
+    /** Defines the italic font */
+    italic?: boolean;
+    /** Defines the underlined font */
+    underline?: boolean;
+    /** Defines the strike-out font */
+    strikeout?: boolean;
+    /** Defines the horizontal alignment */
+    verticalAlignment?: PdfVAlign;
+    /** Defines the background color */
+    backgroundColor?: string;
+    /** Defines the grid border */
+    border?: PdfBorder;
+}
+export interface PdfBorder {
+    /** Defines the border color */
+    color?: string;
+    /** Defines the border width */
+    width?: number;
+    /** Defines the border dash style */
+    dashStyle?: PdfDashStyle;
+}
+export interface ThemeStyle {
+    /** Defines the font color of theme style */
+    fontColor?: string;
+    /** Defines the font name of theme style */
+    fontName?: string;
+    /** Defines the font size of theme style */
+    fontSize?: number;
+    /** Defines the bold of theme style */
+    bold?: boolean;
+    /** Defines the borders of theme style */
+    borders?: Border;
+}
+
+export interface Theme {
+    /** Defines the style of header content */
+    header?: ThemeStyle;
+    /** Defines the theme style of record content */
+    record?: ThemeStyle;
+    /** Defines the theme style of caption content */
+    caption?: ThemeStyle;
+}
+
+export interface ExcelCell {
+    /** Defines the index for the cell */
+    index?: number;
+    /** Defines the column span for the cell  */
+    colSpan?: number;
+    /** Defines the value of the cell */
+    value?: string | boolean | number | Date;
+    /** Defines the hyperlink of the cell */
+    hyperlink?: Hyperlink;
+    /** Defines the style of the cell */
+    style?: ExcelStyle;
+}
+
+export interface Hyperlink {
+    /** Defines the Url for hyperlink */
+    target?: string;
+    /** Defines the display text for hyperlink */
+    displayText?: string;
+}
+
+export interface ExcelHeader {
+    /** Defines the number of rows between the header and grid data */
+    headerRows?: number;
+    /** Defines the rows in header content */
+    rows?: ExcelRow[];
+}
+
+export interface ExcelFooter {
+    /** Defines the number of rows between the grid data and footer */
+    footerRows?: number;
+    /** Defines the rows in footer content */
+    rows?: ExcelRow[];
+}
+
+export interface ExcelExportProperties {
+    /** Defines the data source dynamically before exporting */
+    dataSource?: Object | DataManager;
+    /** Exports multiple grid into the excel document */
+    multipleExport?: MultipleExport;
+    /** Defines the header content for exported document  */
+    header?: ExcelHeader;
+    /** Defines the footer content for exported document */
+    footer?: ExcelFooter;
+    /** Indicates to export current page or all page */
+    exportType?: ExportType;
+    /** Indicates whether to show the hidden columns in exported excel */
+    includeHiddenColumn?: boolean;
+    /** Defines the theme for exported data  */
+    theme?: Theme;
 }
 
 export interface RowDragEventArgs {
@@ -1236,6 +1394,140 @@ export interface IFilterArgs {
     target?: Element;
 }
 
+export interface PdfExportProperties {
+    /** Defines the Pdf orientation. */
+    pageOrientation?: PageOrientation;
+    /** Defines the Pdf page size. */
+    pageSize?: PdfPageSize;
+    /** Defines the Pdf header. */
+    header?: PdfHeader;
+    /** Defines the Pdf footer. */
+    footer?: PdfFooter;
+    /** Indicates whether to show the hidden columns in exported Pdf */
+    includeHiddenColumn?: boolean;
+    /** Defines the data source dynamically before exporting */
+    dataSource?: Object | DataManager;
+    /** Indicates to export current page or all page */
+    exportType?: ExportType;
+    /** Defines the theme for exported data  */
+    theme?: Theme;
+}
+
+export interface Theme {
+    /** Defines the style of header content */
+    header?: ThemeStyle;
+    /** Defines the theme style of record content */
+    record?: ThemeStyle;
+    /** Defines the theme style of caption content */
+    caption?: ThemeStyle;
+}
+
+export interface ThemeStyle {
+    /** Defines the font color of theme style */
+    fontColor?: string;
+    /** Defines the font name of theme style */
+    fontName?: string;
+    /** Defines the font size of theme style */
+    fontSize?: number;
+    /** Defines the bold of theme style */
+    bold?: boolean;
+    /** Defines the borders of theme style */
+    borders?: Border;
+}
+
+export interface Border {
+    /** Defines the color of border */
+    color?: string;
+    /** Defines the line style of border */
+    lineStyle?: BorderLineStyle;
+}
+
+
+
+
+
+export interface PdfHeader {
+    /** Defines the header content distance from top. */
+    fromTop?: number;
+    /** Defines the height of header content . */
+    height?: number;
+    /** Defines the header contents */
+    contents?: PdfHeaderFooterContent[];
+}
+
+export interface PdfFooter {
+    /** Defines the footer content distance from bottom. */
+    fromBottom?: number;
+    /** Defines the height of footer content. */
+    height?: number;
+    /** Defines the footer contents */
+    contents?: PdfHeaderFooterContent[];
+}
+
+export interface PdfHeaderFooterContent {
+    /** Defines the content type */
+    type: ContentType;
+    /** Defines the page number type */
+    pageNumberType?: PdfPageNumberType;
+    /** Defines the style of content */
+    style?: PdfContentStyle;
+    /** Defines the pdf points for drawing line */
+    points?: PdfPoints;
+    /** Defines the format for customizing page number */
+    format?: string;
+    /** Defines the position of the content */
+    position?: PdfPosition;
+    /** Defines the size of content */
+    size?: PdfSize;
+    /** Defines the base64 string for image content type */
+    src?: string;
+    /** Defines the value for content */
+    value?: any;
+}
+
+export interface PdfPosition {
+    /** Defines the x position */
+    x: number;
+    /** Defines the y position */
+    y: number;
+}
+
+export interface PdfSize {
+    /** Defines the height */
+    height: number;
+    /** Defines the width */
+    width: number;
+}
+
+export interface PdfPoints {
+    /** Defines the x1 position */
+    x1: number;
+    /** Defines the y1 position */
+    y1: number;
+    /** Defines the x2 position */
+    x2: number;
+    /** Defines the y2 position */
+    y2: number;
+}
+
+export interface PdfContentStyle {
+    /** Defines the pen color. */
+    penColor?: string;
+    /** Defines the pen size. */
+    penSize?: number;
+    /** Defines the dash style. */
+    dashStyle?: PdfDashStyle;
+    /** Defines the text brush color. */
+    textBrushColor?: string;
+    /** Defines the text pen color. */
+    textPenColor?: string;
+    /** Defines the font size. */
+    fontSize?: number;
+    /** Defines the horizontal alignment. */
+    hAlign?: PdfHAlign;
+    /** Defines the vertical alignment. */
+    vAlign?: PdfVAlign;
+}
 /**
  * Defines the context menu item model.
  */

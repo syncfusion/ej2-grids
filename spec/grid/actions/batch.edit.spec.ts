@@ -6,6 +6,7 @@ import { extend, getValue } from '@syncfusion/ej2-base';
 import { DataManager } from '@syncfusion/ej2-data';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
+import { isActionPrevent } from '../../../src/grid/base/util';
 import { QueryCellInfoEventArgs } from '../../../src/grid/base/interface';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Edit } from '../../../src/grid/actions/edit';
@@ -15,8 +16,6 @@ import { Reorder } from '../../../src/grid/actions/reorder';
 import { BatchEdit } from '../../../src/grid/actions/batch-edit';
 import { Page } from '../../../src/grid/actions/page';
 import { Toolbar } from '../../../src/grid/actions/toolbar';
-import { CellType } from '../../../src/grid/base/enum';
-import { ValueFormatter } from '../../../src/grid/services/value-formatter';
 import { Column } from '../../../src/grid/models/column';
 import { Selection } from '../../../src/grid/actions/selection';
 import { NumericEditCell } from '../../../src/grid/renderer/numeric-edit-cell';
@@ -25,10 +24,12 @@ import { DatePickerEditCell } from '../../../src/grid/renderer/datepicker-edit-c
 import { BooleanEditCell } from '../../../src/grid/renderer/boolean-edit-cell';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy,  getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 
 Grid.Inject(Filter, Page, Selection, Group, Edit, Sort, Reorder, Toolbar);
 
 describe('Batch Editing module', () => {
+
 
     let dataSource: Function = (): Object[] => {
         let datasrc: Object[] = [];
@@ -41,18 +42,15 @@ describe('Batch Editing module', () => {
 
     describe('Batch editing render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let actionComplete: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -69,10 +67,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('cell edit start - args.cancel true', (done: Function) => {
@@ -235,6 +231,7 @@ describe('Batch Editing module', () => {
             };
             gridObj.beforeBatchSave = beforeBatchSave;
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_update' } });
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
         });
 
         it('batch save', (done: Function) => {
@@ -257,31 +254,42 @@ describe('Batch Editing module', () => {
             gridObj.beforeBatchSave = beforeBatchSave;
             gridObj.dataBound = dataBound;
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_update' } });
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
+        });
+
+        it('EJ2-6134 - I193436 batch add - validation and selection', (done: Function) => {
+            let batchAdd = (args?: any): void => {
+                (gridObj.element.querySelector('.e-editedbatchcell').querySelector('input') as any).value = '';
+                gridObj.clearSelection()
+                gridObj.selectRow(2);
+                expect(gridObj.getSelectedRecords().length).toBe(0);
+                (gridObj.element.querySelector('.e-editedbatchcell').querySelector('input') as any).value = '456';
+                gridObj.selectRow(2);
+                expect(gridObj.getSelectedRecords().length).toBe(1);
+                gridObj.batchAdd = null;
+                done();
+            };
+            gridObj.batchAdd = batchAdd;
+            (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_add' } });
         });
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+           destroy(gridObj);
         });
     });
 
     describe('same actions above for cancel edit', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let actionComplete: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -298,10 +306,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('cell edit start', (done: Function) => {
@@ -400,8 +406,9 @@ describe('Batch Editing module', () => {
 
         it('batch cancel', () => {
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_cancel' } });
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[1].click();
             //row count check
-            expect(gridObj.getContent().querySelectorAll('.e-row:not(.e-hiddenrow)').length).toBe(11);
+            expect(gridObj.getContent().querySelectorAll('.e-row:not(.e-hiddenrow)').length).toBe(10);
             //record count check
             expect(gridObj.currentViewData.length).toBe(11);
             expect((gridObj.currentViewData[0] as any).OrderID).toBe(10248);
@@ -433,29 +440,23 @@ describe('Batch Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('keyboard shortcuts testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: () => void;
         let cell: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: false,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -470,10 +471,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                },done);
         });
 
         //firt cell with shift tab key        
@@ -872,28 +871,22 @@ describe('Batch Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('update cell and row method testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -910,10 +903,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                },done);
         });
 
         it('update cell', () => {
@@ -960,6 +951,7 @@ describe('Batch Editing module', () => {
             };
             gridObj.dataBound = dataBound;
             gridObj.editModule.batchSave();
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
         });
 
         it('add record by method', () => {
@@ -984,33 +976,28 @@ describe('Batch Editing module', () => {
 
         it('batch cancel method testing', () => {
             gridObj.editModule.batchCancel();
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
             expect(gridObj.getContent().querySelectorAll('.e-row')[0].classList.contains('e-hiddenrow')).toBeFalsy();
         });
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('update cell and row method testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -1027,10 +1014,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('update cell', () => {
@@ -1077,6 +1062,7 @@ describe('Batch Editing module', () => {
             };
             gridObj.dataBound = dataBound;
             gridObj.editModule.batchSave();
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
         });
 
         it('add record by method', () => {
@@ -1101,6 +1087,7 @@ describe('Batch Editing module', () => {
 
         it('batch cancel method testing', () => {
             gridObj.editModule.batchCancel();
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
             expect(gridObj.getContent().querySelectorAll('.e-row')[0].classList.contains('e-hiddenrow')).toBeFalsy();
         });
 
@@ -1130,35 +1117,24 @@ describe('Batch Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            gridObj.isDestroyed = true;
-            let bEdit: BatchEdit = new BatchEdit(gridObj, gridObj.serviceLocator, {} as any);
-            bEdit.addEventListener();
-            bEdit.removeEventListener();
-            gridObj.isDestroyed = false;
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('batch editing lose with other actions', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: (args: any) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
                     allowReordering: true,
                     allowSorting: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: true,
                     pageSettings:{pageSize: 8},
@@ -1175,10 +1151,8 @@ describe('Batch Editing module', () => {
                         { field: 'ShipAddress', allowFiltering: true, visible: false },
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
-                    actionBegin: actionBegin,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionBegin: actionBegin
+                }, done);
         });
 
         it('Search method - cancel', () => {
@@ -1393,28 +1367,22 @@ describe('Batch Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('cell edit types', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -1431,10 +1399,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('input cell', (done: Function) => {
@@ -1560,29 +1526,23 @@ describe('Batch Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('cell edit types', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: () => void;
         let datamManager = new DataManager(dataSource() as JSON[]);
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: datamManager,
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -1599,10 +1559,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('dropdown cell', (done: Function) => {
@@ -1616,7 +1574,7 @@ describe('Batch Editing module', () => {
         });
 
         it('save', (done: Function) => {
-            expect((gridObj.element.querySelector('#' + gridObj.element.id + 'ShipCountry') as any).value).toBe('Germany');
+           // expect((gridObj.element.querySelector('#' + gridObj.element.id + 'ShipCountry') as any).value).toBe('Germany');
             let cellSave = (args?: any): void => {
                 expect(gridObj.isEdit).toBeTruthy();
                 gridObj.cellSave = null;
@@ -1629,29 +1587,23 @@ describe('Batch Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
 
     describe('Validation check', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: () => void;
         let datamManager = new DataManager(dataSource() as JSON[]);
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: datamManager,
                     allowFiltering: true,
                     allowGrouping: false,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -1668,10 +1620,8 @@ describe('Batch Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('editcell cell', (done: Function) => {
@@ -1693,7 +1643,7 @@ describe('Batch Editing module', () => {
         it('save', (done: Function) => {
             let cellSave = (args?: any): void => {
                 expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;              
+                gridObj.cellSave = null;                
                 done();
             };
             gridObj.cellSave = cellSave;
@@ -1722,28 +1672,22 @@ describe('Batch Editing module', () => {
 
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
         });
     });
     describe('keyboard shortcuts testing with cell spanning', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let preventDefault: Function = new Function();
         let actionComplete: () => void;
         let cell: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: false,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     allowPaging: false,
                     columns: [
@@ -1759,7 +1703,6 @@ describe('Batch Editing module', () => {
                     ],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound,
                     queryCellInfo: function(args: QueryCellInfoEventArgs){
                         if (args.column['field'] === 'CustomerID' && args.data['CustomerID'] === 'VICTE' ) {
                             args.colSpan = 2;
@@ -1771,8 +1714,7 @@ describe('Batch Editing module', () => {
                             args.colSpan = 3;
                         }
                     }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         //firt cell with shift tab key        
@@ -1816,15 +1758,196 @@ describe('Batch Editing module', () => {
 
         afterAll((done) => {
             gridObj.notify('tooltip-destroy', {});
-            (gridObj.editModule as any).editModule.destroy();
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+            destroy(gridObj);
             setTimeout(function () {
                 done();
             }, 1000);     
         });
     });
 
+    describe('EJ2-6337-script error throws when Delete a record after validation error appears', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let actionBegin: () => void;
+        let preventDefault: Function = new Function();
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: dataSource(),
+                    allowFiltering: true,
+                    allowGrouping: true,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch' },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: false,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 120, validationRules: { required: true } },
+                        { field: 'Freight', headerText: 'Freight', editType: 'numericedit', textAlign: 'right', width: 120, format: 'C2' },
+                        { field: 'ShipCountry', headerText: 'Ship Country', editType: 'dropdownedit', width: 150 }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('script error resolved EJ2-6337', () => {
+            gridObj.editModule.editCell(0, 'CustomerID');
+            (<any>document.getElementById('GridCustomerID')).value = '';
+            gridObj.editModule.saveCell();
+            gridObj.deleteRecord('OrderID', gridObj.dataSource[1]);
+            expect(gridObj.isEdit).toBe(true);
+        });
+
+        afterAll(() => {
+            gridObj.notify('tooltip-destroy', {});
+            elem.remove();
+            if (document.getElementById('Grid')) {
+                document.getElementById('Grid').remove();
+            }
+        });
+    });
+
+    describe('showConfirmDialog check', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid1' });
+        let preventDefault: Function = new Function();
+        let datamManager = new DataManager(dataSource() as JSON[]);
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: datamManager,
+                    allowGrouping: false,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID', type: 'string', validationRules: { required: true } },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid1');
+        });
+
+
+        it('false', (done) => {
+            (gridObj.editModule as any).editModule.editCell(0, 'CustomerID');
+            let input: HTMLInputElement = gridObj.element.querySelector('.e-editedbatchcell input') as HTMLInputElement;
+            input.value += input.value;
+            let dataBound = (args?: any): void => {
+                gridObj.dataBound = null;
+                done();
+            };
+            gridObj.dataBound = dataBound;
+            (gridObj.editModule as any).editModule.batchSave();
+            expect(isActionPrevent(gridObj)).toBe(false);
+        });
+
+        it('true', (done) => {
+            gridObj.editSettings.showConfirmDialog = true;
+            gridObj.dataBind();
+            (gridObj.editModule as any).editModule.editCell(0, 'CustomerID');
+            let input: HTMLInputElement = gridObj.element.querySelector('.e-editedbatchcell .e-input') as HTMLInputElement;
+            input.value += 1;
+            let dataBound = (args?: any): void => {
+                gridObj.dataBound = null;
+                done();
+            };
+            gridObj.dataBound = dataBound;
+            (gridObj.editModule as any).editModule.batchSave();
+            expect(isActionPrevent(gridObj)).toBe(true);
+        });
+
+        it('enter key with numeric textbox', (done: Function) => {
+            (gridObj.editModule as any).editModule.editCell(0, 'Freight');
+            let input: HTMLInputElement = gridObj.element.querySelector('.e-editedbatchcell .e-input') as HTMLInputElement;
+            input['ej2_instances'][0].focusIn();
+            input.value = '1';
+            let cell = gridObj.getContent().querySelector('.e-row').childNodes[3] as any;
+            let cellSave = (args?: any): void => {
+                expect(args.previousValue !== args.value).toBe(true);
+                gridObj.cellSave = null;
+                done();
+            };
+            gridObj.cellSave = cellSave;
+            gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: cell } as any);
+        });
+
+        afterAll(() => {
+            elem.remove();
+            if (document.getElementById('Grid1')) {
+                document.getElementById('Grid1').remove();
+            }
+        });
+    });
+    describe('EJ2-6255 - I193332 ', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid2' });
+        let preventDefault: Function = new Function();
+        let datamManager = new DataManager(dataSource() as JSON[]);
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: datamManager,
+                    allowGrouping: false,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID', type: 'string', validationRules: { required: true } },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                    ],
+                    actionBegin: function (args: any) {
+                        if (args.requestType === 'paging') {
+                            if ((this.editModule.getBatchChanges() as any).changedRecords.length > 0) {
+                                this.editModule.batchSave();
+                            }
+                        }
+                    },
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid2');
+        });
+
+
+        it('editing with paging on action begin event', (done) => {
+            (gridObj.editModule as any).editModule.editCell(0, 'CustomerID');
+            let input: HTMLInputElement = gridObj.element.querySelector('.e-editedbatchcell input') as HTMLInputElement;
+            input.value += input.value;
+            let dataBound = (args?: any): void => {
+                gridObj.dataBound = null;
+                done();
+            };
+            gridObj.element.click();
+            gridObj.dataBound = dataBound;
+            gridObj.goToPage(2);
+        });
+
+        it('again edit cell to test', () => {
+            (gridObj.editModule as any).editModule.editCell(0, 'CustomerID');
+            expect(gridObj.element.querySelectorAll('.e-editedbatchcell input').length).toBe(1);
+        });
+
+        afterAll(() => {
+            elem.remove();
+            if (document.getElementById('Grid2')) {
+                document.getElementById('Grid2').remove();
+            }
+        });
+    });
 });

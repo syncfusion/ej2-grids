@@ -58,6 +58,7 @@ export class Page implements IAction {
     public render(): void {
         let gObj: IGrid = this.parent;
         let pagerObj: Pager;
+        this.pagerDestroy();
         if (!isNullOrUndefined(this.parent.pagerTemplate)) {
             this.pageSettings.template = this.parent.pagerTemplate;
         }
@@ -275,8 +276,14 @@ export class Page implements IAction {
      */
     public destroy(): void {
         this.removeEventListener();
-        this.pagerObj.destroy();
-        remove(this.element);
+        this.pagerDestroy();
+    }
+
+    private pagerDestroy(): void {
+        if (this.pagerObj && !this.pagerObj.isDestroyed) {
+            this.pagerObj.destroy();
+            remove(this.element);
+        }
     }
 
 }

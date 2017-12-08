@@ -1,6 +1,6 @@
 @include export-module('grid-theme') {
   /*! Grid theme */
-  .e-grid {
+  #{&}.e-grid {
     border-color: $grid-header-border-color;
 
     .e-icons {
@@ -142,7 +142,7 @@
     }
 
     .e-frozenheader > .e-table tr,
-    .e-frozencontent > .e-table tr {
+    .e-frozencontent > .e-table tr:not(.e-emptyrow) {
       & th:last-child,
       & td:last-child {
         border-right-color: $frozen-border-color;
@@ -246,29 +246,29 @@
       opacity: $grid-conent-font-opacity;
     }
 
-    &.e-rlines .e-headercell .e-rhandler,
-    &.e-rlines .e-headercell .e-rsuppress {
+    &.e-resize-lines .e-headercell .e-rhandler,
+    &.e-resize-lines .e-headercell .e-rsuppress {
       border-right: 1px solid $grid-header-border-color;
     }
 
-    &.e-rlines .e-focused .e-rhandler {
+    &.e-resize-lines .e-focused .e-rhandler {
       border: 0 none;
     }
 
-    &.e-rlines .e-headercell.e-stackedheadercell {
+    &.e-resize-lines .e-headercell.e-stackedheadercell {
       border-bottom: 1px solid $grid-header-border-color;
       border-right: 1px solid $grid-header-border-color;
     }
 
-    &.e-rtl.e-rlines .e-headercell.e-stackedheadercell,
-    &.e-rtl.e-rlines .e-headercell .e-rhandler,
-    &.e-rtl.e-rlines .e-headercell .e-rsuppress {
+    &.e-rtl.e-resize-lines .e-headercell.e-stackedheadercell,
+    &.e-rtl.e-resize-lines .e-headercell .e-rhandler,
+    &.e-rtl.e-resize-lines .e-headercell .e-rsuppress {
       border-left: 1px solid $grid-header-border-color;
       border-right-width: 0;
     }
 
-    &.e-rlines .e-filterbarcell,
-    &.e-rtl.e-rlines .e-filterbarcell {
+    &.e-resize-lines .e-filterbarcell,
+    &.e-rtl.e-resize-lines .e-filterbarcell {
       border-top: 1px solid $grid-header-border-color;
     }
 

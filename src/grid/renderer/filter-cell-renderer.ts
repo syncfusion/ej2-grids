@@ -26,12 +26,14 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
      * @param  {Object} data         
      */
     public render(cell: Cell<Column>, data: Object): Element {
+        let tr: Element = this.parent.element.querySelector('.e-filterbar');
         let node: Element = this.element.cloneNode() as Element;
         let innerDIV: HTMLDivElement = <HTMLDivElement>this.getGui();
         let input: Element;
         let column: Column = cell.column;
 
         if (column.type !== 'checkbox') {
+            tr.appendChild(node);
             if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
                 node.classList.add('e-fltrtemp');
                 attributes(innerDIV, {
@@ -44,7 +46,7 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                     });
                     innerDIV.appendChild(input);
                 } else {
-                    let args: Object = { column: column };
+                    let args: Object = {column: column, node: Element};
                     let temp: Function = column.filterBarTemplate.create as Function;
                     if (typeof temp === 'string') {
                         temp = getValue(temp, window);
@@ -89,12 +91,8 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
             }
 
             if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
-                let templateRead: Function = column.filterBarTemplate.read as Function;
                 let templateWrite: Function = column.filterBarTemplate.write as Function;
                 let args: { element: Element, column: Column } = { element: input, column: column };
-                if (typeof templateRead === 'string') {
-                    templateRead = args.column = getValue(templateRead, window);
-                }
                 if (typeof templateWrite === 'string') {
                     templateWrite = getValue(templateWrite, window);
                 }

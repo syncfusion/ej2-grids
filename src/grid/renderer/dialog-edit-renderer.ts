@@ -91,7 +91,7 @@ export class DialogEditRender {
         let form: HTMLFormElement = createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
         let table: Element = createElement('table', { className: 'e-table', attrs: { cellspacing: '6px' } });
         let tbody: Element = createElement('tbody');
-        let cols: Column[] = gObj.columns as Column[];
+        let cols: Column[] = gObj.getColumns() as Column[];
         for (let i: number = 0; i < cols.length; i++) {
             if (!cols[i].visible || cols[i].commands || cols[i].commandsTemplate) {
                 continue;

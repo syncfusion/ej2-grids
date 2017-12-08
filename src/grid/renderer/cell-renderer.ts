@@ -6,7 +6,7 @@ import { Cell } from '../models/cell';
 import { ICellRenderer, IValueFormatter, ICellFormatter, ICell, IGrid } from '../base/interface';
 import { doesImplementInterface, setStyleAndAttributes, appendChildren } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
-import { CheckBox } from '@syncfusion/ej2-buttons';
+import { CheckBox, createCheckBox } from '@syncfusion/ej2-buttons';
 
 /**
  * CellRenderer class which responsible for building cell content. 
@@ -118,7 +118,7 @@ export class CellRenderer implements ICellRenderer<Column> {
 
         let value: Object = this.getValue(column.field, data, column);
 
-        if (column.type === 'date') {
+        if (column.type === 'date' && !isNullOrUndefined(value)) {
             value = new Date(value as string);
         }
 
@@ -148,15 +148,14 @@ export class CellRenderer implements ICellRenderer<Column> {
         } else if (column.type === 'checkbox') {
             node.classList.add('e-gridchkbox');
             node.setAttribute('aria-label', 'column header ' + cell.column.headerText);
-            let checkBox: Element = <Element>this.rowChkBox.cloneNode();
-            checkBox.id = 'checkselect_' + cell.rowID.split('grid-row')[1];
-            node.appendChild(checkBox);
             if (this.parent.selectionSettings.persistSelection) {
                 value = value === 'true';
             } else {
                 value = false;
             }
-            new CheckBox({ checked: value as boolean }).appendTo(checkBox as HTMLElement);
+            let checkWrap: Element = createCheckBox(false, { checked: value as boolean, label: ' ' });
+            checkWrap.insertBefore(this.rowChkBox.cloneNode(), checkWrap.firstChild);
+            node.appendChild(checkWrap);
         }
 
         this.setAttributes(<HTMLElement>node, cell, attributes);

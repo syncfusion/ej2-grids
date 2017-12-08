@@ -12,8 +12,7 @@ export const resizeClassList: ResizeClasses = {
     icon: 'e-ricon',
     helper: 'e-rhelper',
     header: 'th.e-headercell',
-    cursor: 'e-rcursor',
-    lines: 'e-rlines'
+    cursor: 'e-rcursor'
 };
 
 export interface ResizeClasses {
@@ -23,7 +22,6 @@ export interface ResizeClasses {
     helper: string;
     header: string;
     cursor: string;
-    lines: string;
 }
 
 /**
@@ -42,6 +40,7 @@ export class Resize implements IAction {
     private tapped: boolean | number = false;
     private isDblClk: boolean | number = true;
     private minMove: number;
+    private parentElementWidth: number;
     //Module declarations
     private parent: IGrid;
     private widthService: ColumnWidthService;
@@ -205,9 +204,6 @@ export class Resize implements IAction {
      */
     public render(): void {
         this.wireEvents();
-        if (!(this.parent.gridLines === 'vertical' || this.parent.gridLines === 'both')) {
-            this.parent.element.classList.add(resizeClassList.lines);
-        }
         this.setHandlerHeight();
     }
 
@@ -252,6 +248,7 @@ export class Resize implements IAction {
                 this.widthService.setWidthToTable();
             }
             this.element = e.target as HTMLElement;
+            this.parentElementWidth = this.parent.element.getBoundingClientRect().width;
             this.appendHelper();
             this.column = this.getTargetColumn(e);
             this.pageX = this.getPointX(e);
@@ -440,7 +437,13 @@ export class Resize implements IAction {
 
     private updateHelper(): void {
         let rect: HTMLElement = closest(this.element, resizeClassList.header) as HTMLElement;
-        this.helper.style.left = Math.floor(this.calcPos(rect).left + (this.parent.enableRtl ? 0 - 1 : rect.offsetWidth - 2)) + 'px';
+        let left: number = Math.floor(this.calcPos(rect).left + (this.parent.enableRtl ? 0 - 1 : rect.offsetWidth - 2));
+        let borderWidth: number = 2; // to maintain the helper inside of grid element.
+        if (left > this.parentElementWidth) {
+            this.helper.style.left = this.parentElementWidth - borderWidth + 'px';
+        } else {
+            this.helper.style.left = left + 'px';
+        }
     }
 
     private calcPos(elem: HTMLElement): OffsetPosition {

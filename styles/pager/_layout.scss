@@ -1,7 +1,7 @@
   @include export-module('pager-layout') {
   /*! Pager layout */
-  .e-bigger  .e-pager,
-  .e-pager.e-bigger {
+  .e-bigger  #{&}.e-pager,
+  #{&}.e-pager.e-bigger {
     font-size: $pager-bigger-font-size;
     padding: $pager-bigger-padding;
 
@@ -118,7 +118,7 @@
     }
    }
 
-  .e-pager {
+  #{&}.e-pager {
     border-style: $pager-border-type;
     border-width: 1px;
     display: inline-block;

@@ -1,4 +1,5 @@
-import { EventHandler, L10n, isNullOrUndefined, extend, classList, addClass, removeClass, Browser } from '@syncfusion/ej2-base';
+/* tslint:disable-next-line:max-line-length */
+import { EventHandler, L10n, isNullOrUndefined, extend, classList, addClass, removeClass, Browser, getValue, setValue } from '@syncfusion/ej2-base';
 import { parentsUntil, getUid, appendChildren } from '../base/util';
 import { remove, createElement } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
@@ -15,7 +16,7 @@ import { getActualProperties } from '../base/util';
 import { Dialog } from '@syncfusion/ej2-popups';
 import { Input } from '@syncfusion/ej2-inputs';
 import { createSpinner, hideSpinner, showSpinner } from '@syncfusion/ej2-popups';
-import { getFilterMenuPostion, toogleCheckbox, createCboxWithWrap } from '../base/util';
+import { getFilterMenuPostion, toogleCheckbox, createCboxWithWrap, removeAddCboxClasses } from '../base/util';
 /**
  * @hidden
  * `CheckBoxFilter` module is used to handle filtering action.
@@ -37,6 +38,7 @@ export class CheckBoxFilter {
     protected sInput: HTMLInputElement;
     protected sIcon: Element;
     protected options: IFilterArgs;
+    protected filterSettings: FilterSettings;
     protected defaultConstants: Object = {
         Search: 'Search',
         OK: 'OK',
@@ -69,6 +71,7 @@ export class CheckBoxFilter {
         this.parent = parent;
         this.id = this.parent.element.id;
         this.serviceLocator = serviceLocator;
+        this.filterSettings = filterSettings;
         this.valueFormatter = new ValueFormatter(this.parent.locale);
         this.initLocale(this.defaultConstants);
         this.cBoxTrue.insertBefore(
@@ -273,12 +276,16 @@ export class CheckBoxFilter {
         }
     }
 
+    protected clearFilter(): void {
+        this.options.handler({ action: 'clear-filter', field: this.options.field });
+    }
+
     private btnClick(e: MouseEvent): void {
         let text: string = (e.target as HTMLInputElement).innerText.toLowerCase();
         if (this.getLocalizedLabel(this.isExcel ? 'OK' : 'Filter').toLowerCase() === text) {
             this.fltrBtnHandler();
         } else if (this.getLocalizedLabel('Clear').toLowerCase() === text) {
-            this.options.handler({ action: 'clear-filter', field: this.options.field });
+            this.clearFilter();
         }
         this.closeDialog();
     }
@@ -400,7 +407,7 @@ export class CheckBoxFilter {
                 query.where(predicate);
             }
         }
-        query.select(this.options.field);
+        // query.select(this.options.field);
         let result: Object[] = new DataManager(this.fullData as JSON[]).executeLocal(query);
         let res: { records: Object[] } = CheckBoxFilter.getDistinct(result, this.options.field) as { records: Object[] };
         this.filteredData = res.records;
@@ -465,12 +472,7 @@ export class CheckBoxFilter {
     private updateAllCBoxes(checked: boolean): void {
         let cBoxes: Element[] = [].slice.call(this.cBox.querySelectorAll('.e-frame'));
         for (let cBox of cBoxes) {
-            removeClass([cBox], ['e-check', 'e-stop', 'e-uncheck']);
-            if (checked) {
-                cBox.classList.add('e-check');
-            } else {
-                cBox.classList.add('e-uncheck');
-            }
+            removeAddCboxClasses(cBox, checked);
         }
     }
 
@@ -517,7 +519,7 @@ export class CheckBoxFilter {
     private createFilterItems(data: Object[], isInitial?: boolean): void {
         let cBoxes: Element = createElement('div');
         this.itemsCnt = data.length;
-        if (data.length || isInitial) {
+        if (data.length) {
             let selectAll: Element =
                 createCboxWithWrap(getUid('cbox'), this.createCheckbox(this.getLocalizedLabel('SelectAll'), false), 'e-ftrchk');
             selectAll.querySelector('.e-frame').classList.add('e-selectall');
@@ -526,8 +528,8 @@ export class CheckBoxFilter {
                 new Query().where('field', 'equal', this.options.field)).length;
             for (let i: number = 0; i < data.length; i++) {
                 let uid: string = getUid('cbox');
-                this.values[uid] = data[i][this.options.field];
-                let value: string = this.valueFormatter.toView(data[i][this.options.field], this.options.formatFn) as string;
+                this.values[uid] = getValue(this.options.field, data[i]);
+                let value: string = this.valueFormatter.toView(getValue(this.options.field, data[i]), this.options.formatFn) as string;
                 cBoxes.appendChild(
                     createCboxWithWrap(uid, this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid])), 'e-ftrchk'));
             }
@@ -562,13 +564,12 @@ export class CheckBoxFilter {
 
         while (len--) {
             value = json[len] as string;
-            value = typeof value === 'object' && !(value instanceof Date) ?
-                value[field] : value; //local remote diff, check with mdu           
+            value =  getValue(field, value); //local remote diff, check with mdu           
             if (!isNullOrUndefined(value)) {
                 if (!(value in lookup)) {
                     let obj: Object = {};
                     obj[ejValue] = value;
-                    obj[field] = value;
+                    setValue(field, value, obj);
                     result.push(obj);
                 }
                 lookup[value] = true;
@@ -608,12 +609,15 @@ export class CheckBoxFilter {
 
     public static getPredicate(columns: PredicateModel[]): Predicate {
         let cols: PredicateModel[] = (CheckBoxFilter.getDistinct(columns, 'field') as { records: Object[] }).records;
-        let collection: Object[];
+
+        let collection: Object[] = [];
         let pred: Predicate = {} as Predicate;
         for (let i: number = 0; i < cols.length; i++) {
             collection = new DataManager(columns as JSON[]).executeLocal(
                 new Query().where('field', 'equal', cols[i].field));
-            pred[cols[i].field] = CheckBoxFilter.generatePredicate(collection);
+            if (collection.length !== 0) {
+                pred[cols[i].field] = CheckBoxFilter.generatePredicate(collection);
+            }
         }
         return pred;
     }
@@ -655,7 +659,12 @@ export class CheckBoxFilter {
     }
 
     private static getDatePredicate(predicate: PredicateModel): Predicate {
-        return new Predicate(predicate.field, predicate.operator, predicate.value, predicate.ignoreCase || !predicate.matchcase);
+        if (['equal', 'notequal'].indexOf(predicate.operator) === -1) {
+            if (predicate.value instanceof Date) {
+                predicate.ignoreCase = false;
+            }
+        }
+        return new Predicate(predicate.field, predicate.operator, predicate.value, predicate.ignoreCase);
     }
 
     private static updateDateFilter(filter: PredicateModel): PredicateModel {

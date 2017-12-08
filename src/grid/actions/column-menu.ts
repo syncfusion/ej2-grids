@@ -29,6 +29,7 @@ export class ColumnMenu implements IAction {
     private localeText: { [key: string]: string } = this.setLocaleKey();
     private targetColumn: Column;
     private disableItems: string[] = [];
+    private hiddenItems: string[] = [];
     private headerCell: HTMLElement;
     private isOpen: boolean = false;
     private eventArgs: Event;
@@ -124,7 +125,9 @@ export class ColumnMenu implements IAction {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.headerRefreshed, this.wireEvents, this);
         this.parent.on(events.initialEnd, this.render, this);
-        this.parent.on(events.filterDialogCreated, this.filterPosition, this);
+        if (this.isFilterItemAdded()) {
+            this.parent.on(events.filterDialogCreated, this.filterPosition, this);
+        }
         this.parent.on(events.click, this.columnMenuHandlerClick, this);
     }
 
@@ -135,7 +138,9 @@ export class ColumnMenu implements IAction {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.headerRefreshed, this.unwireEvents);
         this.parent.off(events.initialEnd, this.render);
-        this.parent.off(events.filterDialogCreated, this.filterPosition);
+        if (this.isFilterItemAdded()) {
+            this.parent.off(events.filterDialogCreated, this.filterPosition);
+        }
         this.parent.off(events.click, this.columnMenuHandlerClick);
     }
 
@@ -160,13 +165,13 @@ export class ColumnMenu implements IAction {
     }
 
     private wireFilterEvents(): void {
-        if (!Browser.isDevice) {
+        if (!Browser.isDevice && this.isFilterItemAdded()) {
             EventHandler.add(this.element, 'mouseover', this.appendFilter, this);
         }
     }
 
     private unwireFilterEvents(): void {
-        if (!Browser.isDevice) {
+        if (!Browser.isDevice && this.isFilterItemAdded()) {
             EventHandler.remove(this.element, 'mouseover', this.appendFilter);
         }
     }
@@ -184,7 +189,7 @@ export class ColumnMenu implements IAction {
             }
             args.element.innerHTML = '';
             args.element.appendChild(check);
-        } else if (this.getKeyFromId(args.item.id) === 'filter') {
+        } else if (args.item.id && this.getKeyFromId(args.item.id) === 'filter') {
             args.element.appendChild(createElement('span', { className: 'e-icons e-caret' }));
             args.element.className += 'e-filter-item e-menu-caret-icon';
         }
@@ -202,7 +207,8 @@ export class ColumnMenu implements IAction {
     }
 
     private isChooserItem(item: ColumnMenuItemModel): boolean {
-        return this.getKeyFromId(item.id, this.CHOOSER).indexOf(this.gridID) === -1;
+        return item.id && item.id.indexOf('_colmenu_') >= 0 &&
+            this.getKeyFromId(item.id, this.CHOOSER).indexOf('_colmenu_') === -1;
     }
 
 
@@ -215,10 +221,13 @@ export class ColumnMenu implements IAction {
             if (this.getDefaultItems().indexOf(key) !== -1) {
                 if (this.ensureDisabledStatus(key) && !dItem.hide) {
                     this.disableItems.push(item.text);
+                } else if ((item as ColumnMenuItemModel).hide) {
+                    this.hiddenItems.push(item.text);
                 }
             }
         }
         this.columnMenu.enableItems(this.disableItems, false);
+        this.columnMenu.hideItems(this.hiddenItems);
     }
 
     private ensureDisabledStatus(item: string): Boolean {
@@ -242,17 +251,21 @@ export class ColumnMenu implements IAction {
                 break;
             case 'sortDescending':
             case 'sortAscending':
-                if (this.parent.ensureModuleInjected(Sort) && this.parent.sortSettings.columns.length > 0 && this.targetColumn) {
+                if (this.parent.allowSorting && this.parent.ensureModuleInjected(Sort)
+                    && this.parent.sortSettings.columns.length > 0 && this.targetColumn) {
                     this.parent.sortSettings.columns.forEach((ele: SortDescriptorModel) => {
                         if (ele.field === this.targetColumn.field
                             && ele.direction === item.replace('sort', '').toLocaleLowerCase()) {
                             status = true;
                         }
                     });
-                } else if (!this.parent.ensureModuleInjected(Sort)) {
+                } else if (!this.parent.allowSorting || !this.parent.ensureModuleInjected(Sort)) {
                     status = true;
                 }
                 break;
+            case 'filter':
+                status = !(this.parent.allowFiltering && (this.parent.filterSettings.type !== 'filterbar')
+                    && this.parent.ensureModuleInjected(Filter));
         }
         return status;
     }
@@ -301,6 +314,11 @@ export class ColumnMenu implements IAction {
         if (args.items.length > 0 && args.items[0][parent] instanceof Menu) {
             this.columnMenu.enableItems(this.disableItems);
             this.disableItems = [];
+            this.columnMenu.showItems(this.hiddenItems);
+            this.hiddenItems = [];
+            if (this.isFilterPopupOpen()) {
+                this.getFilter(args.element, args.element.id, true);
+            }
         }
     }
 
@@ -411,16 +429,18 @@ export class ColumnMenu implements IAction {
 
     private appendFilter(e: Event): void {
         let filter: string = 'filter';
-        let key: string = this.defaultItems[filter].id;
-        if (closest((e as Event).target as Element, '#' + key) && !this.isFilterPopupOpen()) {
-            this.getFilter((e as Event).target as Element, key);
-        } else if (!closest((e as Event).target as Element, '#' + key) && this.isFilterPopupOpen()) {
-            this.getFilter((e as Event).target as Element, key, true);
+        if (!this.defaultItems[filter]) { return; } else {
+            let key: string = this.defaultItems[filter].id;
+            if (closest((e as Event).target as Element, '#' + key) && !this.isFilterPopupOpen()) {
+                this.getFilter((e as Event).target as Element, key);
+            } else if (!closest((e as Event).target as Element, '#' + key) && this.isFilterPopupOpen()) {
+                this.getFilter((e as Event).target as Element, key, true);
+            }
         }
     }
 
     private getFilter(target: Element, id: string, isClose?: boolean): void {
-        let filterPopup: HTMLElement = this.getFilterPoup();
+        let filterPopup: HTMLElement = this.getFilterPop();
         if (filterPopup) {
             filterPopup.style.display = isClose ? 'none' : 'block';
         } else {
@@ -454,16 +474,15 @@ export class ColumnMenu implements IAction {
     }
 
     private filterPosition(e: Event): void {
-        let filterPopup: HTMLElement = this.getFilterPoup();
+        let filterPopup: HTMLElement = this.getFilterPop();
         filterPopup.classList.add(this.WRAP);
         if (!Browser.isDevice) {
             let disp: string = filterPopup.style.display;
-            filterPopup.style.display = 'block';
-            filterPopup.classList.add(this.WRAP);
+            filterPopup.style.cssText += 'display:block;visibility:hidden';
             let li: HTMLElement = this.element.querySelector('.' + this.FILTER) as HTMLElement;
             if (li) {
                 this.setPosition(li.parentElement, filterPopup);
-                filterPopup.style.display = disp;
+                filterPopup.style.cssText += 'display:' + disp + ';visibility:visible';
             }
         }
     }
@@ -474,27 +493,33 @@ export class ColumnMenu implements IAction {
             items.push('autoFitAll');
             items.push('autoFit');
         }
-        if (this.parent.ensureModuleInjected(Group)) {
+        if (this.parent.allowGrouping && this.parent.ensureModuleInjected(Group)) {
             items.push('group');
             items.push('ungroup');
         }
-        if (this.parent.ensureModuleInjected(Sort)) {
+        if (this.parent.allowSorting && this.parent.ensureModuleInjected(Sort)) {
             items.push('sortAscending');
             items.push('sortDescending');
         }
         items.push('columnChooser');
-        if (this.parent.ensureModuleInjected(Filter)) {
+        if (this.parent.allowFiltering && (this.parent.filterSettings.type !== 'filterbar') &&
+            this.parent.ensureModuleInjected(Filter)) {
             items.push('filter');
         }
         return items;
     }
 
     private isFilterPopupOpen(): boolean {
-        let filterPopup: HTMLElement = this.getFilterPoup();
+        let filterPopup: HTMLElement = this.getFilterPop();
         return filterPopup && filterPopup.style.display !== 'none';
     }
 
-    private getFilterPoup(): HTMLElement {
-        return document.querySelector('.' + this.POP) as HTMLElement;
+    private getFilterPop(): HTMLElement {
+        return this.parent.element.querySelector('.' + this.POP) as HTMLElement;
+    }
+
+    private isFilterItemAdded(): boolean {
+        return (this.parent.columnMenuItems &&
+            (this.parent.columnMenuItems as string[]).indexOf('filter') >= 0) || !this.parent.columnMenuItems;
     }
 }

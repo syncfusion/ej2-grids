@@ -59,9 +59,9 @@ export class InlineEditRender {
         }
         let m: number = 0;
         i = 0;
-        while ((isEdit && m < tdElement.length && i < gObj.columns.length) || i < gObj.columns.length) {
+        while ((isEdit && m < tdElement.length && i < gObj.getColumns().length) || i < gObj.getColumns().length) {
             let span: string = isEdit ? tdElement[m].getAttribute('colspan') : null;
-            let col: Column = gObj.columns[i] as Column;
+            let col: Column = gObj.getColumns()[i] as Column;
             if (col.visible) {
                 let td: HTMLElement = createElement(
                     'td',

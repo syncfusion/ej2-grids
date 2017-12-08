@@ -487,7 +487,7 @@ describe('Grid base module', () => {
             let mediaqry1: any = window.matchMedia('(max-width:1300px)');
             gridObj.mediaQueryUpdate(1, mediaqry);
             let ele: Element = gridObj.element;
-            let e: any = {target : ele };
+            let e: any = { target: ele };
             (<any>gridObj).focusOutHandler(e);
 
         });
@@ -587,7 +587,7 @@ describe('Grid base module', () => {
                         { headerText: 'CustomerID', field: 'CustomerID' },
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
-                        { headerText: 'ShipCity', template: '<div>12<div>'},
+                        { headerText: 'ShipCity', template: '<div>12<div>' },
                     ],
                     dataBound: dataBound
                 });
@@ -603,15 +603,15 @@ describe('Grid base module', () => {
             gridObj.destroy();
         });
 
-        it('Retrive Data', (done)=> {
-            gridObj = new Grid( {
+        it('Retrive Data', (done) => {
+            gridObj = new Grid({
                 dataSource: data, allowPaging: false,
                 columns: [
                     { headerText: 'OrderID', field: 'OrderID' },
                     { headerText: 'CustomerID', field: 'CustomerID' },
                     { headerText: 'EmployeeID', field: 'EmployeeID' },
                     { headerText: 'ShipCountry', field: 'ShipCountry' },
-                    { headerText: 'ShipCity', template: '<div>12<div>'},
+                    { headerText: 'ShipCity', template: '<div>12<div>' },
                 ],
                 dataBound: () => {
                     done();
@@ -659,6 +659,41 @@ describe('Grid base module', () => {
         });
     });
 
+    describe('row Information', () => {
+
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data, allowPaging: false,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
+                        { headerText: 'CustomerID', field: 'CustomerID' },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+
+        it('get row information', () => {
+
+           // let gdata = gridObj.getRowInfo(document.getElementsByClassName('e-rowcell')[9]);
+            //let gdata1 = gridObj.getRowInfo(document.getElementsByClassName('e-groupcaption')[0]);
+            //expect(gdata.rowData['EmployeeID']).toBe(6);
+        });
+
+        afterAll(() => {
+            remove(elem);
+        });
+
+    })
 
     // describe('media columns testing', () => {
     //     let gridObj: Grid;

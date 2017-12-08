@@ -146,10 +146,11 @@ describe('Custom Atrributes and html encode module', () => {
             grid = new Grid({
                 columns: [
                     { field: 'data.a' },
-                    { field: 'b', formatter: customFn.fn }
+                    { field: 'b', formatter: customFn.fn },
+                    { field: 'd', format: 'yMd' }
                 ],
                 dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
-                { data: { a: 2 }, b: 6, c: false, d: new Date() }],
+                { data: { a: 2 }, b: 6, c: false, d: null }],
                 allowPaging: false, dataBound: done
             });
             grid.appendTo('#Grid');
@@ -158,6 +159,8 @@ describe('Custom Atrributes and html encode module', () => {
         it('Check custom Formatter return value', () => {
             rows = ((grid.getContentTable() as any).tBodies[0]).rows[0] as HTMLTableRowElement;
             expect(rows.cells[1].innerHTML).toBe('5.00');
+            let rows1 = ((grid.getContentTable() as any).tBodies[0]).rows[1] as HTMLTableRowElement;
+            expect(rows1.cells[2].innerHTML).toBe('');
         });
 
         it('Row Rendeder functionality object to attribute conversion checking', () => {

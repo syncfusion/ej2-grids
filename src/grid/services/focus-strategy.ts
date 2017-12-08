@@ -421,6 +421,7 @@ export class HeaderFocus extends ContentFocus implements IFocus {
     public onClick(e: Event): void | boolean {
         let target: HTMLTableCellElement = <HTMLTableCellElement>e.target;
         target = <HTMLTableCellElement>(target.classList.contains('e-headercell') ? target : closest(target, 'th'));
+        if (!target) { return; }
         let [rowIndex, cellIndex]: number[] = [(<HTMLTableRowElement>target.parentElement).rowIndex, target.cellIndex];
         let val: number = getValue(`${rowIndex}.${cellIndex}`, this.matrix.matrix);
         if (this.matrix.inValid(val)) { return false; }

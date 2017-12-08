@@ -1112,6 +1112,9 @@ describe('Grid Touch Selection', () => {
 
         afterAll(() => {
             remove(elem);
+            let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
+            Browser.userAgent = desktop;
+
         });
     });
 
@@ -1826,7 +1829,7 @@ describe('Grid Touch Selection', () => {
             let selectionModule: Selection;
             let rows: Element[];
             let preventDefault: Function = new Function();
-            let chkAllObj: any;
+            let chkAllObj: HTMLElement;
             beforeAll((done: Function) => {
                 let dataBound: EmitType<Object> = () => { done(); };
                 document.body.appendChild(elem);
@@ -1853,39 +1856,38 @@ describe('Grid Touch Selection', () => {
             it('checkbox selection with persist selection on paging', () => {
                 selectionModule = gridObj.selectionModule;
                 rows = gridObj.getRows();
-                chkAllObj = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                chkAllObj = gridObj.element.querySelector('.e-checkselectall') as HTMLElement;
                 selectionModule.selectRows([1, 2]);
                 expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(12);
                 expect(selectionModule.selectedRecords.length).toBe(2);
                 expect(selectionModule.selectedRowIndexes.length).toBe(2);
-                expect(chkAllObj.indeterminate).toBeTruthy();
+                expect(chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
                 gridObj.goToPage(2);
                 gridObj.goToPage(1);
                 expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(12);
                 expect(selectionModule.selectedRecords.length).toBe(2);
                 expect(selectionModule.selectedRowIndexes.length).toBe(2);
-                expect(chkAllObj.indeterminate).toBeTruthy();
-                (gridObj.element.querySelectorAll('.e-checkbox')[1] as HTMLElement).click();
-                expect(chkAllObj.indeterminate).toBeTruthy();
+                expect(chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
+                (gridObj.element.querySelectorAll('.e-checkselect')[0] as HTMLElement).click();
+                expect(chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
             });
 
             it('checkbox selection with check all checkbox', () => {
-                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                //expect(!chkAllObj.indeterminate).toBeTruthy();
-                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                expect(!chkAllObj.indeterminate).toBeTruthy();
+                (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
+                (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
+                expect(!chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
                 (gridObj.getCellFromIndex(0, 1) as HTMLElement).click();
             });
 
@@ -1900,12 +1902,12 @@ describe('Grid Touch Selection', () => {
                     args.target = (rows[i].querySelector('.e-checkselect') as HTMLElement);
                     gridObj.keyboardModule.keyAction(args);
                 }
-                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
+                (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
                 args.action = 'downArrow';
-                args.target = (gridObj.element.querySelector('.e-checkbox') as HTMLElement);
+                args.target = (gridObj.element.querySelector('.e-checkselectall') as HTMLElement);
                 gridObj.keyboardModule.keyAction(args);
-                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                expect(!chkAllObj.indeterminate).toBeTruthy();
+                (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
+                expect(!chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
             });
 
             it('checkbox selection through space key', () => {
@@ -1915,14 +1917,12 @@ describe('Grid Touch Selection', () => {
                 let chkBox: HTMLElement = (rows[2].querySelector('.e-checkselect') as HTMLElement);
                 args.target = chkBox;
                 gridObj.keyboardModule.keyAction(args);
-                //expect(chkAllObj.indeterminate).toBeTruthy();
                 chkBox = (gridObj.element.querySelector('.e-checkselectall') as HTMLElement);
                 args.target = chkBox;
                 gridObj.keyboardModule.keyAction(args);
-                (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                expect(!chkAllObj.indeterminate).toBeTruthy();
+                (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
+                expect(!chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
                 (gridObj.getCellFromIndex(0, 1) as HTMLElement).click();
-                gridObj.getSelectedRecords();
             });
 
             it('checkbox selection with cell mode selection', () => {
@@ -1943,7 +1943,7 @@ describe('Grid Touch Selection', () => {
             let gridObj: Grid;
             let elem: HTMLElement = createElement('div', { id: 'Grid' });
             let selectionModule: Selection;
-            let chkAllObj: any;
+            let chkAllObj: HTMLElement;
             let rows: Element[];
             beforeAll((done: Function) => {
                 let dataBound: EmitType<Object> = () => { gridObj.dataBound = null; gridObj.element.focus(); done(); };
@@ -1974,14 +1974,14 @@ describe('Grid Touch Selection', () => {
                 expect(gridObj.selectionModule.selectedRecords.length === 0).toBeTruthy();
             });
             it('checkbox selection on adding new record with dialog editing', () => {
-                chkAllObj = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                chkAllObj = gridObj.element.querySelector('.e-checkselectall') as HTMLElement;
                 (document.getElementsByClassName('e-add')[0] as HTMLElement).click();
                 (document.getElementsByClassName('e-field')[0] as HTMLInputElement).click();
                 (document.getElementsByClassName('e-field')[1] as HTMLInputElement).value = "222";
                 (document.getElementsByClassName('e-field')[2] as HTMLInputElement).value = "Angier";
                 (document.getElementsByClassName('e-field')[3] as HTMLInputElement).value = "Sales Manager";
                 (document.getElementsByClassName('e-primary')[2] as HTMLElement).click();
-                expect(!chkAllObj.indeterminate).toBeTruthy();
+                expect(!chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
             });
             it('checkbox selection on adding new record with normal editing', () => {
                 gridObj.editSettings.mode = 'normal';
@@ -1998,7 +1998,7 @@ describe('Grid Touch Selection', () => {
                 (document.getElementsByClassName('e-field')[1] as HTMLInputElement).value = "222";
                 (document.getElementsByClassName('e-field')[2] as HTMLInputElement).value = "Fallen";
                 (document.getElementsByClassName('e-field')[3] as HTMLInputElement).value = "Sales Manager";
-                (gridObj.element.querySelectorAll('.e-checkbox')[2] as HTMLElement).click();
+                (gridObj.element.querySelectorAll('.e-checkselect')[1] as HTMLElement).click();
             });
             afterAll(() => {
                 gridObj.destroy();
@@ -2039,10 +2039,10 @@ describe('Grid Touch Selection', () => {
                 selectionModule.selectRows([1, 2]);
                 expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(8);
                 expect(selectionModule.selectedRecords.length).toBe(2);
                 expect(selectionModule.selectedRowIndexes.length).toBe(2);
@@ -2139,18 +2139,18 @@ describe('Grid Touch Selection', () => {
             it('Test checkbox selection and persist selection', () => {
                 selectionModule = gridObj.selectionModule;
                 rows = gridObj.getRows();
-                let chkAllObj: any = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                let chkAllObj: HTMLElement = gridObj.element.querySelector('.e-checkselectall') as HTMLElement;
                 selectionModule.selectRows([1, 2]);
                 expect(rows[1].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect')) && (rows[1].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[1].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(rows[2].hasAttribute('aria-selected')).toBeTruthy();
                 expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
-                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect')) && (rows[2].querySelector('.e-checkselect') as HTMLInputElement).checked).toBeTruthy();
+                expect(!isNullOrUndefined(rows[2].querySelector('.e-checkselect'))).toBeTruthy();
                 expect(gridObj.element.querySelectorAll('.e-selectionbackground').length).toBe(12);
                 expect(selectionModule.selectedRecords.length).toBe(2);
                 expect(selectionModule.selectedRowIndexes.length).toBe(2);
-                expect(chkAllObj.indeterminate).toBeTruthy();
+                expect(chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
             });
             afterAll(() => {
                 gridObj.destroy();
@@ -2162,7 +2162,7 @@ describe('Grid Touch Selection', () => {
             let elem: HTMLElement = createElement('div', { id: 'Grid' });
             let selectionModule: Selection;
             let rows: Element[];
-            let chkAllObj: any;
+            let chkAllObj: HTMLElement;
             beforeAll((done: Function) => {
                 let dataBound: EmitType<Object> = () => { done(); };
                 document.body.appendChild(elem);
@@ -2188,11 +2188,11 @@ describe('Grid Touch Selection', () => {
                 setTimeout(
                     () => {
                         selectionModule = gridObj.selectionModule;
-                        chkAllObj = gridObj.element.querySelector('.e-checkselectall')['ej2_instances'][0];
+                        chkAllObj = gridObj.element.querySelector('.e-checkselectall') as HTMLElement;
                         rows = gridObj.getRows();
                         gridObj.goToPage(2);
                         gridObj.goToPage(1);
-                        expect(chkAllObj.indeterminate).toBeTruthy();
+                        expect(chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
                         done();
                     },
                     200);
@@ -2201,9 +2201,9 @@ describe('Grid Touch Selection', () => {
             it('checkbox selection with check all checkbox', (done: Function) => {
                 setTimeout(
                     () => {
-                        (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                        (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                        expect(!chkAllObj.indeterminate).toBeTruthy();
+                        (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
+                        (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
+                        expect(!chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
                         done();
                     },
                     500);
@@ -2220,8 +2220,8 @@ describe('Grid Touch Selection', () => {
                         (gridObj.element.querySelector('.e-edit-checkselect') as HTMLElement).click();
                         gridObj.endEdit();
                         (<any>gridObj.editModule).editModule.dblClickHandler({ target: gridObj.getCellFromIndex(0, 0) });
-                        (gridObj.element.querySelector('.e-checkbox') as HTMLElement).click();
-                        expect(!chkAllObj.indeterminate).toBeTruthy();
+                        (gridObj.element.querySelector('.e-checkselectall') as HTMLElement).click();
+                        expect(!chkAllObj.nextElementSibling.classList.contains('e-stop')).toBeTruthy();
                         done();
                     },
                     500);

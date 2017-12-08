@@ -10,6 +10,7 @@ import { Selection } from '../../../src/grid/actions/selection';
 import { Group } from '../../../src/grid/actions/group';
 import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { data } from '../base/datasource.spec';
+import { ToolbarItem } from '../../../src/grid/base/enum';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Page, Group, Selection, Toolbar);
@@ -40,7 +41,7 @@ describe('Toolbar functionalities', () => {
                 width: "400px",
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                 { field: 'ShipCity' }],
-                toolbar: ['print', 'edit', { text: 'hello', id: 'hello' }, 'expand'],
+                toolbar: ['print', 'edit', { text: 'hello', id: 'hello' }, 'expand', ToolbarItem.Add] as any,
                 actionBegin: actionBegin,
                 actionComplete: actionComplete,
                 dataBound: dataBound
@@ -48,7 +49,8 @@ describe('Toolbar functionalities', () => {
         gridObj.appendTo('#Grid');
     });
     it('initial checck', () => {
-        expect(gridObj.toolbarModule.getToolbar().firstElementChild.childElementCount).toBe(4);
+        expect(gridObj.toolbarModule.getToolbar().firstElementChild.childElementCount).toBe(5);
+        expect(gridObj.toolbarModule.getToolbar().firstElementChild.querySelectorAll('.e-toolbar-item')[4].getAttribute('title')).toBe('Add');
         expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toBeTruthy();
     });
     it('check event trigger', (done: Function) => {
@@ -97,10 +99,10 @@ describe('Toolbar functionalities', () => {
     });
     it('render all predefined items', () => {
         gridObj.toolbar = ['add', 'edit', 'delete', 'update', 'cancel', 'print', 'excelexport', 'pdfexport', 'wordexport',
-        {text:'search', align: 'left'}, 'csvexport'];
+        'search', 'csvexport'];
         gridObj.dataBind();
         expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-toolbar-item').length).toBe(11);
-        expect(gridObj.toolbarModule.toolbar.items[9].align).toBe('left');
+        //expect(gridObj.toolbarModule.toolbar.items[9].align).toBe('left');
     });
 
     it('check search', (done: Function) => {

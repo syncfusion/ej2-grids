@@ -19,7 +19,7 @@ export class Scroll implements IAction {
     private content: HTMLDivElement;
     private header: HTMLDivElement;
     private widthService: ColumnWidthService;
-    private pageY: number;
+    private pageXY: { x: number, y: number };
 
     /**
      * Constructor for the Grid scrolling.
@@ -174,7 +174,7 @@ export class Scroll implements IAction {
             if (this.content.querySelector('tbody') === null) {
                 return;
             }
-            let top: number = element.scrollTop + e.deltaY;
+            let top: number = element.scrollTop + e.deltaMode === 1 ? e.deltaY * 30 : e.deltaY;
             if (this.previousValues.top === top) {
                 return;
             }
@@ -188,31 +188,58 @@ export class Scroll implements IAction {
     private onTouchScroll(scrollTarget: HTMLElement): Function {
         let element: HTMLElement = scrollTarget;
         return (e: PointerEvent | TouchEvent) => {
-            let pageY: number = this.getPointY(e);
-            let top: number = element.scrollTop + (this.pageY - pageY);
-            if (this.previousValues.top === top) {
+            if ((e as PointerEvent).pointerType === 'mouse') {
                 return;
             }
-            e.preventDefault();
-            this.parent.getContent().querySelector('.e-frozencontent').scrollTop = top;
-            element.scrollTop = top;
-            this.pageY = pageY;
-            this.previousValues.top = top;
+            let cont: Element;
+            let mHdr: Element;
+            let pageXY: { x: number, y: number } = this.getPointXY(e);
+            let top: number = element.scrollTop + (this.pageXY.y - pageXY.y);
+            let left: number = element.scrollLeft + (this.pageXY.x - pageXY.x);
+            if (this.parent.getHeaderContent().contains(e.target as Element)) {
+                mHdr = this.parent.frozenColumns ?
+                    this.parent.getHeaderContent().querySelector('.e-movableheader') : this.parent.getHeaderContent().firstChild as Element;
+                if (this.previousValues.left === left || (left < 0 || (mHdr.scrollWidth - mHdr.clientWidth) < left)) {
+                    return;
+                }
+                e.preventDefault();
+                mHdr.scrollLeft = left;
+                element.scrollLeft = left;
+                this.pageXY.x = pageXY.x;
+                this.previousValues.left = left;
+            } else {
+                cont = this.parent.getContent().querySelector('.e-frozencontent');
+                if (this.previousValues.top === top || (top < 0 || (cont.scrollHeight - cont.clientHeight) < top)) {
+                    return;
+                }
+                e.preventDefault();
+                cont.scrollTop = top;
+                element.scrollTop = top;
+                this.pageXY.y = pageXY.y;
+                this.previousValues.top = top;
+            }
         };
     }
 
-    private setPageY(): Function {
+    private setPageXY(): Function {
         return (e: PointerEvent | TouchEvent) => {
-            this.pageY = this.getPointY(e);
+            if ((e as PointerEvent).pointerType === 'mouse') {
+                return;
+            }
+            this.pageXY = this.getPointXY(e);
         };
     }
 
-    private getPointY(e: PointerEvent | TouchEvent): number {
+    private getPointXY(e: PointerEvent | TouchEvent): { x: number, y: number } {
+        let pageXY: { x: number, y: number } = { x: 0, y: 0 };
         if ((e as TouchEvent).touches && (e as TouchEvent).touches.length) {
-            return (e as TouchEvent).touches[0].pageY;
+            pageXY.x = (e as TouchEvent).touches[0].pageX;
+            pageXY.y = (e as TouchEvent).touches[0].pageY;
         } else {
-            return (e as PointerEvent).pageY;
+            pageXY.x = (e as PointerEvent).pageX;
+            pageXY.y = (e as PointerEvent).pageY;
         }
+        return pageXY;
     }
 
     private wireEvents(): void {
@@ -222,14 +249,20 @@ export class Scroll implements IAction {
             let mCont: HTMLElement = this.content.querySelector('.e-movablecontent') as HTMLElement;
             let fCont: HTMLElement = this.content.querySelector('.e-frozencontent') as HTMLElement;
             let mHdr: HTMLElement = this.header.querySelector('.e-movableheader') as HTMLElement;
+            if (this.parent.frozenRows) {
+                EventHandler.add(this.parent.frozenColumns ? mHdr : this.header, 'touchstart pointerdown', this.setPageXY(), this);
+                EventHandler.add(
+                    this.parent.frozenColumns ? mHdr : this.header, 'touchmove pointermove',
+                    this.onTouchScroll(this.parent.frozenColumns ? mCont : this.content), this);
+            }
             if (this.parent.frozenColumns) {
                 EventHandler.add(mCont, 'scroll', this.onContentScroll(mHdr), this);
                 EventHandler.add(mCont, 'scroll', this.onFreezeContentScroll(fCont), this);
                 EventHandler.add(fCont, 'scroll', this.onFreezeContentScroll(mCont), this);
                 EventHandler.add(mHdr, 'scroll', this.onContentScroll(mCont), this);
                 EventHandler.add(fCont, 'wheel', this.onWheelScroll(mCont), this);
-                EventHandler.add(fCont, 'touchstart', this.setPageY(), this);
-                EventHandler.add(fCont, 'touchmove', this.onTouchScroll(mCont), this);
+                EventHandler.add(fCont, 'touchstart pointerdown', this.setPageXY(), this);
+                EventHandler.add(fCont, 'touchmove pointermove', this.onTouchScroll(mCont), this);
             } else {
                 EventHandler.add(this.content, 'scroll', this.onContentScroll(this.header), this);
                 EventHandler.add(this.header, 'scroll', this.onContentScroll(this.content), this);
@@ -244,6 +277,9 @@ export class Scroll implements IAction {
         let table: Element = this.parent.getContentTable();
         if (table.scrollHeight < this.parent.getContent().clientHeight) {
             addClass(table.querySelectorAll('tr:last-child td'), 'e-lastrowcell');
+            if (this.parent.frozenColumns) {
+                addClass(this.parent.getContent().querySelector('.e-movablecontent').querySelectorAll('tr:last-child td'), 'e-lastrowcell');
+            }
         }
         if (!this.parent.enableVirtualization) {
             this.content.scrollLeft = this.previousValues.left;

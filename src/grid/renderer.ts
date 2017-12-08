@@ -23,3 +23,8 @@ export * from './renderer/numeric-edit-cell';
 export * from './renderer/datepicker-edit-cell';
 export * from './renderer/command-column-renderer';
 export * from './renderer/freeze-renderer';
+export * from './renderer/string-filter-ui';
+export * from './renderer/number-filter-ui';
+export * from './renderer/date-filter-ui';
+export * from './renderer/boolean-filter-ui';
+export * from './renderer/filter-menu-operator';

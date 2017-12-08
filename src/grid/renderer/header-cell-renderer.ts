@@ -6,7 +6,7 @@ import { ICellRenderer } from '../base/interface';
 import { setStyleAndAttributes } from '../base/util';
 import { CellRenderer } from './cell-renderer';
 import { AriaService, IAriaOptions } from '../services/aria-service';
-import { CheckBox } from '@syncfusion/ej2-buttons';
+import { createCheckBox } from '@syncfusion/ej2-buttons';
 /**
  * HeaderCellRenderer class which responsible for building header cell content. 
  * @hidden
@@ -77,10 +77,9 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
             innerDIV.appendChild(headerText);
         } else {
             column.editType = 'booleanedit';
-            let checkAllBox: Element = <Element>this.chkAllBox.cloneNode();
-            innerDIV.appendChild(checkAllBox);
-            let checkAllBoxObj: CheckBox = new CheckBox();
-            checkAllBoxObj.appendTo(checkAllBox as HTMLElement);
+            let checkAllWrap: Element = createCheckBox(false, { checked: false, label: ' ' });
+            checkAllWrap.insertBefore(this.chkAllBox.cloneNode(), checkAllWrap.firstChild);
+            innerDIV.appendChild(checkAllWrap);
             innerDIV.classList.add('e-headerchkcelldiv');
         }
 
@@ -91,7 +90,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         node.appendChild(this.sortEle.cloneNode());
 
         if ((this.parent.allowFiltering && this.parent.filterSettings.type !== 'filterbar') &&
-            (column.allowFiltering && isNullOrUndefined(column.template)) &&
+            (column.allowFiltering && !isNullOrUndefined(column.field)) &&
             !(this.parent.showColumnMenu && column.showColumnMenu)) {
             attributes(fltrMenuEle, {
                 'e-mappinguid': 'e-flmenu-' + column.uid,
@@ -142,6 +141,8 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
             (innerDIV as HTMLElement).style.textAlign = alignment;
             if (alignment === 'right' || alignment === 'left') {
                 node.classList.add(alignment === 'right' ? 'e-rightalign' : 'e-leftalign');
+            } else if (alignment === 'center') {
+                node.classList.add('e-centeralign');
             }
         }
 

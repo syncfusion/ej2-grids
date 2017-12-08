@@ -63,7 +63,7 @@ export class Edit implements IAction {
     }
 
     private updateColTypeObj(): void {
-        for (let col of this.parent.columns as Column[]) {
+        for (let col of this.parent.getColumns() as Column[]) {
             col.edit = extend(
                 new this.editCellType[col.editType && this.editCellType[col.editType] ?
                     col.editType : 'defaultedit'](this.parent, this.serviceLocator),
@@ -517,7 +517,7 @@ export class Edit implements IAction {
      * @hidden
      */
     public destroyWidgets(cols?: Column[]): void {
-        cols = cols ? cols : this.parent.columns as Column[];
+        cols = cols ? cols : this.parent.getColumns() as Column[];
         for (let col of cols) {
             if (col.edit.destroy) {
                 col.edit.destroy();

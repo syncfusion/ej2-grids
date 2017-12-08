@@ -5,7 +5,7 @@
     content:  '\e7ff';
   }
 
-  .e-grid,
+  #{&}.e-grid,
   .e-grid-menu {
 
     .e-icon-ascending::before {
@@ -41,7 +41,7 @@
     }
 
     .e-icon-filter::before {
-      content:  $grid-filtermenu-icon;
+      content: $grid-filtermenu-icon;
    }
 
     &.e-rtl {

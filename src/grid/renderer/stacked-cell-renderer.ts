@@ -35,7 +35,7 @@ export class StackedHeaderCellRenderer extends CellRenderer implements ICellRend
             node.setAttribute('title', cell.column.toolTip);
         }
 
-        if (isNullOrUndefined(cell.column.textAlign)) {
+        if (!isNullOrUndefined(cell.column.textAlign)) {
             (div as HTMLElement).style.textAlign = cell.column.textAlign;
         }
 

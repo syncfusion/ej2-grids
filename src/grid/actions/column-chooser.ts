@@ -362,7 +362,7 @@ export class ColumnChooser implements IAction {
             clearSearch = true;
 
         } else {
-            fltrCol = new DataManager(this.parent.getColumns()).executeLocal(new Query()
+            fltrCol = new DataManager((this.parent.getColumns() as Object[]) as JSON[]).executeLocal(new Query()
                 .where('headerText', 'startswith', searchVal, true)) as Column[];
         }
 

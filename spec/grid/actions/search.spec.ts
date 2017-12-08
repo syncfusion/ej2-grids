@@ -1,13 +1,10 @@
 /**
  * Grid search spec document
  */
-import { Browser, EmitType } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base';
-import { SortDirection } from '../../../src/grid/base/enum';
-import { DataManager } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { Search } from '../../../src/grid/actions/search';
 import { Page } from '../../../src/grid/actions/page';
+import { createGrid, destroy} from '../base/specutil.spec';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
@@ -16,23 +13,19 @@ Grid.Inject(Search, Page);
 describe('Search module', () => {
     describe('Search methods testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforePrint: Function;
         let actionComplete: (args?: Object) => void;
 
         beforeAll((done: Function) => {
-            let dataBoundSearch: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowPaging: true,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, 
+                    { field: 'EmployeeID' }, 
                     { field: 'ShipCity' }],
-                    actionComplete: actionComplete,
-                    dataBound: dataBoundSearch
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('Search method testing', (done: Function) => {
@@ -40,8 +33,7 @@ describe('Search module', () => {
                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
                 done();
             };
-            gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
+            gridObj.actionComplete = actionComplete;            
             gridObj.searchModule.search('10249');
         });
 
@@ -91,22 +83,13 @@ describe('Search module', () => {
             actionComplete = (): void => {
                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
                 done();
-            };
-            gridObj.isDestroyed = true;
-            (<any>gridObj.searchModule).addEventListener();
-            (<any>gridObj.searchModule).removeEventListener();
-            gridObj.isDestroyed = false;
+            };           
             gridObj.actionComplete = actionComplete;
-            gridObj.isDestroyed = true;
-            (<any>gridObj.searchModule).addEventListener();
-            (<any>gridObj.searchModule).removeEventListener();
-            gridObj.isDestroyed = false;
-            gridObj.searchModule.search('TOMSP');
-            (<any>gridObj.searchModule).onPropertyChanged({ module: 'search', properties: {} });          
+            gridObj.searchModule.search('TOMSP');            
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
@@ -115,23 +98,18 @@ describe('Search module', () => {
 
     describe('Search methods testing with paging', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: () => void;
 
         beforeAll((done: Function) => {
-            let dataBoundSearch: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowPaging: true,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                    { field: 'ShipCity' }],
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, 
+                    { field: 'EmployeeID' }],
                     actionComplete: actionComplete,
-                    dataBound: dataBoundSearch,
                     pageSettings: { pageSize: 6, pageCount: 3 }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('go to last page', (done: Function) => {
             actionComplete = (args?: Object) => {
@@ -149,8 +127,7 @@ describe('Search module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.search('VINET');
-            gridObj.dataBind();
+            gridObj.search('VINET');            
         });
         it('clear search value', (done: Function) => {
             actionComplete = (args?: Object) => {
@@ -158,11 +135,13 @@ describe('Search module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.search('');
-            gridObj.dataBind();
+            gridObj.search('');            
         });
-        afterAll(() => {
-            remove(elem);
+        afterAll((done) => {
+           destroy(gridObj);
+            setTimeout(function () {
+                done();
+            }, 1000);    
         });
     });
 

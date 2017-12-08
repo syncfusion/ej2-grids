@@ -27,76 +27,76 @@ let targetAndIconCheck: Function = (menuItem: ContextMenuItemModel): void => {
     switch (menuItem.text) {
         case 'autoFitAll':
         case 'autoFit':
-            expect(menuItem.target === menuClass.header);
+            expect(menuItem.target).toBe(menuClass.header);
             expect(menuItem.iconCss).toBeFalsy();
             break;
         case 'group':
-            expect(menuItem.target === menuClass.header);
-            expect(menuItem.iconCss === menuClass.group);
+            expect(menuItem.target).toBe(menuClass.header);
+            expect(menuItem.iconCss).toBe(menuClass.group);
             break;
         case 'ungroup':
-            expect(menuItem.target === menuClass.header);
-            expect(menuItem.iconCss === menuClass.ungroup);
+            expect(menuItem.target).toBe(menuClass.header);
+            expect(menuItem.iconCss).toBe(menuClass.ungroup);
             break;
         case 'edit':
-            expect(menuItem.target === menuClass.content);
-            expect(menuItem.iconCss === menuClass.editIcon);
+            expect(menuItem.target).toBe(menuClass.content);
+            expect(menuItem.iconCss).toBe(menuClass.editIcon);
             break;
         case 'delete':
-            expect(menuItem.target === menuClass.content);
-            expect(menuItem.iconCss === menuClass.delete);
+            expect(menuItem.target).toBe(menuClass.content);
+            expect(menuItem.iconCss).toBe(menuClass.delete);
             break;
         case 'save':
-            expect(menuItem.target === menuClass.edit);
-            expect(menuItem.iconCss === menuClass.save);
+            expect(menuItem.target).toBe(menuClass.edit);
+            expect(menuItem.iconCss).toBe(menuClass.save);
             break;
         case 'cancel':
-            expect(menuItem.target === menuClass.edit);
-            expect(menuItem.iconCss === menuClass.cancel);
+            expect(menuItem.target).toBe(menuClass.edit);
+            expect(menuItem.iconCss).toBe(menuClass.cancel);
             break;
         case 'copy':
-            expect(menuItem.target === menuClass.content);
-            expect(menuItem.iconCss === menuClass.copy);
+            expect(menuItem.target).toBe(menuClass.content);
+            expect(menuItem.iconCss).toBe(menuClass.copy);
             break;
         case 'export':
-            expect(menuItem.target === menuClass.content);
+            expect(menuItem.target).toBe(menuClass.content);
             expect(menuItem.iconCss).toBeFalsy();
             break;
         case 'pdfExport':
-            expect(menuItem.target === menuClass.content);
-            expect(menuItem.iconCss === menuClass.pdf);
+            expect(menuItem.target).toBe(menuClass.content);
+            expect(menuItem.iconCss).toBe(menuClass.pdf);
             break;
         case 'excelExport':
-            expect(menuItem.target === menuClass.content);
-            expect(menuItem.iconCss === menuClass.excel);
+            expect(menuItem.target).toBe(menuClass.content);
+            expect(menuItem.iconCss).toBe(menuClass.excel);
             break;
         case 'csvExport':
-            expect(menuItem.target === menuClass.content);
-            expect(menuItem.iconCss === menuClass.csv);
+            expect(menuItem.target).toBe(menuClass.content);
+            expect(menuItem.iconCss).toBe(menuClass.csv);
             break;
         case 'sortAscending':
-            expect(menuItem.target === menuClass.header);
-            expect(menuItem.iconCss === menuClass.ascending);
+            expect(menuItem.target).toBe(menuClass.header);
+            expect(menuItem.iconCss).toBe(menuClass.ascending);
             break;
         case 'sortDescending':
-            expect(menuItem.target === menuClass.header);
-            expect(menuItem.iconCss === menuClass.descending);
+            expect(menuItem.target).toBe(menuClass.header);
+            expect(menuItem.iconCss).toBe(menuClass.descending);
             break;
         case 'firstPage':
-            expect(menuItem.target === menuClass.pager);
-            expect(menuItem.iconCss === menuClass.fPage);
+            expect(menuItem.target).toBe(menuClass.pager);
+            expect(menuItem.iconCss).toBe(menuClass.fPage);
             break;
         case 'prevPage':
-            expect(menuItem.target === menuClass.pager);
-            expect(menuItem.iconCss === menuClass.pdf);
+            expect(menuItem.target).toBe(menuClass.pager);
+            expect(menuItem.iconCss).toBe(menuClass.pdf);
             break;
         case 'lastPage':
-            expect(menuItem.target === menuClass.pager);
-            expect(menuItem.iconCss === menuClass.lPage);
+            expect(menuItem.target).toBe(menuClass.pager);
+            expect(menuItem.iconCss).toBe(menuClass.lPage);
             break;
         case 'nextPage':
-            expect(menuItem.target === menuClass.pager);
-            expect(menuItem.iconCss === menuClass.nPage);
+            expect(menuItem.target).toBe(menuClass.pager);
+            expect(menuItem.iconCss).toBe(menuClass.nPage);
             break;
     };
 }
@@ -171,13 +171,62 @@ describe('context menu module', () => {
                     }
                     expect(presence).toBeTruthy();
                 } else {
+                    if ((item as string).toLocaleLowerCase().indexOf('delete') !== -1) {
+                        (gridObj.contextMenuModule as any).selectRow({ target: gridObj.getDataRows()[1].firstChild });
+                    }
+
                     targetAndIconCheck(itemModel);
                     expect(itemModel).not.toBe(null);
                     (gridObj.contextMenuModule as any).contextMenuItemClick({ item: itemModel });
                 }
             }
+            if (gridObj.element.querySelector('#GridEditAlert').querySelector('button')) {
+                gridObj.element.querySelector('#GridEditAlert').querySelector('button').click();
+            }
         });
-        it('header', () => {
+        afterAll(() => {
+            gridObj.destroy();
+            remove(elem);
+        });
+    });
+    describe('default items functionality', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let headers: any;
+        let columns: Column[];
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data,
+                    dataBound: dataBound,
+                    allowGrouping: true,
+                    groupSettings: { showGroupedColumn: true, showToggleButton: true, showUngroupButton: true },
+                    allowResizing: true,
+                    allowSorting: true,
+                    editSettings: { allowDeleting: true, allowEditing: true },
+                    allowPaging: true,
+                    pageSettings: {
+                        pageSize: 5
+                    },
+                    allowExcelExport: true,
+                    allowPdfExport: true,
+                    contextMenuItems: ['autoFitAll', 'autoFit',
+                        'group', 'ungroup', 'edit', 'delete', 'save', 'cancel',
+                        'pdfExport', 'excelExport', 'csvExport', 'sortAscending', 'sortDescending',
+                        'firstPage', 'prevPage', 'lastPage', 'nextPage', 'copy'],
+                    columns: [
+                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 125 },
+                        { field: 'ShipName', headerText: 'Ship Name', width: 120 },
+                        { field: 'ShipCity', headerText: 'Ship City', width: 170 },
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, textAlign: 'right' }
+                    ]
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('do sort in header', (done) => {
             (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getHeaderTable().querySelector('th') };
             let e = {
                 event: (gridObj.contextMenuModule as any).eventArgs,
@@ -185,9 +234,55 @@ describe('context menu module', () => {
                 parentItem: document.querySelector('tr.edoas')
             };
             gridObj.sortColumn('OrderID', 'ascending');
+            gridObj.actionComplete = function (args) {
+                if (args.requestType === 'sorting') {
+
+                    gridObj.actionComplete = null;
+                    done();
+                }
+            };
+        });
+        it('header with sort test', (done) => {
+            (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getHeaderTable().querySelector('th') };
+            let e = {
+                event: (gridObj.contextMenuModule as any).eventArgs,
+                items: gridObj.contextMenuModule.contextMenu.items,
+                parentItem: document.querySelector('tr.edoas')
+            };
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBeGreaterThan(0);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(10);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Sort Ascending')).toBeGreaterThanOrEqual(0);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Ungroup by this column')).toBeGreaterThanOrEqual(0);
+            (gridObj.contextMenuModule as any).contextMenuOpen();
+            expect((gridObj.contextMenuModule as any).isOpen).toBe(true);
+            (gridObj.contextMenuModule as any).contextMenuOnClose(e);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(0);
+            expect((gridObj.contextMenuModule as any).disableItems.length).toBe(0);
+            expect((gridObj.contextMenuModule as any).isOpen).toBe(false);
+            gridObj.groupColumn('OrderID');
+            gridObj.sortColumn('OrderID', 'descending');
+            gridObj.actionComplete = function (args) {
+                if (args.requestType === 'sorting') {
+                    gridObj.actionComplete = null;
+                    done();
+                }
+            };
+        });
+        it('header with sort and group test', () => {
+            (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getHeaderTable().querySelectorAll('th')[1] };
+            let e = {
+                event: (gridObj.contextMenuModule as any).eventArgs,
+                items: gridObj.contextMenuModule.contextMenu.items,
+                parentItem: document.querySelector('tr.edoas')
+            };
+            (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Sort Descending')).toBeGreaterThanOrEqual(0);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Group by this column')).toBeGreaterThanOrEqual(0);
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(0);
+            expect((gridObj.contextMenuModule as any).disableItems.length).toBe(0);
         });
         it('content', () => {
             (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getContent().querySelector('tr').querySelector('td') };
@@ -196,27 +291,80 @@ describe('context menu module', () => {
                 items: gridObj.contextMenuModule.contextMenu.items
             };
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(12);
+            (gridObj.contextMenuModule as any).contextMenuOpen();
+            (gridObj.contextMenuModule as any).contextMenuOnClose(e);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(0);
+            expect((gridObj.contextMenuModule as any).disableItems.length).toBe(0);
+            gridObj.clearSelection();
+            (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Copy')).toBeGreaterThanOrEqual(0);
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
         });
-        it('pager', () => {
+        it('page 1 test', (done) => {
             (gridObj.contextMenuModule as any).eventArgs = { target: (gridObj.pagerModule as any).element };
             let e = {
                 event: (gridObj.contextMenuModule as any).eventArgs,
                 items: gridObj.contextMenuModule.contextMenu.items
             };
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(12);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('First Page')).toBeGreaterThanOrEqual(0);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Previous Page')).toBeGreaterThanOrEqual(0);
+            (gridObj.contextMenuModule as any).contextMenuOpen();
+            (gridObj.contextMenuModule as any).contextMenuOnClose(e);
+            gridObj.goToPage(2);
+            gridObj.dataBound = function () {
+                gridObj.dataBound = null;
+                done();               
+            };
+        });
+        it('page 2 test', (done) => {
+            (gridObj.contextMenuModule as any).eventArgs = { target: (gridObj.pagerModule as any).element };
+            let e = {
+                event: (gridObj.contextMenuModule as any).eventArgs,
+                items: gridObj.contextMenuModule.contextMenu.items
+            };
+            (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('First Page')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Previous Page')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Next Page')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Last Page')).toBe(-1);
+            (gridObj.contextMenuModule as any).contextMenuOpen();
+            (gridObj.contextMenuModule as any).contextMenuOnClose(e);
+            let a = (gridObj.contextMenuModule as any).getLastPage();
+            gridObj.goToPage(a);
+            gridObj.dataBound = function () {
+                gridObj.dataBound = null;
+                done();                
+            };
+        });
+        it('last page test', () => {
+            (gridObj.contextMenuModule as any).eventArgs = { target: (gridObj.pagerModule as any).element };
+            let e = {
+                event: (gridObj.contextMenuModule as any).eventArgs,
+                items: gridObj.contextMenuModule.contextMenu.items
+            };
+            (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('First Page')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Previous Page')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Next Page') >= 0).toBeTruthy();
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Last Page') >= 0).toBeTruthy();
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
         });
         it('edited row', () => {
-            gridObj.editModule.startEdit(gridObj.getContent().querySelector('tr'));
+            gridObj.editModule.startEdit(gridObj.getContent().querySelectorAll('tr')[1]);
             (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getContentTable().querySelector('.e-inline-edit') };
             let e = {
                 event: (gridObj.contextMenuModule as any).eventArgs,
                 items: gridObj.contextMenuModule.contextMenu.items
             };
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(14);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Save')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Cancel')).toBe(-1);
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
             gridObj.editModule.endEdit();
@@ -234,6 +382,7 @@ describe('context menu module', () => {
                 event: (gridObj.contextMenuModule as any).eventArgs,
                 items: item
             };
+            expect(subE.items.length).toBe(3);
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(subE);
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
@@ -246,6 +395,31 @@ describe('context menu module', () => {
             };
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
             expect(gridObj.contextMenuModule.isOpen).toBeFalsy();
+        });
+        it('content but not in table', () => {
+            (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getContent().firstChild };
+            let e = {
+                event: (gridObj.contextMenuModule as any).eventArgs,
+                items: gridObj.contextMenuModule.contextMenu.items,
+                cancel: false
+            };
+            (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect(e.cancel).toBeTruthy();
+        });
+        it('heirarchy grid test', () => {
+            let element = document.createElement('span');
+            let gridEle = createElement('div', { className: 'e-grid' });
+            gridEle.appendChild(element);
+            document.body.appendChild(gridEle);
+            (gridObj.contextMenuModule as any).eventArgs = { target: element };
+            let e = {
+                event: (gridObj.contextMenuModule as any).eventArgs,
+                items: gridObj.contextMenuModule.contextMenu.items,
+                cancel: false
+            };
+            (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect(e.cancel).toBeTruthy();
+            remove(gridEle);
         });
 
         afterAll(() => {
@@ -265,10 +439,6 @@ describe('context menu module', () => {
                 {
                     dataSource: data,
                     dataBound: dataBound,
-                    allowPaging: true,
-                    pageSettings: {
-                        pageSize: 10
-                    },
                     contextMenuItems: ['autoFitAll', 'autoFit',
                         'group', 'ungroup', 'edit', 'delete', 'save', 'cancel',
                         'pdfExport', 'excelExport', 'csvExport', 'sortAscending', 'sortDescending',
@@ -285,13 +455,17 @@ describe('context menu module', () => {
             gridObj.appendTo('#Grid');
         });
 
-        it('header', () => {
+        it('disabled items', () => {
             (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getHeaderTable().querySelector('th') };
             let e = {
                 event: (gridObj.contextMenuModule as any).eventArgs,
                 items: gridObj.contextMenuModule.contextMenu.items
             };
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            gridObj.clearSelection();
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('AutoFit this column')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('AutoFit all column')).toBe(-1);
+            expect((gridObj.contextMenuModule as any).disableItems.length).toBe(14);
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
         });
@@ -309,6 +483,9 @@ describe('context menu module', () => {
                 items: item
             };
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(subE);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('PDF Export')).toBeGreaterThanOrEqual(0);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('CSV Export')).toBeGreaterThanOrEqual(0);
+            expect((gridObj.contextMenuModule as any).disableItems.indexOf('Excel Export')).toBeGreaterThanOrEqual(0);
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
         });
@@ -318,7 +495,7 @@ describe('context menu module', () => {
             remove(elem);
         });
     });
-    describe('custom items without required module', () => {
+    describe('custom items', () => {
         let gridObj: Grid;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let headers: any;
@@ -334,7 +511,7 @@ describe('context menu module', () => {
                     pageSettings: {
                         pageSize: 10
                     },
-                    contextMenuItems: [{text:'item1'}],
+                    contextMenuItems: [{ text: 'item1', target: '.e-header' }],
                     columns: [
                         { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
                         { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 125 },
@@ -355,7 +532,19 @@ describe('context menu module', () => {
             (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
             (gridObj.contextMenuModule as any).contextMenuOpen();
             (gridObj.contextMenuModule as any).contextMenuOnClose(e);
-        });       
+            expect(gridObj.contextMenuModule.contextMenu.items.length).toBe(1);
+        });
+        it('content', () => {
+            (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getContent().querySelector('tr').querySelector('td') };
+            let e = {
+                event: (gridObj.contextMenuModule as any).eventArgs,
+                items: gridObj.contextMenuModule.contextMenu.items
+            };
+            (gridObj.contextMenuModule as any).contextMenuBeforeOpen(e);
+            expect(gridObj.contextMenuModule.isOpen).toBe(false);
+            expect((gridObj.contextMenuModule as any).disableItems.length).toBe(0);
+            expect((gridObj.contextMenuModule as any).hiddenItems.length).toBe(0);
+        });
 
         afterAll(() => {
             gridObj.destroy();

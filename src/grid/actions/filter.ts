@@ -1,4 +1,4 @@
-import { EventHandler, L10n, isNullOrUndefined, extend, closest } from '@syncfusion/ej2-base';
+import { EventHandler, L10n, isNullOrUndefined, extend, closest, getValue } from '@syncfusion/ej2-base';
 import { getActualPropFromColl, isActionPrevent } from '../base/util';
 import { remove, createElement, matches } from '@syncfusion/ej2-base';
 import { DataUtil, Predicate, Query, DataManager } from '@syncfusion/ej2-data';
@@ -78,6 +78,10 @@ export class Filter implements IAction {
         this.getLocalizedCustomOperators();
         if (this.parent.filterSettings.type === 'filterbar') {
             if (gObj.columns.length) {
+                let fltrElem: Element = gObj.element.querySelector('.e-filterbar');
+                if (fltrElem) {
+                    remove(fltrElem);
+                }
                 let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Filter, gObj);
                 let row: Row<Column>;
                 let cellrender: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
@@ -86,8 +90,8 @@ export class Filter implements IAction {
                 rowRenderer.element = createElement('tr', { className: 'e-filterbar' });
                 row = this.generateRow();
                 row.data = this.values;
-                this.element = rowRenderer.render(row, <Column[]>gObj.getColumns());
-                this.parent.getHeaderContent().querySelector('thead').appendChild(this.element);
+                this.parent.getHeaderContent().querySelector('thead').appendChild(rowRenderer.element);
+                this.element = rowRenderer.render(row, <Column[]>gObj.getColumns(), null, null, rowRenderer.element);
                 let detail: Element = this.element.querySelector('.e-detailheadercell');
                 if (detail) {
                     detail.className = 'e-filterbarcell e-mastercell';
@@ -97,6 +101,7 @@ export class Filter implements IAction {
                     gCells[gCells.length - 1].classList.add('e-lastgrouptopleftcell');
                 }
                 this.wireEvents();
+                this.parent.notify(events.freezeRender, { case: 'filter' });
             }
         }
     }
@@ -116,6 +121,9 @@ export class Filter implements IAction {
         this.unWireEvents();
         if (this.element) {
             remove(this.element);
+            if (this.parent.frozenColumns) {
+                remove(this.parent.getHeaderContent().querySelector('.e-filterbar'));
+            }
         }
     }
 
@@ -249,6 +257,7 @@ export class Filter implements IAction {
         this.parent.on(events.filterMenuClose, this.filterMenuClose, this);
         EventHandler.add(document, 'click', this.clickHandler, this);
         this.parent.on(events.filterOpen, this.columnMenuFilter, this);
+        this.parent.on(events.click, this.filterIconClickHandler, this);
     }
     /**
      * @hidden
@@ -264,6 +273,7 @@ export class Filter implements IAction {
         this.parent.off(events.headerRefreshed, this.render);
         this.parent.off(events.filterOpen, this.columnMenuFilter);
         this.parent.off(events.filterMenuClose, this.filterMenuClose);
+        this.parent.off(events.click, this.filterIconClickHandler);
     }
 
     private filterMenuClose(args: { field: string }): void {
@@ -578,6 +588,13 @@ export class Filter implements IAction {
             .querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement);
         let filterValue: string = JSON.parse(JSON.stringify(filterElement.value));
         this.stopTimer();
+        if (!isNullOrUndefined(this.column.filterBarTemplate)) {
+            let templateRead: Function = this.column.filterBarTemplate.read as Function;
+            if (typeof templateRead === 'string') {
+                templateRead =  getValue(templateRead, window);
+            }
+            this.value = templateRead.call(this, filterElement);
+        }
         if (this.value === '') {
             this.removeFilteredColsByField(this.column.field);
             return;
@@ -717,37 +734,41 @@ export class Filter implements IAction {
 
     };
 
+    private filterIconClickHandler(e: MouseEvent): void {
+        let target: Element = e.target as Element;
+        if (target.classList.contains('e-filtermenudiv') && (this.parent.filterSettings.type === 'menu' ||
+            this.parent.filterSettings.type === 'checkbox' || this.parent.filterSettings.type === 'excel')) {
+            let gObj: IGrid = this.parent;
+            let col: Column = gObj.getColumnByUid
+                (parentsUntil(target, 'e-headercell').firstElementChild.getAttribute('e-mappinguid'));
+            let gClient: ClientRect = gObj.element.getBoundingClientRect();
+            let fClient: ClientRect = target.getBoundingClientRect();
+            this.column = col;
+            if (this.fltrDlgDetails.field === col.field && this.fltrDlgDetails.isOpen) {
+                return;
+            }
+            if (this.filterModule) {
+                this.filterModule.closeDialog();
+            }
+            this.fltrDlgDetails = { field: col.field, isOpen: true };
+            this.filterDialogOpen(this.column, target, fClient.right - gClient.left, fClient.bottom - gClient.top);
+        }
+    }
+
+
     private clickHandler(e: MouseEvent): void {
         if (this.parent.filterSettings.type === 'menu' ||
             this.parent.filterSettings.type === 'checkbox' || this.parent.filterSettings.type === 'excel') {
             let gObj: IGrid = this.parent;
             let target: Element = e.target as Element;
-            let elem: Element = parentsUntil(target, 'e-filter-popup');
-            if (elem) {
+            let datepickerEle: boolean = target.classList.contains('e-day'); // due to datepicker popup cause
+            if (parentsUntil(target, 'e-filter-popup') || target.classList.contains('e-filtermenudiv')) {
                 return;
-            }
-            if (target.classList.contains('e-filtermenudiv')) {
-                let col: Column = gObj.getColumnByUid
-                    (parentsUntil(target, 'e-headercell').firstElementChild.getAttribute('e-mappinguid'));
-                let gClient: ClientRect = gObj.element.getBoundingClientRect();
-                let fClient: ClientRect = target.getBoundingClientRect();
-                this.column = col;
-                if (this.fltrDlgDetails.field === col.field && this.fltrDlgDetails.isOpen) {
-                    return;
-                }
-                if (this.filterModule) {
-                    this.filterModule.closeDialog();
-                }
-                this.fltrDlgDetails = { field: col.field, isOpen: true };
-                this.filterDialogOpen(this.column, target, fClient.right - gClient.left, fClient.bottom - gClient.top);
-            } else {
-                let datepickerEle: boolean = target.classList.contains('e-day'); // due to datepicker popup cause
-                if (this.filterModule &&
-                    (!parentsUntil(target, 'e-popup-wrapper')
-                        && (!closest(target, '.e-filter-item.e-menu-item'))
-                        && (!parentsUntil(target, 'e-popup'))) && !datepickerEle) {
-                    this.filterModule.closeDialog(target);
-                }
+            } else if (this.filterModule &&
+                (!parentsUntil(target, 'e-popup-wrapper')
+                    && (!closest(target, '.e-filter-item.e-menu-item'))
+                    && (!parentsUntil(target, 'e-popup'))) && !datepickerEle) {
+                this.filterModule.closeDialog(target);
             }
         }
     }

@@ -19,15 +19,19 @@ export class RowDD implements IAction {
     private helper: Function = (e: { sender: MouseEventArgs }) => {
         let gObj: IGrid = this.parent;
         if (document.getElementsByClassName('e-griddragarea').length ||
-            !(e.sender.target as Element).classList.contains('e-selectionbackground')) {
-            return false;
-        }
+        (!(e.sender.target as Element).classList.contains('e-selectionbackground') && gObj.selectionSettings.type !== 'single')) {
+        return false;
+      }
         let visualElement: HTMLElement = createElement('div', {
             className: 'e-cloneproperties e-draganddrop e-grid e-dragclone',
             styles: 'height:"auto", z-index:2, width:' + gObj.element.offsetWidth
         });
         let table: Element = createElement('table', { styles: 'width:' + gObj.element.offsetWidth });
         let tbody: Element = createElement('tbody');
+        if (gObj.selectionSettings.mode === 'row' && gObj.selectionSettings.type === 'single' ) {
+        let index: number = parseInt((e.sender.target as Element).parentElement.getAttribute('aria-rowindex'), 10);
+        gObj.selectRow(index);
+        }
         let selectedRows: Element[] = gObj.getSelectedRows();
         for (let i: number = 0, len: number = selectedRows.length; i < len; i++) {
             let selectedRow: Element = selectedRows[i].cloneNode(true) as Element;

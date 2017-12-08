@@ -660,6 +660,14 @@ export interface ColumnModel {
      */
     allowResizing?: boolean;
 
+    /**         
+     * If `showColumnMenu` set to false, then it disable the column menu of a particular column.  
+     * By default column menu will show for all columns
+     * @default true    
+     */
+
+    showColumnMenu?: boolean;
+
     /**    
      * If `allowFiltering` set to false, then it disables filtering option and filter bar element of a particular column. 
      * By default all columns are filterable.  

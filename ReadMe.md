@@ -1,5 +1,3 @@
-[![coverage](http://ej2.syncfusion.com/coverage/ej2-grids/coverage.svg)](http://ej2.syncfusion.com/coverage/ej2-grids)
-
 # Grid Overview
 
 The Grid control is used to display and manipulate tabular data with configuration options to control the way the data is presented and manipulated.
@@ -22,6 +20,10 @@ Also, it comes with full documentation and support which is available for commer
 ## Resources
 * [Demo](http://ej2.syncfusion.com/demos/#/material/grid/default.html)
 * [Documentation](http://ej2.syncfusion.com/documentation/grid/)
+
+## Changelog
+
+Check the changelog [here](https://github.com/syncfusion/ej2-grids/blob/master/CHANGELOG.md)
 
 ## Installing
 
@@ -46,6 +48,3 @@ To test the source files, use the below command
 ```
 npm run test
 ```
-## Changelog
-
-Check the changelog [here](https://github.com/syncfusion/ej2-grids/blob/master/CHANGELOG.md)

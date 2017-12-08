@@ -11,17 +11,18 @@ import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompi
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';
-import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ColumnMenuOpenEventArgs } from './interface';
+import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ExcelExportProperties, PdfExportProperties } from './interface';
+import { ColumnMenuOpenEventArgs } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';
-import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs } from './interface';
+import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs, RowInfo } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs, CheckBoxChangeEventArgs } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
-import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem } from './enum';
+import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem, ToolbarItem } from './enum';
 import { Data } from '../actions/data';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { ServiceLocator } from '../services/service-locator';
@@ -626,15 +627,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         Matchs: 'No Matches Found',
         FilterButton: 'Filter',
         ClearButton: 'Clear',
-        StartsWith: 'StartsWith',
-        EndsWidth: 'EndsWith',
+        StartsWith: 'Starts With',
+        EndsWith: 'Ends With',
         Contains: 'Contains',
         Equal: 'Equal',
-        NotEqual: 'NotEqual',
-        LessThan: 'LessThan',
-        LessThanOrEqual: 'LessThanOrEqual',
-        GreaterThan: 'GreaterThan',
-        GreaterThanOrEqual: 'GreaterThanOrEqual',
+        NotEqual: 'Not Equal',
+        LessThan: 'Less Than',
+        LessThanOrEqual: 'Less Than Or Equal',
+        GreaterThan: 'Greater Than',
+        GreaterThanOrEqual: 'Greater Than Or Equal',
         ChooseDate: 'Choose a Date',
         EnterValue: 'Enter the value',
         Copy: 'Copy',
@@ -1220,7 +1221,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @default null
      */
     @Property()
-    public toolbar: ToolbarItems[] | string[] | ItemModel[];
+    public toolbar: ToolbarItems[] | string[] | ItemModel[] | ToolbarItem[];
 
     /**    
      * `contextMenuItems` defines both built-in and custom context menu items.
@@ -1465,6 +1466,31 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Event()
     public excelQueryCellInfo: EmitType<ExcelQueryCellInfoEventArgs>;
+
+    /**
+     * Triggers before Grid data is exported to Excel file.
+     */
+    @Event()
+    public beforeExcelExport: EmitType<Object>;
+
+    /**
+     * Triggers after Grid data is exported to Excel file.
+     */
+    @Event()
+    public excelExportComplete: EmitType<Object>;
+
+    /**
+     * Triggers before Grid data is exported to PDF document.
+     */
+    @Event()
+    public beforePdfExport: EmitType<Object>;
+
+    /**
+     * Triggers after Grid data is exported to PDF document.
+     */
+    @Event()
+    public pdfExportComplete: EmitType<Object>;
+
     /** 
      * Triggers after detail row expanded.
      * > This event triggers at initial expand. 
@@ -1659,8 +1685,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             searchSettings: ['fields', 'operator', 'ignoreCase'],
             sortSettings: [], columns: [], selectedRowIndex: []
         };
-        let ignoreOnColumn: string[] =  ['filter', 'edit', 'filterBarTemplate', 'headerTemplate', 'template',
-        'commandTemplate', 'commands'];
+        let ignoreOnColumn: string[] = ['filter', 'edit', 'filterBarTemplate', 'headerTemplate', 'template',
+            'commandTemplate', 'commands'];
         keyEntity.forEach((value: string) => {
             let currentObject: Object = this[value];
             for (let val of ignoreOnPersist[value]) {
@@ -2100,6 +2126,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 } else {
                     this.removeTextWrap();
                 }
+                this.notify(events.freezeRender, { case: 'textwrap', isModeChg: (prop === 'textWrapSettings') });
                 break;
             case 'dataSource':
                 this.notify(events.dataSourceModified, {});
@@ -2311,6 +2338,31 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getRows(): Element[] {
         return this.contentModule.getRowElements();
+    }
+
+    /**
+     * Get a row information based on cell
+     * @param {Element}
+     * @return RowInfo
+     */
+    public getRowInfo(target: Element | EventTarget): RowInfo {
+        let ele: Element = target as Element;
+        let args: Object = {};
+        if (!isNullOrUndefined(target) && isNullOrUndefined(parentsUntil(ele, 'e-detailrowcollapse')
+            && isNullOrUndefined(parentsUntil(ele, 'e-recordplusexpand')))) {
+            let cell: Element = closest(ele, '.e-rowcell');
+            if (!isNullOrUndefined(cell)) {
+                let cellIndex: number = parseInt(cell.getAttribute('aria-colindex'), 10);
+                let row: Element = closest(cell, '.e-row');
+                let rowIndex: number = parseInt(row.getAttribute('aria-rowindex'), 10);
+                let rowsObject: Object = (<Row<{}>[]>this.contentModule.getRows()).filter((r: Row<{}>) =>
+                    r.uid === row.getAttribute('data-uid'));
+                let rowData: Object = rowsObject[0].data;
+                let column: Column = rowsObject[0].cells[cellIndex].column as Column;
+                args = { cell: cell, cellIndex: cellIndex, row: row, rowIndex: rowIndex, rowData: rowData, column: column };
+            }
+        }
+        return args;
     }
 
     /**
@@ -2998,6 +3050,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.element.classList.add('e-bothlines');
                 break;
         }
+        this.updateResizeLines();
+    }
+
+    private updateResizeLines(): void {
+        if (this.allowResizing &&
+            !(this.gridLines === 'vertical' || this.gridLines === 'both')) {
+            this.element.classList.add('e-resize-lines');
+        } else {
+            this.element.classList.remove('e-resize-lines');
+        }
     }
 
     /**
@@ -3285,7 +3347,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Promise<any>} 
      */
     /* tslint:disable-next-line:no-any */
-    public excelExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any> {
+    public excelExport(exportProperties?: ExcelExportProperties, isMultipleExport?: boolean, workbook?: any): Promise<any> {
         return this.excelExportModule.Map(this, exportProperties, isMultipleExport, workbook, false);
     }
 
@@ -3297,7 +3359,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Promise<any>} 
      */
     /* tslint:disable-next-line:no-any */
-    public csvExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any> {
+    public csvExport(exportProperties?: ExcelExportProperties, isMultipleExport?: boolean, workbook?: any): Promise<any> {
         return this.excelExportModule.Map(this, exportProperties, isMultipleExport, workbook, true);
     }
     /**
@@ -3308,7 +3370,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Promise<any>} 
      */
     /* tslint:disable-next-line:no-any */
-    public pdfExport(exportProperties?: any, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object> {
+    public pdfExport(exportProperties?: PdfExportProperties, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object> {
         return this.pdfExportModule.Map(this, exportProperties, isMultipleExport, pdfDoc);
     }
 

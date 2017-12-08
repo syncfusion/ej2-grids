@@ -149,7 +149,6 @@ export class Group implements IAction {
         this.parent.on(events.keyPressed, this.keyPressHandler, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
         this.parent.on(events.initialEnd, this.render, this);
-        this.parent.on(events.headerDrop, this.headerDrop, this);
     }
     /**
      * @hidden
@@ -168,7 +167,6 @@ export class Group implements IAction {
         this.parent.off(events.headerRefreshed, this.refreshSortIcons);
         this.parent.off(events.sortComplete, this.refreshSortIcons);
         this.parent.off(events.keyPressed, this.keyPressHandler);
-        this.parent.off(events.headerDrop, this.headerDrop);
     }
 
     private initialEnd(): void {
@@ -376,6 +374,10 @@ export class Group implements IAction {
     }
 
     private renderGroupDropArea(): void {
+        let groupElem: Element = this.parent.element.querySelector('.e-groupdroparea');
+        if (groupElem) {
+            remove(groupElem);
+        }
         this.element = createElement('div', { className: 'e-groupdroparea', attrs: { 'tabindex': '-1' } });
         this.updateGroupDropArea();
         this.parent.element.insertBefore(this.element, this.parent.element.firstChild);
@@ -411,14 +413,6 @@ export class Group implements IAction {
             drag: this.drag,
             dragStop: this.dragStop
         });
-    }
-
-    private headerDrop(e: { target: Element, uid: string }): void {
-        if (!e.uid) {
-            return;
-        }
-        let column: Column = this.parent.getColumnByUid(e.uid);
-        this.ungroupColumn(column.field);
     }
 
     private initializeGHeaderDrop(): void {

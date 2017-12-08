@@ -63,16 +63,18 @@ export class Data implements IDataProcessor {
         if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
             let columns: PredicateModel[] = gObj.filterSettings.columns;
             let predicate: Predicate;
-            if (gObj.filterSettings.type === 'checkbox') {
-                let predicates: Predicate = CheckBoxFilter.getPredicate(gObj.filterSettings.columns);
-                for (let prop of Object.keys(predicates)) {
+            if (gObj.filterSettings.type === 'checkbox' || gObj.filterSettings.type === 'excel') {
+                let excelPredicate: Predicate = CheckBoxFilter.getPredicate(gObj.filterSettings.columns);
+                for (let prop of Object.keys(excelPredicate)) {
                     let and: string = 'and';
-                    let obj: Predicate | string = predicates[prop] as Predicate | string;
+                    let obj: Predicate | string = excelPredicate[prop] as Predicate | string;
                     predicate = !isNullOrUndefined(predicate) ?
                         (predicate as Object)[and](obj as string) as Predicate :
                         obj as Predicate;
                 }
-                query.where(predicate);
+                if (predicate !== undefined) {
+                    query.where(predicate);
+                }
             } else {
                 for (let col of columns) {
                     let sType: string = gObj.getColumnByField(col.field).type;
@@ -115,6 +117,13 @@ export class Data implements IDataProcessor {
         }
 
         if ((gObj.allowPaging || gObj.enableVirtualization) && skipPage !== true) {
+            gObj.pageSettings.currentPage = Math.max(1, gObj.pageSettings.currentPage);
+            if (gObj.pageSettings.pageCount <= 0) {
+                gObj.pageSettings.pageCount = 8;
+            }
+            if (gObj.pageSettings.pageSize <= 0) {
+                gObj.pageSettings.pageSize = 12;
+            }
             query.page(gObj.pageSettings.currentPage, gObj.pageSettings.pageSize);
         }
 

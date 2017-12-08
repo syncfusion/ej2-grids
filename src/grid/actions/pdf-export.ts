@@ -1,4 +1,7 @@
-import { IGrid } from '../base/interface';
+import {
+    IGrid, PdfExportProperties, PdfHeader, PdfFooter, PdfHeaderFooterContent,
+    Theme, PdfQueryCellInfoEventArgs
+} from '../base/interface';
 import { Column } from './../models/column';
 import { Row } from './../models/row';
 import * as events from '../base/constant';
@@ -14,7 +17,7 @@ import { ReturnType } from '../base/type';
 import { SummaryModelGenerator, GroupSummaryModelGenerator, CaptionSummaryModelGenerator } from '../services/summary-model-generator';
 import { AggregateColumnModel } from '../models/aggregate-model';
 import { compile, getEnumValue } from '@syncfusion/ej2-base';
-import { CellType } from '../base/enum';
+import { CellType, PdfPageSize, PdfDashStyle, PdfPageNumberType } from '../base/enum';
 import { DataManager, Query } from '@syncfusion/ej2-data';
 
 /**
@@ -30,8 +33,9 @@ export class PdfExport {
     private currentViewData: boolean = false;
     private customDataSource: boolean = false;
     private exportValueFormatter: ExportValueFormatter;
-    private gridTheme: string = 'material';
+    private gridTheme: Theme;
     private isGrouping: boolean = false;
+    private helper: ExportHelper;
 
     /**
      * Constructor for the Grid PDF Export module
@@ -39,7 +43,6 @@ export class PdfExport {
      */
     constructor(parent?: IGrid) {
         this.parent = parent;
-        this.data = new Data(parent);
         if (this.parent.isDestroyed) { return; }
     }
     /**
@@ -55,7 +58,7 @@ export class PdfExport {
         this.currentViewData = false;
         this.parent = parent;
         let gObj: IGrid = parent;
-        this.gridTheme = 'material';
+        this.helper = new ExportHelper(gObj);
         this.isGrouping = false;
         this.isExporting = true;
         gObj.trigger(events.beforePdfExport);
@@ -65,14 +68,14 @@ export class PdfExport {
      * @return {void}
      */
     /* tslint:disable-next-line:no-any */
-    public Map(parent?: IGrid, pdfExportProperties?: any, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object> {
+    public Map(parent?: IGrid, pdfExportProperties?: PdfExportProperties, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object> {
         this.data = new Data(this.parent);
         /* tslint:disable-next-line:max-line-length */
         if (pdfExportProperties !== undefined && pdfExportProperties.dataSource !== undefined && pdfExportProperties.dataSource instanceof DataManager) {
             let promise: Promise<Object>;
             return promise = new Promise((resolve: Function, reject: Function) => {
                 /* tslint:disable-next-line:no-any *//* tslint:disable-next-line:max-line-length */
-                new DataManager({ url: pdfExportProperties.dataSource.dataSource.url, adaptor: pdfExportProperties.dataSource.adaptor }).executeQuery(new Query()).then((returnType: any) => {
+                new DataManager({ url: (pdfExportProperties.dataSource as DataManager).dataSource.url, adaptor: (pdfExportProperties.dataSource as DataManager).adaptor }).executeQuery(new Query()).then((returnType: any) => {
                     this.init(parent);
                     if (pdfDoc !== undefined) {
                         this.pdfDocument = <PdfDocument>pdfDoc;
@@ -88,7 +91,7 @@ export class PdfExport {
         } else {
             let promise: Promise<Object>;
             return promise = new Promise((resolve: Function, reject: Function) => {
-                let dataManager: Promise<Object> = this.data.getData({}, this.data.generateQuery(true).requiresCount());
+                let dataManager: Promise<Object> = this.data.getData({}, ExportHelper.getQuery(parent, this.data));
                 dataManager.then((returnType: ReturnType) => {
                     this.init(parent);
                     if (pdfDoc !== undefined) {
@@ -105,7 +108,10 @@ export class PdfExport {
         }
     }
     /* tslint:disable:no-any */
-    private processExport(gObj: IGrid, returnType: any, pdfExportProperties: any, isMultipleExport: boolean): void {
+    private processExport(gObj: IGrid, returnType: any, pdfExportProperties: PdfExportProperties, isMultipleExport: boolean): void {
+        if (pdfExportProperties !== undefined) {
+            this.gridTheme = pdfExportProperties.theme;
+        }
         let columns: any[] = gObj.columns;
         let dataSource: any = returnType.result;
         /* tslint:enable:no-any */
@@ -128,7 +134,7 @@ export class PdfExport {
         let headerFont: PdfFont = headerThemeStyle.font;
         let headerBrush: PdfSolidBrush = headerThemeStyle.brush;
         /* tslint:disable-next-line:no-any */
-        let returnValue: { rows: any[], columns: Column[] } = (new ExportHelper(this.parent)).getHeaders(columns, this.hideColumnInclude);
+        let returnValue: { rows: any[], columns: Column[] } = this.helper.getHeaders(columns, this.hideColumnInclude);
         let rows: Row<Column>[] = returnValue.rows;
         // Column collection with respect to the records in the grid
         let gridColumns: Column[] = returnValue.columns;
@@ -173,34 +179,43 @@ export class PdfExport {
     }
     /* tslint:disable-next-line:no-any */
     private getSummaryCaptionThemeStyle(): any {
-        switch (this.gridTheme) {
-            case 'bootstrap':
-                /* tslint:disable-next-line:max-line-length */
-                return { font: new PdfStandardFont(PdfFontFamily.Helvetica, 10.5), brush: new PdfSolidBrush(new PdfColor(51, 51, 51)), backgroundBrush: new PdfSolidBrush(new PdfColor(255, 255, 255)) };
-            case 'fabric':
-                /* tslint:disable-next-line:max-line-length */
-                return { font: new PdfStandardFont(PdfFontFamily.Helvetica, 10.5), brush: new PdfSolidBrush(new PdfColor(51, 51, 51)), backgroundBrush: new PdfSolidBrush(new PdfColor(246, 246, 246)) };
-            default:
-                /* tslint:disable-next-line:max-line-length */
-                return { font: new PdfStandardFont(PdfFontFamily.Helvetica, 9.75), brush: new PdfSolidBrush(new PdfColor(0, 0, 0)), backgroundBrush: new PdfSolidBrush(new PdfColor(246, 246, 246)) };
+        if (this.gridTheme !== undefined && this.gridTheme.caption !== undefined && this.gridTheme.caption !== null) {
+            let fontSize: number = this.gridTheme.caption.fontSize !== undefined ? this.gridTheme.caption.fontSize : 9.75;
+            let pdfColor: PdfColor = new PdfColor();
+            if (this.gridTheme.caption.fontColor !== undefined) {
+                let penBrushColor: { r: number, g: number, b: number } = this.hexToRgb(this.gridTheme.caption.fontColor);
+                pdfColor = new PdfColor(penBrushColor.r, penBrushColor.g, penBrushColor.b);
+            }
+            /* tslint:disable-next-line:max-line-length */
+            return { font: new PdfStandardFont(PdfFontFamily.Helvetica, 10.5), brush: new PdfSolidBrush(new PdfColor(pdfColor)), backgroundBrush: new PdfSolidBrush(new PdfColor(246, 246, 246)) };
+        } else {
+            //Material theme
+            /* tslint:disable-next-line:max-line-length */
+            return { font: new PdfStandardFont(PdfFontFamily.Helvetica, 9.75), brush: new PdfSolidBrush(new PdfColor(0, 0, 0)), backgroundBrush: new PdfSolidBrush(new PdfColor(246, 246, 246)) };
         }
     }
     /* tslint:disable-next-line:no-any */
     private getHeaderThemeStyle(): any {
         let border: PdfBorders = new PdfBorders();
-        switch (this.gridTheme) {
-            case 'bootstrap':
-                border.all = new PdfPen(new PdfColor(221, 221, 221));
-                /* tslint:disable-next-line:max-line-length */
-                return { border: border, font: new PdfStandardFont(PdfFontFamily.Helvetica, 10.5), brush: new PdfSolidBrush(new PdfColor(51, 51, 51)) };
-            case 'fabric':
-                border.all = new PdfPen(new PdfColor(224, 224, 224));
-                /* tslint:disable-next-line:max-line-length */
-                return { border: border, font: new PdfStandardFont(PdfFontFamily.Helvetica, 9), brush: new PdfSolidBrush(new PdfColor(0, 0, 0.54)) };
-            default:
-                border.all = new PdfPen(new PdfColor(234, 234, 234));
-                /* tslint:disable-next-line:max-line-length */
-                return { border: border, font: new PdfStandardFont(PdfFontFamily.Helvetica, 10.5), brush: new PdfSolidBrush(new PdfColor(102, 102, 102)) };
+        if (this.gridTheme !== undefined && this.gridTheme.header !== undefined && this.gridTheme.header !== null) {
+            if (this.gridTheme.header.borders !== undefined && this.gridTheme.header.borders.color !== undefined) {
+                let borderColor: { r: number, g: number, b: number } = this.hexToRgb(this.gridTheme.header.borders.color);
+                border.all = new PdfPen(new PdfColor(borderColor.r, borderColor.g, borderColor.b));
+            }
+            let fontSize: number = this.gridTheme.header.fontSize !== undefined ? this.gridTheme.header.fontSize : 10.5;
+            let pdfColor: PdfColor = new PdfColor();
+            if (this.gridTheme.header.fontColor !== undefined) {
+                let penBrushColor: { r: number, g: number, b: number } = this.hexToRgb(this.gridTheme.header.fontColor);
+                pdfColor = new PdfColor(penBrushColor.r, penBrushColor.g, penBrushColor.b);
+            }
+
+            /* tslint:disable-next-line:max-line-length */
+            return { border: border, font: new PdfStandardFont(PdfFontFamily.Helvetica, fontSize), brush: new PdfSolidBrush(pdfColor) };
+        } else {
+            //Material theme
+            border.all = new PdfPen(new PdfColor(234, 234, 234));
+            /* tslint:disable-next-line:max-line-length */
+            return { border: border, font: new PdfStandardFont(PdfFontFamily.Helvetica, 10.5), brush: new PdfSolidBrush(new PdfColor(102, 102, 102)) };
         }
     }
     /* tslint:disable-next-line:max-line-length *//* tslint:disable-next-line:no-any */
@@ -313,7 +328,7 @@ export class PdfExport {
         return pdfGrid;
     }
     /* tslint:disable-next-line:no-any *//* tslint:disable-next-line:max-line-length */
-    private processExportProperties(pdfExportProperties: any, dataSource: any, section: PdfSection): { dataSource: any, section: PdfSection } {
+    private processExportProperties(pdfExportProperties: PdfExportProperties, dataSource: any, section: PdfSection): { dataSource: any, section: PdfSection } {
         if (pdfExportProperties !== undefined) {
             if (pdfExportProperties.theme !== undefined) {
                 this.gridTheme = pdfExportProperties.theme;
@@ -321,7 +336,7 @@ export class PdfExport {
             if (pdfExportProperties.pageOrientation !== undefined || pdfExportProperties.pageSize !== undefined) {
                 let pdfPageSettings: PdfPageSettings = new PdfPageSettings();
                 /* tslint:disable-next-line:max-line-length */
-                pdfPageSettings.orientation = (pdfExportProperties.pageOrientation === 'Landscape') ? PdfPageOrientation.Landscape : PdfPageOrientation.Portrait;
+                pdfPageSettings.orientation = (pdfExportProperties.pageOrientation === 'landscape') ? PdfPageOrientation.Landscape : PdfPageOrientation.Portrait;
                 pdfPageSettings.size = this.getPageSize(pdfExportProperties.pageSize);
                 section.setPageSettings(pdfPageSettings);
             }
@@ -352,7 +367,7 @@ export class PdfExport {
                 this.customDataSource = true;
                 this.currentViewData = false;
             } else if (pdfExportProperties.exportType !== undefined) {
-                if (pdfExportProperties.exportType === 'currentview') {
+                if (pdfExportProperties.exportType === 'currentpage') {
                     dataSource = this.parent.getCurrentViewRecords();
                     this.currentViewData = true;
                     this.customDataSource = false;
@@ -371,7 +386,7 @@ export class PdfExport {
         return { dataSource: dataSource, section: section };
     }
     /* tslint:disable-next-line:no-any */
-    private drawPageTemplate(template: PdfPageTemplateElement, element: any): PdfPageTemplateElement {
+    private drawPageTemplate(template: PdfPageTemplateElement, element: PdfHeader | PdfFooter): PdfPageTemplateElement {
         for (let content of element.contents) {
             this.processContentValidation(content);
             switch (content.type) {
@@ -382,7 +397,7 @@ export class PdfExport {
                     }
                     this.drawText(template, content);
                     break;
-                case 'pageNumber':
+                case 'pagenumber':
                     this.drawPageNumber(template, content);
                     break;
                 case 'image':
@@ -401,12 +416,12 @@ export class PdfExport {
         return template;
     }
     /* tslint:disable-next-line:no-any */
-    private processContentValidation(content: any): void {
-        if (content.type === '' || content.type === undefined || content.type === null) {
+    private processContentValidation(content: PdfHeaderFooterContent): void {
+        if (content.type === undefined || content.type === null) {
             throw new Error('please set valid content type...');
         } else {
             if (content.type === 'line') {
-                if (content.points === '' || content.points === undefined || content.points === null) {
+                if (content.points === undefined || content.points === null) {
                     throw new Error('please enter valid points in ' + content.type + ' content...');
                 } else {
                     if (content.points.x1 === undefined || content.points.x1 === null || typeof content.points.x1 !== 'number') {
@@ -423,7 +438,7 @@ export class PdfExport {
                     }
                 }
             } else {
-                if (content.position === '' || content.position === undefined || content.position === null) {
+                if (content.position === undefined || content.position === null) {
                     throw new Error('please enter valid position in ' + content.type + ' content...');
                 } else {
                     if (content.position.x === undefined || content.position.x === null || typeof content.position.x !== 'number') {
@@ -577,7 +592,8 @@ export class PdfExport {
                         let result: any = this.getTemplateFunction(templateFn, i, leastCaptionSummaryIndex, cell.column);
                         templateFn = result.templateFunction;
                         leastCaptionSummaryIndex = result.leastCaptionSummaryIndex;
-                        let txt: NodeList = (templateFn[getEnumValue(CellType, cell.cellType)](row.data[cell.column.field]));
+                        /* tslint:disable-next-line:max-line-length */
+                        let txt: NodeList = (templateFn[getEnumValue(CellType, cell.cellType)](row.data[cell.column.field ? cell.column.field : cell.column.columnName]));
                         value.push((<Text>txt[0]).wholeText);
                         isEmpty = false;
                     } else {
@@ -663,7 +679,8 @@ export class PdfExport {
             }
             // Need to add width consideration with % value
             if (pdfGrid.style.allowHorizontalOverflow && gridColumns[i].width !== undefined) {
-                pdfGrid.columns.getColumn(i + startIndex).width = ((gridColumns[i].width as number) * 0.75);
+                /* tslint:disable-next-line:max-line-length */
+                pdfGrid.columns.getColumn(i + startIndex).width = typeof gridColumns[i].width === 'number' ? gridColumns[i].width as number * 0.75 : this.helper.getConvertedWidth(gridColumns[i].width as string) * 0.75;
             }
         }
     }
@@ -672,15 +689,15 @@ export class PdfExport {
      * @private
      */
     private setRecordThemeStyle(row: PdfGridRow, border: PdfBorders): PdfGridRow {
-        switch (this.gridTheme) {
-            case 'bootstrap':
-                row.style.setTextBrush(new PdfSolidBrush(new PdfColor(51, 51, 51)));
-                break;
-            case 'fabric':
-                row.style.setTextBrush(new PdfSolidBrush(new PdfColor(51, 51, 51)));
-                break;
-            default:
-                row.style.setTextBrush(new PdfSolidBrush(new PdfColor(0, 0, 0)));
+        if (this.gridTheme !== undefined && this.gridTheme.record !== undefined && this.gridTheme.record !== null) {
+            let pdfColor: PdfColor = new PdfColor();
+            if (this.gridTheme.record.fontColor !== undefined) {
+                let penBrushColor: { r: number, g: number, b: number } = this.hexToRgb(this.gridTheme.record.fontColor);
+                pdfColor = new PdfColor(penBrushColor.r, penBrushColor.g, penBrushColor.b);
+            }
+            row.style.setTextBrush(new PdfSolidBrush(pdfColor));
+        } else {
+            row.style.setTextBrush(new PdfSolidBrush(new PdfColor(0, 0, 0)));
         }
         row.style.setBorder(border);
         return row;
@@ -728,7 +745,7 @@ export class PdfExport {
         }
     }
     /* tslint:disable-next-line:no-any */
-    private processCellStyle(cell: PdfGridCell, args: any): void {
+    private processCellStyle(cell: PdfGridCell, args: PdfQueryCellInfoEventArgs): void {
         if (args.style.backgroundColor !== undefined) {
             /* tslint:disable-next-line:max-line-length */
             let backColor: { r: number, g: number, b: number } = this.hexToRgb(args.style.backgroundColor);
@@ -745,8 +762,8 @@ export class PdfExport {
             cell.style.textBrush = new PdfSolidBrush(new PdfColor(textBrushColor.r, textBrushColor.g, textBrushColor.b));
         }
         if (args.style.textPenColor !== undefined) {
-            /* tslint:disable-next-line:max-line-length */
-            cell.style.textPen = new PdfPen(new PdfColor(args.style.textPenColor.r, args.style.textPenColor.g, args.style.textPenColor.b));
+            let textPenColor: { r: number, g: number, b: number } = this.hexToRgb(args.style.textPenColor);
+            cell.style.textPen = new PdfPen(new PdfColor(textPenColor.r, textPenColor.g, textPenColor.b));
         }
         /* tslint:disable-next-line:max-line-length */
         if (args.style.fontFamily !== undefined || args.style.fontSize !== undefined || args.style.bold !== undefined || args.style.italic !== undefined || args.style.underline !== undefined || args.style.strikeout !== undefined) {
@@ -754,13 +771,11 @@ export class PdfExport {
         }
         if (args.style.border !== undefined) {
             let border: PdfBorders = new PdfBorders();
-            /* tslint:disable:no-any */
-            let borderWidth: any = args.style.border.width;
+            let borderWidth: number = args.style.border.width;
             // set border width
-            let width: any = (borderWidth !== undefined && typeof borderWidth === 'number') ? (borderWidth * 0.75) : (undefined);
+            let width: number = (borderWidth !== undefined && typeof borderWidth === 'number') ? (borderWidth * 0.75) : (undefined);
             // set border color
             let color: PdfColor = new PdfColor(196, 196, 196);
-            /* tslint:enable:no-any */
             if (args.style.border.color !== undefined) {
                 let borderColor: { r: number, g: number, b: number } = this.hexToRgb(args.style.border.color);
                 color = new PdfColor(borderColor.r, borderColor.g, borderColor.b);
@@ -854,22 +869,22 @@ export class PdfExport {
         }
         return new PdfStandardFont(fontFamily, fontSize, fontStyle);
     }
-    private getPageNumberStyle(pageNumberType: string): number {
+    private getPageNumberStyle(pageNumberType: PdfPageNumberType): number {
         switch (pageNumberType) {
-            case 'LowerLatin':
+            case 'lowerlatin':
                 return 2;
-            case 'LowerRoman':
+            case 'lowerroman':
                 return 3;
-            case 'UpperLatin':
+            case 'upperlatin':
                 return 4;
-            case 'UpperRoman':
+            case 'upperroman':
                 return 5;
             default:
                 return 1;
         }
     }
     /* tslint:disable-next-line:max-line-length */ /* tslint:disable-next-line:no-any */
-    private setContentFormat(content: any, format: PdfStringFormat): { format: PdfStringFormat, size: SizeF } {
+    private setContentFormat(content: PdfHeaderFooterContent, format: PdfStringFormat): { format: PdfStringFormat, size: SizeF } {
         if (content.size !== undefined) {
             let width: number = content.size.width * 0.75;
             let height: number = content.size.height * 0.75;
@@ -896,84 +911,84 @@ export class PdfExport {
         }
         return null;
     }
-    private getPageSize(pageSize: string): SizeF {
+    private getPageSize(pageSize: PdfPageSize): SizeF {
         switch (pageSize) {
-            case 'Letter':
+            case 'letter':
                 return new SizeF(612, 792);
-            case 'Note':
+            case 'note':
                 return new SizeF(540, 720);
-            case 'Legal':
+            case 'legal':
                 return new SizeF(612, 1008);
-            case 'A0':
+            case 'a0':
                 return new SizeF(2380, 3368);
-            case 'A1':
+            case 'a1':
                 return new SizeF(1684, 2380);
-            case 'A2':
+            case 'a2':
                 return new SizeF(1190, 1684);
-            case 'A3':
+            case 'a3':
                 return new SizeF(842, 1190);
-            case 'A5':
+            case 'a5':
                 return new SizeF(421, 595);
-            case 'A6':
+            case 'a6':
                 return new SizeF(297, 421);
-            case 'A7':
+            case 'a7':
                 return new SizeF(210, 297);
-            case 'A8':
+            case 'a8':
                 return new SizeF(148, 210);
-            case 'A9':
+            case 'a9':
                 return new SizeF(105, 148);
             // case 'A10':
             //     return new SizeF(74, 105);
-            case 'B0':
+            case 'b0':
                 return new SizeF(2836, 4008);
-            case 'B1':
+            case 'b1':
                 return new SizeF(2004, 2836);
-            case 'B2':
+            case 'b2':
                 return new SizeF(1418, 2004);
-            case 'B3':
+            case 'b3':
                 return new SizeF(1002, 1418);
-            case 'B4':
+            case 'b4':
                 return new SizeF(709, 1002);
-            case 'B5':
+            case 'b5':
                 return new SizeF(501, 709);
-            case 'ArchA':
+            case 'archa':
                 return new SizeF(648, 864);
-            case 'ArchB':
+            case 'archb':
                 return new SizeF(864, 1296);
-            case 'ArchC':
+            case 'archc':
                 return new SizeF(1296, 1728);
-            case 'ArchD':
+            case 'archd':
                 return new SizeF(1728, 2592);
-            case 'ArchE':
+            case 'arche':
                 return new SizeF(2592, 3456);
-            case 'Flsa':
+            case 'flsa':
                 return new SizeF(612, 936);
-            case 'HalfLetter':
+            case 'halfletter':
                 return new SizeF(396, 612);
-            case 'Letter11x17':
+            case 'letter11x17':
                 return new SizeF(792, 1224);
-            case 'Ledger':
+            case 'ledger':
                 return new SizeF(1224, 792);
             default:
                 return new SizeF(595, 842);
         }
     }
-    private getDashStyle(dashStyle: string): number {
+    private getDashStyle(dashStyle: PdfDashStyle): number {
         switch (dashStyle) {
-            case 'Dash':
+            case 'dash':
                 return 1;
-            case 'Dot':
+            case 'dot':
                 return 2;
-            case 'DashDot':
+            case 'dashdot':
                 return 3;
-            case 'DashDotDot':
+            case 'dashdotdot':
                 return 4;
             default:
                 return 0;
         }
     }
     /* tslint:disable-next-line:no-any */
-    private getPenFromContent(content: any): PdfPen {
+    private getPenFromContent(content: PdfHeaderFooterContent): PdfPen {
         let pen: PdfPen = new PdfPen(new PdfColor(0, 0, 0));
         if (content.style !== undefined && content.style !== null && content.style.penColor !== undefined) {
             let penColor: { r: number, g: number, b: number } = this.hexToRgb(content.style.penColor);
@@ -982,7 +997,7 @@ export class PdfExport {
         return pen;
     }
     /* tslint:disable-next-line:no-any */
-    private getBrushFromContent(content: any): PdfSolidBrush {
+    private getBrushFromContent(content: PdfHeaderFooterContent): PdfSolidBrush {
         let brush: PdfSolidBrush = null;
         if (content.style.textBrushColor !== undefined) {
             /* tslint:disable-next-line:max-line-length */

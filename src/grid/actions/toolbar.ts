@@ -6,7 +6,7 @@ import * as events from '../base/constant';
 import { ServiceLocator } from '../services/service-locator';
 import { EditSettingsModel } from '../base/grid-model';
 import { templateCompiler, appendChildren } from '../base/util';
-import { ToolbarItems } from '../base/enum';
+import { ToolbarItems, ToolbarItem } from '../base/enum';
 
 /**
  * `Toolbar` module used to handle toolbar actions.
@@ -23,6 +23,8 @@ export class Toolbar {
     private parent: IGrid;
     private serviceLocator: ServiceLocator;
     private l10n: L10n;
+    private items: string[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print', 'search',
+        'columnchooser', 'pdfexport', 'excelexport', 'csvexport', 'wordexport'];
 
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator) {
         this.parent = parent;
@@ -145,12 +147,21 @@ export class Toolbar {
 
     private getItems(): ItemModel[] {
         let items: ItemModel[] = [];
-        let toolbarItems: string | string[] | ItemModel[] = this.parent.toolbar || [];
+        let toolbarItems: string | string[] | ItemModel[] | ToolbarItem[] = this.parent.toolbar || [];
         if (typeof (this.parent.toolbar) === 'string') {
             return [];
         }
         for (let item of toolbarItems) {
-            typeof (item) === 'string' ? items.push(this.getItemObject(item)) : items.push(this.getItem(item));
+            switch (typeof item) {
+                case 'number':
+                    items.push(this.getItemObject(this.items[item as number]));
+                    break;
+                case 'string':
+                    items.push(this.getItemObject(item as string));
+                    break;
+                default:
+                    items.push(this.getItem(item as ItemModel));
+            }
         }
         return items;
     }

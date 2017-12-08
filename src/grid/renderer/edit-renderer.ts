@@ -61,7 +61,7 @@ export class EditRender {
         let cell: HTMLElement;
         let value: string;
         let form: Element = gObj.element.querySelector('.e-gridform');
-        let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.columns as Column[] : [gObj.getColumnByField(args.columnName)];
+        let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
         for (let col of cols) {
             if (!col.visible || col.commands) {
                 continue;
@@ -97,7 +97,7 @@ export class EditRender {
     private getEditElements(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element }): Object {
         let gObj: IGrid = this.parent;
         let elements: Object = {};
-        let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.columns as Column[] : [gObj.getColumnByField(args.columnName)];
+        let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             let col: Column = cols[i];
             if (!col.visible) {

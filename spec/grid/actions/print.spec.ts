@@ -58,6 +58,7 @@ describe('Print module', () => {
         });
 
         afterAll(() => {
+            gridObj.destroy();
             elem.remove();
         });
     });
@@ -111,6 +112,7 @@ describe('Print module', () => {
         });
 
         afterAll(() => {
+            gridObj.destroy();
             elem.remove();
         });
     });
@@ -212,6 +214,7 @@ describe('Print module', () => {
 
 
         afterAll(() => {
+            gridObj.destroy();
             elem.remove();
         });
     });

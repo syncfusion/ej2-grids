@@ -257,6 +257,8 @@ export const contextMenuClick: string = 'contextMenuClick';
 /** @hidden */
 export const freezeRefresh: string = 'freezerefresh';
 /** @hidden */
+export const freezeRender: string = 'freezerender';
+/** @hidden */
 export const contextMenuOpen: string = 'contextMenuOpen';
 /** @hidden */
 export const columnMenuClick: string = 'contextMenuClick';

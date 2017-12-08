@@ -1,10 +1,10 @@
 import { Browser, EventHandler, MouseEventArgs } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, isUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, isUndefined, addClass, removeClass } from '@syncfusion/ej2-base';
 import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
 import { Query } from '@syncfusion/ej2-data';
 import { IGrid, IAction, IIndex, ISelectedCell, IPosition, IRenderer, EJ2Intance, NotifyArgs, CellFocusArgs } from '../base/interface';
 import { SelectionSettings } from '../base/grid';
-import { setCssInGridPopUp, getPosition, parentsUntil, addRemoveActiveClasses } from '../base/util';
+import { setCssInGridPopUp, getPosition, parentsUntil, addRemoveActiveClasses, removeAddCboxClasses } from '../base/util';
 import * as events from '../base/constant';
 import { RenderType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
@@ -136,7 +136,9 @@ export class Selection implements IAction {
     }
 
     private isEditing(): boolean {
-        return this.parent.editSettings.mode !== 'batch' && this.parent.isEdit && !this.persistSelection;
+        return (this.parent.editSettings.mode === 'inline' || (this.parent.editSettings.mode === 'batch' &&
+        this.parent.editModule.formObj && !this.parent.editModule.formObj.validate())) &&
+        this.parent.isEdit && !this.persistSelection;
     }
 
 
@@ -292,6 +294,9 @@ export class Selection implements IAction {
         this.selectedRowIndexes = [];
         this.selectedRecords = [];
         this.parent.selectedRowIndex = -1;
+        if (this.selectionSettings.type === 'single' && this.persistSelection) {
+            this.selectedRowState = {};
+        }
     }
 
     private updateRowProps(startIndex: number): void {
@@ -322,8 +327,8 @@ export class Selection implements IAction {
     private updateCheckBoxes(row: Element, chkState?: boolean): void {
         if (!isNullOrUndefined(row)) {
             let chkBox: HTMLInputElement = row.querySelector('.e-checkselect') as HTMLInputElement;
-            if (!isNullOrUndefined(chkBox) && this.checkedTarget !== chkBox) {
-                ((chkBox as HTMLElement) as EJ2Intance).ej2_instances[0].setProperties({ checked: chkState });
+            if (!isNullOrUndefined(chkBox)) {
+                removeAddCboxClasses(chkBox.nextElementSibling as HTMLElement, chkState);
                 if (isNullOrUndefined(this.checkedTarget) || (!isNullOrUndefined(this.checkedTarget)
                     && !this.checkedTarget.classList.contains('e-checkselectall'))) {
                     this.setCheckAllState();
@@ -841,6 +846,7 @@ export class Selection implements IAction {
         this.parent.addEventListener(events.dataBound, this.onDataBound.bind(this));
         this.parent.addEventListener(events.actionBegin, this.actionBegin.bind(this));
         this.parent.addEventListener(events.actionComplete, this.actionComplete.bind(this));
+        this.parent.on(events.rowsRemoved, this.rowsRemoved, this);
     }
     /**
      * @hidden
@@ -859,7 +865,16 @@ export class Selection implements IAction {
         this.parent.removeEventListener(events.dataBound, this.onDataBound);
         this.parent.removeEventListener(events.actionBegin, this.actionBegin);
         this.parent.removeEventListener(events.actionComplete, this.actionComplete);
+        this.parent.off(events.rowsRemoved, this.rowsRemoved);
     }
+
+    private rowsRemoved(e: { records: Object[] }): void {
+        for (let i: number = 0; i < e.records.length; i++) {
+            delete (this.selectedRowState[e.records[i][this.primaryKey]]);
+            --this.totalRecordsCount;
+        }
+        this.setCheckAllState();
+    };
 
     public dataReady(e: { requestType: string }): void {
         if (e.requestType !== 'virtualscroll' && !this.persistSelection) {
@@ -969,15 +984,17 @@ export class Selection implements IAction {
                 let rowObj: Row<Column> = this.parent.getRowObjectFromUID(rows[j].getAttribute('data-uid'));
                 let pKey: string = rowObj ? rowObj.data[this.primaryKey] : null; if (pKey === null) { return; }
                 let checkState: boolean;
+                let chkBox: HTMLInputElement = (rows[j].querySelector('.e-checkselect') as HTMLInputElement);
                 if (this.selectedRowState[pKey] || (this.isChkAll && this.chkAllCollec.indexOf(pKey) < 0)
-                    || (this.isUnChkAll && this.chkAllCollec.indexOf(pKey) > 0) || (this.chkField && rowObj.data[this.chkField])) {
+                    || (this.isUnChkAll && this.chkAllCollec.indexOf(pKey) > 0)
+                    || (!this.isChkAll && !this.isUnChkAll && this.chkField && rowObj.data[this.chkField]
+                        && chkBox.checked)) {
                     indexes.push(parseInt(rows[j].getAttribute('aria-rowindex'), 10));
                     checkState = true;
                 } else {
-                    let chkBox: HTMLElement = (rows[j].querySelector('.e-checkselect') as HTMLElement);
                     checkState = false;
                     if (this.checkedTarget !== chkBox && this.isChkSelection) {
-                        (chkBox as EJ2Intance).ej2_instances[0].setProperties({ checked: checkState });
+                        removeAddCboxClasses(chkBox.nextElementSibling as HTMLElement, checkState);
                     }
                 }
                 this.updatePersistCollection(rows[j], checkState);
@@ -1061,15 +1078,17 @@ export class Selection implements IAction {
         }
         if (!isNullOrUndefined(editForm)) {
             let editChkBox: HTMLElement = editForm.querySelector('.e-edit-checkselect') as HTMLElement;
-            (editChkBox as EJ2Intance).ej2_instances[0].setProperties({ checked: checkState });
+            removeAddCboxClasses(editChkBox.nextElementSibling as HTMLElement, checkState);
         }
     }
 
     private checkSelectAll(checkBox: HTMLInputElement): void {
         let checkObj: EJ2Intance = ((checkBox as HTMLElement) as EJ2Intance);
-        this.checkSelectAllAction(checkBox.checked);
+        let state: boolean = checkBox.nextElementSibling.classList.contains('e-check');
+        this.checkSelectAllAction(!state);
         this.target = null;
-        this.triggerChkChangeEvent(checkBox, checkBox.checked);
+        this.setCheckAllState();
+        this.triggerChkChangeEvent(checkBox, !state);
     }
 
     private checkSelect(checkBox: HTMLInputElement): void {
@@ -1084,7 +1103,7 @@ export class Selection implements IAction {
         this.moveIntoUncheckCollection(closest(target, '.e-row') as HTMLElement);
         this.setCheckAllState();
         this.isMultiCtrlRequest = false;
-        this.triggerChkChangeEvent(checkBox, checkBox.checked);
+        this.triggerChkChangeEvent(checkBox, checkBox.nextElementSibling.classList.contains('e-check'));
     }
 
     private moveIntoUncheckCollection(row: HTMLElement): void {
@@ -1117,13 +1136,15 @@ export class Selection implements IAction {
                 checkedLen = this.selectedRecords.length;
                 this.totalRecordsCount = this.parent.getCurrentViewRecords().length;
             }
+            let spanEle: HTMLElement = this.chkAllBox.nextElementSibling as HTMLElement;
+            removeClass([spanEle], ['e-check', 'e-stop', 'e-uncheck']);
             if (checkedLen === this.totalRecordsCount || (this.persistSelection && this.parent.allowPaging
                 && this.isChkAll && this.chkAllCollec.length === 0)) {
-                this.chkAllObj.ej2_instances[0].setProperties({ checked: true });
+                addClass([spanEle], ['e-check']);
             } else if (checkedLen === 0 || this.parent.getCurrentViewRecords().length === 0) {
-                this.chkAllObj.ej2_instances[0].setProperties({ indeterminate: false, checked: false });
+                addClass([spanEle], ['e-uncheck']);
             } else {
-                this.chkAllObj.ej2_instances[0].setProperties({ indeterminate: true });
+                addClass([spanEle], ['e-stop']);
             }
         }
     }
@@ -1137,7 +1158,9 @@ export class Selection implements IAction {
         this.preventFocus = true;
         let checkBox: HTMLInputElement;
         this.selectionRequest = true;
-        if (target.classList.contains('e-checkselect') || target.classList.contains('e-checkselectall')) {
+        let checkWrap: HTMLElement = parentsUntil(target, 'e-checkbox-wrapper') as HTMLElement;
+        if (checkWrap && checkWrap.querySelectorAll('.e-checkselect,.e-checkselectall').length > 0) {
+            target = checkWrap.querySelector('input[type="checkbox"]') as HTMLElement;
             checkBox = target as HTMLInputElement;
             chkSelect = true;
         }

@@ -1,6 +1,6 @@
 import { ChildProperty, compile as baseTemplateComplier, classList } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue, NumberFormatOptions } from '@syncfusion/ej2-base';
-import { setStyleAttribute, addClass, attributes, createElement, remove, DateFormatOptions } from '@syncfusion/ej2-base';
+import { setStyleAttribute, addClass, attributes, createElement, remove, DateFormatOptions, removeClass } from '@syncfusion/ej2-base';
 import { IPosition, IGrid, IValueFormatter } from './interface';
 import { ServiceLocator } from '../services/service-locator';
 import { DataUtil } from '@syncfusion/ej2-data';
@@ -341,7 +341,7 @@ export function isEditable(col: Column, type: string, elem: Element): boolean {
 export function isActionPrevent(inst: IGrid): boolean {
     let dlg: HTMLElement = inst.element.querySelector('#' + inst.element.id + 'EditConfirm') as HTMLElement;
     return inst.editSettings.mode === 'batch' &&
-        (inst.element.querySelectorAll('.e-updatedtd').length) &&
+        (inst.element.querySelectorAll('.e-updatedtd').length) && inst.editSettings.showConfirmDialog &&
         (dlg ? dlg.classList.contains('e-popup-close') : true);
 }
 
@@ -447,4 +447,14 @@ export function createCboxWithWrap(uid: string, elem: Element, className?: strin
     div.appendChild(elem);
     div.setAttribute('uid', uid);
     return div;
+}
+
+/** @hidden */
+export function removeAddCboxClasses(elem: Element, checked: boolean): void {
+    removeClass([elem], ['e-check', 'e-stop', 'e-uncheck']);
+    if (checked) {
+        elem.classList.add('e-check');
+    } else {
+        elem.classList.add('e-uncheck');
+    }
 }

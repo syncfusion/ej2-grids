@@ -15,7 +15,7 @@ export type CustomSummaryType = (data: Object[] | Object, column: AggregateColum
 export type ReturnType = { result: Object[], count: number, aggregates?: Object };
 
 export type SentinelType = {
-    check?: (rect: ClientRect, info: SentinelInfo) => boolean,
+    check?: (rect: ClientRect, info: SentinelType) => boolean,
     top?: number, entered?: boolean,
     axis?: string;
 };

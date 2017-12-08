@@ -20,6 +20,7 @@ import { Selection } from '../../../src/grid/actions/selection';
 import { NumericEditCell } from '../../../src/grid/renderer/numeric-edit-cell';
 import { DropDownEditCell } from '../../../src/grid/renderer/dropdown-edit-cell';
 import { filterData } from '../base/datasource.spec';
+import { createGrid, destroy,  getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Filter, Page, Selection, Group, Edit, Sort, Reorder, Toolbar);
@@ -36,13 +37,10 @@ describe('Dialog Editing module', () => {
 
     describe('Dialog editing render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let actionComplete: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: dataSource(),
                     allowFiltering: true,
@@ -64,10 +62,8 @@ describe('Dialog Editing module', () => {
                         { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
                     ],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('Edit start', (done: Function) => {
@@ -127,7 +123,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
-            (gridObj.element.querySelector('#Grid_dialogEdit_wrapper').querySelectorAll('button') as any)[1].click();
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_dialogEdit_wrapper').querySelectorAll('button') as any)[1].click();
         });
 
         it('Add start', (done: Function) => {
@@ -201,9 +197,9 @@ describe('Dialog Editing module', () => {
             };
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
-            (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updated';
-            (gridObj.element.querySelector('#Grid_dialogEdit_wrapper').querySelectorAll('button') as any)[1].click();
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'OrderID') as any).value = 10247;
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updated';
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'_dialogEdit_wrapper').querySelectorAll('button') as any)[1].click();
         });
 
 
@@ -283,8 +279,8 @@ describe('Dialog Editing module', () => {
             gridObj.actionBegin = actionBegin;
             //toolbar status check
             expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updatednew';
-            (gridObj.element.querySelector('#Grid_dialogEdit_wrapper').querySelectorAll('button') as any)[2].click();
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updatednew';
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'_dialogEdit_wrapper').querySelectorAll('button') as any)[2].click();
         });
 
         it('Add-cancel start', (done: Function) => {
@@ -339,9 +335,9 @@ describe('Dialog Editing module', () => {
             gridObj.actionBegin = actionBegin;
             //toolbar status check
             expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
-            (gridObj.element.querySelector('#GridOrderID') as any).value = 10247;
-            (gridObj.element.querySelector('#GridCustomerID') as any).value = 'updatednew';
-            (gridObj.element.querySelector('#Grid_dialogEdit_wrapper').querySelectorAll('button') as any)[2].click();
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'OrderID') as any).value = 10247;
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updatednew';
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'_dialogEdit_wrapper').querySelectorAll('button') as any)[2].click();
         });
 
         it('toolbar status check', () => {
@@ -375,15 +371,12 @@ describe('Dialog Editing module', () => {
             };
             gridObj.actionComplete = actionComplete;
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
-            (gridObj.element.querySelector('#Grid_dialogEdit_wrapper').querySelectorAll('button') as any)[1].click();
+            (gridObj.element.querySelector('#'+ gridObj.element.id +'_dialogEdit_wrapper').querySelectorAll('button') as any)[1].click();
         });
 
         afterAll((done) => {
             gridObj.notify('tooltip-destroy', {});
-            elem.remove();
-            if (document.getElementById('Grid')) {
-                document.getElementById('Grid').remove();
-            }
+           destroy(gridObj);
             setTimeout(function () {
                 done();
             }, 1000);

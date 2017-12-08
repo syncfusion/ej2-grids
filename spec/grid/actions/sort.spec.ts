@@ -1,323 +1,318 @@
 /**
  * Grid Sorting spec document
  */
-import { Browser, ChildProperty, EmitType } from '@syncfusion/ej2-base';
+import { Browser, ChildProperty } from '@syncfusion/ej2-base';
 import { getValue } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base';
+import { remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
+import { SortSettingsModel } from '../../../src/grid/base/grid-model';
 import { Sort } from '../../../src/grid/actions/sort';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Freeze } from '../../../src/grid/actions/freeze';
 import { Page } from '../../../src/grid/actions/page';
 import { Group } from '../../../src/grid/actions/group';
 import { data } from '../base/datasource.spec';
+import { createGrid, destroy, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Sort, Page, Filter, Group, Freeze);
 
-describe('Sorting module', () => {
+describe('Sorting module => ', () => {
 
-    let getActualProperties: Function = (obj: any): any => {
-        if (obj instanceof ChildProperty) {
-            return <any>getValue('properties', obj);
-        } else {
-            return obj;
-        }
-    };
-
-    let getString: Function = (obj: any) => {
-        return JSON.stringify(obj, (key: string, value: Object) => {
-            return getActualProperties(value);
-        });
-    };
-
-    describe('Sorting functionalities', () => {
+    describe('Sorting functionalities => ', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let actionBegin: (e?: Object) => void;
-        let actionComplete: (e?: Object) => void;
-        let colHeader: Element;
-        let col1: Element;
-        let col2: Element;
+        let actionBegin: (e?: any) => void;
+        let actionComplete: (e?: any) => void;
+        let cols: any
+        let sortSettings: SortSettingsModel;
 
-        let evt: MouseEvent = document.createEvent('MouseEvent');
-        evt.initMouseEvent(
-            'click',
-            true /* bubble */, true /* cancelable */,
-            window, null,
-            0, 0, 0, 0, /* coordinates */
-            true, false, false, false, /* modifier keys */
-            0 /*left*/, null
-        );
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowSorting: true,
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
         it('Single sort orderID asc testing', (done: Function) => {
-            actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"}]');
+            actionComplete = (args: any): any => {
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            col1 = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[0];
-            col2 = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[1];
-            (col1 as HTMLElement).click();
+            sortSettings = gridObj.sortSettings;
+            cols = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
         });
         it('Single sort orderID des testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBeTruthy('[{"field":"OrderID","direction":"descending"}]');
+                expect(cols[0].querySelectorAll('.e-descending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col1 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
         });
         it('Single sort CustomerID asc testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"CustomerID","direction":"ascending"}]');
+                expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('CustomerID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col2 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[1]));
         });
         it('Single sort CustomerID des testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col2.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"CustomerID","direction":"descending"}]');
+                expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('CustomerID');
+                expect(sortSettings.columns[0].direction).toBe('descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col2 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[1]));
         });
         it('clear sorting', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-ascending').length).toBe(0);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-descending').length).toBe(0);
+                expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(0);
+                expect(cols[0].parentElement.querySelectorAll('.e-ascending').length).toBe(0);
+                expect(cols[0].parentElement.querySelectorAll('.e-descending').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             gridObj.clearSorting();
         });
         it('Disabled sort asc testing', () => {
             gridObj.allowSorting = false;
             gridObj.dataBind();
-            colHeader = col1;
-            (colHeader as HTMLElement).click();
-            expect(colHeader.querySelectorAll('.e-ascending').length).toBe(0);
-            expect(gridObj.sortSettings.columns.length).toBe(0);
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
+            expect(cols[0].parentElement.querySelectorAll('.e-ascending').length).toBe(0);
+            expect(sortSettings.columns.length).toBe(0);
         });
         it('Disabled sort des testing', () => {
-            colHeader = col1;
-            (colHeader as HTMLElement).click();
-            expect(colHeader.querySelectorAll('.e-descending').length).toBe(0);
-            expect(gridObj.sortSettings.columns.length).toBe(0);
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
+            expect(cols[0].parentElement.querySelectorAll('.e-descending').length).toBe(0);
+            expect(sortSettings.columns.length).toBe(0);
         });
-        it('Multisort OrderID asc testing', (done: Function) => {
+        it('OrderID asc testing', (done: Function) => {
             gridObj.allowSorting = true;
             gridObj.dataBind();
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"}]');
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col1 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
         });
         it('Multisort OrderID and CustomerID testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"},{"field":"CustomerID","direction":"ascending"}]');
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(2);
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[1].field).toBe('CustomerID');
+                expect(sortSettings.columns[1].direction).toBe('ascending');
+                expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(2);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col2 as HTMLElement).dispatchEvent(evt);
+            (gridObj as any).mouseClickHandler(getClickObj(cols[1], true));
         });
         it('Multisort OrderID and CustomerID des testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(col2.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"},{"field":"CustomerID","direction":"descending"}]');
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(2);
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(cols[1].querySelectorAll('.e-ascending').length).toBe(0);
+                expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[1].field).toBe('CustomerID');
+                expect(sortSettings.columns[1].direction).toBe('descending');
+                expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(2);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col2 as HTMLElement).dispatchEvent(evt);
+            (gridObj as any).mouseClickHandler(getClickObj(cols[1], true));
         });
         it('Multisort OrderID, CustomerID des, EmployeeID testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(col2.querySelectorAll('.e-descending').length).toBe(1);
-                expect(colHeader.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"},{"field":"CustomerID","direction":"descending"},' +
-                    '{"field":"EmployeeID","direction":"ascending"}]');
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
+                expect(cols[2].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[1].field).toBe('CustomerID');
+                expect(sortSettings.columns[1].direction).toBe('descending');
+                expect(sortSettings.columns[2].field).toBe('EmployeeID');
+                expect(sortSettings.columns[2].direction).toBe('ascending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(3);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            colHeader = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[2];
-            (colHeader as HTMLElement).dispatchEvent(evt);
+            (gridObj as any).mouseClickHandler(getClickObj(cols[2], true));
         });
         it('Disable multisort des testing', (done: Function) => {
             gridObj.allowSorting = true;
             gridObj.allowMultiSorting = false;
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(0);
-                expect(col2.querySelectorAll('.e-descending').length).toBe(0);
-                expect(colHeader.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"EmployeeID","direction":"descending"}]');
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(0);
+                expect(cols[1].querySelectorAll('.e-descending').length).toBe(0);
+                expect(cols[2].querySelectorAll('.e-descending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('EmployeeID');
+                expect(sortSettings.columns[0].direction).toBe('descending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            colHeader = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[2];
-            (colHeader as HTMLElement).dispatchEvent(evt);
+            (gridObj as any).mouseClickHandler(getClickObj(cols[2], true));
         });
         it('Clear sorting', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-ascending').length).toBe(0);
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-descending').length).toBe(0);
+                expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(0);
+                expect(cols[0].parentElement.querySelectorAll('.e-ascending').length).toBe(0);
+                expect(cols[0].parentElement.querySelectorAll('.e-descending').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             gridObj.clearSorting();
         });
         it('Single sort column method testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"}]');
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             gridObj.sortColumn('OrderID', 'ascending', false);
         });
         it('Multisort column method testing', (done: Function) => {
             gridObj.allowMultiSorting = true;
             actionComplete = (args: Object): void => {
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(col2.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"},{"field":"CustomerID","direction":"descending"}]');
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[1].field).toBe('CustomerID');
+                expect(sortSettings.columns[1].direction).toBe('descending');
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.sortColumn('CustomerID', 'descending', true);
+        });
+        it('Multisort column - with same column', (done: Function) => {
+            gridObj.allowMultiSorting = true;
+            actionComplete = (args: Object): void => {
+                expect(cols[0].querySelectorAll('.e-descending').length).toBe(1);
+                expect(cols[0].querySelectorAll('.e-sortnumber').length).toBe(1);
+                expect(cols[0].querySelector('.e-sortnumber').innerHTML).toBe('2');
+                expect(cols[1].querySelectorAll('.e-sortnumber').length).toBe(1);
+                expect(cols[1].querySelector('.e-sortnumber').innerHTML).toBe('1');
                 done();
             };
             gridObj.actionComplete = actionComplete;
             gridObj.dataBind();
-            gridObj.sortColumn('CustomerID', 'descending', true);
+            gridObj.sortColumn('OrderID', 'descending', true);
         });
         it('Remove sorted column by field method testing', (done: Function) => {
             actionComplete = (args: Object): void => {
-                expect(col2.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"CustomerID","direction":"descending"}]');
+                expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
+                expect(sortSettings.columns[0].field).toBe('CustomerID');
+                expect(sortSettings.columns[0].direction).toBe('descending');
                 gridObj.actionComplete = (e?: Object) => undefined;
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             gridObj.removeSortColumn('OrderID');
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
-    describe('sort inital settings', () => {
+    describe('sort inital settings => ', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let cols: any;
+        let sortSettings: SortSettingsModel;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowSorting: true,
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     sortSettings: { columns: [{ field: 'OrderID', direction: 'ascending' }, { field: 'CustomerID', direction: 'ascending' }] },
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('Initial sort settings testing', () => {
-            let col1: Element = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[0];
-            let col2: Element = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[1];
-            expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-            expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
-            expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"},{"field":"CustomerID","direction":"ascending"}]');
-            expect(col1.querySelectorAll('.e-sortnumber').length).toBe(1);
-            expect(col2.querySelectorAll('.e-sortnumber').length).toBe(1);
+            sortSettings = gridObj.sortSettings;
+            cols = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
+            expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+            expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
+            expect(sortSettings.columns[0].field).toBe('OrderID');
+            expect(sortSettings.columns[0].direction).toBe('ascending');
+            expect(sortSettings.columns[1].field).toBe('CustomerID');
+            expect(sortSettings.columns[1].direction).toBe('ascending');
+            expect(cols[0].querySelectorAll('.e-sortnumber').length).toBe(1);
+            expect(cols[1].querySelectorAll('.e-sortnumber').length).toBe(1);
             gridObj.sortModule.removeSortColumn('Freight');
         });
         //set model and default properties model check
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
-    describe('Sort with Grouping', () => {
+    describe('Sort with Grouping => ', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: () => void;
+        let cols: any;
+        let sortSettings: SortSettingsModel;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
                     allowSorting: true,
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                    { field: 'ShipCity' }],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    { field: 'ShipCity' }]
+                }, done);
         });
         // sort set model testing
         it('Sort a Column', (done: Function) => {
+            sortSettings = gridObj.sortSettings;
             actionComplete = (args?: Object): void => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"Freight","direction":"ascending"}]');
+                expect(sortSettings.columns[0].field).toBe('Freight');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
                 expect((<any>gridObj.currentViewData[0]).Freight).toBe(3.05);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             gridObj.sortColumn('Freight', 'ascending', false);
         });
         it('Disable Allow Sorting', (done: Function) => {
             actionComplete = (args?: Object) => {
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-ascending.e-icon-ascending').length).toBe(0);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[]');
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(0);
+                expect(sortSettings.columns.length).toBe(0);
                 expect((<any>gridObj.currentViewData[0]).OrderID).toBe(10248);
                 done();
             }
@@ -344,31 +339,27 @@ describe('Sorting module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             gridObj.sortColumn('Freight', 'ascending', false);
         });
         it('Sort and Group testing', (done: Function) => {
             actionComplete = (args?: Object) => {
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-ascending.e-icon-ascending').length).toBe(2);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending.e-icon-ascending').length).toBe(2);
                 expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(1);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-sortnumber').length).toBe(2);
                 done();
             }
             gridObj.actionComplete = actionComplete;
             gridObj.groupModule.groupColumn('EmployeeID');
-            gridObj.dataBind();
-
         });
         it('Group with sort testing', (done: Function) => {
             actionComplete = (args?: Object) => {
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-ascending.e-icon-ascending').length).toBe(1);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending.e-icon-ascending').length).toBe(1);
                 expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(1);
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-sortnumber').length).toBe(2);
                 done();
             }
             gridObj.actionComplete = actionComplete;
             gridObj.sortColumn('Freight', 'descending');
-            gridObj.dataBind();
 
         });
         it('Clear sorting', (done: Function) => {
@@ -380,87 +371,82 @@ describe('Sorting module', () => {
             };
             gridObj.actionComplete = actionComplete;
             gridObj.clearSorting();
-            gridObj.dataBind();
         });
-
         it('remove Grouping', (done: Function) => {
             let actionComplete = (args: Object) => {
                 expect(gridObj.element.querySelectorAll('.e-groupheadercell').length).toBe(0);
-                expect(gridObj.getHeaderTable().querySelectorAll('.e-descending.e-icon-descending').length).toBe(0);
+                expect(gridObj.getHeaderContent().querySelectorAll('.e-descending.e-icon-descending').length).toBe(0);
                 done();
             }
             gridObj.actionComplete = actionComplete;
             gridObj.groupModule.ungroupColumn('EmployeeID');
-            gridObj.dataBound();
         });
 
         it('tri-state Sorting testing - first', (done) => {
             let actionComplete = () => {
-                expect(gridObj.sortSettings.columns.length).toBe(1);
-                expect((<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).querySelector('.e-ascending')).not.toBeUndefined();
+                expect(sortSettings.columns.length).toBe(1);
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
                 done();
             };
+            cols = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
             gridObj.actionComplete = actionComplete;
-            (<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
         });
 
         it('tri-state Sorting testing - second', (done) => {
             let actionComplete = () => {
-                expect(gridObj.sortSettings.columns.length).toBe(1);
-                expect((<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).querySelector('.e-descending')).not.toBeUndefined();
+                expect(sortSettings.columns.length).toBe(1);
+                expect(cols[0].querySelectorAll('.e-descending').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            (<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
         });
 
         it('tri-state Sorting testing - third', (done) => {
             let actionComplete = () => {
-                expect(gridObj.sortSettings.columns.length).toBe(0);
-                expect((<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).querySelector('.e-ascending')).not.toBeUndefined();
+                expect(sortSettings.columns.length).toBe(0);
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(0);
+                expect(cols[0].querySelectorAll('.e-descending').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            (<HTMLTableCellElement>gridObj.getHeaderTable().querySelector('.e-headercell')).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
         });
-
 
         //set model and default properties model check
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Grid popup testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let gridPopUp: HTMLElement;
         let spanElement: Element;
-        let col1: Element;
+        let cols: any;
+        let defaultBrowserAgent: string = Browser.userAgent;
         let actionComplete: (e?: Object) => void;
-        let col2: Element;
         let androidPhoneUa: string = 'Mozilla/5.0 (Linux; Android 4.3; Nexus 7 Build/JWR66Y) ' +
             'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.92 Safari/537.36';
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
             Browser.userAgent = androidPhoneUa;
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowSorting: true,
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity', allowSorting: false }],
-                    dataBound: dataBound, actionComplete: actionComplete
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('gridPopUp display testing', () => {
             gridPopUp = gridObj.element.querySelector('.e-gridpopup') as HTMLElement;
             spanElement = gridPopUp.querySelector('span');
-            col1 = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[0];
-            col2 = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[1];
+            cols = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
             expect(gridPopUp.style.display).toBe('none');
         });
 
@@ -468,12 +454,11 @@ describe('Sorting module', () => {
             actionComplete = (args: Object): void => {
                 expect(gridPopUp.style.display).toBe('');
                 expect(spanElement.classList.contains('e-sortdirect')).toBeTruthy();
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col1 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[0]));
         });
 
 
@@ -481,49 +466,40 @@ describe('Sorting module', () => {
             actionComplete = (args: Object): void => {
                 expect(gridPopUp.style.display).toBe('');
                 expect(spanElement.classList.contains('e-sortdirect')).toBeTruthy();
-                expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
+                expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
+                expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            (spanElement as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(spanElement));
             expect(spanElement.classList.contains('e-spanclicked')).toBeTruthy();
-            (col2 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(cols[1]));
         });
 
         it('gridpopup hide testing', () => {
-            (spanElement as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(spanElement));
             expect(gridPopUp.style.display).toBe('none');
-
-            //for coverage
-            (<any>gridObj.sortModule).showPopUp({ target: gridObj.element });
-            (<any>gridObj.sortModule).popUpClickHandler({ target: gridObj.element });
-            (<any>gridObj.sortModule).getSortedColsIndexByField('OrderID', [{ field: 'OrderID' }]);
-            gridObj.sortModule.sortColumn('ShipCity', 'ascending', false);
-            gridObj.isDestroyed = true;
-            (<any>gridObj.sortModule).addEventListener();
         });
 
         afterAll(() => {
-            remove(elem);
+            Browser.userAgent = defaultBrowserAgent;
+            destroy(gridObj)
         });
     });
 
     describe('Keyboard operation', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { gridObj.element.focus(); done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowSorting: true,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                    { field: 'ShipCity' }],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' },
+                    { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }]
+                }, done);
         });
         it('Pressing enter key', (done: Function) => {
             let flag: boolean = true;
@@ -534,118 +510,112 @@ describe('Sorting module', () => {
                     done();
                 }
             };
-            (<any>gridObj.element.querySelector('.e-headercell')).click();
-            gridObj.keyboardModule.keyAction(<any>{ action: 'enter',
-            target: (<any>gridObj.element.querySelector('.e-headercell')), preventDefault: () => {} });
+            (gridObj as any).mouseClickHandler(getClickObj(gridObj.element.querySelector('.e-headercell')));
+            gridObj.keyboardModule.keyAction(<any>getKeyActionObj('enter', (<any>gridObj.element.querySelector('.e-headercell'))));
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj)
         })
     });
 
     describe('Sorting with Freeze pane', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: (e?: Object) => void;
         let actionComplete: (e?: Object) => void;
+        let sortSettings: SortSettingsModel;
         let col1: Element;
         let col2: Element;
 
-        let evt: MouseEvent = document.createEvent('MouseEvent');
-        evt.initMouseEvent(
-            'click',
-            true /* bubble */, true /* cancelable */,
-            window, null,
-            0, 0, 0, 0, /* coordinates */
-            true, false, false, false, /* modifier keys */
-            0 /*left*/, null
-        );
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     frozenColumns: 2,
                     frozenRows: 2,
                     allowSorting: true,
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('Single sort orderID asc testing', (done: Function) => {
+            sortSettings = gridObj.sortSettings;
             actionComplete = (args: Object): void => {
                 expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"}]');
-                expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(col1.parentElement.querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             col1 = gridObj.getHeaderContent().querySelectorAll('.e-headercell')[0];
-            
-            (col1 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(col1));
         });
 
         it('Single sort orderID des testing', (done: Function) => {
             actionComplete = (args: Object): void => {
                 expect(col1.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"descending"}]');
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col1 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(col1));
         });
 
         it('Single sort EmployeeID asc testing', (done: Function) => {
             actionComplete = (args: Object): void => {
                 expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"EmployeeID","direction":"ascending"}]');
+                expect(sortSettings.columns[0].field).toBe('EmployeeID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             col2 = gridObj.getHeaderContent().querySelector('.e-movableheader').querySelectorAll('.e-headercell')[0];
-            (col2 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(col2));
         });
 
         it('Single sort EmployeeID des testing', (done: Function) => {
             actionComplete = (args: Object): void => {
                 expect(col2.querySelectorAll('.e-descending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"EmployeeID","direction":"descending"}]');
+                expect(sortSettings.columns[0].field).toBe('EmployeeID');
+                expect(sortSettings.columns[0].direction).toBe('descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
             col2 = gridObj.getHeaderContent().querySelector('.e-movableheader').querySelectorAll('.e-headercell')[0];
-            (col2 as HTMLElement).click();
+            (gridObj as any).mouseClickHandler(getClickObj(col2));
         });
 
         it('Multisort OrderID and EmployeeID testing', (done: Function) => {
             actionComplete = (args: Object): void => {
                 expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
                 expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
-                expect(getString(gridObj.sortSettings.columns)).toBe('[{"field":"OrderID","direction":"ascending"},{"field":"EmployeeID","direction":"ascending"}]');
+                expect(sortSettings.columns[0].field).toBe('OrderID');
+                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[1].field).toBe('EmployeeID');
+                expect(sortSettings.columns[1].direction).toBe('ascending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(1);
                 expect(gridObj.getHeaderContent().querySelector('.e-movableheader').querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(1);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.dataBind();
-            (col1 as HTMLElement).click();
-            (col2 as HTMLElement).dispatchEvent(evt);
+            (gridObj as any).mouseClickHandler(getClickObj(col1));
+            (gridObj as any).mouseClickHandler(getClickObj(col2, true));
         });
 
-        afterAll(() => {
-            remove(elem);
+        afterAll((done) => {
+            destroy(gridObj);
+            setTimeout(function () {
+                done();
+            }, 1000);
         });
     });
-    
+
 });
+

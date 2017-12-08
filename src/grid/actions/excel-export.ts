@@ -1,4 +1,7 @@
-import { IGrid, ExcelQueryCellInfoEventArgs } from '../base/interface';
+import {
+    IGrid, ExcelExportProperties, ExcelHeader, ExcelFooter, ExcelRow,
+    ExcelCell, Theme, ThemeStyle, ExcelQueryCellInfoEventArgs
+} from '../base/interface';
 import * as events from '../base/constant';
 import { Workbook } from '@syncfusion/ej2-excel-export';
 import { isNullOrUndefined, getEnumValue, compile, extend } from '@syncfusion/ej2-base';
@@ -18,7 +21,7 @@ import { Query, DataManager } from '@syncfusion/ej2-data';
 export class ExcelExport {
     private parent: IGrid;
     private isExporting: boolean;
-    private theme: string;
+    private theme: Theme;
     /* tslint:disable-next-line:no-any */
     private book: any = {};
     /* tslint:disable-next-line:no-any */
@@ -38,8 +41,9 @@ export class ExcelExport {
     private isCsvExport: boolean = false;
     private exportValueFormatter: ExportValueFormatter;
     private isElementIdChanged: boolean = false;
+    private helper: ExportHelper;
     /**
-     * Constructor for the Grid Excel Export module
+     * Constructor for the Grid Excel Export module.
      * @hidden
      */
     constructor(parent?: IGrid) {
@@ -74,7 +78,8 @@ export class ExcelExport {
         this.expType = 'appendtosheet';
         this.includeHiddenColumn = false;
         this.exportValueFormatter = new ExportValueFormatter();
-        this.theme = 'material';
+        this.helper = new ExportHelper(gObj);
+        //this.theme = 'material';
     }
     /**
      * Export Grid to Excel file.
@@ -88,6 +93,7 @@ export class ExcelExport {
     /* tslint:disable-next-line:no-any */
     public Map(grid: IGrid, exportProperties: any, isMultipleExport: boolean, workbook: any, isCsv: boolean): Promise<any> {
         let gObj: IGrid = grid;
+        gObj.trigger(events.beforeExcelExport);
         this.data = new Data(gObj);
         this.isExporting = true;
         if (isCsv) {
@@ -95,11 +101,11 @@ export class ExcelExport {
         } else {
             this.isCsvExport = false;
         }
-        gObj.trigger(events.beforeExcelExport);
-        return this.processRecords(grid, exportProperties, isMultipleExport, workbook);
+
+        return this.processRecords(gObj, exportProperties, isMultipleExport, workbook);
     }
     /* tslint:disable-next-line:no-any */
-    private processRecords(gObj: IGrid, exportProperties: any, isMultipleExport: boolean, workbook: any): Promise<any> {
+    private processRecords(gObj: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any): Promise<any> {
         if (exportProperties !== undefined && exportProperties.dataSource !== undefined &&
             exportProperties.dataSource instanceof DataManager) {
             /* tslint:disable-next-line:no-any */
@@ -107,7 +113,7 @@ export class ExcelExport {
             return promise = new Promise((resolve: Function, reject: Function) => {
                 /* tslint:disable-next-line:max-line-length */
                 /* tslint:disable-next-line:no-any */
-                let dataManager: any = new DataManager({ url: exportProperties.dataSource.dataSource.url, adaptor: exportProperties.dataSource.adaptor }).executeQuery(new Query());
+                let dataManager: any = new DataManager({ url: (exportProperties.dataSource as DataManager).dataSource.url, adaptor: (exportProperties.dataSource as DataManager).adaptor }).executeQuery(new Query());
                 dataManager.then((r: ReturnType) => {
                     this.init(gObj);
                     this.processInnerRecords(gObj, exportProperties, isMultipleExport, workbook, r);
@@ -119,7 +125,7 @@ export class ExcelExport {
             /* tslint:disable-next-line:no-any */
             let promise: Promise<any>;
             return promise = new Promise((resolve: Function, reject: Function) => {
-                let dataManager: Promise<Object> = this.data.getData({}, this.data.generateQuery(true).requiresCount());
+                let dataManager: Promise<Object> = this.data.getData({}, ExportHelper.getQuery(gObj, this.data));
                 dataManager.then((r: ReturnType) => {
                     this.init(gObj);
                     this.processInnerRecords(gObj, exportProperties, isMultipleExport, workbook, r);
@@ -128,8 +134,10 @@ export class ExcelExport {
             });
         }
     }
+
+    /* tslint:disable-next-line:max-line-length */
     /* tslint:disable-next-line:no-any */
-    private processInnerRecords(gObj: IGrid, exportProperties: any, isMultipleExport: boolean, workbook: any, r: ReturnType): any {
+    private processInnerRecords(gObj: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any, r: ReturnType): any {
         let blankRows: number = 5;
         if (exportProperties !== undefined && exportProperties.multipleExport !== undefined) {
             /* tslint:disable-next-line:max-line-length */
@@ -183,7 +191,7 @@ export class ExcelExport {
         this.includeHiddenColumn = (exportProperties !== undefined ? exportProperties.includeHiddenColumn : false);
         /* tslint:disable-next-line:max-line-length */
         /* tslint:disable-next-line:no-any */
-        let headerRow: { rows: any[], columns: Column[] } = new ExportHelper(gObj).getHeaders(gObj.columns, this.includeHiddenColumn);
+        let headerRow: { rows: any[], columns: Column[] } = this.helper.getHeaders(gObj.columns, this.includeHiddenColumn);
         let groupIndent: number = 0;
         /* tslint:disable:no-any */
         if (((r.result) as any).level !== undefined) {
@@ -194,8 +202,8 @@ export class ExcelExport {
         this.processHeaderContent(gObj, headerRow, exportProperties, groupIndent);
         /* tslint:disable-next-line:max-line-length */
         if (exportProperties !== undefined && exportProperties.dataSource !== undefined && !(exportProperties.dataSource instanceof DataManager)) {
-            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties.dataSource);
-        } else if (exportProperties !== undefined && exportProperties.exportType === 'currentview') {
+            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties.dataSource as Object[]);
+        } else if (exportProperties !== undefined && exportProperties.exportType === 'currentpage') {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport, gObj.getCurrentViewRecords());
         } else {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport);
@@ -425,19 +433,12 @@ export class ExcelExport {
                     index++;
                     if (cell.isDataCell) {
                         eCell.index = index + indent;
-                        let templateFn: { [x: string]: Function } = {};
                         if (cell.column.footerTemplate !== undefined) {
-                            templateFn[getEnumValue(CellType, CellType.Summary)] = compile(cell.column.footerTemplate);
-                            let txt: NodeList = (templateFn[getEnumValue(CellType, cell.cellType)](row.data[cell.column.field]));
-                            eCell.value = (<Text>txt[0]).wholeText;
+                            eCell.value = this.getAggreateValue(CellType.Summary, cell.column.footerTemplate, cell, row);
                         } else if (cell.column.groupFooterTemplate !== undefined) {
-                            templateFn[getEnumValue(CellType, CellType.GroupSummary)] = compile(cell.column.groupFooterTemplate);
-                            let txt: NodeList = (templateFn[getEnumValue(CellType, cell.cellType)](row.data[cell.column.field]));
-                            eCell.value = (<Text>txt[0]).wholeText;
+                            eCell.value = this.getAggreateValue(CellType.GroupSummary, cell.column.groupFooterTemplate, cell, row);
                         } else if (cell.column.groupCaptionTemplate !== undefined) {
-                            templateFn[getEnumValue(CellType, CellType.CaptionSummary)] = compile(cell.column.groupCaptionTemplate);
-                            let txt: NodeList = (templateFn[getEnumValue(CellType, cell.cellType)](row.data[cell.column.field]));
-                            eCell.value = (<Text>txt[0]).wholeText;
+                            eCell.value = this.getAggreateValue(CellType.CaptionSummary, cell.column.groupCaptionTemplate, cell, row);
                         } else {
                             for (let key of Object.keys(row.data[cell.column.field])) {
                                 if (key === cell.column.type) {
@@ -480,6 +481,14 @@ export class ExcelExport {
         }
     }
     /* tslint:disable-next-line:no-any */
+    private getAggreateValue(cellType: CellType, template: any, cell: any, row: any): string {
+        let templateFn: { [x: string]: Function } = {};
+        templateFn[getEnumValue(CellType, cell.cellType)] = compile(template);
+        /* tslint:disable-next-line:max-line-length */
+        let txt: NodeList = (templateFn[getEnumValue(CellType, cell.cellType)](row.data[cell.column.field ? cell.column.field : cell.column.columnName]));
+        return (<Text>txt[0]).wholeText;
+    }
+    /* tslint:disable-next-line:no-any */
     private mergeOptions(JSON1: any, JSON2: any): any {
         /* tslint:disable-next-line:no-any */
         let result: any = {};
@@ -510,7 +519,7 @@ export class ExcelExport {
         return undefined;
     }
     /* tslint:disable-next-line:no-any */
-    private processHeaderContent(gObj: IGrid, headerRow: any, exportProperties: any, indent: number): void {
+    private processHeaderContent(gObj: IGrid, headerRow: any, exportProperties: ExcelExportProperties, indent: number): void {
         /* tslint:disable-next-line:no-any */
         let column: any[] = gObj.columns;
         let rowIndex: number = 1;
@@ -588,80 +597,66 @@ export class ExcelExport {
             this.parseStyles(gObj, gridColumns[col], this.getRecordThemeStyle(this.theme), indent + col + 1);
         }
     }
+
     /* tslint:disable-next-line:no-any */
-    private getHeaderThemeStyle(theme: string): any {
+    private getHeaderThemeStyle(theme: Theme): any {
         /* tslint:disable-next-line:no-any */
         let style: any = {};
-        switch (theme) {
-            case 'fabric':
-                style.fontColor = '#666666';
-                style.fontName = 'Segoe UI';
-                style.fontSize = 14;
-                style.borders = { color: '#EAEAEA' };
-                break;
-            case 'bootstrap':
-                style.fontColor = '#33330F';
-                style.fontSize = 14;
-                style.bold = true;
-                style.borders = { color: '#33330F' };
-                break;
-            default:
-                style.fontSize = 12;
-                style.borders = { color: '#E0E0E0' };
-                break;
+        style.fontSize = 12;
+        style.borders = { color: '#E0E0E0' };
+        if (theme !== undefined && theme.header !== undefined) {
+            style = this.updateThemeStyle(theme.header, style);
         }
         return style;
     }
     /* tslint:disable-next-line:no-any */
-    private getCaptionThemeStyle(theme: string): any {
-        /* tslint:disable-next-line:no-any */
-        let style: any = {};
-        switch (theme) {
-            case 'fabric':
-                style.fontColor = '#33330F';
-                style.fontName = 'Segoe UI';
-                style.fontSize = 14;
-                style.backColor = '#F6F6F6';
-                style.borders = { color: '#EAEAEA' };
-                break;
-            case 'bootstrap':
-                style.fontColor = '#33330F';
-                style.fontSize = 14;
-                style.bold = true;
-                style.borders = { color: '#EAEAEA' };
-                break;
-            default:
-                style.fontSize = 13;
-                style.backColor = '#F6F6F6';
-                break;
+    private updateThemeStyle(themestyle: ThemeStyle, style: any): any {
+        if (themestyle.fontColor !== undefined) {
+            style.fontColor = themestyle.fontColor;
+        }
+        if (themestyle.fontName !== undefined) {
+            style.fontName = themestyle.fontName;
+        }
+        if (themestyle.fontSize !== undefined) {
+            style.fontSize = themestyle.fontSize;
+        }
+        if (themestyle.borders !== undefined) {
+            if (themestyle.borders.color !== undefined) {
+                style.borders.color = themestyle.borders.color;
+            }
+            if (themestyle.borders.lineStyle !== undefined) {
+                style.borders.lineStyle = themestyle.borders.lineStyle;
+            }
+        }
+        if (themestyle.bold !== false) {
+            style.bold = themestyle.bold;
         }
         return style;
     }
     /* tslint:disable-next-line:no-any */
-    private getRecordThemeStyle(theme: string): any {
+    private getCaptionThemeStyle(theme: Theme): any {
         /* tslint:disable-next-line:no-any */
         let style: any = {};
-        switch (theme) {
-            case 'fabric':
-                style.fontColor = '#333333';
-                style.fontName = 'Segoe UI';
-                style.fontSize = 13;
-                style.borders = { color: '#EAEAEA' };
-                break;
-            case 'bootstrap':
-                style.fontColor = '#33330F';
-                style.fontSize = 14;
-                style.borders = { color: '#DDDDDD' };
-                break;
-            default:
-                style.fontSize = 13;
-                style.borders = { color: '#E0E0E0' };
-                break;
+        style.fontSize = 13;
+        style.backColor = '#F6F6F6';
+        if (theme !== undefined && theme.caption !== undefined) {
+            style = this.updateThemeStyle(theme.caption, style);
         }
         return style;
     }
     /* tslint:disable-next-line:no-any */
-    private processExcelHeader(header: any): void {
+    private getRecordThemeStyle(theme: Theme): any {
+        /* tslint:disable-next-line:no-any */
+        let style: any = {};
+        style.fontSize = 13;
+        style.borders = { color: '#E0E0E0' };
+        if (theme !== undefined && theme.record !== undefined) {
+            style = this.updateThemeStyle(theme.record, style);
+        }
+        return style;
+    }
+    /* tslint:disable-next-line:no-any */
+    private processExcelHeader(header: ExcelHeader): void {
         if (header.rows !== undefined && (this.expType === 'newsheet' || this.rowLength === 1)) {
             let noRows: number;
             if (header.headerRows === undefined) {
@@ -688,11 +683,11 @@ export class ExcelExport {
         }
     }
     /* tslint:disable-next-line:no-any */
-    private updatedCellIndex(json: any): void {
+    private updatedCellIndex(json: ExcelRow): void {
         let cellsLength: number = json.cells.length;
         for (let cellId: number = 0; cellId < cellsLength; cellId++) {
             /* tslint:disable-next-line:no-any */
-            let jsonCell: any = json.cells[cellId];
+            let jsonCell: ExcelCell = json.cells[cellId];
             //cell index
             if (!(jsonCell.index !== null && jsonCell.index !== undefined)) {
                 jsonCell.index = (cellId + 1);
@@ -701,7 +696,7 @@ export class ExcelExport {
         this.rows.push(json);
     }
     /* tslint:disable-next-line:no-any */
-    private processExcelFooter(footer: any): void {
+    private processExcelFooter(footer: ExcelFooter): void {
         if (footer.rows !== undefined) {
             let noRows: number;
             if (footer.footerRows === undefined) {
@@ -761,7 +756,8 @@ export class ExcelExport {
             this.styles.push(style);
         }
         if (col.width !== undefined) {
-            this.columns.push({ index: index, width: col.width });
+            /* tslint:disable-next-line:max-line-length */
+            this.columns.push({ index: index, width: typeof col.width === 'number' ? col.width : this.helper.getConvertedWidth(col.width) });
         }
     }
     /**

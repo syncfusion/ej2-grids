@@ -9,6 +9,7 @@ import * as events from '../base/constant';
 import { SortDescriptorModel } from '../base/grid-model';
 import { Resize } from '../actions/resize';
 import { Page } from '../actions/page';
+import { parentsUntil } from '../base/util';
 import { Group } from '../actions/group';
 import { Sort } from '../actions/sort';
 import { PdfExport } from '../actions/pdf-export';
@@ -176,12 +177,10 @@ export class ContextMenu implements IAction {
                 break;
             case 'edit':
                 this.parent.editModule.endEdit();
-                this.selectRow(this.eventArgs);
                 this.parent.editModule.startEdit();
                 break;
             case 'delete':
                 this.parent.editModule.endEdit();
-                this.selectRow(this.eventArgs);
                 this.parent.editModule.deleteRow(this.parent.getRowByIndex(this.parent.selectedRowIndex) as HTMLTableRowElement);
                 break;
             case 'save':
@@ -245,44 +244,54 @@ export class ContextMenu implements IAction {
     }
 
     private contextMenuBeforeOpen(args: BeforeOpenCloseMenuEventArgs): void {
-        this.targetColumn = this.getColumn(args.event);
-        if (args.event && (closest(args.event.target as Element, '.' + menuClass.groupHeader)
+        let closestGrid: Element = closest(args.event.target as Element, '.e-grid');
+        if (args.event && closestGrid && closestGrid !== this.parent.element) {
+            args.cancel = true;
+        } else if (args.event && (closest(args.event.target as Element, '.' + menuClass.groupHeader)
             || closest(args.event.target as Element, '.' + menuClass.touchPop))) {
             args.cancel = true;
-            return;
-        }
-        for (let item of args.items) {
-            let key: string = this.getKeyFromId(item.id);
-            let dItem: ContextMenuItemModel = this.defaultItems[key];
-            if (this.getDefaultItems().indexOf(key) !== -1) {
-                if (this.ensureDisabledStatus(key)) {
-                    this.disableItems.push(item.text);
-                }
-                if (args.event && closest(args.event.target as Element, menuClass.edit)) {
-                    if (key !== 'save' && key !== 'cancel') {
+        } else {
+            this.targetColumn = this.getColumn(args.event);
+            this.selectRow(args.event);
+            for (let item of args.items) {
+                let key: string = this.getKeyFromId(item.id);
+                let dItem: ContextMenuItemModel = this.defaultItems[key];
+                if (this.getDefaultItems().indexOf(key) !== -1) {
+                    if (this.ensureDisabledStatus(key)) {
+                        this.disableItems.push(item.text);
+                    }
+                    if (args.event && this.ensureTarget(args.event.target as HTMLElement, menuClass.edit)) {
+                        if (key !== 'save' && key !== 'cancel') {
+                            this.hiddenItems.push(item.text);
+                        }
+                    } else if (isNullOrUndefined(args.parentItem) && args.event
+                        && !this.ensureTarget(args.event.target as HTMLElement, dItem.target)) {
                         this.hiddenItems.push(item.text);
                     }
-                } else if (isNullOrUndefined(args.parentItem) && args.event
-                    && !closest(args.event.target as Element, dItem.target)) {
+                } else if ((item as ContextMenuItemModel).target && args.event &&
+                    !this.ensureTarget(args.event.target as HTMLElement, (item as ContextMenuItemModel).target)) {
                     this.hiddenItems.push(item.text);
                 }
             }
-        }
-        this.contextMenu.enableItems(this.disableItems, false);
-        this.contextMenu.hideItems(this.hiddenItems);
-        this.eventArgs = args.event;
-        this.parent.trigger(events.contextMenuOpen, args);
-        if (this.hiddenItems.indexOf('Export') >= 0) {
-            if (this.hiddenItems.length === this.parent.contextMenuItems.length - 2) {
+            this.contextMenu.enableItems(this.disableItems, false);
+            this.contextMenu.hideItems(this.hiddenItems);
+            this.eventArgs = args.event;
+            this.parent.trigger(events.contextMenuOpen, args);
+            if (this.hiddenItems.length === args.items.length) {
                 this.updateItemStatus();
                 args.cancel = true;
             }
+        }
+    }
+
+    private ensureTarget(targetElement: HTMLElement, selector: string): boolean {
+        let target: Element = targetElement;
+        if (selector === menuClass.header || selector === menuClass.content) {
+            target = parentsUntil(closest(targetElement as Element, '.e-table'), selector.substr(1, selector.length));
         } else {
-            if (this.hiddenItems.length === this.parent.contextMenuItems.length) {
-                this.updateItemStatus();
-                args.cancel = true;
-            }
+            target = closest(targetElement as Element, selector);
         }
+        return target && parentsUntil(target, 'e-grid') === this.parent.element ? true : false;
     }
 
     private ensureDisabledStatus(item: string): Boolean {
@@ -299,8 +308,9 @@ export class ContextMenu implements IAction {
                 }
                 break;
             case 'ungroup':
-                if (!this.parent.ensureModuleInjected(Group) || (this.parent.ensureModuleInjected(Group) && this.targetColumn
-                    && this.parent.groupSettings.columns.indexOf(this.targetColumn.field) < 0)) {
+                if (!this.parent.allowGrouping || !this.parent.ensureModuleInjected(Group)
+                    || (this.parent.ensureModuleInjected(Group) && this.targetColumn
+                        && this.parent.groupSettings.columns.indexOf(this.targetColumn.field) < 0)) {
                     status = true;
                 }
                 break;
@@ -318,24 +328,25 @@ export class ContextMenu implements IAction {
                 }
                 break;
             case 'export':
-                if (!this.parent.ensureModuleInjected(PdfExport) && !this.parent.ensureModuleInjected(ExcelExport)) {
+                if ((!this.parent.allowExcelExport || !this.parent.excelExport) ||
+                    !this.parent.ensureModuleInjected(PdfExport) && !this.parent.ensureModuleInjected(ExcelExport)) {
                     status = true;
                 }
                 break;
             case 'pdfExport':
-                if (!this.parent.ensureModuleInjected(PdfExport)) {
+                if (!(this.parent.allowPdfExport) || !this.parent.ensureModuleInjected(PdfExport)) {
                     status = true;
                 }
                 break;
             case 'excelExport':
             case 'csvExport':
-                if (!this.parent.ensureModuleInjected(ExcelExport)) {
+                if (!(this.parent.allowExcelExport) || !this.parent.ensureModuleInjected(ExcelExport)) {
                     status = true;
                 }
                 break;
             case 'sortAscending':
             case 'sortDescending':
-                if (!this.parent.ensureModuleInjected(Sort)) {
+                if ((!this.parent.allowSorting) || !this.parent.ensureModuleInjected(Sort)) {
                     status = true;
                 } else if (this.parent.ensureModuleInjected(Sort) && this.parent.sortSettings.columns.length > 0 && this.targetColumn) {
                     this.parent.sortSettings.columns.forEach((element: SortDescriptorModel) => {
@@ -348,14 +359,14 @@ export class ContextMenu implements IAction {
                 break;
             case 'firstPage':
             case 'prevPage':
-                if (!this.parent.ensureModuleInjected(Page) ||
+                if (!this.parent.allowPaging || !this.parent.ensureModuleInjected(Page) ||
                     (this.parent.ensureModuleInjected(Page) && this.parent.pageSettings.currentPage === 1)) {
                     status = true;
                 }
                 break;
             case 'lastPage':
             case 'nextPage':
-                if (!this.parent.ensureModuleInjected(Page) ||
+                if (!this.parent.allowPaging || !this.parent.ensureModuleInjected(Page) ||
                     (this.parent.ensureModuleInjected(Page) && this.parent.pageSettings.currentPage === this.getLastPage())) {
                     status = true;
                 }

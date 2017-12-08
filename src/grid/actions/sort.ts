@@ -78,10 +78,9 @@ export class Sort implements IAction {
         } else {
             index = this.getSortedColsIndexByField(this.columnName);
             if (index > -1) {
-                this.sortSettings.columns[index] = sortedColumn;
-            } else {
-                this.sortSettings.columns.push(sortedColumn);
+                this.sortSettings.columns.splice(index, 1);
             }
+            this.sortSettings.columns.push(sortedColumn);
             this.sortSettings.columns = this.sortSettings.columns;
         }
         this.parent.dataBind();

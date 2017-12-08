@@ -95,20 +95,20 @@ export class BatchEdit {
         let target: Element = parentsUntil(e.target as Element, 'e-rowcell');
         let tr: Element = parentsUntil(e.target as Element, 'e-row');
         if (target && tr && !isNaN(parseInt(target.getAttribute('aria-colindex'), 10))) {
-            this.editCell(parseInt(tr.getAttribute('aria-rowindex'), 10), (this.parent.columns
+            this.editCell(parseInt(tr.getAttribute('aria-rowindex'), 10), (this.parent.getColumns()
             [parseInt(target.getAttribute('aria-colindex'), 10)] as Column).field);
         }
     }
 
     private onBeforeCellFocused(e: CellFocusArgs): void {
         if (this.parent.isEdit && this.validateFormObj() &&
-        (e.byClick || (['tab', 'shiftTab', 'enter', 'shiftEnter'].indexOf(e.keyArgs.action) > -1))) {
+            (e.byClick || (['tab', 'shiftTab', 'enter', 'shiftEnter'].indexOf(e.keyArgs.action) > -1))) {
             e.cancel = true;
             if (e.byClick) {
                 e.clickArgs.preventDefault();
-             } else {
-                 e.keyArgs.preventDefault();
-             }
+            } else {
+                e.keyArgs.preventDefault();
+            }
         }
     }
 
@@ -150,7 +150,7 @@ export class BatchEdit {
     private editCellFromIndex(rowIdx: number, cellIdx: number): void {
         this.cellDetails.rowIndex = rowIdx;
         this.cellDetails.cellIndex = cellIdx;
-        this.editCell(rowIdx, (this.parent.columns as Column[])[cellIdx].field);
+        this.editCell(rowIdx, (this.parent.getColumns() as Column[])[cellIdx].field);
     }
 
     public closeEdit(): void {
@@ -174,7 +174,7 @@ export class BatchEdit {
                         delete rows[i].changes;
                         rows[i].isDirty = false;
                         classList(tr, [], ['e-hiddenrow', 'e-updatedtd']);
-                        rowRenderer.refresh(rows[i], gObj.columns as Column[], false);
+                        rowRenderer.refresh(rows[i], gObj.getColumns() as Column[], false);
                     }
                 }
             }
@@ -187,7 +187,9 @@ export class BatchEdit {
 
     public deleteRecord(fieldname?: string, data?: Object): void {
         this.saveCell();
-        this.bulkDelete(fieldname, data);
+        if (!this.validateFormObj()) {
+            this.bulkDelete(fieldname, data);
+        }
     }
 
     public addRecord(data?: Object): void {
@@ -365,7 +367,7 @@ export class BatchEdit {
         gObj.selectRow(0);
         if (!data) {
             index = this.findNextEditableCell(0, true);
-            col = (gObj.columns[index] as Column);
+            col = (gObj.getColumns()[index] as Column);
             this.editCell(0, col.field, true);
         }
         let args1: BatchAddArgs = {
@@ -377,7 +379,7 @@ export class BatchEdit {
     }
 
     private findNextEditableCell(columnIndex: number, isAdd: boolean): number {
-        let cols: Column[] = this.parent.columns as Column[];
+        let cols: Column[] = this.parent.getColumns() as Column[];
         let endIndex: number = cols.length;
         for (let i: number = columnIndex; i < endIndex; i++) {
             if (!isAdd && this.checkNPCell(cols[i])) {
@@ -397,7 +399,7 @@ export class BatchEdit {
         let gObj: IGrid = this.parent;
         let data: Object = {};
         let dValues: Object = { 'number': 0, 'string': null, 'boolean': false, 'date': null, 'datetime': null };
-        for (let col of gObj.columns as Column[]) {
+        for (let col of gObj.getColumns() as Column[]) {
             data[col.field] = col.defaultValue ? col.defaultValue : dValues[col.type];
         }
         return data;

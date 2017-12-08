@@ -127,6 +127,7 @@ export class NormalEdit {
                 return;
             }
             gObj.showSpinner();
+            this.destroyElements();
             gObj.notify(events.updateData, args);
         } else {
             args.action = 'add';
@@ -135,14 +136,19 @@ export class NormalEdit {
             if (args.cancel) {
                 return;
             }
+            this.destroyElements();
         }
-        gObj.editModule.destroyWidgets();
-        gObj.editModule.destroyForm();
-        gObj.notify(events.dialogDestroy, {});
         this.stopEditStatus();
         if (gObj.editSettings.mode === 'dialog' && args.action !== 'add') {
             gObj.element.querySelector('.e-dlgeditrow').classList.remove('e-dlgeditrow');
         }
+    }
+
+    private destroyElements(): void {
+        let gObj: IGrid = this.parent;
+        gObj.editModule.destroyWidgets();
+        gObj.editModule.destroyForm();
+        gObj.notify(events.dialogDestroy, {});
     }
 
     private editHandler(args: EditArgs): void {
@@ -190,7 +196,7 @@ export class NormalEdit {
         let rowObj: Row<Column> = this.parent.getRowObjectFromUID(this.uid);
         if (rowObj) {
             rowObj.changes = data;
-            row.refresh(rowObj, this.parent.columns as Column[], true);
+            row.refresh(rowObj, this.parent.getColumns() as Column[], true);
         }
     }
 
@@ -224,7 +230,7 @@ export class NormalEdit {
         }
         this.previousData = {};
         this.uid = '';
-        for (let col of gObj.columns as Column[]) {
+        for (let col of gObj.getColumns() as Column[]) {
             this.previousData[col.field] = data && data[col.field] ? data[col.field] : col.defaultValue;
         }
         let args: AddEventArgs = {

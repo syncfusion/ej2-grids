@@ -40,8 +40,9 @@ export class RowRenderer<T> implements IRowRenderer<T> {
      * @param  {{[x:string]:Object}} attributes?
      * @param  {string} rowTemplate?
      */
-    public render(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string): Element {
-        return this.refreshRow(row, columns, attributes, rowTemplate);
+    public render(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string, cloneNode?: Element):
+    Element {
+        return this.refreshRow(row, columns, attributes, rowTemplate, cloneNode);
     }
 
     /**
@@ -65,8 +66,9 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         }
     }
 
-    private refreshRow(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string): Element {
-        let tr: Element = this.element.cloneNode() as Element;
+    private refreshRow(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string, cloneNode?: Element):
+    Element {
+        let tr: Element = !isNullOrUndefined(cloneNode) ? cloneNode : this.element.cloneNode() as Element;
         let rowArgs: RowDataBoundEventArgs = { data: row.data };
         let cellArgs: QueryCellInfoEventArgs = { data: row.data };
         let attrCopy: Object = extend({}, attributes, {});
@@ -87,6 +89,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
             let td: Element = cellRenderer.render(
                 row.cells[i], row.data,
                 { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' });
+            if (row.cells[i].cellType !== CellType.Filter) {
             if (row.cells[i].cellType === CellType.Data) {
                 this.parent.trigger(queryCellInfo, extend(
                     cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: <{}>cell.column, colSpan: 1 }));
@@ -98,6 +101,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
             if (!row.cells[i].isSpanned) {
                 tr.appendChild(td);
             }
+        }
 
         }
         if (row.isDataRow) {

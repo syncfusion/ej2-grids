@@ -19,6 +19,7 @@ module.exports = function (config) {
       "styles/grid/material.css",
       { pattern: "src/**/*.js", included: false },     
       { pattern: "spec/**/datasource.spec.js", included: false },
+      { pattern: "spec/**/specutil.spec.js", included: false },
       { pattern: "spec/**/*.spec.js", included: false },      
       { pattern: "node_modules/@syncfusion/ej2-base/**/*.js", included: false },
       { pattern: "node_modules/@syncfusion/ej2-data/**/*.js", included: false },

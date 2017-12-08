@@ -28,6 +28,7 @@ export class NumericEditCell implements IEditCell {
     }
 
     public read(element: Element): number {
+        (<EJ2Intance>element).ej2_instances[0].focusOut();
         return (<EJ2Intance>element).ej2_instances[0].value;
     }
 

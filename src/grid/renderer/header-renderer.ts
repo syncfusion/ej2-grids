@@ -28,13 +28,14 @@ export class HeaderRender implements IRenderer {
     private rows: Row<Column>[];
     private helper: Function = (e: { sender: MouseEvent }) => {
         let gObj: IGrid = this.parent;
-        if (!(gObj.allowReordering || gObj.allowGrouping)) {
+        let target: Element = (e.sender.target as Element);
+        let parentEle: HTMLElement = parentsUntil(target, 'e-headercell') as HTMLElement;
+        if (!(gObj.allowReordering || gObj.allowGrouping) || (!isNullOrUndefined(parentEle)
+            && parentEle.querySelectorAll('.e-checkselectall').length > 0)) {
             return false;
         }
         let visualElement: HTMLElement = createElement('div', { className: 'e-cloneproperties e-dragclone e-headerclone' });
-        let target: Element = (e.sender.target as Element);
-        let element: HTMLElement = target.classList.contains('e-headercell') ? target as HTMLElement :
-            parentsUntil(target, 'e-headercell') as HTMLElement;
+        let element: HTMLElement = target.classList.contains('e-headercell') ? target as HTMLElement : parentEle;
         if (!element) {
             return false;
         }
@@ -228,7 +229,7 @@ export class HeaderRender implements IRenderer {
         let innerDiv: Element = <Element>this.getPanel().firstChild;
         let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
         let thead: Element = findHeaderRow.thead;
-        let tbody: Element = createElement('tbody', { className: 'e-hide' });
+        let tbody: Element = createElement('tbody', { className: this.parent.frozenRows ? '' : 'e-hide' });
         let colGroup: Element = createElement('colgroup');
         let rowBody: Element = createElement('tr');
         let bodyCell: Element;
