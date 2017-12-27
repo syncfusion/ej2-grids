@@ -2,6 +2,46 @@
 
 ## [Unreleased]
 
+### Common
+
+#### New Features
+
+- Added typing file for ES5 global scripts (`dist/global/index.d.ts`).
+
+#### Breaking Changes
+
+- Modified the module bundle file name for ES6 bundling.
+
+### Grid
+
+#### Bug Fixes
+
+- Header content is not scrolling while adding a record in empty Grid.
+- `displayAsCheckbox` not working for numeric values.
+- Filtered value not persisting in filter menu with date picker.
+- Reordering with filter menu throws script error.
+- Exporting Grouped Grid with Header not working.
+
+## 15.4.22-preview (2017-12-14)
+
+### Grid
+
+#### New Features
+
+- `recordDoubleClick` event added.
+
+#### Bug Fixes
+
+- Script error when pdf exporting with null values.
+
+#### Breaking Changes
+
+- Now `ColumnChooser` module must be injected to use column chooser feature.
+
+#### Bug Fixes
+
+- Grid height 100% is not working fixed.
+
 ## 15.4.21-preview (2017-12-08)
 
 ### Grid
