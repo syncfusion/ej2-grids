@@ -2,6 +2,76 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+
+- `isBlob` argument added in export methods to get blob data export complete events.
+
+#### Bug Fixes
+
+- Check Select all not working when refreshing the Grid header in run time.
+- Column chooser throws script error in IE 11 while destroying the component.
+- Column checkbox filtering shows no records while grid have menu filtering.
+
+## 15.4.24-preview (2018-01-10)
+
+### Grid
+
+#### Bug Fixes
+
+- Filter menu clear action throws script error with column menu.
+- Add row misaligns with header when grid has hidden columns.
+- Support for `rowSelected` event for template column.
+- Date filtering request pass as string when reloading.
+- Script error on add record by hidden column.
+- Row deselect event not fires in check box selection.
+- Sorting and grouping failed on complex data.
+- Last and next page options are enabled when data source is empty.
+- Default cursor not displayed after invoke grid refresh method.
+
+## 15.4.23-preview (2017-12-27)
+
+### Common
+
+#### New Features
+
+- Added typing file for ES5 global scripts (`dist/global/index.d.ts`).
+
+#### Breaking Changes
+
+- Modified the module bundle file name for ES6 bundling.
+
+### Grid
+
+#### Bug Fixes
+
+- Header content is not scrolling while adding a record in empty Grid.
+- `displayAsCheckbox` not working for numeric values.
+- Filtered value not persisting in filter menu with date picker.
+- Reordering with filter menu throws script error.
+- Exporting Grouped Grid with Header not working.
+
+## 15.4.22-preview (2017-12-14)
+
+### Grid
+
+#### New Features
+
+- `recordDoubleClick` event added.
+
+#### Bug Fixes
+
+- Script error when pdf exporting with null values.
+
+#### Breaking Changes
+
+- Now `ColumnChooser` module must be injected to use column chooser feature.
+
+#### Bug Fixes
+
+- Grid height 100% is not working fixed.
+
 ## 15.4.21-preview (2017-12-08)
 
 ### Grid
