@@ -148,6 +148,7 @@ export class Group implements IAction {
         this.parent.on(events.sortComplete, this.refreshSortIcons, this);
         this.parent.on(events.keyPressed, this.keyPressHandler, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
+        this.parent.on(events.onEmpty, this.initialEnd, this);
         this.parent.on(events.initialEnd, this.render, this);
     }
     /**
@@ -172,6 +173,7 @@ export class Group implements IAction {
     private initialEnd(): void {
         let gObj: IGrid = this.parent;
         this.parent.off(events.contentReady, this.initialEnd);
+        this.parent.off(events.onEmpty, this.initialEnd);
         if (this.parent.getColumns().length && this.groupSettings.columns.length) {
             this.contentRefresh = false;
             for (let col of gObj.groupSettings.columns) {
@@ -582,7 +584,7 @@ export class Group implements IAction {
         if (this.groupSettings.showToggleButton) {
             let headers: Element[] = [].slice.call(this.parent.element.getElementsByClassName('e-headercelldiv'));
             for (let i: number = 0, len: number = headers.length; i < len; i++) {
-                if (!(headers[i].classList.contains('e-emptycell'))) {
+                if (!((headers[i].classList.contains('e-emptycell')) || (headers[i].classList.contains('e-headerchkcelldiv')))) {
                     let column: Column = this.parent.getColumnByUid(headers[i].getAttribute('e-mappinguid'));
                     if (!this.parent.showColumnMenu || (this.parent.showColumnMenu && !column.showColumnMenu)) {
                         if (headers[i].querySelectorAll('.e-grptogglebtn').length) {
@@ -595,7 +597,7 @@ export class Group implements IAction {
                                     (this.groupSettings.columns.indexOf(column.field) > -1 ? 'e-toggleungroup e-icon-ungroup'
                                         : 'e-togglegroup e-icon-group'), attrs: { tabindex: '-1', 'aria-label': 'Group button' }
                                 }));
-                        }
+                      }
                     }
                 }
             }
@@ -730,8 +732,8 @@ export class Group implements IAction {
     }
 
     private getGHeaderCell(field: string): Element {
-        if (this.element && this.element.querySelector('[ej-mappingname=' + field + ']')) {
-            return this.element.querySelector('[ej-mappingname=' + field + ']').parentElement;
+        if (this.element && this.element.querySelector('[ej-mappingname="' + field + '"]')) {
+            return this.element.querySelector('[ej-mappingname="' + field + '"]').parentElement;
         }
         return null;
     }

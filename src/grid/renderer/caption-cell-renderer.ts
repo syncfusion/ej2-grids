@@ -5,7 +5,7 @@ import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
 import { IGrid } from '../base/interface';
 import { appendChildren, templateCompiler } from '../base/util';
-
+import { GroupedData } from '../services/group-model-generator';
 
 /**
  * GroupCaptionCellRenderer class which responsible for building group caption cell. 
@@ -20,12 +20,16 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
      * @param  {Cell} cell
      * @param  {Object} data         
      */
-    public render(cell: Cell<Column>, data: { field: string, key: string, count: number }): Element {
+    public render(cell: Cell<Column>, data: GroupedData): Element {
         let node: Element = this.element.cloneNode() as Element;
         let gObj: IGrid = this.parent;
         let result: Element[];
         let helper: object = {};
-        let value: string = cell.column.enableGroupByFormat ? data.key :
+        let fKeyValue: string;
+        if (cell.isForeignKey) {
+            fKeyValue = this.format(cell.column,  cell.column.valueAccessor('foreignKey', data, cell.column));
+        }
+        let value: string = cell.isForeignKey ? fKeyValue : cell.column.enableGroupByFormat ? data.key :
          this.format(cell.column, cell.column.valueAccessor('key', data, cell.column));
         if (!isNullOrUndefined(gObj.groupSettings.captionTemplate)) {
             if (gObj.groupSettings.captionTemplate.indexOf('#') !== -1) {

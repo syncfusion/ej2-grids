@@ -1,7 +1,8 @@
-import { createElement } from '@syncfusion/ej2-base';
+import { createElement, isNullOrUndefined  } from '@syncfusion/ej2-base';
 import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
 import { Column } from '../models/column';
+import { Cell } from '../models/cell';
 
 /**
  * ExpandCellRenderer class which responsible for building group expand cell. 
@@ -17,9 +18,17 @@ export class DetailExpandCellRenderer extends CellRenderer implements ICellRende
     /**
      * Function to render the detail expand cell           
      */
-    public render(): Element {
+    public render(cell: Cell<Column>, data: Object, attributes: Object): Element {
         let node: Element = this.element.cloneNode() as Element;
-        node.appendChild(createElement('div', { className: 'e-icons e-dtdiagonalright e-icon-grightarrow' }));
+        if (attributes && !isNullOrUndefined(attributes['class'])) {
+            node.className = '';
+            node.className = attributes['class'];
+            node.appendChild(createElement('div', { className: 'e-icons e-dtdiagonaldown e-icon-gdownarrow' }));
+        } else {
+
+            node.appendChild(createElement('div', { className: 'e-icons e-dtdiagonalright e-icon-grightarrow' }));
+        }
+
         return node;
     }
 

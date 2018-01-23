@@ -1,10 +1,11 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, getValue, setValue } from '@syncfusion/ej2-base';
 import { IModelGenerator, ICell, IRow, IGrid } from '../base/interface';
 import { Row } from '../models/row';
 import { CellType } from '../base/enum';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { getUid } from '../base/util';
+import { getForeignData } from '../../grid/base/util';
 
 /**
  * RowModelGenerator is used to generate grid data rows.
@@ -45,22 +46,30 @@ export class RowModelGenerator implements IModelGenerator<Column> {
 
     protected generateRow(data: Object, index: number, cssClass?: string, indent?: number): Row<Column> {
         let options: IRow<Column> = {};
-        let tmp: Cell<Column>[] = [];
 
+        options.foreignKeyData = {};
         options.uid = getUid('grid-row');
         options.data = data;
         options.index = index;
         options.indent = indent;
         options.isDataRow = true;
+        options.isExpand = false;
         options.cssClass = cssClass;
         options.isAltRow = this.parent.enableAltRow ? index % 2 !== 0 : false;
         options.isSelected = this.parent.getSelectedRowIndexes().indexOf(index) > -1;
 
+        this.refreshForeignKeyRow(options);
         let cells: Cell<Column>[] = this.ensureColumns();
         let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);
         row.cells =  cells.concat(this.generateCells(options));
 
         return row;
+    }
+
+    protected refreshForeignKeyRow(options: IRow<Column>): void {
+        this.parent.getForeignKeyColumns().forEach((col: Column) => {
+            setValue(col.field, getForeignData(col, options.data), options.foreignKeyData);
+        });
     }
 
     protected generateCells(options: IRow<Column>): Cell<Column>[] {
@@ -69,11 +78,14 @@ export class RowModelGenerator implements IModelGenerator<Column> {
 
         dummies.forEach((dummy: Column, index: number) =>
             tmp.push(this.generateCell(
-                dummy, <string>options.uid, isNullOrUndefined(dummy.commands) ? undefined : CellType.CommandColumn, null, index)));
+                dummy, <string>options.uid, isNullOrUndefined(dummy.commands) ? undefined : CellType.CommandColumn, null, index,
+                options.foreignKeyData)));
         return tmp;
     }
 
-    protected generateCell(column: Column, rowId?: string, cellType?: CellType, colSpan?: number, oIndex?: number): Cell<Column> {
+    protected generateCell(
+        column: Column, rowId?: string, cellType?: CellType, colSpan?: number,
+        oIndex?: number, foreignKeyData?: Object): Cell<Column> {
         let opt: ICell<Column> = {
             'visible': column.visible,
             'isDataCell': !isNullOrUndefined(column.field || column.template),
@@ -82,7 +94,9 @@ export class RowModelGenerator implements IModelGenerator<Column> {
             'column': column,
             'cellType': !isNullOrUndefined(cellType) ? cellType : CellType.Data,
             'colSpan': colSpan,
-            'commands': column.commands
+            'commands': column.commands,
+            'isForeignKey': column.isForeignColumn && column.isForeignColumn(),
+            'foreignKeyData': column.isForeignColumn && column.isForeignColumn() && getValue(column.field, foreignKeyData)
         };
 
         if (opt.isDataCell || opt.column.type === 'checkbox') {
@@ -93,7 +107,10 @@ export class RowModelGenerator implements IModelGenerator<Column> {
     }
 
     public refreshRows(input?: Row<Column>[]): Row<Column>[] {
-        input.forEach((row: Row<Column>) => row.cells = this.generateCells(row));
+        input.forEach((row: Row<Column>) => {
+            this.refreshForeignKeyRow(row);
+            row.cells = this.generateCells(row);
+        });
         return input;
     }
 }

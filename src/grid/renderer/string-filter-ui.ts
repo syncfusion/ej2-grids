@@ -1,14 +1,12 @@
-import { IGrid, EJ2Intance, IFilterMUI } from '../base/interface';
+import { IGrid, EJ2Intance, IFilterMUI, IFilterCreate } from '../base/interface';
 import { Column } from '../models/column';
-import { L10n, } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
 import { PredicateModel } from '../base/grid-model';
 import { AutoComplete } from '@syncfusion/ej2-dropdowns';
 import { DataManager } from '@syncfusion/ej2-data';
-import { createElement } from '@syncfusion/ej2-base';
+import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
-import { FlMenuOptrUI } from './filter-menu-operator';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
 import { getZIndexCalcualtion } from '../base/util';
 
@@ -32,19 +30,23 @@ export class StringFilterUI implements IFilterMUI {
         this.serLocator = serviceLocator;
         this.filterSettings = filterSettings;
     }
-    public create(args: {
-        column: Column, target: HTMLElement,
-        getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
-    }): void {
+    public create(args: IFilterCreate): void {
         let data: DataManager | Object[];
         let floptr: 'Contains' | 'StartsWith' | 'EndsWith';
         this.instance = createElement('input', { className: 'e-flmenu-input', id: 'strui-' + args.column.uid });
         args.target.appendChild(this.instance);
         this.dialogObj = args.dialogObj;
-        this.actObj = new AutoComplete({
-            dataSource: this.parent.dataSource instanceof DataManager ?
-                this.parent.dataSource : new DataManager(this.parent.dataSource),
-            fields: { value: args.column.field },
+        this.actObj = new AutoComplete(this.getAutoCompleteOptions(args));
+        this.actObj.appendTo(this.instance);
+    }
+
+    private getAutoCompleteOptions(args: IFilterCreate): Object {
+        let isForeignColumn: boolean = args.column.isForeignColumn();
+        let dataSource: Object = isForeignColumn ? args.column.dataSource : this.parent.dataSource;
+        let fields: Object = { value: isForeignColumn ? args.column.foreignKeyValue : args.column.field };
+        return {
+            dataSource: dataSource instanceof DataManager ? dataSource : new DataManager(dataSource),
+            fields: fields,
             locale: this.parent.locale,
             enableRtl: this.parent.enableRtl,
             sortOrder: 'Ascending',
@@ -62,9 +64,9 @@ export class StringFilterUI implements IFilterMUI {
                     }).indexOf(obj[this.actObj.fields.value]) === index;
                 });
             }
-        });
-        this.actObj.appendTo(this.instance);
+        };
     }
+
 
     public write(args: { column: Column, target: Element, parent: IGrid, filteredValue: number | string | Date | boolean }): void {
         let columns: PredicateModel[] = this.filterSettings.columns;
@@ -77,6 +79,9 @@ export class StringFilterUI implements IFilterMUI {
     public read(element: Element, column: Column, filterOptr: string, filterObj: Filter): void {
         let actuiObj: AutoComplete = (<EJ2Intance>document.querySelector('#strui-' + column.uid)).ej2_instances[0];
         let filterValue: string | number = actuiObj.value;
+        if (isNullOrUndefined(filterValue) && filterOptr !== 'equal' && filterOptr !== 'notEqual') {
+            filterValue = '';
+        }
         filterObj.filterByColumn(column.field, filterOptr, filterValue, 'and', false);
     }
 

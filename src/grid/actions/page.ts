@@ -198,7 +198,7 @@ export class Page implements IAction {
             pageDown: (el: HTMLElement) => !(el.scrollTop >= el.scrollHeight - el.clientHeight)
         };
         let activeElement: Element = document.activeElement;
-        if (activeElement.classList.contains('e-content') &&
+        if (!isNullOrUndefined(activeElement) && activeElement.classList.contains('e-content') &&
             activeElement.isEqualNode(this.parent.getContent().firstElementChild) && ['pageUp', 'pageDown'].indexOf(action) !== -1) {
             return page[action](this.parent.getContent().firstChild);
         }

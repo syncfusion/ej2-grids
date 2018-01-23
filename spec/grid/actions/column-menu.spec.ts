@@ -5,12 +5,13 @@ import { Page } from '../../../src/grid/actions/page';
 import { Selection } from '../../../src/grid/actions/selection';
 import { Reorder } from '../../../src/grid/actions/reorder';
 import { CommandColumn } from '../../../src/grid/actions/command-column';
-import { ColumnMenuItemModel } from '../../../src/grid/base/interface';
+import { ColumnMenuItemModel, ColumnMenuClickEventArgs, ColumnMenuOpenEventArgs } from '../../../src/grid/base/interface';
 import { Grid } from '../../../src/grid/base/grid';
 import { createElement, remove, EmitType, Browser } from '@syncfusion/ej2-base';
-import { data } from '../../../spec/grid/base/datasource.spec';
+import { data, employeeData } from '../../../spec/grid/base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 import { ColumnMenu } from '../../../src/grid/actions/column-menu';
+import { createGrid, destroy } from '../base/specutil.spec';
 import { Sort } from '../../../src/grid/actions/sort';
 import { Group } from '../../../src/grid/actions/group';
 import { Filter } from '../../../src/grid/actions/filter';
@@ -225,6 +226,16 @@ describe('column menu module', () => {
             expect(args.cancel).toBe(true);
             let target = createElement('span', { className: 'e-popup' })
             let tar = createElement('span', { className: 'e-filters' });
+            target.appendChild(tar);
+            args = {
+                parentItem: colMenu.defaultItems['columnChooser'],
+                event: { target: tar },
+                cancel: false
+            };
+            colMenu.columnMenuBeforeClose(args);
+            expect(args.cancel).toBe(true);
+            target = createElement('span', { className: 'e-popup-wrapper' })
+            tar = createElement('span', { className: 'e-filters' });
             target.appendChild(tar);
             args = {
                 parentItem: colMenu.defaultItems['columnChooser'],
@@ -458,4 +469,152 @@ describe('column menu module', () => {
             Browser.userAgent = desktop;
         });
     });
+
+    describe('check box filter test case', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let headers: any;
+        let columns: Column[];
+        beforeAll((done: Function) => {
+            let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
+            Browser.userAgent = desktop;
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: employeeData,
+                    allowSorting:true,
+                    allowFiltering:true,
+                    filterSettings: { type: 'checkbox' },
+                    toolbar: ['search'],
+                    columns: [
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 100 },
+                        { field: 'Name.LastName.startwith.endwith.final', headerText: 'Last Name', width: 120},
+                        { field: 'Title', headerText: 'Title', width: 150 }
+                       ],
+                       dataBound: dataBound,
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('check filter value', (done: Function) => {
+            gridObj.filterModule.filterByColumn('Name.LastName.startwith.endwith.final', 'equal', 2);
+            let e: any = {};
+            let ele: Element = (<HTMLElement>gridObj.element.querySelectorAll('.e-filtermenudiv')[1]);
+            e = { target: ele };
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
+            expect((<any>gridObj).filterModule.filterSettings.properties.columns[0].properties.value).toEqual(2);
+            done();
+        });
+        afterAll(() => {
+            gridObj.destroy();
+            remove(elem);
+        });
+    });
+    describe('EJ2-6801-Column menu set model ', () => {
+         let grid: Grid;
+        let headers: any;
+        let columns: Column[];
+        let actionComplete: () => void;
+        let template: Element = createElement('div', { id: 'template' });
+        template.innerHTML = '<span>$ShipCity$</span>';
+        beforeAll((done: Function) => {
+            let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
+            Browser.userAgent = desktop;
+            grid = createGrid(
+                {
+                    dataSource: data,
+                    allowGrouping: true,
+                    groupSettings: { showGroupedColumn: true },
+                    allowResizing: true,
+                    allowSorting: true,
+                    editSettings: { allowDeleting: true, allowEditing: true },
+                    allowPaging: true,
+                    pageSettings: {
+                        pageSize: 10
+                    },
+                    allowFiltering: true,
+                    filterSettings: { type: 'checkbox' },
+                    allowExcelExport: true,
+                    allowPdfExport: true,
+                    actionComplete: actionComplete,
+                    columns: [
+                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
+                        {
+                            headerText: 'Employee Image', textAlign: 'center',
+                            template: '#template', width: 150
+                        }, { field: 'ShipName', headerText: 'Ship Name', width: 120, showColumnMenu: false },
+                        { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'right' }
+                    ]
+                },
+                done
+                );
+        });
+        it('Column chooser, Content menu, column menu not enabled when enable through set model', () => {
+            grid.showColumnMenu = true;
+              actionComplete = (): void => {
+               expect(grid.element.querySelectorAll('.e-columnmenu').length).toBe(3);
+            };
+            
+        });
+         afterAll(() => {
+            destroy(grid);
+        });
+    });
+
+    describe('Column menu events', () => {
+        let gridObj: Grid;
+        beforeAll((done: Function) => {
+            gridObj =  createGrid({
+                dataSource: data,
+                showColumnMenu: true,
+                columns: [
+                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
+                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 125 },
+                    { field: 'ShipName', headerText: 'Ship Name', width: 120, showColumnMenu: false },
+                    { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
+                    { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'right' }
+                ]
+            }, done);
+        });
+        it('column menu open', (done: Function) => {
+            gridObj.columnMenuOpen = function(args: ColumnMenuOpenEventArgs){
+                expect(args.column).not.toBe(null);
+                done();
+            }
+            gridObj.dataBind();
+            (gridObj.getHeaderContent().querySelector('.e-columnmenu') as HTMLBRElement).click();
+        });
+
+        it('column menu click', (done: Function) => {
+            gridObj.columnMenuClick = function(args: ColumnMenuClickEventArgs){
+                expect(args.column).not.toBe(null);
+                done();
+            }
+            gridObj.dataBind();
+            let colMenu = gridObj.columnMenuModule as any;
+            let colMenuObj = colMenu.columnMenu as ContextMenuItemModel;
+            colMenu.columnMenuItemClick({item: colMenuObj.items[0], element: document.createElement('span')});
+        });
+        it('dynamic context menu items', () => {
+            gridObj.columnMenuItems = ['autoFitAll'];
+            gridObj.dataBind();
+            let colMenu = gridObj.columnMenuModule as any;
+            let colMenuObj = colMenu.columnMenu as ContextMenuItemModel;
+            expect(colMenuObj.items.length).toBe(1);
+            expect(document.querySelectorAll('.e-grid-menu').length).toBe(1);
+        });
+        it('Column menu without icon test', () => {
+            let st: { [key: string]: string } = (gridObj.columnMenuModule as any).getDefaultItem('columnChooser')
+            expect(st.iconCss).toBe(null);
+        });
+        it('get key id from unknown key', () => {
+            let st: boolean = (gridObj.columnMenuModule as any).getKeyFromId('sortAscending')
+            expect(st).toBe(false);
+        });
+        afterAll(() => {
+           destroy(gridObj);
+        });
+    });
+
 });

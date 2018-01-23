@@ -194,26 +194,27 @@ describe('Data module', () => {
 
     describe('datamanager offline - success testing', () => {
         let gridObj: Grid;
-        let dataManager: any = new DataManager(data as JSON[]);
-        dataManager.ready = {
-            then: (args: any) => {
-                args.call(this, { result: data.slice(0, 5) });
-                return {
-                    catch: (args: any) => {
-                        {
-                        }
-                    }
-                };
-            }
-        };
+        let dataManager: DataManager;
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: (e?: Object) => void;
         beforeAll((done: Function) => {
+            jasmine.Ajax.install();
+            dataManager = new DataManager({
+                url: '/test/db',
+                adaptor: new ODataV4Adaptor,
+                offline: true
+                }
+            );
+            this.request = jasmine.Ajax.requests.mostRecent();
+            this.request.respondWith({
+                status: 200,
+                responseText: JSON.stringify({value: data})
+            });
             let dataBound: EmitType<Object> = () => { done(); };
             document.body.appendChild(elem);
             gridObj = new Grid(
                 {
-                    dataSource: dataManager, allowPaging: false,
+                    dataSource: dataManager, allowPaging: true,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -227,11 +228,17 @@ describe('Data module', () => {
             gridObj.appendTo('#Grid');
         });
 
+        it('promise test', () => {
+            expect(dataManager.ready).not.toBeNull();
+            expect(dataManager.dataSource.json.length).toBe(15);
+        });
+
         it('Row count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(5);
+            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(12);
         });
 
         afterAll(() => {
+            jasmine.Ajax.uninstall();
             remove(elem);
         });
 
@@ -278,49 +285,8 @@ describe('Data module', () => {
             expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
         });
 
-        afterAll(() => {
-            remove(elem);
-        });
-
-    });
-
-    describe('datamanager offline - success testing', () => {
-        let gridObj: Grid;
-        let dataManager: any = new DataManager(data as JSON[]);
-        dataManager.ready = {
-            then: (args: any) => {
-                args.call(this, { result: data.slice(0, 5) });
-                return {
-                    catch: (args: any) => {
-                        {
-                        }
-                    }
-                };
-            }
-        };
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let actionComplete: (e?: Object) => void;
-        beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: dataManager, allowPaging: false,
-                    columns: [
-                        { headerText: 'OrderID', field: 'OrderID' },
-                        { headerText: 'CustomerID', field: 'CustomerID' },
-                        { headerText: 'EmployeeID', field: 'EmployeeID' },
-                        { headerText: 'ShipCountry', field: 'ShipCountry' },
-                        { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound,
-                    actionComplete: actionComplete,
-                });
-            gridObj.appendTo('#Grid');
-        });
-
-        it('Row count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(5);
+        it('EJ2-7420- Get Column by field test', () => {
+            expect((<any>gridObj.getDataModule()).getColumnByField('ShipCity').field).toBe('ShipCity');
         });
 
         afterAll(() => {
@@ -328,53 +294,5 @@ describe('Data module', () => {
         });
 
     });
-
-    describe('datamanager offline - failure testing', () => {
-        let gridObj: Grid;
-        let dataManager: any = new DataManager(data as JSON[]);
-        dataManager.ready = {
-            then: (args: any) => {
-                return {
-                    catch: (args: any) => {
-                        {
-                            args.call(this, {});
-                        }
-                    }
-                };
-            }
-        };
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let actionComplete: (e?: Object) => void;
-        beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            let actionFailure: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: dataManager, allowPaging: false,
-                    columns: [
-                        { headerText: 'OrderID', field: 'OrderID' },
-                        { headerText: 'CustomerID', field: 'CustomerID' },
-                        { headerText: 'EmployeeID', field: 'EmployeeID' },
-                        { headerText: 'ShipCountry', field: 'ShipCountry' },
-                        { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound,
-                    actionComplete: actionComplete,
-                    actionFailure: actionFailure
-                });
-            gridObj.appendTo('#Grid');
-        });
-
-        it('Row count testing', () => {
-            expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
-        });
-
-        afterAll(() => {
-            remove(elem);
-        });
-
-    });
-
 
 });

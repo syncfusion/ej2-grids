@@ -1,10 +1,11 @@
-import { merge } from '@syncfusion/ej2-base';
+import { merge, isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
+import { DataManager, Query, DataUtil } from '@syncfusion/ej2-data';
 import { ICellFormatter, IFilterUI, IEditCell, CommandModel, IFilter } from '../base/interface';
 import { TextAlign, ClipMode } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
 import { ValueAccessor } from '../base/type';
-import { getUid, templateCompiler } from '../base/util';
+import { getUid, templateCompiler, getForeignData } from '../base/util';
 
 /**
  * Represents Grid `Column` model class.
@@ -122,6 +123,12 @@ export class Column {
 
     public headerTemplate: string;
 
+    /**        
+     * If `isFrozen` set to true, then the column will be in frozen state.
+     * @default false
+     */
+    public isFrozen: boolean;
+
     /**    
      * If `allowSorting` set to false, then it disables sorting option of a particular column.    
      * By default all columns are sortable. 
@@ -212,11 +219,10 @@ export class Column {
 
     /**    
      * Defines the `dataSource` of the column which is used to bind the foreign key data source.    
-     * @default null    
-     * @hidden   
+     * @default null 
      */
 
-    public dataSource: Object;
+    public dataSource: Object[] | DataManager;
 
     /**    
      * Defines the method which is used to achieve custom formatting from an external function. 
@@ -268,7 +274,7 @@ export class Column {
 
     public valueAccessor: ValueAccessor;
 
-    /**    
+    /**
      * The `filterBarTemplate` is used to add a custom component instead of default input component for filter bar.   
      * It have create and read functions.  
      * * create – It is used for creating custom components.  
@@ -427,7 +433,7 @@ export class Column {
      * Defines the `IEditCell` object to customize default edit cell.
      * @default {}         
      */
-    public edit: IEditCell;
+    public edit: IEditCell = {};
 
     /**    
      * If `isIdentity` is set to true, then this column is considered as identity column.
@@ -436,11 +442,16 @@ export class Column {
     public isIdentity: boolean;
 
     /**    
-     * To define foreign key field name of the grid datasource.
-     * @hidden
+     * Defines the value to bind the field which is in foreign column datasource based on the foreignKeyField.
      * @default null         
      */
     public foreignKeyValue: string;
+
+    /**    
+     * To define foreign key field name of the grid datasource.
+     * @default null         
+     */
+    public foreignKeyField: string;
 
     /**
      * @hidden
@@ -481,6 +492,14 @@ export class Column {
      */
     public commands: CommandModel[];
 
+
+    /**
+     * @hidden
+     * Gets the current view foreign key data.
+     * @default [] 
+     */
+    public columnData: Object[];
+
     constructor(options: ColumnModel) {
         merge(this, options);
         this.uid = getUid('grid-column');
@@ -503,12 +522,62 @@ export class Column {
         if (this.filter.itemTemplate) {
             this.fltrTemplateFn = templateCompiler(this.filter.itemTemplate);
         }
+
+        if (this.isForeignColumn() && isNullOrUndefined(this.editType)) {
+            this.editType = 'dropdownedit';
+            this.edit.params = {
+                dataSource: <DataManager>this.dataSource,
+                query: new Query(), fields: { value: this.foreignKeyField || this.field, text: this.foreignKeyValue }
+            };
+        }
+
+        if (!this.sortComparer && this.isForeignColumn()) {
+            this.sortComparer = (x: number | string, y: number | string) => {
+                x = getValue(this.foreignKeyValue, getForeignData(this, {}, <string>x)[0]);
+                y = getValue(this.foreignKeyValue, getForeignData(this, {}, <string>y)[0]);
+                return this.sortDirection === 'descending' ? DataUtil.fnDescending(x, y) : DataUtil.fnAscending(x, y);
+            };
+        }
     }
 
     private formatFn: Function;
     private parserFn: Function;
     private templateFn: Function;
     private fltrTemplateFn: Function;
+
+    private sortDirection: string = 'descending';
+
+    /** @hidden */
+    public getSortDirection(): string {
+        return this.sortDirection;
+    }
+
+    /** @hidden */
+    public setSortDirection(direction: string): void {
+        this.sortDirection = direction;
+    }
+
+    /** @hidden */
+    public setProperties(column: Column): void {
+        //Angular two way binding
+        let keys: string[] = Object.keys(column);
+        for (let i: number = 0; i < keys.length; i++) {
+            this[keys[i]] = column[keys[i]];
+        }
+    }
+
+    /**
+     * Defines the custom sort comparer function.
+     */
+    public sortComparer: (x: number | string, y: number | string) => number;
+
+    /**
+     * Gets the column is foreign key column or not.
+     */
+    public isForeignColumn(): boolean {
+        return !!(this.dataSource && this.foreignKeyValue);
+    }
+
     /** @hidden */
     public getFormatter(): Function {
         return this.formatFn;
@@ -647,6 +716,12 @@ export interface ColumnModel {
 
     headerTemplate?: string;
 
+    /**        
+     * If `isFrozen` set to true, then the column will be in frozen state.
+     * @default false
+     */
+    isFrozen?: boolean;
+
     /**    
      * If `allowSorting` set to false, then it disables sorting option of a particular column.  
      * By default all columns are sortable. 
@@ -730,10 +805,9 @@ export interface ColumnModel {
 
     /**    
      * Defines the data source of the column which is used to bind the foreign key data source.    
-     * @default null    
-     * @hidden   
+     * @default null 
      */
-    dataSource?: Object;
+    dataSource?: Object[] | DataManager;
 
     /**    
      * Defines the method which is used to achieve custom formatting from an external function. 
@@ -881,14 +955,12 @@ export interface ColumnModel {
 
     /**    
      * To define foreign key field name of the grid datasource.
-     * @hidden
      * @default null         
      */
     foreignKeyField?: string;
 
     /**    
      * Defines the value to bind the field which is in foreign column datasource based on the foreignKeyField.
-     * @hidden
      * @default null         
      */
     foreignKeyValue?: string;
@@ -946,4 +1018,14 @@ export interface ColumnModel {
      */
     commands?: CommandModel[];
 
+
+    /**
+     * It defines the custom sort comparer function.
+     */
+    sortComparer?: (x: number | string, y: number | string) => number;
+
+    /**
+     * It defines the column is foreign key column or not.
+     */
+    isForeignColumn?: () => boolean;
 }

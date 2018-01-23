@@ -34,7 +34,9 @@ export type Action =
     /**  Defines current Action as Batch Save */
     'batchsave' |
     /** Defines current Action as Virtual Scroll */
-    'virtualscroll';
+    'virtualscroll' |
+    /** Defines current Action as print */
+    'print';
 
 
 /** 

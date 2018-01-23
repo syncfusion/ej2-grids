@@ -5,7 +5,7 @@ import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from '../base/interface';
 import { BatchAddArgs, CellEditArgs, CellSaveArgs, CellFocusArgs } from '../base/interface';
 import { CellType } from '../base/enum';
-import { parentsUntil, inArray } from '../base/util';
+import { parentsUntil, inArray, refreshForeignData } from '../base/util';
 import * as events from '../base/constant';
 import { EditRender } from '../renderer/edit-renderer';
 import { RowRenderer } from '../renderer/row-renderer';
@@ -32,7 +32,8 @@ export class BatchEdit {
     private dataBoundFunction: Function;
     private cellDetails: {
         rowData?: Object, field?: string, value?: string,
-        isForeignKey?: boolean, column?: Column, rowIndex?: number, cellIndex?: number
+        isForeignKey?: boolean, column?: Column, rowIndex?: number, cellIndex?: number,
+        foreignKeyData?: Object
     } = {};
     private isColored: boolean;
 
@@ -66,7 +67,7 @@ export class BatchEdit {
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.dblclick, this.dblClickHandler);
         this.parent.off(events.beforeCellFocused, this.onBeforeCellFocused);
-        this.parent.on(events.cellFocused, this.onCellFocused);
+        this.parent.off(events.cellFocused, this.onCellFocused);
         this.parent.removeEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.off(events.doubleTap, this.dblClickHandler);
     }
@@ -113,11 +114,20 @@ export class BatchEdit {
     }
 
     private onCellFocused(e: CellFocusArgs): void {
-        let clear: boolean = !e.container.isContent || !e.container.isDataCell;
+        let frzCols: number = this.parent.getFrozenColumns();
+        let mCont: Element = this.parent.getContent().querySelector('.e-movablecontent');
+        let mHdr: Element = this.parent.getHeaderContent().querySelector('.e-movableheader');
+        let clear: boolean = (!e.container.isContent || !e.container.isDataCell) && !(this.parent.frozenRows && e.container.isHeader);
         if (!e.byKey || clear) {
             return;
         }
         let [rowIndex, cellIndex]: number[] = e.container.indexes;
+        if (frzCols && (mCont.contains(e.element) || (this.parent.frozenRows && mHdr.contains(e.element)))) {
+            cellIndex += frzCols;
+        }
+        if (this.parent.frozenRows && e.container.isContent) {
+            rowIndex += this.parent.frozenRows;
+        }
         let isEdit: boolean = this.parent.isEdit;
         if (!document.querySelectorAll('.e-popup-open').length) {
             isEdit = isEdit && !this.validateFormObj();
@@ -158,6 +168,7 @@ export class BatchEdit {
         let rows: Row<Column>[] = this.parent.getRowsObject();
         let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let tr: HTMLElement;
+        let mTr: HTMLElement;
         if (gObj.isEdit) {
             this.saveCell(true);
         }
@@ -165,9 +176,24 @@ export class BatchEdit {
         for (let i: number = 0; i < rows.length; i++) {
             if (rows[i].isDirty) {
                 tr = gObj.getContentTable().querySelector('[data-uid=' + rows[i].uid + ']') as HTMLElement;
+                if (gObj.frozenRows) {
+                    tr = gObj.getHeaderContent().querySelector('[data-uid=' + rows[i].uid + ']') as HTMLElement;
+                }
+                if (gObj.frozenColumns) {
+                    if (gObj.frozenRows) {
+                        mTr = gObj.getHeaderContent().querySelector('.e-movableheader')
+                            .querySelector('[data-uid=' + rows[i].uid + ']') as HTMLElement;
+                    } else {
+                        mTr = gObj.getContent().querySelector('.e-movablecontent')
+                            .querySelector('[data-uid=' + rows[i].uid + ']') as HTMLElement;
+                    }
+                }
                 if (tr) {
                     if (tr.classList.contains('e-insertedrow')) {
                         remove(tr);
+                        if (gObj.frozenRows && mTr) {
+                            remove(mTr);
+                        }
                         this.removeRowObjectFromUID(rows[i].uid);
                         i--;
                     } else {
@@ -178,6 +204,10 @@ export class BatchEdit {
                     }
                 }
             }
+        }
+        if (gObj.getContentTable().querySelector('tr.e-emptyrow') &&
+            !gObj.getContentTable().querySelector('tr.e-row')) {
+            gObj.getContentTable().querySelector('tr.e-emptyrow').classList.remove('e-hide');
         }
         gObj.selectRow(this.cellDetails.rowIndex);
         this.refreshRowIdx();
@@ -230,7 +260,12 @@ export class BatchEdit {
             changedRecords: []
         };
         let rows: Row<Column>[] = this.parent.getRowsObject() as Row<Column>[];
+        let mRows: Row<Column>[] = this.parent.getMovableRowsObject() as Row<Column>[];
+        let frzCols: number = this.parent.getFrozenColumns();
         for (let row of rows) {
+            if (frzCols) {
+                this.mergeBatchChanges(row, mRows[row.index], frzCols);
+            }
             if (row.isDirty) {
                 switch (row.edit) {
                     case 'add':
@@ -247,6 +282,22 @@ export class BatchEdit {
         return changes;
     }
 
+    private mergeBatchChanges(row: Row<Column>, mRow: Row<Column>, frzCols: number): void {
+        if (row.isDirty) {
+            if (mRow.isDirty) {
+                let i: number = 0;
+                Object.keys(mRow.changes).forEach((key: string) => {
+                    if (i < frzCols) {
+                        delete mRow.changes[key];
+                    }
+                    i++;
+                });
+                extend(row.changes, mRow.changes);
+            }
+        } else if (mRow.isDirty) {
+            extend(row, mRow);
+        }
+    }
 
     /**
      * @hidden   
@@ -273,11 +324,12 @@ export class BatchEdit {
     private bulkDelete(fieldname?: string, data?: Object): void {
         let gObj: IGrid = this.parent;
         let index: number = data ? this.getIndexFromData(data) : gObj.selectedRowIndex;
+        let selectedRows: Element[] = gObj.getSelectedRows();
         let args: BeforeBatchDeleteArgs = {
             primaryKey: this.parent.getPrimaryKeyFieldNames(),
             rowIndex: index,
             rowData: data ? data : gObj.getSelectedRecords()[0],
-            row: data ? gObj.getRows()[index] : gObj.getSelectedRows()[0], cancel: false
+            row: data ? gObj.getRows()[index] : selectedRows[0], cancel: false
         };
         if (!args.row) {
             return;
@@ -296,6 +348,17 @@ export class BatchEdit {
             rowObj.isDirty = true;
             rowObj.edit = 'delete';
             classList(args.row as HTMLTableRowElement, ['e-hiddenrow', 'e-updatedtd'], []);
+            if (gObj.getFrozenColumns()) {
+                classList(data ? gObj.getMovableRows()[index] : selectedRows[1], ['e-hiddenrow', 'e-updatedtd'], []);
+                if (gObj.frozenRows && index < gObj.frozenRows) {
+                    gObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody')
+                        .appendChild(gObj.getMovableRowByIndex(gObj.frozenRows - 1));
+                    gObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody')
+                        .appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
+                }
+            } else if (gObj.frozenRows && index < gObj.frozenRows) {
+                gObj.getHeaderContent().querySelector('tbody').appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
+            }
         }
         this.refreshRowIdx();
         gObj.selectRow(index);
@@ -306,14 +369,31 @@ export class BatchEdit {
     }
 
     private refreshRowIdx(): void {
-        let rows: HTMLElement[] = [].slice.call(this.parent.getContentTable().querySelector('tbody').children);
-        let dataRows: Element[] = [];
+        let rows: Element[] = [];
+        let mRows: Element[] = [];
+        let frzCols: number = this.parent.getFrozenColumns();
+        if (this.parent.frozenRows) {
+            rows = [].slice.call(this.parent.getHeaderTable().querySelector('tbody').children);
+            if (frzCols) {
+                mRows = [].slice.call(this.parent.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody').children);
+            }
+        }
+        if (frzCols) {
+            mRows = mRows.concat([].slice.call(this.parent.getContentTable().querySelector('tbody').children));
+        }
+        rows = rows.concat([].slice.call(this.parent.getContentTable().querySelector('tbody').children));
         for (let i: number = 0, j: number = 0, len: number = rows.length; i < len; i++) {
             if (rows[i].classList.contains('e-row') && !rows[i].classList.contains('e-hiddenrow')) {
                 rows[i].setAttribute('aria-rowindex', j.toString());
+                if (frzCols) {
+                    mRows[i].setAttribute('aria-rowindex', j.toString());
+                }
                 j++;
             } else {
                 rows[i].removeAttribute('aria-rowindex');
+                if (frzCols) {
+                    mRows[i].removeAttribute('aria-rowindex');
+                }
             }
         }
     }
@@ -344,6 +424,8 @@ export class BatchEdit {
             return;
         }
         gObj.clearSelection();
+        let mTr: Element;
+        let mTbody: Element;
         let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let model: IModelGenerator<Column> = new RowModelGenerator(this.parent);
         let modelData: Row<Column>[] = model.generateRows([args.defaultData]);
@@ -356,6 +438,22 @@ export class BatchEdit {
         }
         let tbody: Element = gObj.getContentTable().querySelector('tbody');
         tr.classList.add('e-insertedrow');
+        if (tbody.querySelector('.e-emptyrow')) {
+            tbody.querySelector('.e-emptyrow').classList.add('e-hide');
+        }
+        if (gObj.getFrozenColumns()) {
+            mTr = this.renderMovable(tr);
+            if (gObj.frozenRows) {
+                mTbody = gObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody');
+            } else {
+                mTbody = gObj.getContent().querySelector('.e-movablecontent').querySelector('tbody');
+            }
+            mTbody.insertBefore(mTr, mTbody.firstChild);
+            addClass(mTr.querySelectorAll('.e-rowcell'), ['e-updatedtd']);
+        }
+        if (gObj.frozenRows) {
+            tbody = gObj.getHeaderContent().querySelector('tbody');
+        }
         tbody.insertBefore(tr, tbody.firstChild);
         addClass(tr.querySelectorAll('.e-rowcell'), ['e-updatedtd']);
         modelData[0].isDirty = true;
@@ -376,6 +474,17 @@ export class BatchEdit {
         };
         gObj.trigger(events.batchAdd, args1);
         gObj.notify(events.batchAdd, { rows: this.parent.getRowsObject() });
+    }
+
+    private renderMovable(ele: Element): Element {
+        let mEle: Element = ele.cloneNode(true) as Element;
+        for (let i: number = 0; i < this.parent.frozenColumns; i++) {
+            mEle.removeChild(mEle.children[0]);
+        }
+        for (let i: number = this.parent.frozenColumns, len: number = ele.childElementCount; i < len; i++) {
+            ele.removeChild(ele.children[ele.childElementCount - 1]);
+        }
+        return mEle;
     }
 
     private findNextEditableCell(columnIndex: number, isAdd: boolean): number {
@@ -425,10 +534,18 @@ export class BatchEdit {
             if (gObj.isEdit) {
                 return;
             }
-            let row: Element = gObj.getDataRows()[index];
+            let row: Element;
+            let colIdx: number = gObj.getColumnIndexByField(field);
+            let frzCols: number = gObj.getFrozenColumns();
+            if (frzCols && colIdx >= frzCols) {
+                row = gObj.getMovableDataRows()[index];
+            } else {
+                row = gObj.getDataRows()[index];
+            }
             if ((keys[0] === col.field && !row.classList.contains('e-insertedrow')) || col.template || col.columns) {
                 return;
             }
+            let rowObj: Row<Column> = gObj.getRowObjectFromUID(row.getAttribute('data-uid'));
             let rowData: Object = extend({}, this.getDataByIndex(index));
             let cells: Element[] = [].slice.apply((row as HTMLTableRowElement).cells);
             let args: CellEditArgs = {
@@ -436,7 +553,8 @@ export class BatchEdit {
                 columnName: col.field, columnObject: col, isForeignKey: !isNullOrUndefined(col.foreignKeyValue),
                 primaryKey: keys, rowData: rowData,
                 validationRules: extend({}, col.validationRules ? col.validationRules : {}),
-                value: rowData[col.field], type: !isAdd ? 'edit' : 'add', cancel: false
+                value: rowData[col.field], type: !isAdd ? 'edit' : 'add', cancel: false,
+                foreignKeyData: rowObj && rowObj.foreignKeyData
             };
             if (!args.cell) { return; }
             gObj.trigger(events.cellEdit, args);
@@ -445,7 +563,8 @@ export class BatchEdit {
             }
             this.cellDetails = {
                 rowData: rowData, column: col, value: args.value, isForeignKey: args.isForeignKey, rowIndex: index,
-                cellIndex: parseInt((args.cell as HTMLTableCellElement).getAttribute('aria-colindex'), 10)
+                cellIndex: parseInt((args.cell as HTMLTableCellElement).getAttribute('aria-colindex'), 10),
+                foreignKeyData: args.foreignKeyData
             };
             if (args.cell.classList.contains('e-updatedtd')) {
                 this.isColored = true;
@@ -480,7 +599,9 @@ export class BatchEdit {
             rowObj.changes = extend({}, rowObj.data);
         }
         rowObj.changes[field] = value;
-        rowObj.isDirty = true;
+        if (rowObj.data[field] !== value) {
+            rowObj.isDirty = true;
+        }
     }
 
     public updateRow(index: number, data: Object): void {
@@ -501,16 +622,24 @@ export class BatchEdit {
     private refreshTD(td: Element, column: Column, rowObj: Row<Column>, value: string | number | boolean | Date): void {
         let cell: CellRenderer = new CellRenderer(this.parent, this.serviceLocator);
         this.setChanges(rowObj, column.field, value);
-        cell.refreshTD(td, rowObj.cells[this.getCellIdx(column.uid)] as Cell<Column>, rowObj.changes);
+        let frzCols: number = this.parent.getFrozenColumns();
+        refreshForeignData(rowObj, this.parent.getForeignKeyColumns(), rowObj.changes);
+        cell.refreshTD(
+            td, rowObj.cells[this.getCellIdx(column.uid) - (this.getCellIdx(column.uid) >= frzCols ? frzCols : 0)] as Cell<Column>,
+            rowObj.changes);
         td.classList.add('e-updatedtd');
         this.parent.notify(events.toolbarRefresh, {});
     }
 
     private getColIndex(cells: Element[], index: number): number {
+        let indentCells: number = 0;
         for (let m: number = 0; m < cells.length; m++) {
             let colIndex: number = parseInt(cells[m].getAttribute('aria-colindex'), 10);
+            if (isNaN(colIndex)) {
+                indentCells++;
+            }
             if (colIndex === index) {
-                return m;
+                return m - indentCells;
             }
         }
         return -1;

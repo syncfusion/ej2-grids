@@ -25,6 +25,8 @@ export class Row<T> {
 
     public isDataRow: boolean;
 
+    public isExpand: boolean;
+
     public rowSpan: number;
 
     public cells: Cell<T>[];
@@ -43,7 +45,16 @@ export class Row<T> {
 
     public cssClass: string;
 
+    public foreignKeyData: Object;
+
     constructor(options: { [x: string]: Object }) {
         merge(this, options);
+    }
+
+    public clone(): Row<T> {
+        let row: Row<T> = new Row<T>({});
+        merge(row, this);
+        row.cells = this.cells.map((cell: Cell<T>) => cell.clone());
+        return row;
     }
 }

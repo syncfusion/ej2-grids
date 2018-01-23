@@ -12,15 +12,14 @@ import { Print } from '../../../src/grid/actions/print';
 import { Group } from '../../../src/grid/actions/group';
 import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { data } from '../base/datasource.spec';
+import { createGrid, destroy } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Sort, Page, Filter, Print, Group, Toolbar);
 
 describe('Print module', () => {
-    describe('Print without paging, filterbar testing', () => {
+    describe('Print without paging', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let beforePrint: () => void;
         let actionComplete: Function;
         (<any>window).open = () => {
             return {
@@ -31,193 +30,183 @@ describe('Print module', () => {
 
         beforeAll((done: Function) => {
             let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: data,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                    { field: 'ShipCity' }],
-                    allowSelection: false,
-                    beforePrint: beforePrint,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+            gridObj = createGrid({
+                dataSource: data,
+                columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                { field: 'ShipCity' }],
+                allowSelection: false,
+                allowFiltering: true,
+                allowGrouping: true,
+                allowPaging: true
+            }, dataBound);
         });
-        it('Print all pages testing', (done: Function) => {
-            beforePrint = (args?: { element: Element }): void => {
-                // expect(args.element.querySelectorAll('.e-gridpager').length).toBe(0);
-                // expect(args.element.querySelectorAll('.e-filterbar').length).toBe(0);
-                // expect(args.element.querySelectorAll('.e-row').length).toBe(15);
+        it('basic feature testing', (done: Function) => {
+            let printComplete = (args?: { element: Element }): void => {
+                expect(args.element.querySelectorAll('.e-gridpager').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-filterbar').length).toBe(1);
+                expect((args.element.querySelectorAll('.e-filterbar')[0] as HTMLElement).style.display).toBe('none');
+                expect(args.element.querySelectorAll('.e-row').length).toBe(15);
+                let contentDiv: HTMLElement = (args.element.querySelector('.e-content') as HTMLElement);
+                expect(contentDiv.style.height).toBe('auto');
+                expect(contentDiv.style.overflowY).toBe('auto');
+                expect(contentDiv.style.overflowX).toBe('hidden');
+                expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toBe('none');
+                expect(args.element.querySelectorAll('.e-spin-show').length).toBe(0);
+                expect(args.element.classList.contains('e-print-grid')).toBe(false);
+                done();
+            };
+            window.print = () => { };
+            (<any>Window).print = () => { };
+            gridObj.printComplete = printComplete;
+            gridObj.dataBind();
+            gridObj.print();
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
+    describe('Print with paging', () => {
+        let gridObj: Grid;
+        let actionComplete: Function;
+        (<any>window).open = () => {
+            return {
+                document: { write: () => { }, close: () => { } },
+                close: () => { }, print: () => { }, focus: () => { }, moveTo: () => { }, resizeTo: () => { }
+            };
+        };
+
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            gridObj = createGrid({
+                dataSource: data,
+                columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                { field: 'ShipCity' }],
+                allowSelection: false,
+                allowFiltering: true,
+                allowGrouping: true,
+                allowPaging: true,
+                groupSettings: { columns: ['OrderID'] },
+                toolbar: ['add'],
+                height: 200,
+                printMode: 'currentpage'
+            }, dataBound);
+        });
+        
+        it('current page testing and group column', (done: Function) => {
+            let printComplete = (args?: { element: Element }): void => {
+                expect(args.element.querySelectorAll('.e-gridpager').length).toBe(1);
+                expect((args.element.querySelectorAll('.e-gridpager')[0] as HTMLElement).style.display).toBe('none');
+                expect(args.element.querySelectorAll('.e-grouptopleftcell').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-recordpluscollapse').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-indentcell').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-recordplusexpand').length).toBe(0);
+                expect(args.element.querySelectorAll('.e-toolbar').length).toBe(0);
+                done();
+            };
+            window.print = () => { };
+            (<any>Window).print = () => { };
+            gridObj.printComplete = printComplete;
+            gridObj.print();
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
+    describe('Print empty grid', () => {
+        let gridObj: Grid;
+        let actionComplete: Function;
+        (<any>window).open = () => {
+            return {
+                document: { write: () => { }, close: () => { } },
+                close: () => { }, print: () => { }, focus: () => { }, moveTo: () => { }, resizeTo: () => { }
+            };
+        };
+
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            gridObj = createGrid({
+                dataSource: [],
+                columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                { field: 'ShipCity' }],
+                allowSelection: false,
+                allowFiltering: true,
+                allowGrouping: true,
+                allowPaging: true
+            }, dataBound);
+        });
+        it('cancel print', (done: Function) => {
+            let beforePrint = (args?: { element: Element, cancel?: boolean }): void => {
+                args.cancel = true;
+                expect(args.element.classList.contains('e-print-grid')).toBe(true);
                 done();
             };
             window.print = () => { };
             (<any>Window).print = () => { };
             gridObj.beforePrint = beforePrint;
-            gridObj.dataBind();
+            gridObj.print();
+        });
+        it('check cancel print grid element has removed', () => {
+            let id = gridObj.element.id + '_print';
+            expect(document.getElementById(id)).toBe(null);
+        });
+        it('empty page testing', (done: Function) => {
+            let printComp = (args?: { element: Element }): void => {
+                done();
+            };
+            window.print = () => { };
+            (<any>Window).print = () => { };
+            gridObj.beforePrint = printComp;
             gridObj.print();
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            elem.remove();
+            destroy(gridObj);
         });
     });
 
-    describe('Print with paging, filterbar testing', () => {
+    describe('Print with custom action', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let beforePrint: () => void;
         let actionComplete: Function;
+        (<any>window).open = () => {
+            return {
+                document: { write: () => { }, close: () => { } },
+                close: () => { }, print: () => { }, focus: () => { }, moveTo: () => { }, resizeTo: () => { }
+            };
+        };
 
         beforeAll((done: Function) => {
             let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: data,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                    { field: 'ShipCity' }],
-                    allowFiltering: true,
-                    allowPaging: true,
-                    height: 600,
-                    pageSettings: { pageSize: 5 },
-                    allowGrouping: true,
-                    groupSettings: { columns: ['OrderID'] },
-                    beforePrint: beforePrint,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+            gridObj = createGrid({
+                dataSource: data,
+                columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                { field: 'ShipCity' }],
+                allowSelection: false,
+                allowFiltering: true,
+                allowGrouping: true,
+                allowPaging: true
+            }, dataBound);
         });
-        it('Print all pages testing', (done: Function) => {
-            beforePrint = (args?: { element: Element }): void => {
-                // expect(args.element.querySelectorAll('.e-gridpager').length).toBe(0);
-                // expect((args.element.querySelector('.e-filterbar') as HTMLElement).style.display).toBe('none');
+        it('group in before print', (done: Function) => {
+            let beforePrint = (args?: { element: Element, cancel?: boolean }): void => {
+                (args.element as any).ej2_instances[0].groupColumn('OrderID');
+            };
+            window.print = () => { };
+            (<any>Window).print = () => { };
+            gridObj.beforePrint = beforePrint;
+            gridObj.printComplete = function (args) {
                 done();
-            };
-            gridObj.beforePrint = beforePrint;
-            gridObj.dataBind();
+            }
             gridObj.print();
         });
-
-        it('Print current page testing', (done: Function) => {
-            beforePrint = (args?: { element: Element }): void => {
-                expect((args.element.querySelector('.e-gridpager') as HTMLElement).style.display).toBe('none');
-                done();
-            };
-            gridObj.printModule.destroy(); //for coverage
-            gridObj.printMode = 'currentpage';
-            gridObj.beforePrint = beforePrint;
-            gridObj.dataBind();
-            gridObj.print();
-        });
-
-        afterAll(() => {
-            gridObj.destroy();
-            elem.remove();
-        });
-    });
-
-    describe('Print two column grouping', () => {
-        let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let beforePrint: () => void;
-        let actionComplete: EmitType<Object>;
-
-        beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: data,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                    { field: 'ShipCity' }],
-                    allowFiltering: true,
-                    allowPaging: true,
-                    allowGrouping: true,
-                    pageSettings: { pageSize: 8 },
-                    groupSettings: { columns: ['OrderID', 'EmployeeID'] },
-                    beforePrint: beforePrint,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
-        });
-        it('Print with two grouped column', (done: Function) => { // print with more than one grouped columns 
-            let flag: boolean = false;
-            beforePrint = (args?: { element: Element }): void => {
-                expect(args.element.querySelectorAll('.e-groupcaption').length).toBeGreaterThan(1);
-                //expect((args.element.querySelectorAll('.e-groupcaption')[0] as HTMLTableCellElement).colSpan).toBe(3);
-                expect(args.element.querySelectorAll('.e-grouptopleftcell').length).toBe(0);
-                expect(args.element.querySelectorAll('.e-recordpluscollapse').length).toBe(0);
-                expect(args.element.querySelectorAll('.e-indentcell').length).toBe(0);
-                expect(args.element.querySelectorAll('.e-recordplusexpand').length).toBe(0);
-                expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toBe('');
-            };
-            //data bound hit twice 
-            //one for disable paging for print allpages
-            //another for enable paging after printing allpages 
-            let dataBound: EmitType<Object> = () => {
-                if (flag) {
-                    done();
-                }
-                flag = true;
-            };
-            gridObj.dataBound = dataBound;
-            gridObj.beforePrint = beforePrint;
-            gridObj.dataBind();
-            gridObj.print();
-        });
-
-        it('Print current page testing', (done: Function) => { //print current page with grouped columns
-            beforePrint = (args?: { element: Element }): void => {
-                expect((args.element.querySelector('.e-gridpager') as HTMLElement).style.display).toBe('none');
-                //expect(args.element.querySelectorAll('.e-row').length).toBe(8);
-                done();
-            };
-            gridObj.dataBound = undefined;
-            gridObj.printMode = 'currentpage';
-            gridObj.beforePrint = beforePrint;
-            gridObj.dataBind();
-            gridObj.print();
-
-        });
-
-        // it ('Print Grid using toolbar items', (done: Function) => {
-        //     beforePrint = (args?: { element: Element }): void => {
-        //         expect((args.element.querySelector('.e-toolbar') as HTMLElement).style.display).toBe('none');
-        //         done();
-        //     };
-        //     gridObj.beforePrint = beforePrint;
-        //     gridObj.toolbar = ['print'];
-        //     gridObj.dataBind();
-        //     (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_print')).click();
-        // });
-        
-        // it('UnGroup the columns', (done: Function) => {
-        //     actionComplete = () => {
-        //         expect(gridObj.groupSettings.columns.length).toBe(0);
-        //         done();
-        //     };
-        //     gridObj.actionComplete = actionComplete;
-        //     gridObj.groupModule.clearGrouping();//need to fix
-        //     gridObj.dataBind();
-        // });
-
-        // it('Print no grouped column', (done: Function) => {
-        //     beforePrint = (args?: { element: Element }): void => {
-        //         expect((args.element.querySelector('.e-groupdroparea') as HTMLElement).style.display).toBe('none');
-        //         done();
-        //     };
-        //     gridObj.beforePrint = beforePrint;
-        //     gridObj.dataBind();
-        //     gridObj.print();
-        // });
 
 
         afterAll(() => {
-            gridObj.destroy();
-            elem.remove();
+            gridObj.printModule.destroy();
+            destroy(gridObj);
         });
     });
-
-
 });

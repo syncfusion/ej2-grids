@@ -1,13 +1,10 @@
-import { IGrid, EJ2Intance, IFilterMUI } from '../base/interface';
+import { IGrid, EJ2Intance, IFilterMUI, IFilterCreate } from '../base/interface';
 import { Column } from '../models/column';
 import { FilterSettings } from '../base/grid';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
 import { createElement } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
-import { FlMenuOptrUI } from './filter-menu-operator';
-import { L10n, } from '@syncfusion/ej2-base';
-import { Dialog } from '@syncfusion/ej2-popups';
 
 /**
  * `numberfilterui` render number column.
@@ -29,10 +26,7 @@ export class NumberFilterUI implements IFilterMUI {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
     }
-    public create(args: {
-        column: Column, target: HTMLElement,
-        getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
-    }): void {
+    public create(args: IFilterCreate): void {
         this.instance = createElement('input', { className: 'e-flmenu-input', id: 'numberui-' + args.column.uid });
         args.target.appendChild(this.instance);
         this.numericTxtObj = new NumericTextBox({

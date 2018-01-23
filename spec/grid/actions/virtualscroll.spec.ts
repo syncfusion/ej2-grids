@@ -233,6 +233,39 @@ describe('Virtualization testing', () => {
         });
     });
 
+    describe('Row height checking in Virtual mode', () => {
+        let grid: Grid;
+        beforeAll((done: Function) => {
+                grid = createGrid(
+                    {
+                        dataSource: data,
+                        columns: count500,
+                        enableVirtualization: true,
+                        enableColumnVirtualization: true,
+                        allowGrouping: true,
+                        height: 300,
+                        rowHeight: 70
+                    },
+                    done
+                );
+            });
+
+        it('API Checking', () => {
+            expect((grid.element.querySelectorAll('.e-row')[0] as HTMLElement).style.height).toBe('70px');
+            expect((grid.element.classList.contains('e-grid-min-height'))).toBeTruthy();
+        });
+
+        it('EJ2-7420- Focus strategy script error', () => {
+            spyOn((<any>grid).focusModule, 'onFocus');
+            grid.groupColumn('Column4');
+            expect((<any>grid).focusModule.onFocus).not.toHaveBeenCalled();
+        });    
+
+        afterAll(() => {
+            destroy(grid);
+        });
+    });
+
     describe('Check scroll position after grid filter actions', () => {
         let grid: Grid;
         let rows: HTMLTableRowElement; let oneTime: boolean = true;
@@ -488,12 +521,12 @@ describe('Column virtualization', () => {
             expect(row.cells[0].classList.contains('e-recordplusexpand')).toBeTruthy();
             expect(row.querySelectorAll('.e-groupcaption').length).toEqual(grid.getColumns().length);
         });
-        it('vertical scroll with grouping', (done: Function) => {
-            (<HTMLElement>grid.getContent().firstChild).scrollTop = 6000;
-            setTimeout(done, 200);
-            let row: HTMLTableRowElement = <HTMLTableRowElement>(<HTMLTableElement>grid.getContentTable()).rows[0];
-            expect(row.querySelectorAll('.e-groupcaption').length).toEqual(grid.getColumns().length);
-        });
+        // it('vertical scroll with grouping', (done: Function) => {
+            // (<HTMLElement>grid.getContent().firstChild).scrollTop = 6000;
+            // setTimeout(done, 200);
+            // let row: HTMLTableRowElement = <HTMLTableRowElement>(<HTMLTableElement>grid.getContentTable()).rows[0];
+            // expect(row.querySelectorAll('.e-groupcaption').length).toEqual(grid.getColumns().length);
+        // });
         it('vertical scroll in up direction', (done: Function) => {
             (<HTMLElement>grid.getContent().firstChild).scrollTop = 100;
             setTimeout(done, 200);

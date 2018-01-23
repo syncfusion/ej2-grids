@@ -6,10 +6,12 @@ import { Grid } from '../../../src/grid/base/grid';
 import { Page } from '../../../src/grid/actions/page';
 import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { data } from '../base/datasource.spec';
+import { Freeze } from '../../../src/grid/actions/freeze';
 import { ColumnChooser } from '../../../src/grid/actions/column-chooser';
+import { createGrid, destroy } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
-Grid.Inject(Page, Toolbar, ColumnChooser);
+Grid.Inject(Page, Toolbar, ColumnChooser, Freeze);
 describe('Column chooser module', () => {
     describe('Column chooser testing', () => {
         let gridObj: Grid;
@@ -293,6 +295,72 @@ describe('Column chooser module', () => {
                 (<HTMLElement>gridObj.element.querySelector('.e-cc_okbtn')).click();
                 gridObj.columnChooserModule.openColumnChooser();
                 gridObj.columnChooserModule.openColumnChooser();
+                done();
+            }, 500);
+
+        });
+        it('change checkstate on focus out', (done: Function) => {
+            gridObj.columnChooserModule.openColumnChooser();
+            let cheEle: any = gridObj.element.querySelectorAll('.e-cc-chbox')[0];
+            let cheEle1: any = gridObj.element.querySelectorAll('.e-cc-chbox')[1];
+            let checkbox1state = cheEle.checked;
+            let checkbox2state = cheEle1.checked;
+            cheEle.click();
+            cheEle1.click();
+            (<HTMLElement>gridObj.element).click();
+            gridObj.columnChooserModule.openColumnChooser();
+            gridObj.columnChooserModule.openColumnChooser();
+            cheEle = gridObj.element.querySelectorAll('.e-cc-chbox')[0];
+            cheEle1 = gridObj.element.querySelectorAll('.e-cc-chbox')[1];
+            expect(cheEle.checked).toBe(checkbox1state);
+            expect(cheEle1.checked).toBe(checkbox2state);
+            done();
+        });
+
+        afterAll(() => {
+            (<any>gridObj).columnChooserModule.destroy();
+            (<any>gridObj).destroy();
+            elem.remove();
+        });
+
+    });
+
+    describe('column chooser checkstate with Freeze pane', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let beforeOpenColumnChooser: () => void;
+        let actionComplete: Function;
+
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    frozenColumns: 2,
+                    frozenRows: 2,
+                    dataSource: data,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID', visible: false },
+                    { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity', showInColumnChooser: false }],
+                    allowPaging: true,
+                    showColumnChooser: true,
+                    toolbar: ['columnchooser'],
+                    pageSettings: { pageSize: 5 },
+                    beforeOpenColumnChooser: beforeOpenColumnChooser,
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('change checkstate with Freeze pane', (done: Function) => {
+            setTimeout(() => {
+                gridObj.columnChooserModule.openColumnChooser();
+                let cheEle: any = gridObj.element.querySelectorAll('.e-cc-chbox')[0];
+                let cheEle1: any = gridObj.element.querySelectorAll('.e-cc-chbox')[1];
+                cheEle.click();
+                cheEle1.click();
+                (<HTMLElement>gridObj.element.querySelector('.e-cc_okbtn')).click();
+                gridObj.columnChooserModule.openColumnChooser();
+                gridObj.columnChooserModule.openColumnChooser();
                 (<any>gridObj).columnChooserModule.destroy();
                 (<any>gridObj).destroy();
                 done();
@@ -302,7 +370,6 @@ describe('Column chooser module', () => {
         afterAll(() => {
             elem.remove();
         });
-
     });
 
     describe('Column chooser rtl testing', () => {
@@ -370,4 +437,34 @@ describe('Column chooser module', () => {
             elem.remove();
         });
     });
+    describe('Colum chooser enable throw set model => ', () => {
+        let gridObj: Grid;
+        let beforeOpenColumnChooser: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'ShipCity', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    showColumnChooser: false,
+                    toolbar: ['columnchooser'],
+                    pageSettings: { pageSize: 5 },
+                }, done);
+        });
+        it('Colum chooser enable throw set model', () => {
+            gridObj.showColumnChooser = true;
+            gridObj.dataBind();
+            gridObj.columnChooserModule.openColumnChooser();
+            expect(gridObj.element.querySelectorAll('.e-ccdlg').length).toBe(1);
+        });
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
 });

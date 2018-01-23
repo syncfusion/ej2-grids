@@ -54,7 +54,10 @@ export class DialogEditRender {
         this.dialogObj = new Dialog({
             header: this.isEdit ? this.l10n.getConstant('EditFormTitle') + args.primaryKeyValue[0] :
                 this.l10n.getConstant('AddFormTitle'), isModal: true, visible: true, cssClass: 'e-edit-dialog',
-            content: this.getEditElement(elements) as HTMLElement, showCloseIcon: true, allowDragging: true, close: this.destroy.bind(this),
+            content: this.getEditElement(elements) as HTMLElement,
+            showCloseIcon: true,
+            allowDragging: true,
+            close: this.dialogClose.bind(this),
             closeOnEscape: true, width: '330px', target: gObj.element, animationSettings: { effect: 'None' },
             buttons: [{
                 click: this.btnClick.bind(this),
@@ -63,16 +66,21 @@ export class DialogEditRender {
             { click: this.btnClick.bind(this), buttonModel: { cssClass: 'e-flat', content: this.l10n.getConstant('CancelButton') } }]
         });
         this.dialogObj.appendTo(this.dialog);
+        this.dialogObj.element.style.maxHeight = '400px';
         changeButtonType(this.dialogObj.element);
     }
 
     private btnClick(e: MouseEvent): void {
         if (this.l10n.getConstant('CancelButton').toLowerCase() === (e.target as HTMLInputElement).innerText.toLowerCase()) {
-            this.parent.closeEdit();
-            this.destroy();
+            this.dialogClose();
         } else {
             this.parent.endEdit();
         }
+    }
+
+    private dialogClose(): void {
+        this.parent.closeEdit();
+        this.destroy();
     }
 
     private destroy(args?: { requestType: string }): void {
@@ -97,7 +105,11 @@ export class DialogEditRender {
                 continue;
             }
             let tr: Element = createElement('tr');
-            let dataCell: HTMLElement = createElement('td', { className: 'e-rowcell', attrs: { style: 'text-align:left;width:190px' } });
+            let dataCell: HTMLElement = createElement('td', {
+                className: 'e-rowcell', attrs: {
+                    style: 'text-align:' + (this.parent.enableRtl ? 'right' : 'left') + ';width:190px'
+                }
+            });
             let label: Element = createElement('label', { innerHTML: cols[i].field });
             elements[cols[i].uid].classList.remove('e-input');
             dataCell.appendChild(elements[cols[i].uid]);

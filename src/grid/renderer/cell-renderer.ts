@@ -7,6 +7,7 @@ import { ICellRenderer, IValueFormatter, ICellFormatter, ICell, IGrid } from '..
 import { doesImplementInterface, setStyleAndAttributes, appendChildren } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 import { CheckBox, createCheckBox } from '@syncfusion/ej2-buttons';
+import { foreignKeyData }from '../base/constant';
 
 /**
  * CellRenderer class which responsible for building cell content. 
@@ -48,11 +49,12 @@ export class CellRenderer implements ICellRenderer<Column> {
         return isNullOrUndefined(value) ? '' : value.toString();
     }
 
-    public evaluate(node: Element, cell: Cell<Column>, data: Object, attributes?: Object): boolean {
+    public evaluate(node: Element, cell: Cell<Column>, data: Object, attributes?: Object, fData?: Object): boolean {
         let result: Element[];
         if (cell.column.template) {
             let literals: string[] = ['index'];
-            result = cell.column.getColumnTemplate()(extend({ 'index': attributes[literals[0]] }, data), this.parent, 'template');
+            let dummyData: Object = extend({}, data, { [foreignKeyData]: fData });
+            result = cell.column.getColumnTemplate()(extend({ 'index': attributes[literals[0]] }, dummyData), this.parent, 'template');
             appendChildren(node, result);
             node.setAttribute('aria-label', (<HTMLElement>node).innerText + ' is template cell' + ' column header ' +
                 cell.column.headerText);
@@ -112,11 +114,15 @@ export class CellRenderer implements ICellRenderer<Column> {
     private refreshCell(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
         let node: Element = this.element.cloneNode() as Element;
         let column: Column = cell.column;
-
+        let fData: Object;
+        if (cell.isForeignKey) {
+            fData = cell.foreignKeyData[0];
+        }
         //Prepare innerHtml
         let innerHtml: string = <string>this.getGui();
 
-        let value: Object = this.getValue(column.field, data, column);
+        let value: Object = cell.isForeignKey ? this.getValue(column.foreignKeyValue, fData, column) :
+            this.getValue(column.field, data, column);
 
         if (column.type === 'date' && !isNullOrUndefined(value)) {
             value = new Date(value as string);
@@ -127,12 +133,11 @@ export class CellRenderer implements ICellRenderer<Column> {
         innerHtml = value.toString();
 
         if (column.type === 'boolean') {
-            let isNull: boolean = (value !== 'true' && value !== 'false');
             if (column.displayAsCheckBox) {
                 node.classList.add('e-checkbox');
-                innerHtml = isNull ? null : '<input type="checkbox" disabled ' + '/>';
+                innerHtml = '<input type="checkbox" disabled ' + '/>';
             } else {
-                let localeStr: string = isNull ? null : value === 'true' ? 'True' : 'False';
+                let localeStr: string = (value !== 'true' && value !== 'false') ? null : value === 'true' ? 'True' : 'False';
                 innerHtml = localeStr ? this.localizer.getConstant(localeStr) : innerHtml;
             }
         }
@@ -143,7 +148,7 @@ export class CellRenderer implements ICellRenderer<Column> {
 
         node.setAttribute('aria-label', innerHtml + ' column header ' + cell.column.headerText);
 
-        if (this.evaluate(node, cell, data, attributes) && column.type !== 'checkbox') {
+        if (this.evaluate(node, cell, data, attributes, fData) && column.type !== 'checkbox') {
             this.appendHtml(node, innerHtml, column.getDomSetter ? column.getDomSetter() : 'innerHTML');
         } else if (column.type === 'checkbox') {
             node.classList.add('e-gridchkbox');
@@ -161,7 +166,10 @@ export class CellRenderer implements ICellRenderer<Column> {
         this.setAttributes(<HTMLElement>node, cell, attributes);
 
         if (column.type === 'boolean') {
-            let obj: CheckBox = new CheckBox({ disabled: true, checked: value === 'true' });
+            let obj: CheckBox = new CheckBox({
+                disabled: true,
+                checked: isNaN(parseInt(value as string, 10)) ? value === 'true' : parseInt(value as string, 10) > 0
+            });
             obj.appendTo(node.firstElementChild as HTMLElement);
         }
 
@@ -238,6 +246,6 @@ export class CellRenderer implements ICellRenderer<Column> {
     }
 
     public getValue(field: string, data: Object, column: Column): Object {
-        return column.valueAccessor(column.field, data, column);
+        return column.valueAccessor(field, data, column);
     }
 }

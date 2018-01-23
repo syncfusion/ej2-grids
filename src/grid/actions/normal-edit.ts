@@ -1,7 +1,7 @@
 import { extend } from '@syncfusion/ej2-base';
 import { remove, classList } from '@syncfusion/ej2-base';
 import { IGrid, NotifyArgs, EditEventArgs, AddEventArgs, SaveEventArgs } from '../base/interface';
-import { parentsUntil } from '../base/util';
+import { parentsUntil, refreshForeignData } from '../base/util';
 import * as events from '../base/constant';
 import { EditRender } from '../renderer/edit-renderer';
 import { RowRenderer } from '../renderer/row-renderer';
@@ -36,7 +36,8 @@ export class NormalEdit {
     protected clickHandler(e: MouseEvent): void {
         let target: Element = e.target as Element;
         let gObj: IGrid = this.parent;
-        if (parentsUntil(target, 'e-gridcontent') && !parentsUntil(target, 'e-unboundcelldiv')) {
+        if (parentsUntil(target, 'e-gridcontent') || (gObj.frozenRows
+            && parentsUntil(target, 'e-headercontent')) && !parentsUntil(target, 'e-unboundcelldiv')) {
             this.rowIndex = parentsUntil(target, 'e-rowcell') ? parseInt(target.parentElement.getAttribute('aria-rowindex'), 10) : -1;
             if (gObj.isEdit) {
                 gObj.editModule.endEdit();
@@ -59,8 +60,8 @@ export class NormalEdit {
         this.parent.isEdit = false;
         switch (e.requestType as string) {
             case 'save':
-                if (!this.parent.element.classList.contains('e-checkboxselection')
-                    || !this.parent.element.classList.contains('e-persistselection')) {
+                if (!(this.parent.element.classList.contains('e-checkboxselection') || this.parent.selectionSettings.type === 'multiple')
+                    || (!this.parent.element.classList.contains('e-persistselection'))) {
                     this.parent.selectRow(0);
                 }
                 this.parent.trigger(events.actionComplete, extend(e, {
@@ -87,9 +88,12 @@ export class NormalEdit {
         for (let i: number = 0; i < primaryKeys.length; i++) {
             primaryKeyValues.push(this.previousData[primaryKeys[i]]);
         }
+        this.uid = tr.getAttribute('data-uid');
+        let rowObj: Row<Column> = gObj.getRowObjectFromUID(this.uid);
         let args: EditEventArgs = {
             row: tr, primaryKey: primaryKeys, primaryKeyValue: primaryKeyValues, requestType: 'beginEdit',
-            rowData: this.previousData, rowIndex: this.rowIndex, type: 'edit', cancel: false
+            rowData: this.previousData, rowIndex: this.rowIndex, type: 'edit', cancel: false,
+            foreignKeyData: rowObj && rowObj.foreignKeyData
         };
         gObj.trigger(events.beginEdit, args);
         args.type = 'actionBegin';
@@ -107,11 +111,15 @@ export class NormalEdit {
         gObj.editModule.applyFormValidation();
         args.type = 'actionComplete';
         gObj.trigger(events.actionComplete, args);
+        if (this.parent.allowTextWrap) {
+            this.parent.notify(events.freezeRender, { case: 'textwrap' });
+        }
     }
 
     protected endEdit(): void {
         let gObj: IGrid = this.parent;
-        if (!this.parent.isEdit || !gObj.editModule.formObj.validate()) {
+        if (!this.parent.isEdit || !gObj.editModule.formObj.validate() ||
+            (gObj.editModule.mFormObj && !gObj.editModule.mFormObj.validate())) {
             return;
         }
         let editedData: Object = extend({}, this.previousData);
@@ -120,6 +128,15 @@ export class NormalEdit {
             previousData: this.previousData, selectedRow: gObj.selectedRowIndex, foreignKeyData: {}
         };
         editedData = gObj.editModule.getCurrentEditedData(gObj.element.querySelector('.e-gridform'), editedData);
+        if (gObj.getFrozenColumns() && gObj.editSettings.mode === 'normal') {
+            let mForm: Element = gObj.element.querySelector('.e-movableheader').querySelector('.e-gridform');
+            if (gObj.frozenRows && mForm) {
+                editedData = gObj.editModule.getCurrentEditedData(mForm, editedData);
+            } else {
+                editedData = gObj.editModule.getCurrentEditedData(
+                    gObj.element.querySelector('.e-movablecontent').querySelector('.e-gridform'), editedData);
+            }
+        }
         if (gObj.element.querySelectorAll('.e-editedrow').length) {
             args.action = 'edit';
             gObj.trigger(events.actionBegin, args);
@@ -179,8 +196,8 @@ export class NormalEdit {
         this.parent.isEdit = false;
         this.refreshRow(args.data);
         this.parent.trigger(events.actionComplete, args);
-        if (!this.parent.element.classList.contains('e-checkboxselection')
-            || !this.parent.element.classList.contains('e-persistselection')) {
+        if (!(this.parent.element.classList.contains('e-checkboxselection') || this.parent.selectionSettings.type === 'multiple')
+            || (!this.parent.element.classList.contains('e-persistselection'))) {
             this.parent.selectRow(this.rowIndex > -1 ? this.rowIndex : this.editRowIndex);
         }
         this.parent.element.focus();
@@ -192,11 +209,24 @@ export class NormalEdit {
     }
 
     private refreshRow(data: Object): void {
+        let frzCols: number = this.parent.getFrozenColumns();
         let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let rowObj: Row<Column> = this.parent.getRowObjectFromUID(this.uid);
         if (rowObj) {
             rowObj.changes = data;
+            refreshForeignData(rowObj, this.parent.getForeignKeyColumns(), rowObj.changes);
             row.refresh(rowObj, this.parent.getColumns() as Column[], true);
+            if (frzCols) {
+                let uid: string;
+                if (rowObj.cells.length === frzCols) {
+                    uid = this.parent.getMovableRows()[rowObj.index].getAttribute('data-uid');
+                } else {
+                    uid = this.parent.getRows()[rowObj.index].getAttribute('data-uid');
+                }
+                rowObj = this.parent.getRowObjectFromUID(uid);
+                rowObj.changes = data;
+                row.refresh(rowObj, this.parent.columns as Column[], true);
+            }
         }
     }
 
@@ -212,6 +242,10 @@ export class NormalEdit {
         args.type = events.actionComplete;
         if (gObj.editSettings.mode !== 'dialog') {
             this.refreshRow(args.data);
+        }
+        if (gObj.getContentTable().querySelector('tr.e-emptyrow') &&
+            !gObj.getContentTable().querySelector('tr.e-row')) {
+            gObj.getContentTable().querySelector('tr.e-emptyrow').classList.remove('e-hide');
         }
         gObj.selectRow(this.rowIndex);
         gObj.trigger(events.actionComplete, args);
@@ -261,6 +295,18 @@ export class NormalEdit {
     private stopEditStatus(): void {
         let gObj: IGrid = this.parent;
         let elem: Element = gObj.element.querySelector('.e-addedrow');
+        let mElem: Element;
+        let editMElem: Element;
+        if (gObj.getFrozenColumns()) {
+            mElem = gObj.element.querySelectorAll('.e-addedrow')[1];
+            editMElem = gObj.element.querySelectorAll('.e-editedrow')[1];
+            if (mElem) {
+                remove(mElem);
+            }
+            if (editMElem) {
+                editMElem.classList.remove('e-editedrow');
+            }
+        }
         if (elem) {
             remove(elem);
         }

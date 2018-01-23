@@ -197,6 +197,9 @@ export class Sort implements IAction {
     public removeSortColumn(field: string): void {
         let gObj: IGrid = this.parent;
         let cols: SortDescriptorModel[] = this.sortSettings.columns;
+        if (this.sortedColumns.indexOf(field) < 0) {
+            return;
+        }
         if (this.isActionPrevent()) {
             this.parent.notify(events.preventBatch, { instance: this, handler: this.removeSortColumn, arg1: field });
             return;
@@ -299,7 +302,7 @@ export class Sort implements IAction {
         if (target && !(e.target as Element).classList.contains('e-grptogglebtn') &&
             !(e.target as Element).classList.contains('e-stackedheadercell') &&
             !(e.target as Element).classList.contains('e-stackedheadercelldiv') &&
-            !(e.target as Element).classList.contains('e-rhandler') &&
+            !(target.classList.contains('e-resized')) &&
             !(e.target as Element).classList.contains('e-columnmenu') &&
             !(e.target as Element).classList.contains('e-filtermenudiv')) {
             let gObj: IGrid = this.parent;
@@ -313,12 +316,19 @@ export class Sort implements IAction {
                 }
             }
         }
+        if (target) {
+            target.classList.remove('e-resized');
+        }
     }
 
     private keyPressed(e: KeyboardEventArgs): void {
-        if (!this.parent.isEdit && (e.action === 'enter' || e.action === 'ctrlEnter' || e.action === 'shiftEnter')) {
+        let ele: Element = e.target as Element;
+        if (!this.parent.isEdit && (e.action === 'enter' || e.action === 'ctrlEnter' || e.action === 'shiftEnter')
+            && closest(ele as Element, '.e-headercell')) {
             let target: Element = this.focus.getFocusedElement();
-            if (!target || !target.classList.contains('e-headercell') || (this.parent.frozenColumns || this.parent.frozenRows)) { return; }
+            if (!target || (target && !target.classList.contains('e-headercell')) ||
+                (this.parent.getFrozenColumns() || this.parent.frozenRows || isNullOrUndefined(target))) { return; }
+
             let col: Column = this.parent.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;
             this.initiateSort(target, e, col);
         }

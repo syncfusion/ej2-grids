@@ -135,7 +135,7 @@ describe('Toolbar functionalities', () => {
             done();
         };
         gridObj.beforePrint = (args: { element: Element }) => {
-            expect((args.element.querySelector('.e-toolbar') as HTMLElement).style.display).toBe('none');
+            expect((args.element.querySelector('.e-toolbar') as HTMLElement)).toBe(null);
         };
         (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_print')).click();
         //forcoverage

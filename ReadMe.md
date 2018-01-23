@@ -21,10 +21,6 @@ Also, it comes with full documentation and support which is available for commer
 * [Demo](http://ej2.syncfusion.com/demos/#/material/grid/default.html)
 * [Documentation](http://ej2.syncfusion.com/documentation/grid/)
 
-## Changelog
-
-Check the changelog [here](https://github.com/syncfusion/ej2-grids/blob/master/CHANGELOG.md)
-
 ## Installing
 
 To install all dependent packages, use the below command
@@ -48,3 +44,6 @@ To test the source files, use the below command
 ```
 npm run test
 ```
+## Changelog
+
+Check the changelog [here](https://github.com/syncfusion/ej2-grids/blob/master/CHANGELOG.md)

@@ -33,6 +33,7 @@ export class FilterMenuRenderer {
     private dropOptr: DropDownList;
     private flMuiObj: FlMenuOptrUI;
     private col: Column;
+    private isDialogOpen: boolean = false;
 
     private colTypes: Object = {
         'string': StringFilterUI, 'number': NumberFilterUI, 'date': DateFilterUI, 'boolean': BooleanFilterUI, 'datetime': DateFilterUI
@@ -61,12 +62,19 @@ export class FilterMenuRenderer {
         let elem: Element = document.getElementById(this.dlgObj.element.id);
         if (this.dlgObj && !this.dlgObj.isDestroyed && elem) {
             this.parent.notify(events.filterMenuClose, { field: this.col.field });
+            this.isDialogOpen = false;
             this.dlgObj.destroy();
             remove(elem);
         }
     }
 
     private renderDlgContent(target: Element, column: Column): void {
+        let args: Object = {
+            requestType: events.filterBeforeOpen, filterModel: this,
+            columnName: column.field, columnType: column.type
+        };
+        this.parent.trigger(events.actionBegin, args);
+
         let mainDiv: HTMLElement = createElement('div', { className: 'e-flmenu-maindiv', id: column.uid + '-flmenu' });
         this.dlgDiv = createElement('div', { className: 'e-flmenu', id: column.uid + '-flmdlg' });
         this.parent.element.appendChild(this.dlgDiv);
@@ -106,6 +114,13 @@ export class FilterMenuRenderer {
         this.dlgObj.element.style.maxHeight = '350px';
         this.dlgObj.show();
         this.writeMethod(column, this.dlgObj.element.querySelector('#' + column.uid + '-flmenu'));
+        let args: Object = {
+            requestType: events.filterAfterOpen,
+            filterModel: this, columnName: column.field, columnType: column.type
+        };
+        this.isDialogOpen = true;
+        this.parent.trigger(events.actionComplete, args);
+
     }
 
     private renderFilterUI(target: Element, col: Column): void {
@@ -152,7 +167,7 @@ export class FilterMenuRenderer {
             new this.colTypes[col.type](this.parent, this.serviceLocator, this.parent.filterSettings);
         let columns: PredicateModel[] = this.filterSettings.columns;
         for (let column of columns) {
-            if (col.field === column.field) {
+            if (col.field === column.field || col.foreignKeyValue === column.field) {
                 flValue = column.value;
             }
         }

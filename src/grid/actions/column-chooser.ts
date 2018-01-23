@@ -4,7 +4,7 @@ import { Column } from '../models/column';
 import { EventHandler, L10n, closest } from '@syncfusion/ej2-base';
 import { CheckBox } from '@syncfusion/ej2-buttons';
 import { ServiceLocator } from '../services/service-locator';
-import { IGrid, IAction } from '../base/interface';
+import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { ShowHide } from './show-hide';
 import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
@@ -68,7 +68,7 @@ export class ColumnChooser implements IAction {
     private destroy(): void {
         this.removeEventListener();
         this.unWireEvents();
-        if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.element) {
+        if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.element && !this.dlgObj.isDestroyed) {
             this.dlgObj.destroy();
         }
     }
@@ -79,6 +79,7 @@ export class ColumnChooser implements IAction {
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.click, this.clickHandler, this);
+        this.parent.on(events.uiUpdate, this.enableAfterRenderEle, this);
         this.parent.on(events.initialEnd, this.render, this);
         this.parent.addEventListener(events.dataBound, this.hideDialog.bind(this));
         this.parent.on(events.destroy, this.destroy, this);
@@ -118,6 +119,7 @@ export class ColumnChooser implements IAction {
             } else {
                 if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.visible && !targetElement.classList.contains('e-toolbar-items')) {
                     this.dlgObj.hide();
+                    this.refreshCheckboxState();
                     // this.unWireEvents();
                     this.isDlgOpen = false;
                 }
@@ -143,7 +145,7 @@ export class ColumnChooser implements IAction {
             let pos: { X: number, Y: number } = { X: null, Y: null };
             let args1: { requestType: string, element?: Element, columns?: Column[] } = {
                 requestType: 'beforeOpenColumnChooser', element: this.parent.element,
-                columns: this.parent.getColumns() as Column[]
+                columns: this.getColumns() as Column[]
             };
             this.parent.trigger(events.beforeOpenColumnChooser, args1);
             this.refreshCheckboxState();
@@ -218,6 +220,11 @@ export class ColumnChooser implements IAction {
         this.dlgObj.beforeClose = this.customDialogClose.bind(this);
     }
 
+    private enableAfterRenderEle(e: NotifyArgs): void {
+        if (e.module === this.getModuleName() && e.enable) {
+            this.render();
+        }
+    }
 
     private customDialogOpen(): void {
         let searchElement: Element = (this.dlgObj.content as Element).querySelector('input.e-ccsearch');
@@ -227,6 +234,12 @@ export class ColumnChooser implements IAction {
     private customDialogClose(): void {
         let searchElement: Element = (this.dlgObj.content as Element).querySelector('input.e-ccsearch');
         EventHandler.remove(searchElement, 'keyup', this.columnChooserManualSearch);
+    }
+
+    private getColumns(): Column[] {
+         let columns: Column[] = this.parent.getColumns().filter((column: Column) => column.type !== 'checkbox'
+         || column.type === 'checkbox' && column.field !== undefined);
+         return columns;
     }
 
 
@@ -284,7 +297,7 @@ export class ColumnChooser implements IAction {
         searchDiv.appendChild(ccsearchicon);
         ccsearchele.addEventListener('focus', this.searchFocus.bind(this, ccsearchele));
         ccsearchele.addEventListener('blur', this.searchBlur.bind(this, ccsearchele));
-        let innerDivContent: HTMLElement | string[] | string = this.refreshCheckboxList(this.parent.getColumns() as Column[]);
+        let innerDivContent: HTMLElement | string[] | string = this.refreshCheckboxList(this.getColumns() as Column[]);
         this.innerDiv.appendChild((innerDivContent as Element));
         conDiv.appendChild(this.innerDiv);
         this.mainDiv.appendChild(searchDiv);
@@ -358,11 +371,11 @@ export class ColumnChooser implements IAction {
         let fltrCol: Column[];
         if (searchVal === '') {
             this.removeCancelIcon();
-            fltrCol = this.parent.getColumns() as Column[];
+            fltrCol = this.getColumns() as Column[];
             clearSearch = true;
 
         } else {
-            fltrCol = new DataManager((this.parent.getColumns() as Object[]) as JSON[]).executeLocal(new Query()
+            fltrCol = new DataManager((this.getColumns() as Object[]) as JSON[]).executeLocal(new Query()
                 .where('headerText', 'startswith', searchVal, true)) as Column[];
         }
 
@@ -392,6 +405,7 @@ export class ColumnChooser implements IAction {
     }
 
     private unWireEvents(): void {
+        if (this.parent.isDestroyed) { return; }
         if (this.dlgObj.element) {
             EventHandler.remove(this.dlgObj.element, 'click', this.checkBoxClickHandler);
         }
@@ -435,11 +449,17 @@ export class ColumnChooser implements IAction {
             let column: Column = this.parent.getColumnByUid(columnUID);
             if (column.visible) {
                 element.checked = true;
+                this.checkState(element.parentElement.querySelector('.e-icons'), true);
             } else {
                 element.checked = false;
+                this.checkState(element.parentElement.querySelector('.e-icons'), false);
             }
         }
 
+    }
+
+    private checkState(element: Element, state: boolean): void {
+        state ? classList(element, ['e-check'], ['e-uncheck']) : classList(element, ['e-uncheck'], ['e-check']);
     }
 
     private createCheckBox(label: string, checked: boolean, uid: string): Element {
@@ -500,6 +520,6 @@ export class ColumnChooser implements IAction {
 
     // internally use
     private getModuleName(): string {
-        return 'ColumnChooser';
+        return 'columnChooser';
     }
 }

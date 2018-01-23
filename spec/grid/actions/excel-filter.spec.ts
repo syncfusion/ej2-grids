@@ -9,6 +9,7 @@ import { Filter } from '../../../src/grid/actions/filter';
 import { Group } from '../../../src/grid/actions/group';
 import { Page } from '../../../src/grid/actions/page';
 import { Freeze } from '../../../src/grid/actions/freeze';
+import { createGrid, destroy} from '../base/specutil.spec';
 import { CellType } from '../../../src/grid/base/enum';
 import { ValueFormatter } from '../../../src/grid/services/value-formatter';
 import { Column } from '../../../src/grid/models/column';
@@ -44,23 +45,23 @@ describe('Excel Filter functionalities', () => {
 
     let numOptr: Object[] = [
         { value: 'equal', text: 'Equal' },
-        { value: 'greaterThan', text: 'GreaterThan' },
-        { value: 'greaterThanOrEqual', text: 'GreaterThanOrEqual' },
-        { value: 'lessThan', text: 'LessThan' },
-        { value: 'lessThanOrEqual', text: 'LessThanOrEqual' },
-        { value: 'notEqual', text: 'NotEqual' }
+        { value: 'greaterThan', text: 'Greater Than' },
+        { value: 'greaterThanOrEqual', text: 'Greater Than Or Equal' },
+        { value: 'lessThan', text: 'Less Than' },
+        { value: 'lessThanOrEqual', text: 'Less Than Or Equal' },
+        { value: 'notEqual', text: 'Not Equal' }
     ];
     let customOperators: Object = {
         stringOperator: [
-            { value: 'startsWith', text: 'StartsWith' },
-            { value: 'endsWith', text: 'EndsWith' },
+            { value: 'startsWith', text: 'Starts With' },
+            { value: 'endsWith', text: 'Ends With' },
             { value: 'contains', text: 'Contains' },
-            { value: 'equal', text: 'Equal' }, { value: 'notEqual', text: 'NotEqual' }],
+            { value: 'equal', text: 'Equal' }, { value: 'notEqual', text: 'Not Equal' }],
         numberOperator: numOptr,
         dateOperator: numOptr,
         datetimeOperator: numOptr,
         booleanOperator: [
-            { value: 'equal', text: 'Equal' }, { value: 'notEqual', text: 'NotEqual' }
+            { value: 'equal', text: 'Equal' }, { value: 'notEqual', text: 'Not Equal' }
         ]
     };
     beforeAll((done: Function) => {
@@ -182,5 +183,71 @@ describe('Excel Filter functionalities', () => {
 
     afterAll(() => {
         remove(elem);
+    });
+    describe('EJ2-6702 Script Error throws If we Check the match case and then click ok button', () => {
+    let l10n: L10n;
+    let grid: Grid;
+    let filterElement: HTMLInputElement;
+    let orderIDElement: HTMLInputElement;
+    let numOptr: Object[] = [
+        { value: 'equal', text: 'Equal' },
+        { value: 'greaterThan', text: 'GreaterThan' },
+        { value: 'greaterThanOrEqual', text: 'GreaterThanOrEqual' },
+        { value: 'lessThan', text: 'LessThan' },
+        { value: 'lessThanOrEqual', text: 'LessThanOrEqual' },
+        { value: 'notEqual', text: 'NotEqual' }
+    ];
+    let customOperators: Object = {
+        stringOperator: [
+            { value: 'startsWith', text: 'StartsWith' },
+            { value: 'endsWith', text: 'EndsWith' },
+            { value: 'contains', text: 'Contains' },
+            { value: 'equal', text: 'Equal' }, { value: 'notEqual', text: 'NotEqual' }],
+        numberOperator: numOptr,
+        dateOperator: numOptr,
+        datetimeOperator: numOptr,
+        booleanOperator: [
+            { value: 'equal', text: 'Equal' }, { value: 'notEqual', text: 'NotEqual' }
+        ]
+    };
+    beforeAll((done: Function) => {
+        grid = createGrid(
+            {
+                dataSource: filterData,
+                allowFiltering: true,
+                allowPaging: false,
+                filterSettings: {
+                    type: 'excel',
+                    columns: [
+                        {
+                            field: "ShipCountry",
+                            operator: "contains",
+                            predicate: "or",
+                            matchCase: true,
+                        }
+                    ]
+                },
+                columns: [
+                    { field: 'CustomerID', type: 'string' },
+                    { field: 'EmployeeID', type: 'number' },
+                    { field: 'Freight', format: 'C2', type: 'number' },
+                    { field: 'ShipCity' },
+                    { field: 'Verified', type: 'boolean' },
+                    { field: 'ShipName', allowFiltering: false },
+                    { field: 'ShipCountry', type: 'string' },
+                    { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date' },
+                    { field: 'ShipAddress', allowFiltering: true, visible: false }
+                ],
+           },
+            done
+            );
+    });
+
+    it('EJ2-6702 Script Error throws If we Check the match case and then click ok button', () => {
+        expect(grid.filterSettings.columns[0].value).toBe(undefined);
+    });
+    afterAll(() => {
+       destroy(grid);
+    });
     });
 });

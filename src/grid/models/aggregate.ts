@@ -226,6 +226,14 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
     public getTemplate(type: CellType): { fn: Function, property: string } {
         return this.templateFn[getEnumValue(CellType, type)];
     }
+
+    /**
+     * @hidden
+     */
+    public setPropertiesSilent(prop: Object): void {
+        this.setProperties(prop, true);
+    }
+
 }
 
 /**

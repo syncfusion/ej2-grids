@@ -255,13 +255,13 @@ export const accessPredicate: string = 'access-predicate';
 /** @hidden */
 export const contextMenuClick: string = 'contextMenuClick';
 /** @hidden */
-export const freezeRefresh: string = 'freezerefresh';
-/** @hidden */
 export const freezeRender: string = 'freezerender';
+/** @hidden */
+export const freezeRefresh: string = 'freezerefresh';
 /** @hidden */
 export const contextMenuOpen: string = 'contextMenuOpen';
 /** @hidden */
-export const columnMenuClick: string = 'contextMenuClick';
+export const columnMenuClick: string = 'columnMenuClick';
 /** @hidden */
 export const columnMenuOpen: string = 'columnMenuOpen';
 /** @hidden */
@@ -270,3 +270,13 @@ export const filterOpen: string = 'filterOpen';
 export const filterDialogCreated: string = 'filterDialogCreated';
 /** @hidden */
 export const filterMenuClose: string = 'filter-menu-close';
+/** @hidden */
+export const initForeignKeyColumn: string = 'initForeignKeyColumn';
+/** @hidden */
+export const getForeignKeyData: string = 'getForeignKeyData';
+/** @hidden */
+export const generateQuery: string = 'generateQuery';
+/** @hidden */
+export const showEmptyGrid: string = 'showEmptyGrid';
+/** @hidden */
+export const foreignKeyData: string = 'foreignKeyData';

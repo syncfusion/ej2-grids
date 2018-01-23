@@ -271,6 +271,32 @@ describe('Scrolling module', () => {
         });
     });
 
+    describe('EJ2-6045-height issue set heigth as 100%', () => {
+        let gridObj: Grid;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    height:'100%',
+                    dataSource: data,
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
+                    allowSorting: true,
+                    allowGrouping: true,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }]
+                }, done);
+        });
+          it('check sibling height', () => {
+            var siblingheight:number= gridObj.widthService.getSiblingsHeight(<HTMLElement>gridObj.getContent())
+            expect(siblingheight).toBeLessThan(200);
+        
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });  
+     });
+
     describe('Scrolling scroll event', () => {
         let grid: Grid;
         beforeAll((done: Function) => {

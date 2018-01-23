@@ -1,12 +1,13 @@
 import { IModelGenerator, IRow, IGrid } from '../base/interface';
 import { Row } from '../models/row';
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend, setValue } from '@syncfusion/ej2-base';
 import { Group } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { CellType } from '../base/enum';
 import { Cell } from '../models/cell';
 import { RowModelGenerator } from '../services/row-model-generator';
 import { GroupSummaryModelGenerator, CaptionSummaryModelGenerator } from '../services/summary-model-generator';
+import { getForeignData } from '../../grid/base/util';
 /**
  * GroupModelGenerator is used to generate group caption rows and data rows.
  * @hidden
@@ -117,8 +118,17 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         options.isDataRow = false;
         let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);
         row.indent = indent;
+        this.getForeignKeyData(row);
         row.cells = this.getCaptionRowCells(data.field, indent, row.data);
         return row;
+    }
+
+    private getForeignKeyData(row: IRow<Column>): void {
+        let data: GroupedData = row.data;
+        let col: Column = this.parent.getColumnByField(data.field);
+        if (col && col.isForeignColumn && col.isForeignColumn()) {
+            setValue('foreignKey', col.valueAccessor(col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
+        }
     }
 
     private generateDataRows(data: Object[], indent: number): Row<Column>[] {
@@ -157,10 +167,13 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
 
 }
 
-interface GroupedData {
+export interface GroupedData {
     GroupGuid?: string;
     items?: GroupedData;
     field?: string;
     isDataRow?: boolean;
     level?: number;
+    key?: string;
+    foreignKey?: string;
+    count?: number;
 }

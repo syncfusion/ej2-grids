@@ -23,9 +23,10 @@ export class HeaderRender implements IRenderer {
     private headerTable: Element;
     private headerPanel: Element;
     private colgroup: Element;
-    private colDepth: number;
+    protected colDepth: number;
     private column: Column;
-    private rows: Row<Column>[];
+    protected rows: Row<Column>[];
+    private frzIdx: number = 0;
     private helper: Function = (e: { sender: MouseEvent }) => {
         let gObj: IGrid = this.parent;
         let target: Element = (e.sender.target as Element);
@@ -36,13 +37,18 @@ export class HeaderRender implements IRenderer {
         }
         let visualElement: HTMLElement = createElement('div', { className: 'e-cloneproperties e-dragclone e-headerclone' });
         let element: HTMLElement = target.classList.contains('e-headercell') ? target as HTMLElement : parentEle;
-        if (!element) {
+        if (!element || (!gObj.allowReordering && element.classList.contains('e-stackedheadercell'))) {
             return false;
         }
         let height: number = element.offsetHeight;
         let headercelldiv: Element = element.querySelector('.e-headercelldiv');
-        let col: Column = gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid'));
-        if (!isNullOrUndefined(col.headerTemplate)) {
+        let col: Column;
+        if (headercelldiv) {
+            col = gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid'));
+            this.column = col;
+            visualElement.setAttribute('e-mappinguid', this.column.uid);
+        }
+        if (col && !isNullOrUndefined(col.headerTemplate)) {
             if (col.headerTemplate.indexOf('#') !== -1) {
                 visualElement.innerHTML = document.querySelector(col.headerTemplate).innerHTML.trim();
             } else {
@@ -50,15 +56,11 @@ export class HeaderRender implements IRenderer {
             }
         } else {
             visualElement.textContent = headercelldiv ?
-                gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid')).headerText : element.firstElementChild.innerHTML;
+            col.headerText : element.firstElementChild.innerHTML;
         }
         visualElement.style.width = element.offsetWidth + 'px';
         visualElement.style.height = element.offsetHeight + 'px';
         visualElement.style.lineHeight = (height - 6).toString() + 'px';
-        if (element.querySelector('.e-headercelldiv')) {
-            this.column = gObj.getColumnByUid(element.querySelector('.e-headercelldiv').getAttribute('e-mappinguid'));
-            visualElement.setAttribute('e-mappinguid', this.column.uid);
-        }
         gObj.element.appendChild(visualElement);
         return visualElement;
     }
@@ -124,7 +126,7 @@ export class HeaderRender implements IRenderer {
         this.widthService = this.serviceLocator.getService<ColumnWidthService>('widthService');
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.columnVisibilityChanged, this.setVisible, this);
-        this.parent.on(events.columnPositionChanged, this.refreshUI, this);
+        this.parent.on(events.columnPositionChanged, this.colPosRefresh, this);
     }
 
     /**
@@ -145,9 +147,11 @@ export class HeaderRender implements IRenderer {
         let headerDiv: Element = this.getPanel();
         headerDiv.appendChild(this.createHeaderTable());
         this.setTable(headerDiv.querySelector('.e-table'));
-        this.initializeHeaderDrag();
-        this.initializeHeaderDrop();
-        this.parent.notify(events.headerRefreshed, { rows: this.rows });
+        if (!this.parent.getFrozenColumns()) {
+            this.initializeHeaderDrag();
+            this.initializeHeaderDrop();
+        }
+        this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: this.parent.getFrozenColumns() !== 0 } });
     }
 
     /**
@@ -271,6 +275,9 @@ export class HeaderRender implements IRenderer {
         rows = this.getHeaderCells(rows);
         for (let i: number = 0, len: number = this.colDepth; i < len; i++) {
             headerRow = rowRenderer.render(rows[i], columns);
+            if (this.parent.rowHeight) {
+                (headerRow as HTMLElement).style.height = this.parent.rowHeight + 'px';
+            }
             thead.appendChild(headerRow);
         }
         let findHeaderRow: { thead: Element, rows: Row<Column>[] } = {
@@ -324,42 +331,78 @@ export class HeaderRender implements IRenderer {
 
     private getHeaderCells(rows: Row<Column>[]): Row<Column>[] {
         let column: Column[];
-        if (this.parent.frozenColumns) {
-            if (this.parent.getHeaderTable() && this.parent.getHeaderTable().querySelector('thead')) {
-                column = this.parent.columns.slice(this.parent.frozenColumns, this.parent.columns.length) as Column[];
-            } else {
-                column = this.parent.columns.slice(0, this.parent.frozenColumns) as Column[];
-            }
-        }
-        let cols: Column[] = this.parent.enableColumnVirtualization ? this.parent.getColumns()
-            : (this.parent.frozenColumns ? column : this.parent.columns as Column[]);
+        let thead: Element = this.parent.getHeaderTable() && this.parent.getHeaderTable().querySelector('thead');
+        let cols: Column[] = this.parent.enableColumnVirtualization ? this.parent.getColumns() : this.parent.columns as Column[];
+        this.frzIdx = 0;
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
-            rows = this.appendCells(cols[i], rows, 0, i === 0, false, i === (len - 1));
+            rows = this.appendCells(cols[i], rows, 0, i === 0, false, i === (len - 1), thead);
         }
         return rows;
     }
 
     private appendCells(
-        cols: Column, rows: Row<Column>[], index: number, isFirstObj: boolean, isFirstCol: boolean, isLastCol: boolean): Row<Column>[] {
+        cols: Column, rows: Row<Column>[], index: number, isFirstObj: boolean,
+        isFirstCol: boolean, isLastCol: boolean, isMovable: Element): Row<Column>[] {
         let lastCol: string = isLastCol ? 'e-lastcell' : '';
+        let frzCols: number = this.parent.getFrozenColumns();
         if (!cols.columns) {
-            rows[index].cells.push(this.generateCell(
-                cols, CellType.Header, this.colDepth - index,
-                (isFirstObj ? '' : (isFirstCol ? 'e-firstcell' : '')) + lastCol, index, this.parent.getColumnIndexByUid(cols.uid)));
+            if (!frzCols || (frzCols
+                && ((!isMovable && (this.frzIdx < this.parent.frozenColumns || cols.isFrozen))
+                    || (isMovable && this.frzIdx >= this.parent.frozenColumns && !cols.isFrozen)))) {
+                rows[index].cells.push(this.generateCell(
+                    cols, CellType.Header, this.colDepth - index,
+                    (isFirstObj ? '' : (isFirstCol ? 'e-firstcell' : '')) + lastCol, index, this.parent.getColumnIndexByUid(cols.uid)));
+            }
+            this.frzIdx++;
         } else {
             let colSpan: number = this.getCellCnt(cols, 0);
             if (colSpan) {
-                rows[index].cells.push(new Cell<Column>(<{ [x: string]: Object }>{
-                    cellType: CellType.StackedHeader, column: cols, colSpan: colSpan
-                }));
+                let frzObj: { isPartial: boolean, isComp: boolean, cnt: number }
+                    = this.refreshFrozenHdr(cols.columns as Column[], { isPartial: false, isComp: true, cnt: 0 });
+                if (!frzCols || (frzCols
+                    && ((!isMovable && (this.parent.frozenColumns - this.frzIdx > 0 || (frzObj.isPartial)))
+                        || (isMovable && (colSpan + this.frzIdx > this.parent.frozenColumns && !frzObj.isComp))))) {
+                    rows[index].cells.push(new Cell<Column>(<{ [x: string]: Object }>{
+                        cellType: CellType.StackedHeader, column: cols,
+                        colSpan: this.getColSpan(colSpan, isMovable, frzObj.cnt)
+                    }));
+                }
             }
             for (let i: number = 0, len: number = cols.columns.length; i < len; i++) {
                 rows = this.appendCells(
-                    (cols.columns as Column[])[i], rows, index + 1, isFirstObj,
-                    i === 0, i === (len - 1) && isLastCol);
+                    (cols.columns as Column[])[i], rows, index + 1, isFirstObj, i === 0, i === (len - 1) && isLastCol, isMovable);
             }
         }
         return rows;
+    }
+
+    private refreshFrozenHdr(cols: Column[], frzObj: { isPartial: boolean, isComp: boolean, cnt: number })
+        : { isPartial: boolean, isComp: boolean, cnt: number } {
+        for (let i: number = 0; i < cols.length; i++) {
+            if (cols[i].columns) {
+                frzObj = this.refreshFrozenHdr(cols[i].columns as Column[], frzObj);
+            } else {
+                if (cols[i].isFrozen) {
+                    frzObj.isPartial = true;
+                    frzObj.cnt++;
+                }
+                frzObj.isComp = frzObj.isComp && (cols[i].isFrozen ||
+                    this.parent.getColumnIndexByField(cols[i].field) < this.parent.frozenColumns);
+            }
+        }
+        return frzObj;
+    }
+
+    private getColSpan(colSpan: number, isMovable: Element, frozenCnt: number): number {
+        let frzCol: number = this.parent.frozenColumns;
+        if (this.parent.getFrozenColumns() && this.frzIdx + colSpan > frzCol) {
+            if (isMovable) {
+                colSpan = colSpan - (frzCol > this.frzIdx ? frzCol - this.frzIdx : 0) - frozenCnt;
+            } else {
+                colSpan = colSpan - (colSpan - (frzCol > this.frzIdx ? frzCol + frozenCnt - this.frzIdx : frozenCnt));
+            }
+        }
+        return colSpan;
     }
 
     private generateRow(index: number): Row<Column> {
@@ -394,25 +437,40 @@ export class HeaderRender implements IRenderer {
      * @param  {Column[]} columns?
      */
     public setVisible(columns?: Column[]): void {
+        let gObj: IGrid = this.parent;
         let rows: HTMLTableRowElement[] = [].slice.call(this.getRows()); //NodeList -> Array        
         let displayVal: string = '';
         let idx: number;
         let className: Function;
         let element: HTMLTableRowElement;
+        let frzCols: number = gObj.getFrozenColumns();
 
         for (let c: number = 0, clen: number = columns.length; c < clen; c++) {
             let column: Column = columns[c];
 
-            idx = this.parent.getNormalizedColumnIndex(column.uid);
+            idx = gObj.getNormalizedColumnIndex(column.uid);
 
             if (column.visible === false) {
                 displayVal = 'none';
             }
 
-            setStyleAttribute(<HTMLElement>this.getColGroup().childNodes[idx], { 'display': displayVal });
+            if (frzCols) {
+                if (idx < frzCols) {
+                    setStyleAttribute(<HTMLElement>this.getColGroup().children[idx], { 'display': displayVal });
+                } else {
+                    let mTblColGrp: Element = gObj.getHeaderContent().querySelector('.e-movableheader').querySelector('colgroup');
+                    setStyleAttribute(<HTMLElement>mTblColGrp.children[idx - frzCols], { 'display': displayVal });
+                }
+            } else {
+                setStyleAttribute(<HTMLElement>this.getColGroup().children[idx], { 'display': displayVal });
+            }
 
             this.refreshUI();
         }
+    }
+
+    private colPosRefresh(): void {
+        this.refreshUI();
     }
 
     /** 
@@ -422,6 +480,7 @@ export class HeaderRender implements IRenderer {
     public refreshUI(): void {
         let headerDiv: Element = this.getPanel();
         let table: Element = this.getTable();
+        let frzCols: number = this.parent.getFrozenColumns();
         remove(this.getTable());
         table.removeChild(table.firstChild);
         table.removeChild(table.childNodes[0]);
@@ -435,7 +494,9 @@ export class HeaderRender implements IRenderer {
         this.appendContent(table);
         this.parent.notify(events.colGroupRefresh, {});
         this.widthService.setWidthToColumns();
-        this.initializeHeaderDrag();
+        if (!frzCols) {
+            this.initializeHeaderDrag();
+        }
         let rows: Element[] = [].slice.call(headerDiv.querySelectorAll('tr.e-columnheader'));
         for (let row of rows) {
             let gCells: Element[] = [].slice.call(row.querySelectorAll('.e-grouptopleftcell'));
@@ -443,7 +504,9 @@ export class HeaderRender implements IRenderer {
                 gCells[gCells.length - 1].classList.add('e-lastgrouptopleftcell');
             }
         }
-        this.parent.notify(events.headerRefreshed, { rows: this.rows });
+        if (!frzCols) {
+            this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: this.parent.getFrozenColumns() !== 0 } });
+        }
         if (this.parent.allowTextWrap && this.parent.textWrapSettings.wrapMode === 'header') {
             wrap(rows, true);
         }
@@ -488,7 +551,7 @@ export class HeaderRender implements IRenderer {
         return cnt;
     }
 
-    private initializeHeaderDrag(): void {
+    protected initializeHeaderDrag(): void {
         let gObj: IGrid = this.parent;
         if (!(this.parent.allowReordering || (this.parent.allowGrouping && this.parent.groupSettings.showDropArea))) {
             return;
@@ -507,7 +570,7 @@ export class HeaderRender implements IRenderer {
         }
     }
 
-    private initializeHeaderDrop(): void {
+    protected initializeHeaderDrop(): void {
         let gObj: IGrid = this.parent;
         let drop: Droppable = new Droppable(gObj.getHeaderContent() as HTMLElement, {
             accept: '.e-dragclone',

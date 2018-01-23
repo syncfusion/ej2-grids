@@ -230,4 +230,43 @@ describe('Freeze render module', () => {
         });
     });
 
+    describe('Freeze Column', () => {
+        let gridObj: Grid;
+        let elem: Element = createElement('div', { id: 'Grid' });
+        let dBound: () => void;
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    dataSource: data,
+                    height: 400,
+                    columns: [
+                        { headerText: 'OrderID', field: 'OrderID' },
+                        { headerText: 'CustomerID', field: 'CustomerID', isFrozen: true },
+                        { headerText: 'EmployeeID', field: 'EmployeeID' },
+                        { headerText: 'ShipCountry', field: 'ShipCountry' },
+                        { headerText: 'ShipCity', field: 'ShipCity' },
+                    ],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+
+        it('Frozen Content testing', () => {
+            expect(gridObj.getContent().querySelector('.e-frozencontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
+            expect(gridObj.getContent().querySelector('.e-frozencontent').querySelector('tbody').children[0].childElementCount).toBe(1);
+        });
+
+        it('Movable Content testing', () => {
+            expect(gridObj.getContent().querySelector('.e-movablecontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
+        });
+
+        afterAll(() => {
+            gridObj['freezeModule'].destroy();
+            destroy(gridObj);
+            remove(elem);
+        });
+    });
+
 });

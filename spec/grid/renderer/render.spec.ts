@@ -4,6 +4,7 @@
 import { EmitType } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
+import { RowDataBoundEventArgs } from '../../../src/grid/base/interface';
 import { Column } from '../../../src/grid/models/column';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
@@ -116,4 +117,54 @@ describe('Render module', () => {
             remove(elem);
         });
     });
+    describe('Row height checking', () => {
+    let gridObj: Grid;
+    let elem: HTMLElement = createElement('div', { id: 'Grid' });
+
+    beforeAll((done: Function) => {
+        let dataBound: EmitType<Object> = () => { done(); };
+        document.body.appendChild(elem);
+        gridObj = new Grid(
+            {
+                dataSource: data,
+                allowPaging: false,
+                dataBound: dataBound,
+                columns: [
+                    { headerText: 'OrderID', field: 'OrderID' },
+                    { headerText: 'CustomerID', field: 'CustomerID' },
+                    { headerText: 'EmployeeID', field: 'EmployeeID' },
+                    { headerText: 'ShipCountry', field: 'ShipCountry' },
+                    { headerText: 'ShipCity', field: 'ShipCity' },
+                    { headerText: 'OrderDate', field: 'OrderDate', format: 'long', type: 'datetime' },
+                ],
+                rowHeight: 50,
+                rowDataBound: (args: RowDataBoundEventArgs) => {
+                    if ((args.data as Customer).CustomerID === 'VICTE' ) {
+                        args.rowHeight = 80;
+                    }
+                }
+            });
+        gridObj.appendTo('#Grid');
+    });
+
+    it('Row height API checking and rowDataBound checking', () => {
+        expect((gridObj.element.querySelectorAll('.e-row')[0] as HTMLElement).style.height).toBe('50px');
+        expect((gridObj.element.querySelectorAll('.e-row')[3] as HTMLElement).style.height).toBe('80px');
+    });
+
+    it('Row height on property change checking', () => {
+        gridObj.rowHeight = 20;
+        gridObj.dataBind();
+        expect((gridObj.element.classList.contains('e-grid-min-height'))).toBeTruthy();
+        gridObj.rowHeight = null;
+        gridObj.dataBind();
+        expect((gridObj.element.classList.contains('e-grid-min-height'))).toBeFalsy();
+    });
+    afterAll(() => {
+        remove(elem);
+    });
 });
+});
+interface Customer {
+    CustomerID: string;
+}

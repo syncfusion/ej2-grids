@@ -140,7 +140,7 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
         types.forEach((type: AggregateType) => {
             let key: string = column.field + ' - ' + type; let disp: string = column.columnName;
             let val: Object = group.aggregates && !isNullOrUndefined(group.aggregates[key]) ? group.aggregates[key] :
-                calculateAggregate(type, group.aggregates ? group.result : <Object[]>data, column, this.parent);
+                calculateAggregate(type, group.aggregates ? group : <Object[]>data, column, this.parent);
             single[disp] = single[disp] || {}; single[disp][key] = val; single[disp][type] = formatFn(val);
             if (group.field) { (<Group>single[disp]).field = group.field; (<Group>single[disp]).key = group.key; }
         });

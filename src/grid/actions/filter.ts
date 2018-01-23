@@ -1,8 +1,8 @@
 import { EventHandler, L10n, isNullOrUndefined, extend, closest, getValue } from '@syncfusion/ej2-base';
-import { getActualPropFromColl, isActionPrevent } from '../base/util';
+import { getActualPropFromColl, isActionPrevent, getColumnByForeignKeyValue } from '../base/util';
 import { remove, createElement, matches } from '@syncfusion/ej2-base';
 import { DataUtil, Predicate, Query, DataManager } from '@syncfusion/ej2-data';
-import { FilterSettings } from '../base/grid';
+import { FilterSettings, Grid } from '../base/grid';
 import { IGrid, IAction, NotifyArgs, IFilterOperator, IValueFormatter } from '../base/interface';
 import * as events from '../base/constant';
 import { CellType } from '../base/enum';
@@ -55,6 +55,7 @@ export class Filter implements IAction {
     private serviceLocator: ServiceLocator;
     private l10n: L10n;
     private valueFormatter: IValueFormatter;
+    private actualPredicate: { [key: string]: PredicateModel[] } = {};
 
     /**
      * Constructor for Grid filtering module
@@ -78,7 +79,7 @@ export class Filter implements IAction {
         this.getLocalizedCustomOperators();
         if (this.parent.filterSettings.type === 'filterbar') {
             if (gObj.columns.length) {
-                let fltrElem: Element = gObj.element.querySelector('.e-filterbar');
+                let fltrElem: Element = this.parent.element.querySelector('.e-filterbar');
                 if (fltrElem) {
                     remove(fltrElem);
                 }
@@ -121,7 +122,7 @@ export class Filter implements IAction {
         this.unWireEvents();
         if (this.element) {
             remove(this.element);
-            if (this.parent.frozenColumns) {
+            if (this.parent.getFrozenColumns()) {
                 remove(this.parent.getHeaderContent().querySelector('.e-filterbar'));
             }
         }
@@ -170,12 +171,14 @@ export class Filter implements IAction {
      * @hidden
      */
     public updateModel(): void {
+        let col: Column = this.parent.getColumnByField(this.fieldName);
+        let field: string = col.isForeignColumn() ? col.foreignKeyValue : this.fieldName;
         this.currentFilterObject = {
-            field: this.fieldName, operator: this.operator, value: this.value as string, predicate: this.predicate,
+            field: field, operator: this.operator, value: this.value as string, predicate: this.predicate,
             matchCase: this.matchCase, actualFilterValue: {}, actualOperator: {}
         };
 
-        let index: number = this.getFilteredColsIndexByField(this.fieldName);
+        let index: number = this.getFilteredColsIndexByField(col);
         if (index > -1) {
             this.filterSettings.columns[index] = this.currentFilterObject;
         } else {
@@ -185,10 +188,10 @@ export class Filter implements IAction {
         this.parent.dataBind();
     }
 
-    private getFilteredColsIndexByField(field: string): number {
+    private getFilteredColsIndexByField(col: Column): number {
         let cols: PredicateModel[] = this.filterSettings.columns;
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
-            if (cols[i].field === field) {
+            if (cols[i].field === col.field || (col.isForeignColumn() && cols[i].field === col.foreignKeyValue)) {
                 return i;
             }
         }
@@ -280,36 +283,7 @@ export class Filter implements IAction {
         this.fltrDlgDetails.isOpen = false;
     }
 
-    private columnMenuFilter(args: { col: Column, target: Element, isClose: boolean, id: string }): void {
-        this.column = args.col;
-        let ele: Element = closest(args.target, '#' + args.id);
-        if (args.isClose && !ele) {
-            this.filterModule.closeDialog();
-        } else if (ele) {
-            this.filterDialogOpen(this.column, args.target);
-        }
-    }
-
-    private filterDialogOpen(col: Column, target: Element, left?: number, top?: number): void {
-        let gObj: IGrid = this.parent;
-        if (this.filterModule) {
-            this.filterModule.closeDialog();
-        }
-        this.filterModule = new this.type[col.filter.type || this.parent.filterSettings.type]
-            (this.parent, gObj.filterSettings, this.serviceLocator, this.customOperators, this);
-        this.filterModule.openDialog({
-            type: col.type, field: col.field, displayName: col.headerText,
-            dataSource: col.filter.dataSource || gObj.dataSource, format: col.format,
-            filteredColumns: gObj.filterSettings.columns, target: target,
-            sortedColumns: gObj.sortSettings.columns, formatFn: col.getFormatter(),
-            parserFn: col.getParser(), query: gObj.query, template: col.getFilterItemTemplate(),
-            hideSearchbox: isNullOrUndefined(col.filter.hideSearchbox) ? false : col.filter.hideSearchbox,
-            handler: this.filterHandler.bind(this), localizedStrings: {},
-            position: { X: left, Y: top }
-        });
-    }
-
-    /** 
+    /**
      * Filters grid row by column name with given options.
      * @param  {string} fieldName - Defines the field name of the filter column. 
      * @param  {string} filterOperator - Defines the operator by how to filter records.
@@ -328,7 +302,7 @@ export class Filter implements IAction {
         let filterCell: HTMLInputElement;
         this.column = gObj.getColumnByField(fieldName);
         if (this.filterSettings.type === 'filterbar') {
-            filterCell = gObj.getHeaderContent().querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement;
+            filterCell = gObj.getHeaderContent().querySelector('[id=\'' + this.column.field + '_filterBarcell\']') as HTMLInputElement;
         }
         if (!isNullOrUndefined(this.column.allowFiltering) && !this.column.allowFiltering) {
             return;
@@ -349,7 +323,6 @@ export class Filter implements IAction {
         if (this.column.type === 'number' || this.column.type === 'date') {
             this.matchCase = true;
         }
-        this.values[this.column.field] = filterValue;
         gObj.getColumnHeaderByField(fieldName).setAttribute('aria-filtered', 'true');
         if (filterValue.length < 1 || this.checkForSkipInput(this.column, filterValue)) {
             this.filterStatusMsg = filterValue.length < 1 ? '' : this.l10n.getConstant('InvalidFilterMessage');
@@ -362,6 +335,7 @@ export class Filter implements IAction {
         if (this.checkAlreadyColFiltered(this.column.field)) {
             return;
         }
+        this.values[this.column.field] = filterValue; //this line should be above updateModel
         this.updateModel();
     }
 
@@ -391,6 +365,7 @@ export class Filter implements IAction {
                 case 'type':
                     this.parent.refreshHeader();
                     break;
+
             }
         }
     }
@@ -406,7 +381,14 @@ export class Filter implements IAction {
             return;
         }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
-            this.removeFilteredColsByField(cols[i].field, true);
+            this.removeFilteredColsByField(cols[i].field, false);
+        }
+        if (this.parent.filterSettings.columns.length === 0 && this.parent.element.querySelector('.e-filtered')) {
+            let fltrElement: Element[] = [].slice.call(this.parent.element.querySelectorAll('.e-filtered'));
+            for (let i: number = 0, len: number = fltrElement.length; i < len; i++) {
+                fltrElement[0].removeAttribute('aria-filtered');
+                fltrElement[0].classList.remove('e-filtered');
+            }
         }
         this.isRemove = true;
         this.filterStatusMsg = '';
@@ -424,37 +406,68 @@ export class Filter implements IAction {
         return false;
     }
 
-    /** 
-     * Removes filtered column by field name. 
-     * @param  {string} field - Defines column field name to remove filter. 
-     * @param  {boolean} isClearFilterBar -  Specifies whether the filter bar value needs to be cleared.     
-     * @return {void} 
+    private columnMenuFilter(args: { col: Column, target: Element, isClose: boolean, id: string }): void {
+        this.column = args.col;
+        let ele: Element = closest(args.target, '#' + args.id);
+        if (args.isClose && !ele) {
+            this.filterModule.closeDialog();
+        } else if (ele) {
+            this.filterDialogOpen(this.column, args.target);
+        }
+    }
+
+    private filterDialogOpen(col: Column, target: Element, left?: number, top?: number): void {
+        let gObj: IGrid = this.parent;
+        if (this.filterModule) {
+            this.filterModule.closeDialog();
+        }
+        this.filterModule = new this.type[col.filter.type || this.parent.filterSettings.type]
+            (this.parent, gObj.filterSettings, this.serviceLocator, this.customOperators, this);
+        let dataSource: Object = col.filter.dataSource || gObj.getDataModule().dataManager;
+        this.filterModule.openDialog({
+            type: col.type, field: col.field, displayName: col.headerText,
+            dataSource: dataSource, format: col.format,
+            filteredColumns: gObj.filterSettings.columns, target: target,
+            sortedColumns: gObj.sortSettings.columns, formatFn: col.getFormatter(),
+            parserFn: col.getParser(), query: gObj.query, template: col.getFilterItemTemplate(),
+            hideSearchbox: isNullOrUndefined(col.filter.hideSearchbox) ? false : col.filter.hideSearchbox,
+            handler: this.filterHandler.bind(this), localizedStrings: gObj.getLocaleConstants(),
+            position: { X: left, Y: top }, column: col, foreignKeyValue: col.foreignKeyValue,
+            actualPredicate: this.actualPredicate
+        });
+    }
+
+
+    /**
+     * Removes filtered column by field name.
+     * @param  {string} field - Defines column field name to remove filter.
+     * @param  {boolean} isClearFilterBar -  Specifies whether the filter bar value needs to be cleared.
+     * @return {void}
      * @hidden
      */
     public removeFilteredColsByField(field: string, isClearFilterBar?: boolean): void {
         let fCell: HTMLInputElement;
         let cols: PredicateModel[] = this.filterSettings.columns;
         if (isActionPrevent(this.parent)) {
-            this.parent.notify(
-                events.preventBatch,
-                {
-                    instance: this, handler: this.removeFilteredColsByField,
-                    arg1: field, arg2: isClearFilterBar
-                }
-            );
+            let args: Object = { instance: this, handler: this.removeFilteredColsByField, arg1: field, arg2: isClearFilterBar };
+            this.parent.notify(events.preventBatch, args);
             return;
         }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
-            if (cols[i].field === field) {
+            let column: Column = this.parent.getColumnByField(field) ||
+                getColumnByForeignKeyValue(field, this.parent.getForeignKeyColumns());
+            if (cols[i].field === field || cols[i].field === column.foreignKeyValue) {
                 if (this.filterSettings.type === 'filterbar' && !isClearFilterBar) {
-                    fCell = this.parent.getHeaderContent().querySelector('#' + cols[i].field + '_filterBarcell') as HTMLInputElement;
+                    let selector: string = '[id=\'' + cols[i].field + '_filterBarcell\']';
+                    fCell = this.parent.getHeaderContent().querySelector(selector) as HTMLInputElement;
                     delete this.values[field];
                 }
                 cols.splice(i, 1);
-                let fltrElement: Element = this.parent.getColumnHeaderByField(field);
+                let fltrElement: Element = this.parent.getColumnHeaderByField(column.field);
                 fltrElement.removeAttribute('aria-filtered');
                 if (this.filterSettings.type !== 'filterbar') {
-                    fltrElement.querySelector('.e-icon-filter').classList.remove('e-filtered');
+                    let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
+                    fltrElement.querySelector(iconClass).classList.remove('e-filtered');
                 }
                 this.isRemove = true;
                 this.parent.notify(events.modelChanged, {
@@ -533,7 +546,8 @@ export class Filter implements IAction {
             if (columns.length > 0 && this.filterStatusMsg !== this.l10n.getConstant('InvalidFilterMessage')) {
                 this.filterStatusMsg = '';
                 for (let index: number = 0; index < columns.length; index++) {
-                    column = gObj.getColumnByField(columns[index].field);
+                    column = gObj.getColumnByField(columns[index].field) ||
+                        getColumnByForeignKeyValue(columns[index].field, this.parent.getForeignKeyColumns());
                     if (index) {
                         this.filterStatusMsg += ' && ';
                     }
@@ -584,14 +598,17 @@ export class Filter implements IAction {
     }
 
     private onTimerTick(): void {
-        let filterElement: HTMLInputElement = (this.parent.getHeaderContent()
-            .querySelector('#' + this.column.field + '_filterBarcell') as HTMLInputElement);
+        let selector: string = '[id=\'' + this.column.field + '_filterBarcell\']';
+        let filterElement: HTMLInputElement = (this.element.querySelector(selector) as HTMLInputElement);
+        if (!filterElement && this.parent.getFrozenColumns()) {
+            filterElement = (this.parent.getHeaderContent().querySelector(selector) as HTMLInputElement);
+        }
         let filterValue: string = JSON.parse(JSON.stringify(filterElement.value));
         this.stopTimer();
         if (!isNullOrUndefined(this.column.filterBarTemplate)) {
             let templateRead: Function = this.column.filterBarTemplate.read as Function;
             if (typeof templateRead === 'string') {
-                templateRead =  getValue(templateRead, window);
+                templateRead = getValue(templateRead, window);
             }
             this.value = templateRead.call(this, filterElement);
         }
@@ -601,7 +618,6 @@ export class Filter implements IAction {
         }
         this.validateFilterValue(this.value as string);
         this.filterByColumn(this.column.field, this.operator, this.value as string, this.predicate, this.matchCase);
-        this.values[this.column.field] = filterValue;
         filterElement.value = filterValue;
         this.updateFilterMsg();
     }
@@ -697,7 +713,10 @@ export class Filter implements IAction {
     }
 
     private columnPositionChanged(e: { fromIndex: number, toIndex: number }): void {
-        let filterCells: Element[] = [].slice.call(this.element.querySelectorAll('.e-filterbarcell'));
+        if (this.parent.filterSettings.type !== 'filterbar') {
+            return;
+        }
+        let filterCells: Element[] = [].slice.call(this.parent.getHeaderContent().querySelectorAll('.e-filterbarcell'));
         filterCells.splice(e.toIndex, 0, filterCells.splice(e.fromIndex, 1)[0]);
         this.element.innerHTML = '';
         for (let cell of filterCells) {
@@ -775,10 +794,11 @@ export class Filter implements IAction {
 
 
     private filterHandler(args: {
-        action: string, filterCollection: { field: string, predicate: string, operator: string, matchcase: boolean, value: string },
-        field: string, ejpredicate: Predicate
+        action: string, filterCollection: PredicateModel[], field: string, ejpredicate: Predicate,
+        column: Column, actualPredicate: PredicateModel[]
     }): void {
         let filterIconElement: Element;
+        this.actualPredicate[args.field] = args.actualPredicate;
         let dataManager: DataManager = new DataManager(this.filterSettings.columns as JSON[]);
         let query: Query = new Query().where('field', this.filterOperators.equal, args.field);
         let result: { field: string }[] = dataManager.executeLocal(query) as { field: string }[];

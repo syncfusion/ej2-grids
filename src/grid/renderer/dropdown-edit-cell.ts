@@ -3,7 +3,7 @@ import { createElement } from '@syncfusion/ej2-base';
 import { IGrid, EJ2Intance, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
-import { Query, DataManager } from '@syncfusion/ej2-data';
+import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';
 import { isEditable } from '../base/util';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
 import { parentsUntil } from '../base/util';
@@ -17,6 +17,7 @@ export class DropDownEditCell implements IEditCell {
 
     private parent: IGrid;
     private obj: DropDownList;
+    private column: Column;
 
     constructor(parent?: IGrid) {
         //constructor
@@ -33,7 +34,7 @@ export class DropDownEditCell implements IEditCell {
     }
 
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
-        let col: Column = args.column;
+        this.column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
         this.obj = new DropDownList(extend(
             {
@@ -41,9 +42,10 @@ export class DropDownEditCell implements IEditCell {
                     this.parent.dataSource : new DataManager(this.parent.dataSource),
                 query: new Query().select(args.column.field), enabled: isEditable(args.column, args.requestType, args.element),
                 fields: { value: args.column.field }, value: args.rowData[args.column.field],
-                enableRtl: this.parent.enableRtl, actionComplete: this.ddActionComplete,
+                enableRtl: this.parent.enableRtl, actionComplete: this.ddActionComplete.bind(this),
                 placeholder: isInline ? '' : args.column.headerText, popupHeight: '200px',
                 floatLabelType: isInline ? 'Never' : 'Always', open: this.dropDownOpen.bind(this),
+                sortOrder: 'Ascending'
             },
             args.column.edit.params));
         this.obj.appendTo(args.element as HTMLElement);
@@ -54,9 +56,11 @@ export class DropDownEditCell implements IEditCell {
         return (<EJ2Intance>element).ej2_instances[0].value;
     }
 
-    private ddActionComplete(e: { result: string[] }): void {
-        e.result = e.result.filter((val: string, i: number, values: string[]) => values.indexOf(val) === i);
-        e.result.sort();
+    private ddActionComplete(e: { result: Object[] }): void {
+        e.result = DataUtil.distinct(e.result, this.column.isForeignColumn() ? this.column.foreignKeyField : this.column.field, true);
+        if ((<DataManager>this.column.dataSource)) {
+            (<DataManager>this.column.dataSource).dataSource.json = e.result;
+        }
     }
 
     private dropDownOpen(args: { popup: Popup }): void {

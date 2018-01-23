@@ -41,7 +41,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
      * @param  {string} rowTemplate?
      */
     public render(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string, cloneNode?: Element):
-    Element {
+        Element {
         return this.refreshRow(row, columns, attributes, rowTemplate, cloneNode);
     }
 
@@ -67,7 +67,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
     }
 
     private refreshRow(row: Row<T>, columns: Column[], attributes?: { [x: string]: Object }, rowTemplate?: string, cloneNode?: Element):
-    Element {
+        Element {
         let tr: Element = !isNullOrUndefined(cloneNode) ? cloneNode : this.element.cloneNode() as Element;
         let rowArgs: RowDataBoundEventArgs = { data: row.data };
         let cellArgs: QueryCellInfoEventArgs = { data: row.data };
@@ -86,26 +86,36 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         for (let i: number = 0, len: number = row.cells.length; i < len; i++) {
             let cell: Cell<T> = row.cells[i]; cell.isSelected = row.isSelected;
             let cellRenderer: ICellRenderer<T> = cellRendererFact.getCellRenderer(row.cells[i].cellType || CellType.Data);
-            let td: Element = cellRenderer.render(
-                row.cells[i], row.data,
-                { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' });
+            let attrs: {} = { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' };
+            if (row.isExpand) { attrs['class'] = 'e-detailrowexpand'; }
+            let td: Element = cellRenderer.render(row.cells[i], row.data, attrs);
             if (row.cells[i].cellType !== CellType.Filter) {
-            if (row.cells[i].cellType === CellType.Data) {
-                this.parent.trigger(queryCellInfo, extend(
-                    cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: <{}>cell.column, colSpan: 1 }));
-                if (cellArgs.colSpan > 1 || row.cells[i].cellSpan > 1) {
-                    let cellMerge: CellMergeRender<T> = new CellMergeRender(this.serviceLocator, this.parent);
-                    td = cellMerge.render(cellArgs, row, i, td);
+                if (row.cells[i].cellType === CellType.Data) {
+                    this.parent.trigger(queryCellInfo, extend(
+                        cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: <{}>cell.column, colSpan: 1,
+                        foreignKeyData: row.cells[i].foreignKeyData }));
+                    if (cellArgs.colSpan > 1 || row.cells[i].cellSpan > 1) {
+                        let cellMerge: CellMergeRender<T> = new CellMergeRender(this.serviceLocator, this.parent);
+                        td = cellMerge.render(cellArgs, row, i, td);
+                    }
+                }
+                if (!row.cells[i].isSpanned) {
+                    tr.appendChild(td);
                 }
             }
-            if (!row.cells[i].isSpanned) {
-                tr.appendChild(td);
-            }
-        }
 
         }
+        let args: RowDataBoundEventArgs = { row: tr, rowHeight: this.parent.rowHeight };
         if (row.isDataRow) {
-            this.parent.trigger(rowDataBound, extend(rowArgs, <RowDataBoundEventArgs>{ row: tr }));
+            this.parent.trigger(rowDataBound, extend(rowArgs, args));
+        }
+        if (this.parent.enableVirtualization) {
+            rowArgs.rowHeight = this.parent.rowHeight;
+        }
+        if (rowArgs.rowHeight) {
+            (tr as HTMLElement).style.height = rowArgs.rowHeight + 'px';
+        } else if (this.parent.rowHeight) {
+            (tr as HTMLElement).style.height = this.parent.rowHeight + 'px';
         }
         if (row.cssClass) {
             tr.classList.add(row.cssClass);

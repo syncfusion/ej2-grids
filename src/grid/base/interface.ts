@@ -1,6 +1,6 @@
-import { Component, NumberFormatOptions, DateFormatOptions, EmitType, KeyboardEventArgs } from '@syncfusion/ej2-base';
+import { Component, NumberFormatOptions, DateFormatOptions, EmitType, KeyboardEventArgs, L10n } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
-import { ItemModel, MenuItemModel, BeforeOpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
+import { ItemModel, MenuItemModel, BeforeOpenCloseMenuEventArgs, MenuEventArgs } from '@syncfusion/ej2-navigations';
 import { ButtonModel } from '@syncfusion/ej2-buttons';
 import { Column, ColumnModel } from '../models/column';
 import {
@@ -12,7 +12,7 @@ import { RowDropSettingsModel, GroupSettingsModel, GridModel, EditSettingsModel 
 import { Cell } from '../models/cell';
 import { Row } from '../models/row';
 import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems, CommandButtonType, ContextMenuItem } from './enum';
-import { MultipleExportType, ExportType, ExcelHAlign, ExcelVAlign, BorderLineStyle, ToolbarItem  } from './enum';
+import { MultipleExportType, ExportType, ExcelHAlign, ExcelVAlign, BorderLineStyle, ToolbarItem } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
 import { Edit } from '../actions/edit';
@@ -26,6 +26,8 @@ import {
     PdfPageSize, PageOrientation, ContentType, PdfPageNumberType, PdfDashStyle,
     PdfHAlign, PdfVAlign
 } from './enum';
+import { FlMenuOptrUI } from '../renderer/filter-menu-operator';
+import { Dialog } from '@syncfusion/ej2-popups';
 
 /**
  * Specifies grid interfaces.
@@ -266,6 +268,12 @@ export interface IGrid extends Component<HTMLElement> {
     dataSource?: Object | DataManager;
 
     /**
+     * Defines the row height for Grid rows.
+     * @default null
+     */
+    rowHeight?: number;
+
+    /**
      * Specifies the query for Grid.
      * @default []
      */
@@ -336,6 +344,7 @@ export interface IGrid extends Component<HTMLElement> {
     getPager?(): Element;
     setGridPager?(value: Element): void;
     getRowByIndex?(index: number): Element;
+    getMovableRowByIndex?(index: number): Element;
     getRowInfo?(target: Element): RowInfo;
     selectRow?(index: number, isToggle?: boolean): void;
     getColumnHeaderByIndex?(index: number): Element;
@@ -348,7 +357,9 @@ export interface IGrid extends Component<HTMLElement> {
     getColumnIndexesInView(): number[];
     setColumnIndexesInView(indexes?: number[]): void;
     getRows?(): Element[];
+    getMovableRows?(): Element[];
     getCellFromIndex?(rowIndex: number, columnIndex: number): Element;
+    getMovableCellFromIndex?(rowIndex: number, columnIndex: number): Element;
     getColumnFieldNames?(): string[];
     getSelectedRows?(): Element[];
     getSelectedRecords?(): Object[];
@@ -372,6 +383,8 @@ export interface IGrid extends Component<HTMLElement> {
     getVisibleColumns?(): Column[];
     refreshHeader?(): void;
     getDataRows?(): Element[];
+    getMovableDataRows?(): Element[];
+    addMovableRows?(fRows: HTMLElement[], mrows: HTMLElement[]): HTMLElement[];
     getPrimaryKeyFieldNames?(): string[];
     autoFitColumns(fieldNames: string | string[]): void;
     groupColumn(columnName: string): void;
@@ -379,6 +392,7 @@ export interface IGrid extends Component<HTMLElement> {
     ensureModuleInjected(module: Function): Boolean;
     isContextMenuOpen(): Boolean;
     goToPage(pageNo: number): void;
+    getFrozenColumns(): number;
     showColumn(columnName: string | string[], showBy?: string): void;
     hideColumn(columnName: string | string[], hideBy?: string): void;
     print(): void;
@@ -396,12 +410,15 @@ export interface IGrid extends Component<HTMLElement> {
     addRecord?(data?: Object): void;
     deleteRow?(tr: HTMLTableRowElement): void;
     getRowObjectFromUID?(uid: string): Row<Column>;
+    addFreezeRows?(fRows: Row<Column>[], mRows?: Row<Column>[]): Row<Column>[];
     getRowsObject?(): Row<Column>[];
+    getMovableRowsObject?(): Row<Column>[];
     createColumnchooser(x: number, y: number, target: Element): void;
     getDataModule?(): Data;
     refreshTooltip?(): void;
     copy?(withHeader?: boolean): void;
     getLocaleConstants?(): Object;
+    getForeignKeyColumns?(): Column[];
 }
 
 /** @hidden */
@@ -413,13 +430,16 @@ export interface IRenderer {
     getPanel(): Element;
     getTable(): Element;
     getRows?(): Row<{}>[] | HTMLCollectionOf<HTMLTableRowElement>;
+    getMovableRows?(): Row<{}>[] | HTMLCollectionOf<HTMLTableRowElement>;
     refreshUI?(): void;
     setVisible?(column?: Column[]): void;
     addEventListener?(): void;
     removeEventListener?(): void;
     getRowElements?(): Element[];
+    getMovableRowElements?(): Element[];
     setSelection?(uid: string, set: boolean, clearAll: boolean): void;
     getRowByIndex?(index: number): Element;
+    getMovableRowByIndex?(index: number): Element;
     getRowInfo?(target: Element): RowInfo;
 }
 
@@ -559,6 +579,8 @@ export interface NotifyArgs {
     properties?: Object;
     virtualInfo?: VirtualInfo;
     cancel?: boolean;
+    rows?: Row<Column>[];
+    isFrozen?: boolean;
 }
 
 /**
@@ -588,6 +610,10 @@ export interface ICell<T> {
     className?: string;
 
     commands?: CommandModel[];
+
+    isForeignKey?: boolean;
+
+    foreignKeyData?: Object;
 }
 /**
  * @hidden
@@ -605,6 +631,8 @@ export interface IRow<T> {
 
     isDataRow?: boolean;
 
+    isExpand?: boolean;
+
     rowSpan?: number;
 
     cells?: Cell<T>[];
@@ -618,6 +646,8 @@ export interface IRow<T> {
     height?: string;
 
     cssClass?: string;
+
+    foreignKeyData?: Object;
 }
 /**
  * @hidden
@@ -692,6 +722,8 @@ export interface PrintEventArgs extends ActionEventArgs {
     element?: Element;
     /** Defines the current selected rows. */
     selectedRows?: NodeListOf<Element>;
+    /** Cancel the print action */
+    cancel?: boolean;
 }
 
 export interface DetailDataBoundEventArgs extends ActionEventArgs {
@@ -717,6 +749,8 @@ export interface RowDeselectEventArgs {
     rowIndex?: number;
     /** Defines the selected/deselected row. */
     row?: Element;
+    /** Define the foreignKey row data associated with this column */
+    foreignKeyData?: Object;
 }
 
 export interface RowSelectEventArgs extends RowDeselectEventArgs {
@@ -726,6 +760,29 @@ export interface RowSelectEventArgs extends RowDeselectEventArgs {
     previousRow?: Element;
     /** Defines the target element for selection. */
     target?: Element;
+    /** Define the foreignKey row data associated with this column */
+    foreignKeyData?: Object;
+}
+
+export interface RecordDoubleClickEventArgs {
+    /** Defines the target element. */
+    target?: Element;
+    /** Defines the cell element. */
+    cell?: Element;
+    /** Defines the cell index. */
+    cellIndex?: number;
+    /** Defines the column object. */
+    column?: Column;
+    /** Defines the name of the event. */
+    name?: string;
+    /** Defines the row element. */
+    row?: Element;
+    /** Defines the current row data. */
+    rowData?: Object;
+    /** Defines the row index. */
+    rowIndex?: number;
+    /** Define the foreignKey row data associated with this column */
+    foreignKeyData?: Object;
 }
 
 export interface RowSelectingEventArgs extends RowSelectEventArgs {
@@ -775,6 +832,8 @@ export interface RowDataBoundEventArgs {
     data?: Object;
     /** Defines the row element. */
     row?: Element;
+    /** Defines the row height */
+    rowHeight?: number;
 }
 
 export interface QueryCellInfoEventArgs {
@@ -786,6 +845,8 @@ export interface QueryCellInfoEventArgs {
     column?: Column;
     /** Defines the no. of columns to be spanned */
     colSpan?: number;
+    /** Define the foreignKey row data associated with this column */
+    foreignKeyData?: Object;
 }
 
 export interface PdfQueryCellInfoEventArgs {
@@ -1168,6 +1229,8 @@ export interface SaveEventArgs extends AddEventArgs {
 export interface EditEventArgs extends BeginEditArgs {
     /** Defines the request type. */
     requestType?: string;
+    /** Defines foreign data object. */
+    foreignKeyData?: Object;
 }
 
 
@@ -1199,6 +1262,16 @@ export interface CellEditArgs extends CellEditSameArgs, IPrimaryKey {
     validationRules?: Object;
     /** Defines the name of the event. */
     type?: string;
+    /** Defines foreign data object */
+    foreignKeyData?: Object;
+}
+
+export interface IFilterCreate {
+    column?: Column;
+    target?: HTMLElement;
+    getOptrInstance?: FlMenuOptrUI;
+    localizeText?: L10n;
+    dialogObj?: Dialog;
 }
 
 /**
@@ -1312,12 +1385,13 @@ export interface IFocus {
     onKeyPress?: Function;
     onClick?: Function;
     onFocus?: Function;
-    jump?: (action: string, current: number[]) => boolean;
+    jump?: (action: string, current: number[]) => SwapInfo;
     getFocusInfo?: () => FocusInfo;
     selector?: (row: Row<Column>, cell: Cell<Column>) => boolean;
-    generateRows?: (rows: Row<Column>[]) => void;
+    generateRows?: (rows: Row<Column>[], optionals?: Object) => void;
     getInfo?: (e?: KeyboardEventArgs) => FocusedContainer;
     validator?: () => Function;
+    getNextCurrent?: (previous: number[], swap?: SwapInfo, active?: IFocus, action?: string) => number[];
 }
 /**
  * @hidden
@@ -1356,6 +1430,17 @@ export interface FocusedContainer {
     isSelectable?: boolean;
     indexes?: number[];
 }
+
+/**
+ * @hidden
+ */
+export interface SwapInfo {
+    swap?: boolean;
+    toHeader?: boolean;
+    toFrozen?: boolean;
+    current?: number[];
+}
+
 export interface ContextMenuItemModel extends MenuItemModel {
     target?: string;
 }
@@ -1392,6 +1477,9 @@ export interface IFilterArgs {
     handler?: Function;
     template?: Function;
     target?: Element;
+    foreignKeyValue?: string;
+    column?: Column;
+    actualPredicate?: { [key: string]: PredicateModel[] };
 }
 
 export interface PdfExportProperties {
@@ -1544,4 +1632,26 @@ export interface ColumnMenuItemModel extends MenuItemModel {
 
 export interface ColumnMenuOpenEventArgs extends BeforeOpenCloseMenuEventArgs {
     column?: Column;
+}
+
+export interface ColumnMenuClickEventArgs extends MenuEventArgs {
+    column?: Column;
+}
+
+export interface ContextMenuClickEventArgs extends MenuEventArgs {
+    column?: Column;
+}
+
+export interface ContextMenuOpenEventArgs extends BeforeOpenCloseMenuEventArgs {
+    column?: Column;
+}
+
+export interface ExcelExportCompleteArgs {
+    /** Defines the promise object for blob data. */
+    promise?: Promise<{ blobData: Blob }>;
+}
+
+export interface PdfExportCompleteArgs {
+    /** Defines the promise object for blob data. */
+    promise?: Promise<{ blobData: Blob }>;
 }

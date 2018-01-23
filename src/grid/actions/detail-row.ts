@@ -61,6 +61,7 @@ export class DetailRow {
                     detailCell.setAttribute('colspan', this.parent.getVisibleColumns().length.toString());
                     let row: Row<Column> = new Row<Column>({
                         isDataRow: true,
+                        isExpand: true,
                         cells: [new Cell<Column>({ cellType: CellType.Indent }), new Cell<Column>({ isDataCell: true, visible: true })]
                     });
                     for (let i: number = 0, len: number = gObj.groupSettings.columns.length; i < len; i++) {
@@ -104,6 +105,7 @@ export class DetailRow {
                 }
                 classList(target, ['e-detailrowexpand'], ['e-detailrowcollapse']);
                 classList(target.firstElementChild, ['e-dtdiagonaldown', 'e-icon-gdownarrow'], ['e-dtdiagonalright', 'e-icon-grightarrow']);
+                this.parent.getRowsObject()[tr.rowIndex].isExpand = true;
                 this.aria.setExpand(target as HTMLElement, true);
             } else {
                 if (this.isDetailRow(nextRow)) {
@@ -111,6 +113,7 @@ export class DetailRow {
                 }
                 classList(target, ['e-detailrowcollapse'], ['e-detailrowexpand']);
                 classList(target.firstElementChild, ['e-dtdiagonalright', 'e-icon-grightarrow'], ['e-dtdiagonaldown', 'e-icon-gdownarrow']);
+                this.parent.getRowsObject()[tr.rowIndex].isExpand = false;
                 this.aria.setExpand(target as HTMLElement, false);
             }
         }
@@ -209,7 +212,8 @@ export class DetailRow {
             case 'enter':
                 if (this.parent.isEdit) { return; }
                 let element: HTMLElement = this.focus.getFocusedElement();
-                if (!element.classList.contains('e-detailrowcollapse') && !element.classList.contains('e-detailrowexpand')) { break; }
+                 if (!(<Element>e.target).classList.contains('e-detailrowcollapse') &&
+                     !(<Element>e.target).classList.contains('e-detailrowexpand')) { break; }
                 this.toogleExpandcollapse(element);
                 break;
         }

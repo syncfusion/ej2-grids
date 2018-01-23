@@ -44,6 +44,15 @@
       content: $grid-filtermenu-icon;
    }
 
+    .e-excl-filter-icon::before {
+      content:  $grid-excelmenu-filter-icon;
+    }
+
+    .e-excl-filter-icon.e-filtered::before {
+      content:  $grid-excelmenu-clear-filter-icon;
+    }
+
+
     &.e-rtl {
       .e-icon-grightarrow::before {
         content: $grid-group-rtl-right-arrow-icon;

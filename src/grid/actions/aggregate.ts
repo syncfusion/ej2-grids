@@ -52,9 +52,9 @@ export class Aggregate implements IAction {
         summaryIterator(this.parent.aggregates, (column: AggregateColumn) => {
             let dataColumn: ColumnModel = this.parent.getColumnByField(column.field) || {};
             let type: string = dataColumn.type;
-            column.format = this.getFormatFromType(column.format, type);
+            column.setPropertiesSilent({format: this.getFormatFromType(column.format, type)});
             column.setFormatter();
-            column.columnName = column.columnName || column.field;
+            column.setPropertiesSilent({columnName: column.columnName || column.field });
         });
     }
 
@@ -112,7 +112,7 @@ export class Aggregate implements IAction {
 
     public destroy(): void {
         this.removeEventListener();
-        remove(this.parent.getFooterContent());
+        remove(this.parent.element.querySelector('.e-gridfooter'));
     }
 }
 /**

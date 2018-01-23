@@ -12,12 +12,13 @@ import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';
 import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ExcelExportProperties, PdfExportProperties } from './interface';
-import { ColumnMenuOpenEventArgs } from './interface';
+import { ColumnMenuOpenEventArgs, RecordDoubleClickEventArgs } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs, RowInfo } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
+import { ExcelExportCompleteArgs, PdfExportCompleteArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs, CheckBoxChangeEventArgs } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
@@ -595,7 +596,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         GroupDisable: 'Grouping is disabled for this column',
         FilterbarTitle: '\'s filter bar cell',
         EmptyDataSourceError:
-        'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
+            'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
         // Toolbar Items
         Add: 'Add',
         Edit: 'Edit',
@@ -825,6 +826,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private commandColumnModule: CommandColumn;
     private focusModule: FocusStrategy;
+
     //Grid Options    
 
     /**     
@@ -1176,6 +1178,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Property([])
     public dataSource: Object | DataManager;
 
+    /**
+     * Defines the row height for Grid rows.
+     * @default null
+     */
+    @Property(null)
+    public rowHeight: number;
+
     /**    
      * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html) 
      * which will execute along with data processing.    
@@ -1183,6 +1192,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property()
     public query: Query;
+
+    /**
+     * Defines the currencyCode format of the Grid columns
+     * @private
+     */
+    @Property('USD')
+    private currencyCode: string;
 
     /**    
      * `toolbar` defines toolbar items for grid. It contains built-in and custom toolbar items. 
@@ -1362,6 +1378,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     @Event()
     public dataBound: EmitType<Object>;
 
+    /** 
+     * Triggers when record is double clicked.
+     * @event 
+     */
+    @Event()
+    public recordDoubleClick: EmitType<RecordDoubleClickEventArgs>;
+
     /** 
      * Triggers before any row selection occurs.
      * @event 
@@ -1477,7 +1500,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Triggers after Grid data is exported to Excel file.
      */
     @Event()
-    public excelExportComplete: EmitType<Object>;
+    public excelExportComplete: EmitType<ExcelExportCompleteArgs>;
 
     /**
      * Triggers before Grid data is exported to PDF document.
@@ -1489,7 +1512,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Triggers after Grid data is exported to PDF document.
      */
     @Event()
-    public pdfExportComplete: EmitType<Object>;
+    public pdfExportComplete: EmitType<PdfExportCompleteArgs>;
 
     /** 
      * Triggers after detail row expanded.
@@ -1801,7 +1824,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.serviceLocator]
             });
         }
-        if (this.frozenColumns || this.frozenRows) {
+        if (this.getFrozenColumns() || this.frozenRows) {
             modules.push({ member: 'freeze', args: [this, this.serviceLocator] });
         }
         if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
@@ -1837,6 +1860,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             });
         }
 
+        if (this.showColumnChooser) {
+            modules.push({
+                member: 'columnChooser',
+                args: [this, this.serviceLocator]
+            });
+        }
+        if (this.isForeignKeyEnabled(this.columns as Column[])) {
+            modules.push({ member: 'foreignKey', args: [this, this.serviceLocator] });
+        }
     }
 
     /**
@@ -1859,9 +1891,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.getMediaColumns();
         this.searchModule = new Search(this);
         this.scrollModule = new Scroll(this);
-        if (this.showColumnChooser) {
-            this.columnChooserModule = new ColumnChooser(this, this.serviceLocator);
-        }
         this.notify(events.initialLoad, {});
         this.trigger(events.load);
         prepareColumns(this.columns as Column[], this.enableColumnVirtualization);
@@ -1949,7 +1978,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.destroyDependentModules();
         super.destroy();
         this.element.innerHTML = '';
-        classList(this.element, [], ['e-rtl', 'e-gridhover', 'e-responsive', 'e-default', 'e-device']);
+        classList(this.element, [], ['e-rtl', 'e-gridhover', 'e-responsive', 'e-default', 'e-device', 'e-grid-min-height']);
     }
 
     private destroyDependentModules(): void {
@@ -1988,13 +2017,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                         requireRefresh = true;
                     }
                     break;
+                case 'currencyCode':
                 case 'locale':
-                    this.localeObj.setLocale(newProp.locale);
-                    this.valueFormatterService.setCulture(newProp.locale);
-                    requireRefresh = true;
-                    if (this.toolbar) {
-                        this.notify(events.uiUpdate, { module: 'toolbar' });
-                    }
+                    super.refresh();
                     break;
                 case 'allowSorting':
                     this.notify(events.uiUpdate, { module: 'sort', enable: this.allowSorting });
@@ -2010,7 +2035,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.notify(events.uiUpdate, { module: 'scroll', properties: { width: newProp.width, height: newProp.height } });
                     break;
                 case 'allowReordering':
-                    this.notify(events.uiUpdate, { module: 'reorder', enable: this.allowReordering });
+                    this.headerModule.refreshUI();
                     checkCursor = true;
                     break;
                 case 'allowRowDragAndDrop':
@@ -2100,9 +2125,32 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'allowResizing':
                 this.headerModule.refreshUI();
+                this.updateResizeLines();
+                break;
+            case 'rowHeight':
+                if (this.rowHeight) {
+                    addClass([this.element], 'e-grid-min-height');
+                } else {
+                    removeClass([this.element], 'e-grid-min-height');
+                }
+                this.renderModule.refresh();
+                this.headerModule.refreshUI();
                 break;
             case 'gridLines':
                 this.updateGridLines();
+                break;
+            case 'showColumnMenu':
+                this.headerModule.refreshUI();
+                this.notify(events.uiUpdate, { module: 'columnMenu', enable: true });
+                break;
+            case 'columnMenuItems':
+                this.notify(events.uiUpdate, { module: 'columnMenu', enable: this.columnMenuItems });
+                break;
+            case 'contextMenuItems':
+                this.notify(events.uiUpdate, { module: 'contextMenu', enable: this.contextMenuItems });
+                break;
+            case 'showColumnChooser':
+                this.notify(events.uiUpdate, { module: 'columnChooser', enable: this.showColumnChooser });
                 break;
             case 'filterSettings':
                 this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
@@ -2156,6 +2204,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.updateColumnModel(columns[i].columns as Column[]);
             } else {
                 this.columnModel.push(columns[i] as Column);
+            }
+        }
+        this.updateFrozenColumns();
+    }
+
+    private updateFrozenColumns(): void {
+        let cols: Column[] = this.columnModel;
+        let count: number = 0;
+        for (let i: number = 0, len: number = cols.length; i < len; i++) {
+            if (cols[i].isFrozen) {
+                cols.splice(this.frozenColumns + count, 0, cols.splice(i, 1)[0]);
+                count++;
             }
         }
     }
@@ -2333,6 +2393,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
+     * Gets a movable tables row by index.
+     * @param  {number} index - Specifies the row index.
+     * @return {Element} 
+     */
+    public getMovableRowByIndex(index: number): Element {
+        return this.contentModule.getMovableRowByIndex(index);
+    }
+
+    /**
      * Gets all the Grid's content rows.
      * @return {Element[]} 
      */
@@ -2355,14 +2424,26 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 let cellIndex: number = parseInt(cell.getAttribute('aria-colindex'), 10);
                 let row: Element = closest(cell, '.e-row');
                 let rowIndex: number = parseInt(row.getAttribute('aria-rowindex'), 10);
-                let rowsObject: Object = (<Row<{}>[]>this.contentModule.getRows()).filter((r: Row<{}>) =>
-                    r.uid === row.getAttribute('data-uid'));
+                let frzCols: number = this.getFrozenColumns();
+                let isMovable: boolean = frzCols ? cellIndex >= frzCols : false;
+                let rows: Row<{}>[] = <Row<{}>[]>(isMovable ?
+                    this.contentModule.getMovableRows() : this.contentModule.getRows());
+                let rowsObject: Object = rows.filter((r: Row<{}>) => r.uid === row.getAttribute('data-uid'));
                 let rowData: Object = rowsObject[0].data;
-                let column: Column = rowsObject[0].cells[cellIndex].column as Column;
+                let column: Column =
+                    rowsObject[0].cells[isMovable ? cellIndex - frzCols : cellIndex].column as Column;
                 args = { cell: cell, cellIndex: cellIndex, row: row, rowIndex: rowIndex, rowData: rowData, column: column };
             }
         }
         return args;
+    }
+
+    /**
+     * Gets all the Grid's movable content rows.
+     * @return {Element[]} 
+     */
+    public getMovableRows(): Element[] {
+        return this.contentModule.getMovableRowElements();
     }
 
     /**
@@ -2371,12 +2452,47 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getDataRows(): Element[] {
         let rows: HTMLElement[] = [].slice.call(this.getContentTable().querySelector('tbody').children);
-        let dataRows: Element[] = [];
+        if (this.frozenRows) {
+            let freezeRows: HTMLElement[] = [].slice.call(this.getHeaderTable().querySelector('tbody').children);
+            rows = this.addMovableRows(freezeRows, rows);
+        }
+        let dataRows: Element[] = this.generateDataRows(rows);
+        return dataRows;
+    }
+
+    /**
+     * @hidden   
+     */
+    public addMovableRows(fRows: HTMLElement[], mrows: HTMLElement[]): HTMLElement[] {
+        for (let i: number = 0, len: number = mrows.length; i < len; i++) {
+            fRows.push(mrows[i]);
+        }
+        return fRows;
+    }
+
+    private generateDataRows(rows: HTMLElement[]): Element[] {
+        let dRows: Element[] = [];
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
             if (rows[i].classList.contains('e-row') && !rows[i].classList.contains('e-hiddenrow')) {
-                dataRows.push(rows[i] as Element);
+                dRows.push(rows[i] as Element);
             }
         }
+        return dRows;
+    }
+
+    /**
+     * Gets all the Grid's movable table data rows.
+     * @return {Element[]} 
+     */
+    public getMovableDataRows(): Element[] {
+        let rows: HTMLElement[] =
+            [].slice.call(this.getContent().querySelector('.e-movablecontent').querySelector('tbody').children);
+        if (this.frozenRows) {
+            let freezeRows: HTMLElement[] =
+                [].slice.call(this.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody').children);
+            rows = this.addMovableRows(freezeRows, rows);
+        }
+        let dataRows: Element[] = this.generateDataRows(rows);
         return dataRows;
     }
 
@@ -2388,6 +2504,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getCellFromIndex(rowIndex: number, columnIndex: number): Element {
         return this.getDataRows()[rowIndex].querySelectorAll('.e-rowcell')[columnIndex];
+    }
+
+    /**
+     * Gets a movable table cell by row and column index.
+     * @param  {number} rowIndex - Specifies the row index.
+     * @param  {number} columnIndex - Specifies the column index.
+     * @return {Element} 
+     */
+    public getMovableCellFromIndex(rowIndex: number, columnIndex: number): Element {
+        return this.getMovableDataRows()[rowIndex].querySelectorAll('.e-rowcell')[columnIndex - this.getFrozenColumns()];
     }
 
     /**
@@ -2403,7 +2529,19 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden   
      */
     public getRowObjectFromUID(uid: string): Row<Column> {
-        for (let row of this.contentModule.getRows() as Row<Column>[]) {
+        let rows: Row<Column>[] = this.contentModule.getRows() as Row<Column>[];
+        let row: Row<Column> = this.rowObject(rows, uid);
+        if (this.getFrozenColumns()) {
+            if (!row) {
+                row = this.rowObject(this.contentModule.getMovableRows() as Row<Column>[], uid);
+                return row;
+            }
+        }
+        return row;
+    }
+
+    private rowObject(rows: Row<Column>[], uid: string): Row<Column> {
+        for (let row of rows) {
             if (row.uid === uid) {
                 return row;
             }
@@ -2416,6 +2554,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getRowsObject(): Row<Column>[] {
         return this.contentModule.getRows() as Row<Column>[];
+    }
+
+    /**
+     * @hidden   
+     */
+    public getMovableRowsObject(): Row<Column>[] {
+        return this.contentModule.getMovableRows() as Row<Column>[];
     }
 
     /**
@@ -2588,6 +2733,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public refresh(): void {
         this.headerModule.refreshUI();
+        this.updateDefaultCursor();
         this.renderModule.refresh();
     }
 
@@ -2658,6 +2804,26 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public hideColumns(keys: string | string[], hideBy?: string): void {
         hideBy = hideBy ? hideBy : 'headerText';
         this.showHider.hide(keys, hideBy);
+    }
+
+    /** 
+     * @hidden
+     */
+    public getFrozenColumns(): number {
+        return this.frozenColumns + this.getFrozenCount(this.columns as Column[], 0);
+    }
+
+    private getFrozenCount(cols: Column[], cnt: number): number {
+        for (let i: number = 0, len: number = cols.length; i < len; i++) {
+            if (cols[i].columns) {
+                cnt = this.getFrozenCount(cols[i].columns as Column[], cnt);
+            } else {
+                if (cols[i].isFrozen) {
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
     }
 
     /** 
@@ -2985,6 +3151,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.parentDetails.parentKeyFieldValue;
             this.query.where(this.queryString, 'equal', value, true);
         }
+        this.initForeignColumn();
+    }
+
+    private initForeignColumn(): void {
+        if (this.isForeignKeyEnabled(this.getColumns())) {
+            this.notify(events.initForeignKeyColumn, this.getForeignKeyColumns());
+        }
     }
 
     private gridRender(): void {
@@ -2994,6 +3167,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         }
         if (Browser.isDevice) {
             this.element.classList.add('e-device');
+        }
+        if (this.rowHeight) {
+            this.element.classList.add('e-grid-min-height');
         }
         classList(this.element, ['e-responsive', 'e-default'], []);
         let rendererFactory: RendererFactory = this.serviceLocator.getService<RendererFactory>('rendererFactory');
@@ -3231,8 +3407,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             this.element.querySelectorAll('.e-cloneproperties').length || this.checkEdit(e)) {
             return;
         }
-        if (((!this.allowRowDragAndDrop && parentsUntil(e.target as Element, 'e-gridcontent')) ||
-            (!(this.allowGrouping || this.allowReordering) && parentsUntil(e.target as Element, 'e-gridheader'))) && e.touches) {
+        if (((!this.allowRowDragAndDrop && (parentsUntil(e.target as Element, 'e-gridcontent') ||
+            (e.target as Element).tagName === 'TD')) || (!(this.allowGrouping || this.allowReordering) &&
+                parentsUntil(e.target as Element, 'e-gridheader'))) && e.touches) {
             return;
         }
         if (parentsUntil(e.target as Element, 'e-gridheader') && this.allowRowDragAndDrop) {
@@ -3250,9 +3427,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private dblClickHandler(e: MouseEvent): void {
-        if (parentsUntil(e.target as Element, 'e-grid').id !== this.element.id || closest(<Node>e.target, '.e-unboundcelldiv')) {
+        let grid: Element = parentsUntil(e.target as Element, 'e-grid');
+        if (isNullOrUndefined(grid) || grid.id !== this.element.id || closest(<Node>e.target, '.e-unboundcelldiv')) {
             return;
         }
+        let args: RecordDoubleClickEventArgs = this.getRowInfo(e.target as Element) as RecordDoubleClickEventArgs;
+        args.target = e.target as Element;
+        this.trigger(events.recordDoubleClick, args);
         this.notify(events.dblclick, e);
     }
 
@@ -3304,6 +3485,24 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         return !isNullOrUndefined(this.detailTemplate) || !isNullOrUndefined(this.childGrid);
     }
 
+    private isCommandColumn(columns: Column[]): boolean {
+        return columns.some((col: Column) => {
+            if (col.columns) {
+                return this.isCommandColumn(col.columns as Column[]);
+            }
+            return !!(col.commands || col.commandsTemplate);
+        });
+    }
+
+    private isForeignKeyEnabled(columns: Column[]): boolean {
+        return columns.some((col: Column) => {
+            if (col.columns) {
+                return this.isForeignKeyEnabled(col.columns as Column[]);
+            }
+            return !!(col.dataSource && col.foreignKeyValue);
+        });
+    }
+
     private keyActionHandler(e: KeyboardEventArgs): void {
         if (this.isChildGrid(e) ||
             (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'shiftEnter'
@@ -3327,9 +3526,17 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private updateColumnObject(): void {
         prepareColumns(this.columns, this.enableColumnVirtualization);
-        if (this.editSettings.allowEditing || this.editSettings.allowAdding || this.editSettings.allowDeleting) {
-            this.notify(events.autoCol, {});
-        }
+        this.initForeignColumn();
+        this.notify(events.autoCol, {});
+    }
+    /**
+     * Gets the foreign columns from Grid.
+     * @return {Column[]}
+     */
+    public getForeignKeyColumns(): Column[] {
+        return this.getColumns().filter((col: Column) => {
+            return col.isForeignColumn();
+        });
     }
 
     /**
@@ -3339,53 +3546,48 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.updateColumnObject();
         this.refresh();
     }
-    /**
-     * Export Grid data to Excel file(.xlsx).
-     * @param  {exportProperties} exportProperties - Defines the export properties of the Grid.
-     * @param  {isMultipleExport} isMultipleExport - Define to enable multiple export.
-     * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
-     * @return {Promise<any>} 
-     */
-    /* tslint:disable-next-line:no-any */
-    public excelExport(exportProperties?: ExcelExportProperties, isMultipleExport?: boolean, workbook?: any): Promise<any> {
-        return this.excelExportModule.Map(this, exportProperties, isMultipleExport, workbook, false);
+     /**
+      * Export Grid data to Excel file(.xlsx).
+      * @param  {ExcelExportProperties} excelExportProperties - Defines the export properties of the Grid.
+      * @param  {boolean} isMultipleExport - Define to enable multiple export.
+      * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
+      * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.
+      * @return {Promise<any>} 
+      */
+    public excelExport(
+        excelExportProperties?: ExcelExportProperties, isMultipleExport?: boolean,
+        /* tslint:disable-next-line:no-any */
+        workbook?: any, isBlob?: boolean): Promise<any> {
+        return this.excelExportModule.Map(this, excelExportProperties, isMultipleExport, workbook, false, isBlob);
     }
 
     /**
      * Export Grid data to CSV file.
-     * @param  {exportProperties} exportProperties - Defines the export properties of the Grid.
-     * @param  {isMultipleExport} isMultipleExport - Define to enable multiple export.
+     * @param  {ExcelExportProperties} excelExportProperties - Defines the export properties of the Grid.
+     * @param  {boolean} isMultipleExport - Define to enable multiple export.
      * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
+     * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.
      * @return {Promise<any>} 
      */
-    /* tslint:disable-next-line:no-any */
-    public csvExport(exportProperties?: ExcelExportProperties, isMultipleExport?: boolean, workbook?: any): Promise<any> {
-        return this.excelExportModule.Map(this, exportProperties, isMultipleExport, workbook, true);
+    public csvExport(
+        excelExportProperties?: ExcelExportProperties,
+        /* tslint:disable-next-line:no-any */
+        isMultipleExport?: boolean, workbook?: any, isBlob?: boolean): Promise<any> {
+        return this.excelExportModule.Map(this, excelExportProperties, isMultipleExport, workbook, true, isBlob);
     }
     /**
      * Export Grid data to PDF document.
-     * @param  {exportProperties} exportProperties - Defines the export properties of the Grid.
+     * @param  {pdfExportProperties} PdfExportProperties - Defines the export properties of the Grid.
      * @param  {isMultipleExport} isMultipleExport - Define to enable multiple export.
      * @param  {pdfDoc} pdfDoc - Defined the Pdf Document if multiple export is enabled.
+     * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.a
      * @return {Promise<any>} 
      */
-    /* tslint:disable-next-line:no-any */
-    public pdfExport(exportProperties?: PdfExportProperties, isMultipleExport?: boolean, pdfDoc?: Object): Promise<Object> {
-        return this.pdfExportModule.Map(this, exportProperties, isMultipleExport, pdfDoc);
-    }
-
-    private isCommandColumn(columns: Column[]): boolean {
-        for (let column of columns) {
-            if ((<Column>column).columns) {
-                if (this.isCommandColumn(<Column[]>column.columns)) {
-                    return true;
-                }
-            } else if ((<Column>column).commands || column.commandsTemplate) {
-                return true;
-            }
-        }
-
-        return false;
+    public pdfExport(
+        pdfExportProperties?: PdfExportProperties,
+        /* tslint:disable-next-line:no-any */
+        isMultipleExport?: boolean, pdfDoc?: Object, isBlob?: boolean): Promise<Object> {
+        return this.pdfExportModule.Map(this, pdfExportProperties, isMultipleExport, pdfDoc, isBlob);
     }
 
     /** 

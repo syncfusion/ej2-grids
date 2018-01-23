@@ -157,7 +157,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
     }
 
     private extendPrepareHeader(column: Column, node: Element): Element {
-        if (this.parent.showColumnMenu && column.showColumnMenu) {
+        if (this.parent.showColumnMenu && column.showColumnMenu && !isNullOrUndefined(column.field)) {
             let element: Element = (createElement('div', { className: 'e-icons e-columnmenu' }));
             let matchFilteredColumns: Object[] = [];
             if (this.parent.filterSettings.columns.length && this.parent.filterSettings.columns.length !== matchFilteredColumns.length) {

@@ -6,6 +6,7 @@ import { createElement, remove } from '@syncfusion/ej2-base';
 import { Query } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { CellType } from '../../../src/grid/base/enum';
+import { createGrid, destroy } from '../base/specutil.spec';
 import { HeaderCellRenderer } from '../../../src/grid/renderer/header-cell-renderer';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
@@ -103,6 +104,38 @@ describe('header renderer module', () => {
 
         afterAll(() => {
             remove(elem);
+        });
+    });
+describe('EJ2-6660-Header template', () => {
+        let gridObj: Grid;
+        beforeAll((done: Function) => {
+            let template: Element = createElement('div', { id: 'template' });
+            template.innerHTML = '<span>$ShipCity$</span>';
+            document.body.appendChild(template);
+            gridObj = createGrid(
+                {
+                    dataSource: data, allowPaging: false,
+                    allowGrouping: true,
+                    showColumnMenu: true,
+                    columns: [
+                        { headerTemplate: '#template', headerText: 'Template column' },
+                        { field: 'EmployeeID' },
+                        { field: 'CustomerID', headerText: 'Customer ID' },
+
+                    ],
+                },
+                done
+            );
+
+        });
+
+        it('Template column shows sorting option in context menu', () => {
+            expect(gridObj.element.querySelectorAll('.e-columnmenu').length).toBe(2);
+
+        });
+
+        afterAll(() => {
+            destroy(gridObj)
         });
     });
 

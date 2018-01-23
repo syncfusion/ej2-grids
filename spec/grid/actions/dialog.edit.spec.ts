@@ -35,7 +35,7 @@ describe('Dialog Editing module', () => {
         return data;
     };
 
-    describe('Dialog editing render', () => {
+    describe('Dialog editing render => ', () => {
         let gridObj: Grid;
         let actionBegin: () => void;
         let actionComplete: () => void;
@@ -372,6 +372,35 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
             (gridObj.element.querySelector('#'+ gridObj.element.id +'_dialogEdit_wrapper').querySelectorAll('button') as any)[1].click();
+        });
+
+        it('check row selection on dialog close by esc and close icon', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'beginEdit') {
+                    let td = (gridObj.element.querySelector('#' + gridObj.element.id + '_dialogEdit_wrapper').querySelectorAll('td.e-rowcell') as any)[0];
+                    expect((td as HTMLElement).style.textAlign === 'left').toBe(true);
+                    (gridObj.element.querySelector('#' + gridObj.element.id + '_dialogEdit_wrapper').querySelectorAll('.e-dlg-closeicon-btn') as any)[0].click();
+                }
+                if (args.requestType === 'cancel') {
+                    expect(gridObj.getSelectedRecords().length).toBe(1);
+                    done();
+                }
+            };
+            gridObj.actionComplete = actionComplete;
+            (gridObj as any).dblClickHandler({ target: gridObj.element.querySelectorAll('.e-row')[1].firstElementChild });
+        });
+        it('enableRtl alignment check', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'beginEdit') {
+                    let td = (gridObj.element.querySelector('#' + gridObj.element.id + '_dialogEdit_wrapper').querySelectorAll('td.e-rowcell') as any)[0];
+                    expect((td as HTMLElement).style.textAlign === 'right').toBe(true);
+                    done();
+                }               
+            };
+            gridObj.enableRtl = true;
+            gridObj.dataBind();
+            gridObj.actionComplete = actionComplete;
+            (gridObj as any).dblClickHandler({ target: gridObj.element.querySelectorAll('.e-row')[1].firstElementChild });
         });
 
         afterAll((done) => {

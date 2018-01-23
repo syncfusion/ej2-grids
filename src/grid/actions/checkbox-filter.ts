@@ -1,6 +1,6 @@
 /* tslint:disable-next-line:max-line-length */
 import { EventHandler, L10n, isNullOrUndefined, extend, classList, addClass, removeClass, Browser, getValue, setValue } from '@syncfusion/ej2-base';
-import { parentsUntil, getUid, appendChildren } from '../base/util';
+import { parentsUntil, getUid, appendChildren, getDatePredicate } from '../base/util';
 import { remove, createElement } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
 import { DataUtil, Query, DataManager, Predicate } from '@syncfusion/ej2-data';
@@ -12,11 +12,12 @@ import * as events from '../base/constant';
 import { ServiceLocator } from '../services/service-locator';
 import { PredicateModel } from '../base/grid-model';
 import { ValueFormatter } from '../services/value-formatter';
-import { getActualProperties } from '../base/util';
+import { getActualProperties, getForeignData } from '../base/util';
+import { Column } from '../models/column';
 import { Dialog } from '@syncfusion/ej2-popups';
 import { Input } from '@syncfusion/ej2-inputs';
 import { createSpinner, hideSpinner, showSpinner } from '@syncfusion/ej2-popups';
-import { getFilterMenuPostion, toogleCheckbox, createCboxWithWrap, removeAddCboxClasses } from '../base/util';
+import { getFilterMenuPostion, toogleCheckbox, createCboxWithWrap, removeAddCboxClasses, getColumnByForeignKeyValue } from '../base/util';
 /**
  * @hidden
  * `CheckBoxFilter` module is used to handle filtering action.
@@ -39,6 +40,8 @@ export class CheckBoxFilter {
     protected sIcon: Element;
     protected options: IFilterArgs;
     protected filterSettings: FilterSettings;
+    protected existingPredicate: { [key: string]: PredicateModel[] } = {};
+    protected foreignKeyData: Object[];
     protected defaultConstants: Object = {
         Search: 'Search',
         OK: 'OK',
@@ -164,6 +167,7 @@ export class CheckBoxFilter {
 
     protected updateModel(options: IFilterArgs): void {
         this.options = options;
+        this.existingPredicate = options.actualPredicate || {};
         this.options.dataSource = options.dataSource;
         this.updateDataSource();
         this.options.type = options.type || 'string';
@@ -281,7 +285,12 @@ export class CheckBoxFilter {
     }
 
     private btnClick(e: MouseEvent): void {
-        let text: string = (e.target as HTMLInputElement).innerText.toLowerCase();
+        let text: string;
+        if ((e.target as HTMLElement).classList.contains('e-searchinput')) {
+            text = (e.target as HTMLInputElement).value;
+        } else {
+            text = (e.target as HTMLElement).firstChild.textContent.toLowerCase();
+        }
         if (this.getLocalizedLabel(this.isExcel ? 'OK' : 'Filter').toLowerCase() === text) {
             this.fltrBtnHandler();
         } else if (this.getLocalizedLabel('Clear').toLowerCase() === text) {
@@ -327,11 +336,11 @@ export class CheckBoxFilter {
         let predicate: PredicateModel;
         if (!isNullOrUndefined(firstVal)) {
             predicate = firstVal.ejpredicate ? firstVal.ejpredicate :
-                new Predicate(firstVal.field, firstVal.operator, firstVal.value, !firstVal.matchcase);
+                new Predicate(firstVal.field, firstVal.operator, firstVal.value, !firstVal.matchCase);
             for (let j: number = 1; j < fColl.length; j++) {
                 predicate = fColl[j].ejpredicate !== undefined ?
                     predicate[fColl[j].predicate](fColl[j].ejpredicate) :
-                    predicate[fColl[j].predicate](fColl[j].field, fColl[j].operator, fColl[j].value, !fColl[j].matchcase);
+                    predicate[fColl[j].predicate](fColl[j].field, fColl[j].operator, fColl[j].value, !fColl[j].matchCase);
             }
             let args: Object = {
                 action: 'filtering', filterCollection: fColl, field: this.options.field,
@@ -348,6 +357,7 @@ export class CheckBoxFilter {
         let operator: string = 'contains';
         let matchcase: boolean = true;
         parsed = (parsed === '' || parsed === undefined) ? undefined : parsed;
+        let predicte: Predicate = new Predicate(this.options.field, operator, parsed, matchcase);
         if (this.options.type === 'boolean') {
             if (parsed !== undefined &&
                 this.getLocalizedLabel('True').toLowerCase().indexOf((parsed as string).toLowerCase()) !== -1) {
@@ -356,6 +366,7 @@ export class CheckBoxFilter {
                 this.getLocalizedLabel('False').toLowerCase().indexOf((parsed as string).toLowerCase()) !== -1) {
                 parsed = 'false';
             }
+            predicte = new Predicate(this.options.field, operator, parsed, matchcase);
         }
         if (this.options.type === 'date' || this.options.type === 'datetime') {
             parsed = this.valueFormatter.fromView(val, this.options.parserFn, this.options.type);
@@ -363,9 +374,10 @@ export class CheckBoxFilter {
             if (isNullOrUndefined(parsed) && val.length) {
                 return;
             }
+            predicte = getDatePredicate({field: this.options.field, operator: operator, value: parsed, matchCase: matchcase});
         }
         if (val.length) {
-            query.where(this.options.field, operator, parsed, matchcase);
+            query.where(predicte);
         }
         this.processDataSource(query);
     }
@@ -373,14 +385,21 @@ export class CheckBoxFilter {
     private getPredicateFromCols(columns: Object[]): Predicate {
         let predicate: Predicate;
         let predicates: Predicate = CheckBoxFilter.getPredicate(columns);
+        let predicateList: Predicate[] = [];
+        let fPredicate: { predicate?: Predicate } = {};
+        let foreignColumn: Column[] = this.parent.getForeignKeyColumns();
         for (let prop of Object.keys(predicates)) {
-            let and: string = 'and';
-            let obj: Predicate | string = predicates[prop] as Predicate | string;
-            predicate = !isNullOrUndefined(predicate) ?
-                (predicate as Object)[and](obj as string) as Predicate :
-                obj as Predicate;
+            let col: Column = getColumnByForeignKeyValue(prop, foreignColumn);
+            if (col) {
+                this.parent.notify(events.generateQuery, { predicate: fPredicate, column: col });
+                if (fPredicate.predicate.predicates.length) {
+                    predicateList.push(Predicate.or(fPredicate.predicate.predicates));
+                }
+            } else {
+                predicateList.push(<Predicate>predicates[prop]);
+            }
         }
-        return predicate;
+        return predicateList.length && Predicate.and(predicateList);
     }
 
     private getAllData(): void {
@@ -388,17 +407,32 @@ export class CheckBoxFilter {
         query.requiresCount(); //consider take query
         this.options.dataSource = this.options.dataSource instanceof DataManager ?
             this.options.dataSource : new DataManager(this.options.dataSource as JSON[]);
-        let promise: Promise<Object> = this.options.dataSource.executeQuery(query);
-        promise.then((e: ReturnType) => this.dataSuccess(e));
+        let allPromise: Promise<Object>[] = [];
+        let runArray: Function[] = [];
+        if (this.options.column.isForeignColumn()) {
+            allPromise.push((<DataManager>this.options.column.dataSource).executeQuery(new Query()));
+            runArray.push((data: Object[]) => this.foreignKeyData = data);
+        }
+        allPromise.push(
+            this.options.dataSource.executeQuery(query)
+        );
+        runArray.push(this.dataSuccess.bind(this));
+        let i: number = 0;
+        Promise.all(allPromise).then((e: ReturnType[]) => {
+            e.forEach((data: ReturnType) => {
+                runArray[i++](data.result);
+            });
+        });
     }
 
-    private dataSuccess(e: ReturnType): void {
-        this.fullData = e.result;
+    private dataSuccess(e: Object[]): void {
+        this.fullData = e;
         let query: Query = new Query();
         if ((this.options.filteredColumns.length)) {
             let cols: Object[] = [];
             for (let i: number = 0; i < this.options.filteredColumns.length; i++) {
-                if ((this.options.filteredColumns[i] as { field: string }).field !== this.options.field) {
+                if (!((this.options.filteredColumns[i] as { field: string }).field === this.options.field ||
+                    (this.options.filteredColumns[i] as { field: string }).field === this.options.foreignKeyValue)) {
                     cols.push(this.options.filteredColumns[i]);
                 }
             }
@@ -409,7 +443,9 @@ export class CheckBoxFilter {
         }
         // query.select(this.options.field);
         let result: Object[] = new DataManager(this.fullData as JSON[]).executeLocal(query);
-        let res: { records: Object[] } = CheckBoxFilter.getDistinct(result, this.options.field) as { records: Object[] };
+        let col: Column = this.options.column;
+        let res: { records: Object[] } = CheckBoxFilter.getDistinct(result, this.options.field, col, this.foreignKeyData) as
+         { records: Object[] };
         this.filteredData = res.records;
 
         this.processDataSource(null, true);
@@ -447,7 +483,7 @@ export class CheckBoxFilter {
         }
         let result: Object[] = new DataManager(this.fullData as JSON[]).executeLocal(query);
         for (let res of result) {
-            this.result[res[this.options.field]] = true;
+            this.result[getValue(this.options.field, res)] = true;
         }
     }
 
@@ -510,8 +546,10 @@ export class CheckBoxFilter {
         } else if (selected) {
             className = ['e-stop'];
         } else {
+            className = ['e-uncheck'];
             btn.disabled = true;
         }
+        btn.dataBind();
         removeClass([elem], ['e-check', 'e-stop', 'e-uncheck']);
         addClass([elem], className);
     }
@@ -524,11 +562,15 @@ export class CheckBoxFilter {
                 createCboxWithWrap(getUid('cbox'), this.createCheckbox(this.getLocalizedLabel('SelectAll'), false), 'e-ftrchk');
             selectAll.querySelector('.e-frame').classList.add('e-selectall');
             cBoxes.appendChild(selectAll);
+            let predicate: Predicate = new Predicate('field', 'equal', this.options.field);
+            if (this.options.foreignKeyValue) {
+                predicate = predicate.or('field', 'equal', this.options.foreignKeyValue);
+            }
             let isColFiltered: number = new DataManager(this.options.filteredColumns as JSON[]).executeLocal(
-                new Query().where('field', 'equal', this.options.field)).length;
+                new Query().where(predicate)).length;
             for (let i: number = 0; i < data.length; i++) {
                 let uid: string = getUid('cbox');
-                this.values[uid] = getValue(this.options.field, data[i]);
+                this.values[uid] = getValue('ejValue', data[i]);
                 let value: string = this.valueFormatter.toView(getValue(this.options.field, data[i]), this.options.formatFn) as string;
                 cBoxes.appendChild(
                     createCboxWithWrap(uid, this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid])), 'e-ftrchk'));
@@ -555,24 +597,26 @@ export class CheckBoxFilter {
         }
     }
 
-    public static getDistinct(json: Object[], field: string): Object {
+    public static getDistinct(json: Object[], field: string, column?: Column, foreignKeyData?: Object[]): Object {
         let len: number = json.length;
         let result: Object[] = [];
         let value: string;
         let ejValue: string = 'ejValue';
         let lookup: Object = {};
+        let isForeignKey: boolean = column && column.isForeignColumn();
 
         while (len--) {
             value = json[len] as string;
-            value =  getValue(field, value); //local remote diff, check with mdu           
+            value = getValue(field, value); //local remote diff, check with mdu           
             if (!isNullOrUndefined(value)) {
                 if (!(value in lookup)) {
                     let obj: Object = {};
                     obj[ejValue] = value;
-                    setValue(field, value, obj);
+                    lookup[value] = true;
+                    value = isForeignKey ? getValue(column.foreignKeyValue, getForeignData(column, {}, value, foreignKeyData)[0]) : value;
+                    setValue(field, value || null, obj);
                     result.push(obj);
                 }
-                lookup[value] = true;
             }
         }
         return DataUtil.group(DataUtil.sort(result, field, DataUtil.fnAscending), 'ejValue');
@@ -632,7 +676,7 @@ export class CheckBoxFilter {
         } else {
             predicate = first.ejpredicate ? first.ejpredicate as Predicate :
                 new Predicate(
-                    first.field, first.operator, first.value, first.ignoreCase || !first.matchcase) as Predicate;
+                    first.field, first.operator, first.value, CheckBoxFilter.getCaseValue(first)) as Predicate;
         }
         for (let p: number = 1; p < len; p++) {
             cols[p] = CheckBoxFilter.updateDateFilter(cols[p]);
@@ -641,7 +685,7 @@ export class CheckBoxFilter {
                     predicate.predicates.push(CheckBoxFilter.getDatePredicate(cols[p]));
                 } else {
                     predicate.predicates.push(new Predicate(
-                        cols[p].field, cols[p].operator, cols[p].value, cols[p].ignoreCase || !cols[p].matchcase));
+                        cols[p].field, cols[p].operator, cols[p].value, CheckBoxFilter.getCaseValue(cols[p])));
                 }
             } else {
                 if (cols[p].type === 'date' || cols[p].type === 'datetime') {
@@ -651,18 +695,24 @@ export class CheckBoxFilter {
                     predicate = cols[p].ejpredicate ?
                         (predicate[(cols[p] as Predicate).predicate as string] as Function)(cols[p].ejpredicate) :
                         (predicate[(cols[p].predicate) as string] as Function)(
-                            cols[p].field, cols[p].operator, cols[p].value, cols[p].ignoreCase || !cols[p].matchcase);
+                            cols[p].field, cols[p].operator, cols[p].value, CheckBoxFilter.getCaseValue(cols[p]));
                 }
             }
         }
         return predicate || null;
     }
-
+    private static getCaseValue(filter: PredicateModel): boolean {
+        if (isNullOrUndefined(filter.ignoreCase) && isNullOrUndefined(filter.matchCase)) {
+            return false;
+        } else if (isNullOrUndefined(filter.ignoreCase)) {
+            return !filter.matchCase;
+        } else {
+            return filter.ignoreCase;
+        }
+    }
     private static getDatePredicate(predicate: PredicateModel): Predicate {
-        if (['equal', 'notequal'].indexOf(predicate.operator) === -1) {
-            if (predicate.value instanceof Date) {
-                predicate.ignoreCase = false;
-            }
+        if (predicate.value instanceof Date) {
+            predicate.ignoreCase = (['equal', 'notequal'].indexOf(predicate.operator) === -1) ? false : true;
         }
         return new Predicate(predicate.field, predicate.operator, predicate.value, predicate.ignoreCase);
     }

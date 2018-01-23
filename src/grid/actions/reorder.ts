@@ -38,12 +38,15 @@ export class Reorder implements IAction {
     }
 
     private chkDropPosition(srcElem: Element, destElem: Element): boolean {
-        return srcElem.parentElement.isEqualNode(destElem.parentElement) && this.targetParentContainerIndex(srcElem, destElem) > -1;
+        return (srcElem.parentElement.isEqualNode(destElem.parentElement) || (this.parent.getFrozenColumns()
+            && Array.prototype.indexOf.call(srcElem.closest('thead').children, srcElem.parentElement)
+            === Array.prototype.indexOf.call(destElem.closest('thead').children, destElem.parentElement)))
+            && this.targetParentContainerIndex(srcElem, destElem) > -1;
     }
 
     private chkDropAllCols(srcElem: Element, destElem: Element): boolean {
         let isFound: boolean;
-        let headers: Element[] = [].slice.call(this.parent.element.getElementsByClassName('e-headercell'));
+        let headers: Element[] = this.getHeaderCells();
         let header: Element;
         while (!isFound && headers.length > 0) {
             header = headers.pop();
@@ -92,7 +95,7 @@ export class Reorder implements IAction {
         }
         let destElem: Element = closestElement(e.target as Element, '.e-headercell');
         if (destElem && !(!this.chkDropPosition(this.element, destElem) || !this.chkDropAllCols(this.element, destElem))) {
-            let headers: Element[] = [].slice.call(this.parent.element.getElementsByClassName('e-headercell'));
+            let headers: Element[] = this.getHeaderCells();
             let oldIdx: number = getElementIndex(this.element, headers);
             let columns: Column[] = this.getColumnsModel(this.parent.columns as Column[]);
             let column: Column = columns[oldIdx];
@@ -126,7 +129,7 @@ export class Reorder implements IAction {
     }
 
     private targetParentContainerIndex(srcElem: Element, destElem: Element): number {
-        let headers: Element[] = [].slice.call(this.parent.element.getElementsByClassName('e-headercell'));
+        let headers: Element[] = this.getHeaderCells();
         let cols: Column[] = this.parent.columns as Column[];
         let flatColumns: Column[] = this.getColumnsModel(cols);
         let parent: Column = this.getColParent(flatColumns[getElementIndex(srcElem, headers)], cols);
@@ -135,6 +138,29 @@ export class Reorder implements IAction {
         return inArray(flatColumns[getElementIndex(destElem, headers)], cols);
     }
 
+    private getHeaderCells(): Element[] {
+        if (this.parent.getFrozenColumns()) {
+            let fTh: HTMLElement[];
+            let mTh: HTMLElement[];
+            let fHeaders: Element[] = [];
+            let fRows: Element[] = [].slice.call(this.parent.getHeaderTable().querySelectorAll('.e-columnheader'));
+            let mRows: Element[] = [].slice.call(this.parent.getHeaderContent()
+                .querySelector('.e-movableheader').querySelectorAll('.e-columnheader'));
+            for (let i: number = 0; i < fRows.length; i++) {
+                fTh = [].slice.call(fRows[i].getElementsByClassName('e-headercell'));
+                mTh = [].slice.call(mRows[i].getElementsByClassName('e-headercell'));
+                fHeaders = fHeaders.concat(fTh);
+                for (let j: number = 0; j < mTh.length; j++) {
+                    if (!fTh.length || j !== 0 || fTh[fTh.length - 1].innerText !== mTh[0].innerText) {
+                        fHeaders.push(mTh[j]);
+                    }
+                }
+            }
+            return fHeaders;
+        } else {
+            return [].slice.call(this.parent.element.getElementsByClassName('e-headercell'));
+        }
+    }
 
     private getColParent(column: Column, columns: Column[]): Column {
         let parents: Column[] = [];
@@ -225,13 +251,18 @@ export class Reorder implements IAction {
     }
 
     private updateScrollPostion(e: MouseEvent | TouchEvent): void {
+        let frzCols: number = this.parent.getFrozenColumns();
         let x: number = getPosition(e).x;
-        let cliRectBase: ClientRect = this.parent.element.getBoundingClientRect();
-        let scrollElem: Element = this.parent.getContent().firstElementChild;
-        if (x > cliRectBase.left && x < cliRectBase.left + 35) {
+        let cliRect: ClientRect = this.parent.element.getBoundingClientRect();
+        let cliRectBaseLeft: number = frzCols ? this.parent.element.querySelector('.e-movableheader')
+            .getBoundingClientRect().left : cliRect.left;
+        let cliRectBaseRight: number = cliRect.right;
+        let scrollElem: Element = frzCols ? this.parent.getContent().querySelector('.e-movablecontent')
+            : this.parent.getContent().firstElementChild;
+        if (x > cliRectBaseLeft && x < cliRectBaseLeft + 35) {
             this.timer = window.setInterval(
                 () => { this.setScrollLeft(scrollElem, true); }, 50);
-        } else if (x < cliRectBase.right && x > cliRectBase.right - 35) {
+        } else if (x < cliRectBaseRight && x > cliRectBaseRight - 35) {
             this.timer = window.setInterval(
                 () => { this.setScrollLeft(scrollElem, false); }, 50);
         }

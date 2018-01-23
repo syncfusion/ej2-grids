@@ -1,5 +1,5 @@
 import { IGrid } from '../base/interface';
-import { isNullOrUndefined, closest } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, closest, getValue } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { InlineEditRender } from './inline-edit-renderer';
 import { BatchEditRender } from './batch-edit-renderer';
@@ -55,22 +55,38 @@ export class EditRender {
         this.convertWidget(args);
     }
 
-    private convertWidget(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element, type?: string }): void {
+    private convertWidget(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element, type?: string,
+        foreignKeyData?: Object }): void {
         let gObj: IGrid = this.parent;
         let isFocused: boolean;
         let cell: HTMLElement;
         let value: string;
+        let fForm: Element;
+        let frzCols: number = gObj.getFrozenColumns();
         let form: Element = gObj.element.querySelector('.e-gridform');
+        if (frzCols && gObj.editSettings.mode === 'normal') {
+            let rowIndex: number = parseInt(args.row.getAttribute('aria-rowindex'), 10);
+            if (gObj.frozenRows && (args.requestType === 'add' || rowIndex < gObj.frozenRows)) {
+                fForm = gObj.element.querySelector('.e-movableheader').querySelector('.e-gridform');
+            } else {
+                fForm = gObj.element.querySelector('.e-movablecontent').querySelector('.e-gridform');
+            }
+        }
         let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
         for (let col of cols) {
             if (!col.visible || col.commands) {
                 continue;
             }
             value = col.valueAccessor(col.field, args.rowData, col) as string;
-            cell = form.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
+            if (frzCols && cols.indexOf(col) >= frzCols && gObj.editSettings.mode === 'normal') {
+                cell = fForm.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
+            } else {
+                cell = form.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
+            }
             let temp: Function = col.edit.write as Function;
             (col.edit.write as Function)({
-                rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row
+                rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
+                foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
             });
             if (!isFocused && !cell.getAttribute('disabled')) {
                 this.focusElement(cell as HTMLInputElement, args.type);

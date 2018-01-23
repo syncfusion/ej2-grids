@@ -35,6 +35,12 @@ describe('Template render module', () => {
             expect(gridObj.getHeaderTable().querySelectorAll('.e-headercelldiv')[1].innerHTML).toBe('<span class="e-headertext">Template column</span>');
         });
 
+        it('EJ2-7062 selection with template element testing', () => {
+            let trs = gridObj.getContent().querySelectorAll('tr');
+            trs[2].querySelector('div').click();
+            expect(gridObj.selectedRowIndex).toBe(2);
+        });
+
         afterAll(() => {
             remove(elem);
         });
@@ -165,7 +171,7 @@ describe('Template render module', () => {
 
         it('check caption template', () => {
             let rows: HTMLTableRowElement = (<any>(gridObj.getContentTable() as HTMLTableElement)
-            .querySelector('.e-summaryrow') as HTMLTableRowElement);
+                .querySelector('.e-summaryrow') as HTMLTableRowElement);
         });
 
         afterAll(() => {
@@ -196,7 +202,7 @@ describe('Template render module', () => {
 
         it('check caption template', () => {
             let rows: HTMLTableRowElement = (<any>(gridObj.getContentTable() as HTMLTableElement)
-            .querySelector('.e-summaryrow') as HTMLTableRowElement);
+                .querySelector('.e-summaryrow') as HTMLTableRowElement);
         });
 
         afterAll(() => {

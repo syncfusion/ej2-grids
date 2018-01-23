@@ -1,8 +1,9 @@
 import { L10n, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, getValue, extend, DateFormatOptions } from '@syncfusion/ej2-base';
 import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
 import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
+import { ValueFormatter } from '../services/value-formatter';
 import { RenderType, CellType } from '../base/enum';
 import { ReturnType } from '../base/type';
 import { Data } from '../actions/data';
@@ -11,7 +12,7 @@ import { Row } from '../models/row';
 import { Cell } from '../models/cell';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
-import { prepareColumns, calculateAggregate, setFormatter } from '../base/util';
+import { prepareColumns, calculateAggregate, setFormatter, getDatePredicate } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -27,6 +28,7 @@ import { HeaderIndentCellRenderer } from '../renderer/header-indent-renderer';
 import { DetailHeaderIndentCellRenderer } from '../renderer/detail-header-indent-renderer';
 import { DetailExpandCellRenderer } from '../renderer/detail-expand-cell-renderer';
 import { AriaService } from '../services/aria-service';
+import { PredicateModel } from '../base/grid-model';
 
 /**
  * Content module is used to render grid content
@@ -44,6 +46,7 @@ export class Render {
     public data: Data;
     private ariaService: AriaService;
     private renderer: RendererFactory;
+    private emptyGrid: boolean = false;
 
     /**
      * Constructor for render module
@@ -101,16 +104,61 @@ export class Render {
             this.parent.showSpinner();
         }
         this.parent.isEdit = false;
-        let ready: Promise<Object> = this.data.dataManager.ready;
+        this.emptyGrid = false;
+        let dataManager: Promise<Object>;
+        let isFActon: boolean = this.isNeedForeignAction();
         this.ariaService.setBusy(<HTMLElement>this.parent.getContent().firstChild, true);
-        let dataManager: Promise<Object> = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount());
-        if (!ready) {
-            if (this.parent.groupSettings.disablePageWiseAggregates && this.parent.groupSettings.columns.length) {
-                dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
-            }
-            dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))
-                .catch((e: ReturnType) => this.dataManagerFailure(e));
+        if (isFActon) {
+            let deffered: Deferred = new Deferred();
+            dataManager = this.getFData(deffered);
         }
+        if (!dataManager) {
+            dataManager = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount())
+                .catch((e: Object) => { this.parent.trigger(events.actionFailure, e); return e; });
+        } else {
+            dataManager = dataManager.then((e: Object) => {
+                let query: Query = this.data.generateQuery().requiresCount();
+                if (this.emptyGrid) {
+                    let def: Deferred = new Deferred();
+                    def.resolve(<ReturnType>{ result: [], count: 0 });
+                    return def.promise;
+                }
+                return this.data.getData(args as NotifyArgs, query);
+            }).catch((e: Object) => { this.parent.trigger(events.actionFailure, e); return e; });
+        }
+        if (this.parent.getForeignKeyColumns().length && (!isFActon || this.parent.searchSettings.key.length)) {
+            let deffered: Deferred = new Deferred();
+            dataManager = dataManager.then((e: ReturnType) => {
+                this.parent.notify(events.getForeignKeyData, { dataManager: dataManager, result: e, promise: deffered });
+                return deffered.promise;
+            });
+        }
+        if (this.parent.groupSettings.disablePageWiseAggregates && this.parent.groupSettings.columns.length) {
+            dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
+        }
+        dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))
+            .catch((e: ReturnType) => this.dataManagerFailure(e));
+    }
+
+    private getFData(deferred: Deferred): Promise<Object> {
+        this.parent.notify(events.getForeignKeyData, { isComplex: true, promise: deferred });
+        return deferred.promise;
+    }
+
+    private isNeedForeignAction(): boolean {
+        let gObj: IGrid = this.parent;
+        return !!((gObj.allowFiltering && gObj.filterSettings.columns.length) ||
+            (gObj.searchSettings.key.length)) && this.foreignKey(this.parent.getForeignKeyColumns());
+    }
+
+    private foreignKey(columns: Column[]): boolean {
+        return columns.some((col: Column) => {
+            let fbool: boolean = false;
+            fbool = this.parent.filterSettings.columns.some((value: PredicateModel) => {
+                return col.foreignKeyValue === value.field;
+            });
+            return !!(fbool || this.parent.searchSettings.key.length);
+        });
     }
 
     private sendBulkRequest(args?: { changes: Object }): void {
@@ -158,7 +206,7 @@ export class Render {
             this.parent.trigger(events.dataBound, {});
             this.parent.notify(
                 events.onEmpty,
-                { rows: [new Row<Column>({ isDataRow: true, cells: [new Cell<Column>({ isDataCell: true, visible: true })]})] }
+                { rows: [new Row<Column>({ isDataRow: true, cells: [new Cell<Column>({ isDataCell: true, visible: true })] })] }
             );
         }
     }
@@ -169,7 +217,8 @@ export class Render {
         let data: Object = record && (<{ items: Object[] }>record).items ? (<{ items: Object[] }>record).items[0] : record;
         let fmtr: IValueFormatter = this.locator.getService<IValueFormatter>('valueFormatter');
         for (let i: number = 0, len: number = columns.length; i < len; i++) {
-            value = getValue(columns[i].field || '', data);
+            value = columns[i].isForeignColumn() ? getValue(columns[i].foreignKeyValue || '', columns[i].columnData[0]) :
+                getValue(columns[i].field || '', data);
             if (!isNullOrUndefined(value)) {
                 this.isColTypeDef = true;
                 if (!columns[i].type) {
@@ -178,6 +227,11 @@ export class Render {
                 }
             } else {
                 columns[i].type = columns[i].type || null;
+            }
+            let valueFormatter: ValueFormatter = new ValueFormatter();
+            if (columns[i].format && ((<DateFormatOptions>columns[i].format).skeleton || (<DateFormatOptions>columns[i].format).format)) {
+                columns[i].setFormatter(valueFormatter.getFormatFunction(columns[i].format as DateFormatOptions));
+                columns[i].setParser(valueFormatter.getParserFunction(columns[i].format as DateFormatOptions));
             }
             if (typeof (columns[i].format) === 'string') {
                 setFormatter(this.locator, columns[i]);
@@ -196,6 +250,7 @@ export class Render {
         this.parent.notify(events.tooltipDestroy, {});
         gObj.currentViewData = <Object[]>e.result;
         if (!len && e.count && gObj.allowPaging) {
+            gObj.pageSettings.totalRecordsCount = e.count;
             gObj.pageSettings.currentPage = Math.ceil(e.count / gObj.pageSettings.pageSize);
             gObj.dataBind();
             return;
@@ -203,7 +258,7 @@ export class Render {
         if (!gObj.getColumns().length && len) {
             this.updatesOnInitialRender(e);
         }
-        if (!this.isColTypeDef) {
+        if (!this.isColTypeDef && gObj.getCurrentViewRecords()) {
             this.updateColumnType(gObj.getCurrentViewRecords()[0]);
         }
         this.parent.notify(events.dataReady, extend({ count: e.count, result: e.result, aggregates: e.aggregates }, args));
@@ -281,6 +336,7 @@ export class Render {
         this.parent.on(events.modelChanged, this.refresh, this);
         this.parent.on(events.refreshComplete, this.refreshComplete, this);
         this.parent.on(events.bulkSave, this.sendBulkRequest, this);
+        this.parent.on(events.showEmptyGrid, () => { this.emptyGrid = true; }, this);
     }
 
     /** @hidden */
@@ -316,7 +372,7 @@ export class Render {
 
     private getPredicate(key: string, operator: string, value: string | number | Date): Predicate {
         if (value instanceof Date) {
-            return this.data.getDatePredicate({ field: key, operator: operator, value: value });
+            return getDatePredicate({ field: key, operator: operator, value: value });
         }
         return new Predicate(key, operator, value);
     }

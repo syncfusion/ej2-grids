@@ -21,26 +21,22 @@ export class FreezeContentRender extends ContentRender implements IRenderer {
 
     public renderPanel(): void {
         super.renderPanel();
-        if (this.parent.frozenColumns) {
-            let fDiv: Element = createElement('div', { className: 'e-frozencontent' });
-            let mDiv: Element = createElement('div', { className: 'e-movablecontent' });
-            this.getPanel().firstChild.appendChild(fDiv);
-            this.getPanel().firstChild.appendChild(mDiv);
-            this.setFrozenContent(fDiv);
-            this.setMovableContent(mDiv);
-        }
+        let fDiv: Element = createElement('div', { className: 'e-frozencontent' });
+        let mDiv: Element = createElement('div', { className: 'e-movablecontent' });
+        this.getPanel().firstChild.appendChild(fDiv);
+        this.getPanel().firstChild.appendChild(mDiv);
+        this.setFrozenContent(fDiv);
+        this.setMovableContent(mDiv);
     }
 
     public renderEmpty(tbody: HTMLElement): void {
         super.renderEmpty(tbody);
-        if (this.parent.frozenColumns) {
-            this.getMovableContent().querySelector('tbody').innerHTML = '<tr><td></td></tr>';
-            if (this.parent.frozenRows) {
-                this.parent.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody').innerHTML = '';
-                this.parent.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody').innerHTML = '';
-            }
-        } else if (this.parent.frozenRows) {
-            this.parent.getHeaderContent().querySelector('tbody').innerHTML = '';
+        this.getMovableContent().querySelector('tbody').innerHTML = '<tr><td></td></tr>';
+        this.getFrozenContent().querySelector('.e-emptyrow').querySelector('td').colSpan = this.parent.getFrozenColumns();
+        (this.getFrozenContent() as HTMLElement).style.borderRightWidth = '0px';
+        if (this.parent.frozenRows) {
+            this.parent.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody').innerHTML = '';
+            this.parent.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody').innerHTML = '';
         }
     }
 
@@ -66,14 +62,13 @@ export class FreezeContentRender extends ContentRender implements IRenderer {
 
     public renderTable(): void {
         super.renderTable();
-        if (this.parent.frozenColumns) {
-            this.getFrozenContent().appendChild(this.getTable());
-            let mTbl: Element = this.getTable().cloneNode(true) as Element;
-            this.getMovableContent().appendChild(mTbl);
-        }
-        if (this.parent.frozenRows) {
-            (this.parent.getHeaderContent().firstChild as Element).classList.add('e-frozenhdrcont');
-        }
+        this.getFrozenContent().appendChild(this.getTable());
+        let mTbl: Element = this.getTable().cloneNode(true) as Element;
+        this.getMovableContent().appendChild(mTbl);
+        remove(this.getMovableContent().querySelector('colgroup'));
+        let colGroup: Element
+            = ((this.parent.getHeaderContent().querySelector('.e-movableheader').querySelector('colgroup')).cloneNode(true)) as Element;
+        mTbl.insertBefore(colGroup, mTbl.querySelector('tbody'));
     }
 }
 
@@ -93,6 +88,10 @@ export class FreezeRender extends HeaderRender implements IRenderer {
     public renderTable(): void {
         super.renderTable();
         this.rfshMovable();
+        this.updateColgroup();
+        this.initializeHeaderDrag();
+        this.initializeHeaderDrop();
+        this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: false } });
     }
 
     public renderPanel(): void {
@@ -106,19 +105,21 @@ export class FreezeRender extends HeaderRender implements IRenderer {
     }
 
     public refreshUI(): void {
-        this.getMovableHeader().innerHTML = '';
+        let tbody: Element = this.getMovableHeader().querySelector('tbody');
+        remove(this.getMovableHeader().querySelector('table'));
         super.refreshUI();
         this.rfshMovable();
-        let mTable: Element = this.getMovableHeader().querySelector('table');
-        remove(this.getMovableHeader().querySelector('colgroup'));
-        mTable.insertBefore(this.renderMovable(this.getFrozenHeader().querySelector('colgroup')), mTable.querySelector('thead'));
+        this.getMovableHeader().querySelector('tbody').innerHTML = tbody.innerHTML;
+        this.updateColgroup();
+        this.renderMovable(this.parent.getContentTable().querySelector('colgroup'));
+        this.initializeHeaderDrag();
+        this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: false } });
     }
 
     private rfshMovable(): void {
         this.getFrozenHeader().appendChild(this.getTable());
         this.getMovableHeader().appendChild(this.createTable());
-        this.refreshFreeze({ case: 'filter' });
-        this.parent.notify(events.freezeRefresh, {});
+        this.refreshStackedHdrHgt();
     }
 
     private refreshFreeze(obj: { case: string, isModeChg?: boolean }): void {
@@ -131,35 +132,42 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         } else if (obj.case === 'textwrap') {
             let fRows: NodeListOf<HTMLElement>;
             let mRows: NodeListOf<HTMLElement>;
+            let fHdr: Element = this.getFrozenHeader();
+            let mHdr: Element = this.getMovableHeader();
+            let cont: Element = this.parent.getContent();
             let wrapMode: string = this.parent.textWrapSettings.wrapMode;
+            let hdrClassList: DOMTokenList = (this.parent.getHeaderContent().firstChild as Element).classList;
             if (wrapMode !== 'header' || obj.isModeChg) {
-                fRows = this.parent.getContent()
-                    .querySelector('.e-frozencontent').querySelectorAll('tr') as NodeListOf<HTMLElement>;
-                mRows = this.parent.getContent()
-                    .querySelector('.e-movablecontent').querySelectorAll('tr') as NodeListOf<HTMLElement>;
+                fRows = cont.querySelector('.e-frozencontent').querySelectorAll('tr') as NodeListOf<HTMLElement>;
+                mRows = cont.querySelector('.e-movablecontent').querySelectorAll('tr') as NodeListOf<HTMLElement>;
                 this.setWrapHeight(fRows, mRows, obj.isModeChg, true);
             }
-            if (this.parent.frozenRows) {
-                if (wrapMode === 'content' && this.parent.allowTextWrap) {
-                    (this.parent.getHeaderContent().firstChild as Element).classList.add('e-wrap');
-                } else {
-                    (this.parent.getHeaderContent().firstChild as Element).classList.remove('e-wrap');
-                }
-                if (wrapMode === 'both' || obj.isModeChg) {
-                    fRows = this.getFrozenHeader().querySelectorAll('tr') as NodeListOf<HTMLElement>;
-                    mRows = this.getMovableHeader().querySelectorAll('tr') as NodeListOf<HTMLElement>;
-                } else {
-                    fRows = this.getFrozenHeader().querySelector(wrapMode === 'content' ? 'tbody' : 'thead')
-                        .querySelectorAll('tr') as NodeListOf<HTMLElement>;
-                    mRows = this.getMovableHeader().querySelector(wrapMode === 'content' ? 'tbody' : 'thead')
-                        .querySelectorAll('tr') as NodeListOf<HTMLElement>;
-                }
-                this.setWrapHeight(fRows, mRows, obj.isModeChg);
+            if (wrapMode === 'content' && this.parent.allowTextWrap) {
+                hdrClassList.add('e-wrap');
+            } else {
+                hdrClassList.remove('e-wrap');
             }
+            if (wrapMode === 'both' || obj.isModeChg) {
+                fRows = fHdr.querySelectorAll('tr') as NodeListOf<HTMLElement>;
+                mRows = mHdr.querySelectorAll('tr') as NodeListOf<HTMLElement>;
+            } else {
+                fRows = fHdr.querySelector(wrapMode === 'content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
+                mRows = mHdr.querySelector(wrapMode === 'content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
+            }
+            this.setWrapHeight(fRows, mRows, obj.isModeChg, false, this.colDepth > 1);
+            this.refreshStackedHdrHgt();
         }
     }
 
-    private setWrapHeight(fRows: NodeListOf<HTMLElement>, mRows: NodeListOf<HTMLElement>, isModeChg: boolean, isContReset?: boolean): void {
+    private updateResizeHandler(): void {
+        [].slice.call(this.parent.getHeaderContent().querySelectorAll('.e-rhandler')).forEach((ele: HTMLElement) => {
+            ele.style.height = ele.parentElement.offsetHeight + 'px';
+        });
+    }
+
+    private setWrapHeight(
+        fRows: NodeListOf<HTMLElement>, mRows: NodeListOf<HTMLElement>, isModeChg: boolean,
+        isContReset?: boolean, isStackedHdr?: boolean): void {
         let fRowHgt: number;
         let mRowHgt: number;
         let isWrap: boolean = this.parent.allowTextWrap;
@@ -168,18 +176,60 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         let tBody: Element = this.parent.getHeaderContent().querySelector('tbody');
         for (let i: number = 0, len: number = fRows.length; i < len; i++) {
             if (isModeChg && ((wrapMode === 'header' && isContReset) || ((wrapMode === 'content' && tHead.contains(fRows[i]))
-                || (wrapMode === 'header' && tBody.contains(fRows[i]))))) {
+            || (wrapMode === 'header' && tBody.contains(fRows[i])))) || isStackedHdr) {
                 fRows[i].style.height = null;
                 mRows[i].style.height = null;
             }
             fRowHgt = fRows[i].offsetHeight;
             mRowHgt = mRows[i].offsetHeight;
-            if ((isWrap && fRowHgt < mRowHgt) || (!isWrap && fRowHgt > mRowHgt)) {
+            if (fRows[i].childElementCount && ((isWrap && fRowHgt < mRowHgt) || (!isWrap && fRowHgt > mRowHgt))) {
                 fRows[i].style.height = mRowHgt + 'px';
-            } else if ((isWrap && fRowHgt > mRowHgt) || (!isWrap && fRowHgt < mRowHgt)) {
+            } else if (mRows[i].childElementCount && ((isWrap && fRowHgt > mRowHgt) || (!isWrap && fRowHgt < mRowHgt))) {
                 mRows[i].style.height = fRowHgt + 'px';
             }
         }
+    }
+
+    private refreshStackedHdrHgt(): void {
+        let fRowSpan: { min: number, max: number };
+        let mRowSpan: { min: number, max: number };
+        let fTr: NodeListOf<Element> = this.getFrozenHeader().querySelectorAll('.e-columnheader');
+        let mTr: NodeListOf<Element> = this.getMovableHeader().querySelectorAll('.e-columnheader');
+        for (let i: number = 0, len: number = fTr.length; i < len; i++) {
+            fRowSpan = this.getRowSpan(fTr[i]);
+            mRowSpan = this.getRowSpan(mTr[i]);
+            if (fRowSpan.min > 1) {
+                this.updateStackedHdrRowHgt(i, fRowSpan.max, fTr[i], mTr);
+            } else if (mRowSpan.min > 1) {
+                this.updateStackedHdrRowHgt(i, mRowSpan.max, mTr[i], fTr);
+            }
+        }
+        if (this.parent.allowResizing) {
+            this.updateResizeHandler();
+        }
+    }
+
+    private getRowSpan(row: Element): { min: number, max: number } {
+        let rSpan: number;
+        let minRowSpan: number;
+        let maxRowSpan: number;
+        for (let i: number = 0, len: number = row.childElementCount; i < len; i++) {
+            if (i === 0) {
+                minRowSpan = (row.children[0] as HTMLTableDataCellElement).rowSpan;
+            }
+            rSpan = (row.children[i] as HTMLTableDataCellElement).rowSpan;
+            minRowSpan = Math.min(rSpan, minRowSpan);
+            maxRowSpan = Math.max(rSpan, minRowSpan);
+        }
+        return { min: minRowSpan, max: maxRowSpan };
+    }
+
+    private updateStackedHdrRowHgt(idx: number, maxRowSpan: number, row: Element, rows: NodeListOf<Element>): void {
+        let height: number = 0;
+        for (let i: number = 0; i < maxRowSpan; i++) {
+            height += (rows[idx + i] as HTMLElement).offsetHeight;
+        }
+        (row as HTMLElement).style.height = height + 'px';
     }
 
     private setFrozenHeader(ele: Element): void {
@@ -198,12 +248,19 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         return this.movableHeader;
     }
 
+    private updateColgroup(): void {
+        let mTable: Element = this.getMovableHeader().querySelector('table');
+        remove(this.getMovableHeader().querySelector('colgroup'));
+        mTable.insertBefore(this.renderMovable(this.getFrozenHeader().querySelector('colgroup')), mTable.querySelector('thead'));
+    }
+
     private renderMovable(ele: Element): Element {
+        let frzCols: number = this.parent.getFrozenColumns();
         let mEle: Element = ele.cloneNode(true) as Element;
-        for (let i: number = 0; i < this.parent.frozenColumns; i++) {
+        for (let i: number = 0; i < frzCols; i++) {
             mEle.removeChild(mEle.children[0]);
         }
-        for (let i: number = this.parent.frozenColumns, len: number = ele.childElementCount; i < len; i++) {
+        for (let i: number = frzCols, len: number = ele.childElementCount; i < len; i++) {
             ele.removeChild(ele.children[ele.childElementCount - 1]);
         }
         return mEle;

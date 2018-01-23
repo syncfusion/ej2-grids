@@ -4,7 +4,7 @@ import {
 } from '../base/interface';
 import * as events from '../base/constant';
 import { Workbook } from '@syncfusion/ej2-excel-export';
-import { isNullOrUndefined, getEnumValue, compile, extend } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, getEnumValue, compile, extend, getValue } from '@syncfusion/ej2-base';
 import { Data } from '../actions/data';
 import { ReturnType } from '../base/type';
 import { ExportHelper, ExportValueFormatter } from './export-helper';
@@ -14,6 +14,8 @@ import { SummaryModelGenerator, GroupSummaryModelGenerator, CaptionSummaryModelG
 import { AggregateColumnModel } from '../models/aggregate-model';
 import { CellType, MultipleExportType } from '../base/enum';
 import { Query, DataManager } from '@syncfusion/ej2-data';
+import { Grid } from '../base/grid';
+
 /**
  * @hidden
  * `ExcelExport` module is used to handle the Excel export action.
@@ -39,15 +41,20 @@ export class ExcelExport {
     private expType: MultipleExportType = 'appendtosheet';
     private includeHiddenColumn: boolean = false;
     private isCsvExport: boolean = false;
+    private isBlob: boolean;
+    private blobPromise: Promise<{ blobData: Blob }>;
     private exportValueFormatter: ExportValueFormatter;
     private isElementIdChanged: boolean = false;
     private helper: ExportHelper;
+    private foreignKeyData: { [key: string]: Object[] } = {};
+
     /**
      * Constructor for the Grid Excel Export module.
      * @hidden
      */
     constructor(parent?: IGrid) {
         this.parent = parent;
+        this.helper = new ExportHelper(parent);
     }
     /**
      * For internal use only - Get the module name.
@@ -78,9 +85,8 @@ export class ExcelExport {
         this.expType = 'appendtosheet';
         this.includeHiddenColumn = false;
         this.exportValueFormatter = new ExportValueFormatter();
-        this.helper = new ExportHelper(gObj);
-        //this.theme = 'material';
     }
+
     /**
      * Export Grid to Excel file.
      * @param  {exportProperties} exportProperties - Defines the export properties of the Grid.
@@ -91,11 +97,12 @@ export class ExcelExport {
      */
     /* tslint:disable-next-line:max-line-length */
     /* tslint:disable-next-line:no-any */
-    public Map(grid: IGrid, exportProperties: any, isMultipleExport: boolean, workbook: any, isCsv: boolean): Promise<any> {
+    public Map(grid: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any, isCsv: boolean, isBlob: boolean): Promise<any> {
         let gObj: IGrid = grid;
         gObj.trigger(events.beforeExcelExport);
         this.data = new Data(gObj);
         this.isExporting = true;
+        this.isBlob = isBlob;
         if (isCsv) {
             this.isCsvExport = isCsv;
         } else {
@@ -106,14 +113,14 @@ export class ExcelExport {
     }
     /* tslint:disable-next-line:no-any */
     private processRecords(gObj: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any): Promise<any> {
-        if (exportProperties !== undefined && exportProperties.dataSource !== undefined &&
+        if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.dataSource) &&
             exportProperties.dataSource instanceof DataManager) {
             /* tslint:disable-next-line:no-any */
             let promise: Promise<any>;
             return promise = new Promise((resolve: Function, reject: Function) => {
                 /* tslint:disable-next-line:max-line-length */
                 /* tslint:disable-next-line:no-any */
-                let dataManager: any = new DataManager({ url: (exportProperties.dataSource as DataManager).dataSource.url, adaptor: (exportProperties.dataSource as DataManager).adaptor }).executeQuery(new Query());
+                let dataManager: any = (exportProperties.dataSource as DataManager).executeQuery(new Query());
                 dataManager.then((r: ReturnType) => {
                     this.init(gObj);
                     this.processInnerRecords(gObj, exportProperties, isMultipleExport, workbook, r);
@@ -124,13 +131,18 @@ export class ExcelExport {
         } else {
             /* tslint:disable-next-line:no-any */
             let promise: Promise<any>;
-            return promise = new Promise((resolve: Function, reject: Function) => {
-                let dataManager: Promise<Object> = this.data.getData({}, ExportHelper.getQuery(gObj, this.data));
-                dataManager.then((r: ReturnType) => {
+            let allPromise: Promise<Object>[] = [];
+            allPromise.push(this.data.getData({}, ExportHelper.getQuery(gObj, this.data)));
+            allPromise.push(this.helper.getColumnData(<Grid>gObj));
+            let bool: boolean = true;
+            return Promise.all(allPromise).then((e: ReturnType[]) => {
+                if (bool) {
                     this.init(gObj);
-                    this.processInnerRecords(gObj, exportProperties, isMultipleExport, workbook, r);
-                    resolve(this.book);
-                });
+                    this.processInnerRecords(gObj, exportProperties, isMultipleExport, workbook, e[0]);
+                    bool = false;
+                }
+            }).catch((e: Error) => {
+                this.parent.trigger(events.actionFailure, e);
             });
         }
     }
@@ -139,14 +151,14 @@ export class ExcelExport {
     /* tslint:disable-next-line:no-any */
     private processInnerRecords(gObj: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any, r: ReturnType): any {
         let blankRows: number = 5;
-        if (exportProperties !== undefined && exportProperties.multipleExport !== undefined) {
+        if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.multipleExport)) {
             /* tslint:disable-next-line:max-line-length */
-            this.expType = (exportProperties.multipleExport.type !== undefined ? exportProperties.multipleExport.type : 'appendtosheet');
-            if (exportProperties.multipleExport.blankRows !== undefined) {
+            this.expType = (!isNullOrUndefined(exportProperties.multipleExport.type) ? exportProperties.multipleExport.type : 'appendtosheet');
+            if (!isNullOrUndefined(exportProperties.multipleExport.blankRows)) {
                 blankRows = exportProperties.multipleExport.blankRows;
             }
         }
-        if (workbook === undefined) {
+        if (isNullOrUndefined(workbook)) {
             this.workSheet = [];
             this.rows = [];
             this.columns = [];
@@ -165,12 +177,12 @@ export class ExcelExport {
             this.rowLength++;
         }
 
-        if (exportProperties !== undefined) {
-            if (isMultipleExport !== undefined) {
-                if (exportProperties.header !== undefined && (isMultipleExport || this.expType === 'newsheet')) {
+        if (!isNullOrUndefined(exportProperties)) {
+            if (!isNullOrUndefined(isMultipleExport)) {
+                if (!isNullOrUndefined(exportProperties.header) && (isMultipleExport || this.expType === 'newsheet')) {
                     this.processExcelHeader(JSON.parse(JSON.stringify(exportProperties.header)));
                 }
-                if (exportProperties.footer !== undefined) {
+                if (!isNullOrUndefined(exportProperties.footer)) {
                     if (this.expType === 'appendtosheet') {
                         if (!isMultipleExport) {
                             this.footer = JSON.parse(JSON.stringify(exportProperties.footer));
@@ -180,36 +192,36 @@ export class ExcelExport {
                     }
                 }
             } else {
-                if (exportProperties.header !== undefined) {
+                if (!isNullOrUndefined(exportProperties.header)) {
                     this.processExcelHeader(JSON.parse(JSON.stringify(exportProperties.header)));
                 }
-                if (exportProperties.footer !== undefined) {
+                if (!isNullOrUndefined(exportProperties.footer)) {
                     this.footer = JSON.parse(JSON.stringify(exportProperties.footer));
                 }
             }
         }
-        this.includeHiddenColumn = (exportProperties !== undefined ? exportProperties.includeHiddenColumn : false);
+        this.includeHiddenColumn = (!isNullOrUndefined(exportProperties) ? exportProperties.includeHiddenColumn : false);
         /* tslint:disable-next-line:max-line-length */
         /* tslint:disable-next-line:no-any */
         let headerRow: { rows: any[], columns: Column[] } = this.helper.getHeaders(gObj.columns, this.includeHiddenColumn);
         let groupIndent: number = 0;
         /* tslint:disable:no-any */
-        if (((r.result) as any).level !== undefined) {
+        if (!isNullOrUndefined(((r.result) as any).level)) {
             groupIndent += ((r.result) as any).level;
             groupIndent += ((r.result) as any).childLevels;
         }
         /* tslint:enable:no-any */
         this.processHeaderContent(gObj, headerRow, exportProperties, groupIndent);
         /* tslint:disable-next-line:max-line-length */
-        if (exportProperties !== undefined && exportProperties.dataSource !== undefined && !(exportProperties.dataSource instanceof DataManager)) {
+        if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.dataSource) && !(exportProperties.dataSource instanceof DataManager)) {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties.dataSource as Object[]);
-        } else if (exportProperties !== undefined && exportProperties.exportType === 'currentpage') {
+        } else if (!isNullOrUndefined(exportProperties) && exportProperties.exportType === 'currentpage') {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport, gObj.getCurrentViewRecords());
         } else {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport);
         }
         this.isExporting = false;
-        gObj.trigger(events.excelExportComplete);
+        gObj.trigger(events.excelExportComplete, this.isBlob ? { promise: this.blobPromise } : {});
 
     }
     /* tslint:disable-next-line:max-line-length */
@@ -220,29 +232,27 @@ export class ExcelExport {
 
         /* tslint:disable-next-line:no-any */
         let record: any = undefined;
-        if (currentViewRecords !== undefined) {
+        if (!isNullOrUndefined(currentViewRecords)) {
             record = currentViewRecords;
         } else {
             record = returnType.result;
         }
 
-        if (record.level !== undefined) {
+        if (!isNullOrUndefined(record.level)) {
             this.processGroupedRows(gObj, record, headerRow, record.level);
         } else {
             this.processRecordRows(gObj, record, headerRow, 0);
-            if (returnType.aggregates !== undefined) {
-                if (currentViewRecords !== undefined) {
-                    this.processAggregates(gObj, returnType.result, currentViewRecords);
-                } else {
-                    this.processAggregates(gObj, returnType.result);
-                }
+        }
+        if (!isNullOrUndefined(returnType.aggregates)) {
+            if (!isNullOrUndefined(currentViewRecords)) {
+                this.processAggregates(gObj, returnType.result, currentViewRecords);
+            } else {
+                this.processAggregates(gObj, returnType.result);
             }
         }
 
-
-
         //footer template add
-        if (this.footer !== undefined) {
+        if (!isNullOrUndefined(this.footer)) {
             if ((this.expType === 'appendtosheet' && !isMultipleExport) || (this.expType === 'newsheet')) {
                 this.processExcelFooter(this.footer);
             }
@@ -262,10 +272,19 @@ export class ExcelExport {
         if (!isMultipleExport) {
             if (this.isCsvExport) {
                 let book: Workbook = new Workbook(this.book, 'csv');
-                book.save('Export.csv');
+                if (!this.isBlob) {
+                    book.save('Export.csv');
+                } else {
+                    this.blobPromise = book.saveAsBlob('text/csv');
+                }
+
             } else {
                 let book: Workbook = new Workbook(this.book, 'xlsx');
-                book.save('Export.xlsx');
+                if (!this.isBlob) {
+                    book.save('Export.xlsx');
+                } else {
+                    this.blobPromise = book.saveAsBlob('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                }
             }
             if (this.isElementIdChanged) {
                 gObj.element.id = '';
@@ -281,12 +300,13 @@ export class ExcelExport {
             /* tslint:disable-next-line:no-any */
             let cell: any = {};
             cell.index = index + level;
-
+            let col: Column = gObj.getColumnByField(item.field);
             /* tslint:disable-next-line:no-any */
             let args: any = {
                 value: item.key,
-                column: gObj.getColumnByField(item.field),
-                style: undefined
+                column: col,
+                style: undefined,
+                isForeignKey: col.isForeignColumn(),
             };
 
             cell.value = item.field + ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
@@ -298,13 +318,12 @@ export class ExcelExport {
             cell.style = this.getCaptionThemeStyle(this.theme);
             let captionModelGen: CaptionSummaryModelGenerator = new CaptionSummaryModelGenerator(gObj);
             let groupCaptionSummaryRows: Row<AggregateColumnModel>[] = captionModelGen.generateRows(item);
-
             this.fillAggregates(gObj, groupCaptionSummaryRows, dataSource.level + dataSource.childLevels, this.rowLength);
             cells.push(cell);
-            if (this.rows[this.rowLength - 1].cells.length > 0) {
+            if (this.rows[this.rows.length - 1].cells.length > 0) {
                 let lIndex: number = dataSource.level + dataSource.childLevels + groupCaptionSummaryRows[0].cells.length;
                 let hIndex: number = 0;
-                for (let tCell of this.rows[this.rowLength - 1].cells) {
+                for (let tCell of this.rows[this.rows.length - 1].cells) {
                     if (tCell.index < lIndex) {
                         lIndex = tCell.index;
                     }
@@ -312,12 +331,14 @@ export class ExcelExport {
                         hIndex = tCell.index;
                     }
                     tCell.style = this.getCaptionThemeStyle(this.theme);
-                    cells.push(tCell);
+                    if (cells[cells.length - 1].index !== tCell.index) {
+                        cells.push(tCell);
+                    }
                 }
                 if ((lIndex - cell.index) > 1) {
                     cell.colSpan = lIndex - cell.index;
                 }
-                while (hIndex < (headerRow.columns.length + index + level)) {
+                while (hIndex < (headerRow.columns.length + level)) {
                     /* tslint:disable-next-line:no-any */
                     let sCell: any = {};
                     if (dataSource.childLevels === 0) {
@@ -339,16 +360,16 @@ export class ExcelExport {
                 }
                 cell.colSpan = (dataSource.childLevels + span);
             }
-            this.rows[this.rowLength - 1].cells = cells;
+            this.rows[this.rows.length - 1].cells = cells;
             this.rowLength++;
 
 
 
-            if (dataSource.childLevels !== undefined && dataSource.childLevels > 0) {
+            if (!isNullOrUndefined(dataSource.childLevels) && dataSource.childLevels > 0) {
                 this.processGroupedRows(gObj, item.items, headerRow, item.items.level);
             } else {
                 this.processRecordRows(gObj, item.items, headerRow, (level));
-                this.processAggregates(gObj, item, undefined, (level));
+                this.processAggregates(gObj, item, undefined, (level), true);
             }
         }
     }
@@ -363,10 +384,17 @@ export class ExcelExport {
             index = 1;
             for (let c: number = 0, len: number = headerRow.columns.length; c < len; c++) {
                 /* tslint:disable-next-line:no-any */
-                let value: any = record[r][headerRow.columns[c].field];
+                let value: any = getValue(headerRow.columns[c].field, record[r]);
+                let column: Column = headerRow.columns[c] as Column;
+                let foreignKeyData: Object;
+                // tslint:disable-next-line:max-line-length
+                if (column.isForeignColumn && column.isForeignColumn()) {
+                    foreignKeyData = this.helper.getFData(value, column);
+                    value = getValue(column.foreignKeyValue, foreignKeyData);
+                }
                 if (!isNullOrUndefined(value)) {
                     /* tslint:disable-next-line:no-any */
-                    let excelCellArgs: any = { data: record[r], column: headerRow.columns[c] };
+                    let excelCellArgs: any = { data: record[r], column: headerRow.columns[c], foreignKeyData: foreignKeyData };
                     gObj.trigger(events.excelQueryCellInfo, extend(
                         excelCellArgs,
                         <ExcelQueryCellInfoEventArgs>{
@@ -380,7 +408,7 @@ export class ExcelExport {
                     if (excelCellArgs.colSpan > 1) {
                         cell.colSpan = excelCellArgs.colSpan;
                     }
-                    if (excelCellArgs.style !== undefined) {
+                    if (!isNullOrUndefined(excelCellArgs.style)) {
                         let styleIndex: number = this.getColumnStyle(gObj, index + level);
                         cell.style = this.mergeOptions(this.styles[styleIndex], excelCellArgs.style);
                     } else {
@@ -395,12 +423,12 @@ export class ExcelExport {
         }
     }
     /* tslint:disable-next-line:no-any */
-    private processAggregates(gObj: IGrid, rec: any, currentViewRecords?: Object[], indent?: number): void {
+    private processAggregates(gObj: IGrid, rec: any, currentViewRecords?: Object[], indent?: number, byGroup?: boolean): void {
         let summaryModel: SummaryModelGenerator = new SummaryModelGenerator(gObj);
 
         /* tslint:disable-next-line:no-any */
         let data: any = undefined;
-        if (currentViewRecords !== undefined) {
+        if (!isNullOrUndefined(currentViewRecords)) {
             data = currentViewRecords;
         } else {
             data = rec;
@@ -408,17 +436,20 @@ export class ExcelExport {
         if (indent === undefined) {
             indent = 0;
         }
-        if (gObj.groupSettings.columns.length > 0) {
+        if (gObj.groupSettings.columns.length > 0 && byGroup) {
             let groupSummaryModel: GroupSummaryModelGenerator = new GroupSummaryModelGenerator(gObj);
             let groupSummaryRows: Row<AggregateColumnModel>[] = groupSummaryModel.generateRows(<Object>data, { level: data.level });
             if (groupSummaryRows.length > 0) {
                 this.fillAggregates(gObj, groupSummaryRows, indent);
             }
+        } else {
+            indent = gObj.groupSettings.columns.length > 0 && !byGroup ? gObj.groupSettings.columns.length : indent;
+            let sRows: Row<AggregateColumnModel>[] = summaryModel.generateRows(data, <SummaryData>rec.aggregates);
+            if (sRows.length > 0 && !byGroup) {
+                this.fillAggregates(gObj, sRows, indent);
+            }
         }
-        let sRows: Row<AggregateColumnModel>[] = summaryModel.generateRows(data, <SummaryData>rec.aggregates);
-        if (sRows.length > 0) {
-            this.fillAggregates(gObj, sRows, indent);
-        }
+
     }
     /* tslint:disable-next-line:no-any */
     private fillAggregates(gObj: IGrid, cells: any, indent: number, customIndex?: number): void {
@@ -433,47 +464,52 @@ export class ExcelExport {
                     index++;
                     if (cell.isDataCell) {
                         eCell.index = index + indent;
-                        if (cell.column.footerTemplate !== undefined) {
+                        if (!isNullOrUndefined(cell.column.footerTemplate)) {
                             eCell.value = this.getAggreateValue(CellType.Summary, cell.column.footerTemplate, cell, row);
-                        } else if (cell.column.groupFooterTemplate !== undefined) {
+                        } else if (!isNullOrUndefined(cell.column.groupFooterTemplate)) {
                             eCell.value = this.getAggreateValue(CellType.GroupSummary, cell.column.groupFooterTemplate, cell, row);
-                        } else if (cell.column.groupCaptionTemplate !== undefined) {
+                        } else if (!isNullOrUndefined(cell.column.groupCaptionTemplate)) {
                             eCell.value = this.getAggreateValue(CellType.CaptionSummary, cell.column.groupCaptionTemplate, cell, row);
                         } else {
                             for (let key of Object.keys(row.data[cell.column.field])) {
                                 if (key === cell.column.type) {
-                                    if (row.data[cell.column.field].sum !== undefined) {
+                                    if (!isNullOrUndefined(row.data[cell.column.field].sum)) {
                                         eCell.value = row.data[cell.column.field].sum;
-                                    } else if (row.data[cell.column.field].average !== undefined) {
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].average)) {
                                         eCell.value = row.data[cell.column.field].average;
-                                    } else if (row.data[cell.column.field].max !== undefined) {
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].max)) {
                                         eCell.value = row.data[cell.column.field].max;
-                                    } else if (row.data[cell.column.field].min !== undefined) {
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].min)) {
                                         eCell.value = row.data[cell.column.field].min;
-                                    } else if (row.data[cell.column.field].count !== undefined) {
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].count)) {
                                         eCell.value = row.data[cell.column.field].count;
-                                    } else if (row.data[cell.column.field].truecount !== undefined) {
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].truecount)) {
                                         eCell.value = row.data[cell.column.field].truecount;
-                                    } else if (row.data[cell.column.field].falsecount !== undefined) {
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].falsecount)) {
                                         eCell.value = row.data[cell.column.field].falsecount;
-                                    } else if (row.data[cell.column.field].custom !== undefined) {
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].custom)) {
                                         eCell.value = row.data[cell.column.field].custom;
                                     }
                                 }
                             }
                         }
                         eCell.style = this.getCaptionThemeStyle(this.theme); //{ name: gObj.element.id + 'column' + index };
+                        if (cell.attributes.style.textAlign) {
+                            eCell.style.hAlign = cell.attributes.style.textAlign;
+                        }
                         cells.push(eCell);
+
                     } else {
                         if (customIndex === undefined) {
                             eCell.index = index + indent;
                             eCell.style = this.getCaptionThemeStyle(this.theme); //{ name: gObj.element.id + 'column' + index };
                             cells.push(eCell);
+
                         }
                     }
                 }
             }
-            if (customIndex !== undefined) {
+            if (!isNullOrUndefined(customIndex)) {
                 this.rows.push({ index: customIndex, cells: cells });
             } else {
                 this.rows.push({ index: this.rowLength++, cells: cells });
@@ -560,7 +596,7 @@ export class ExcelExport {
                         break;
                     }
                 }
-                if (gridCell.rowSpan !== undefined && gridCell.rowSpan !== 1) {
+                if (!isNullOrUndefined(gridCell.rowSpan) && gridCell.rowSpan !== 1) {
                     cell.rowSpan = gridCell.rowSpan;
                     for (let i: number = rowIndex; i < gridCell.rowSpan + rowIndex; i++) {
                         /* tslint:disable-next-line:no-any */
@@ -570,19 +606,19 @@ export class ExcelExport {
                         spannedCells.push(spannedCell);
                     }
                 }
-                if (gridCell.colSpan !== undefined && gridCell.colSpan !== 1) {
+                if (!isNullOrUndefined(gridCell.colSpan) && gridCell.colSpan !== 1) {
                     cell.colSpan = gridCell.colSpan;
                     currentCellIndex = currentCellIndex + cell.colSpan - 1;
                 }
                 cell.value = gridCell.column.headerText;
-                if (exportProperties !== undefined && exportProperties.theme !== undefined) {
+                if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.theme)) {
                     this.theme = exportProperties.theme;
                 }
-                cell.style = this.getHeaderThemeStyle(this.theme);
-                if (gridCell.column.textAlign !== undefined) {
+                style = this.getHeaderThemeStyle(this.theme);
+                if (!isNullOrUndefined(gridCell.column.textAlign)) {
                     style.hAlign = gridCell.column.textAlign;
                 }
-                if (gridCell.column.headerTextAlign !== undefined) {
+                if (!isNullOrUndefined(gridCell.column.headerTextAlign)) {
                     style.hAlign = gridCell.column.headerTextAlign;
                 }
                 cell.style = style;
@@ -597,34 +633,33 @@ export class ExcelExport {
             this.parseStyles(gObj, gridColumns[col], this.getRecordThemeStyle(this.theme), indent + col + 1);
         }
     }
-
     /* tslint:disable-next-line:no-any */
     private getHeaderThemeStyle(theme: Theme): any {
         /* tslint:disable-next-line:no-any */
         let style: any = {};
         style.fontSize = 12;
         style.borders = { color: '#E0E0E0' };
-        if (theme !== undefined && theme.header !== undefined) {
+        if (!isNullOrUndefined(theme) && !isNullOrUndefined(theme.header)) {
             style = this.updateThemeStyle(theme.header, style);
         }
         return style;
     }
     /* tslint:disable-next-line:no-any */
     private updateThemeStyle(themestyle: ThemeStyle, style: any): any {
-        if (themestyle.fontColor !== undefined) {
+        if (!isNullOrUndefined(themestyle.fontColor)) {
             style.fontColor = themestyle.fontColor;
         }
-        if (themestyle.fontName !== undefined) {
+        if (!isNullOrUndefined(themestyle.fontName)) {
             style.fontName = themestyle.fontName;
         }
-        if (themestyle.fontSize !== undefined) {
+        if (!isNullOrUndefined(themestyle.fontSize)) {
             style.fontSize = themestyle.fontSize;
         }
-        if (themestyle.borders !== undefined) {
-            if (themestyle.borders.color !== undefined) {
+        if (!isNullOrUndefined(themestyle.borders)) {
+            if (!isNullOrUndefined(themestyle.borders.color)) {
                 style.borders.color = themestyle.borders.color;
             }
-            if (themestyle.borders.lineStyle !== undefined) {
+            if (!isNullOrUndefined(themestyle.borders.lineStyle)) {
                 style.borders.lineStyle = themestyle.borders.lineStyle;
             }
         }
@@ -639,7 +674,7 @@ export class ExcelExport {
         let style: any = {};
         style.fontSize = 13;
         style.backColor = '#F6F6F6';
-        if (theme !== undefined && theme.caption !== undefined) {
+        if (!isNullOrUndefined(theme) && !isNullOrUndefined(theme.caption)) {
             style = this.updateThemeStyle(theme.caption, style);
         }
         return style;
@@ -650,14 +685,14 @@ export class ExcelExport {
         let style: any = {};
         style.fontSize = 13;
         style.borders = { color: '#E0E0E0' };
-        if (theme !== undefined && theme.record !== undefined) {
+        if (!isNullOrUndefined(theme) && !isNullOrUndefined(theme.record)) {
             style = this.updateThemeStyle(theme.record, style);
         }
         return style;
     }
     /* tslint:disable-next-line:no-any */
     private processExcelHeader(header: ExcelHeader): void {
-        if (header.rows !== undefined && (this.expType === 'newsheet' || this.rowLength === 1)) {
+        if (!isNullOrUndefined(header.rows) && (this.expType === 'newsheet' || this.rowLength === 1)) {
             let noRows: number;
             if (header.headerRows === undefined) {
                 this.rowLength = header.rows.length;
@@ -672,10 +707,10 @@ export class ExcelExport {
             this.rowLength++;
             for (let row: number = 0; row < noRows; row++) {
                 /* tslint:disable-next-line:no-any */
-                let json: any = header.rows[row];
+                let json: ExcelRow = header.rows[row];
 
                 //Row index
-                if (!(json.index !== null && json.index !== undefined)) {
+                if (!(json.index !== null && !isNullOrUndefined(json.index))) {
                     json.index = (row + 1);
                 }
                 this.updatedCellIndex(json);
@@ -689,7 +724,7 @@ export class ExcelExport {
             /* tslint:disable-next-line:no-any */
             let jsonCell: ExcelCell = json.cells[cellId];
             //cell index
-            if (!(jsonCell.index !== null && jsonCell.index !== undefined)) {
+            if (!(jsonCell.index !== null && !isNullOrUndefined(jsonCell.index))) {
                 jsonCell.index = (cellId + 1);
             }
         }
@@ -697,7 +732,7 @@ export class ExcelExport {
     }
     /* tslint:disable-next-line:no-any */
     private processExcelFooter(footer: ExcelFooter): void {
-        if (footer.rows !== undefined) {
+        if (!isNullOrUndefined(footer.rows)) {
             let noRows: number;
             if (footer.footerRows === undefined) {
                 this.rowLength += footer.rows.length;
@@ -712,7 +747,7 @@ export class ExcelExport {
 
             for (let row: number = 0; row < noRows; row++) {
                 /* tslint:disable-next-line:no-any */
-                let json: any = footer.rows[row];
+                let json: ExcelRow = footer.rows[row];
 
                 //Row index
                 if (json.index === null || json.index === undefined) {
@@ -737,10 +772,10 @@ export class ExcelExport {
     }
     /* tslint:disable-next-line:no-any */
     private parseStyles(gObj: IGrid, col: any, style: any, index: number): void {
-        if (col.format !== undefined) {
-            if (col.format.skeleton !== undefined) {
+        if (!isNullOrUndefined(col.format)) {
+            if (!isNullOrUndefined(col.format.skeleton)) {
                 style.numberFormat = col.format.skeleton;
-                if (col.format.type !== undefined) {
+                if (!isNullOrUndefined(col.format.type)) {
                     style.type = col.format.type;
                 }
             } else {
@@ -748,14 +783,14 @@ export class ExcelExport {
                 style.type = col.type;
             }
         }
-        if (col.textAlign !== undefined) {
+        if (!isNullOrUndefined(col.textAlign)) {
             style.hAlign = col.textAlign;
         }
         if (Object.keys(style).length > 0) {
             style.name = gObj.element.id + 'column' + index;
             this.styles.push(style);
         }
-        if (col.width !== undefined) {
+        if (!isNullOrUndefined(col.width)) {
             /* tslint:disable-next-line:max-line-length */
             this.columns.push({ index: index, width: typeof col.width === 'number' ? col.width : this.helper.getConvertedWidth(col.width) });
         }

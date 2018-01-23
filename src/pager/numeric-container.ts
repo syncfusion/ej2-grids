@@ -250,7 +250,7 @@ export class NumericContainer implements IRender {
         let firstPageDisabled: string[] = ['e-firstpagedisabled', 'e-disable'];
         let prevPage: string[] = ['e-prevpage', 'e-pager-default'];
         let prevPageDisabled: string[] = ['e-prevpagedisabled', 'e-disable'];
-        if (this.pagerModule.currentPage > 1) {
+        if (this.pagerModule.totalPages > 0 && this.pagerModule.currentPage > 1) {
             classList(this.prev, prevPage, prevPageDisabled);
             classList(this.first, firstPage, firstPageDisabled);
             classList(this.pagerElement.querySelector('.e-mfirst'), firstPage, firstPageDisabled);

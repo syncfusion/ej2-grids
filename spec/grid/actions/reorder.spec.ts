@@ -11,13 +11,15 @@ import { getActualProperties, parentsUntil } from '../../../src/grid/base/util';
 import { Column } from '../../../src/grid/models/column';
 import { Sort } from '../../../src/grid/actions/sort';
 import { Filter } from '../../../src/grid/actions/filter';
+import { Freeze } from '../../../src/grid/actions/freeze';
 import { Group } from '../../../src/grid/actions/group';
 import { Page } from '../../../src/grid/actions/page';
 import { Reorder } from '../../../src/grid/actions/reorder';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
-Grid.Inject(Sort, Page, Filter, Reorder, Group);
+Grid.Inject(Sort, Page, Filter, Reorder, Group, Freeze);
 
 function copyObject(source: Object, destiation: Object): Object {
     for (let prop in source) {
@@ -51,7 +53,6 @@ describe('Reorder module', () => {
 
     describe('Reorder functionalities', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let dataBound: Function;
         let actionComplete: (e?: Object) => void;
         let headers: any;
@@ -59,9 +60,7 @@ describe('Reorder module', () => {
         window['browserDetails'].isIE = false;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowSorting: true,
@@ -69,10 +68,17 @@ describe('Reorder module', () => {
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     allowFiltering: true,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
+        });
+
+        it('Dynamic allowReordering set', () => {
+            gridObj.allowReordering = false;
+            gridObj.dataBind();
+            expect(gridObj.getHeaderTable().querySelector('.e-draggable')).toBe(null);
+            gridObj.allowReordering = true;
+            gridObj.dataBind();
+            expect(gridObj.getHeaderTable().querySelector('.e-draggable')).not.toBe(null);
         });
 
         it('Reorder Column method testing', (done: Function) => {
@@ -200,45 +206,40 @@ describe('Reorder module', () => {
             gridObj.reorderColumns('ShipCity', 'EmployeeID');
         });
 
-        it('Reorder disable and enable testing and coverage', () => {
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
 
-            gridObj.allowReordering = false;
-            gridObj.dataBind();
-            gridObj.allowReordering = true;
-            gridObj.dataBind();
-            (gridObj.headerModule as any).helper({ sender: { target: gridObj.getColumnHeaderByField('OrderID').children[0] } });
-            (gridObj.headerModule as any).helper({ sender: { target: gridObj.element } });
-            (gridObj.headerModule as any).drag({ target: undefined });
+    describe('Reorder functionalities', () => {
+        let gridObj: Grid;
+        window['browserDetails'].isIE = false;
+        beforeAll((done: Function) => {
+            gridObj = createGrid({
+                dataSource: data,
+                allowSorting: true,
+                allowReordering: true,
+                columns: [{ field: 'OrderID' }, { field: 'EmployeeID' }, { field: 'CustomerID' }, { field: 'Freight' },
+                { field: 'ShipCity' }],
+                allowFiltering: true,
+                filterSettings: { type: 'menu' },
+                dataBound: () => { done(); }
+            }, done);
+        });
 
-            (<any>gridObj.reorderModule).enableAfterRender({ module: 'sort' });
-            headers[3].classList.add('e-reorderindicate');
-            gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
-           (<any>gridObj.getHeaderContent()).ej2_instances[0].trigger('drop', { target: createElement('div'), 
-            droppedElement: gridObj.element.querySelector('.e-cloneproperties') }); //droppable instance
-            gridObj.element.appendChild(createElement('div', { className: 'e-cloneproperties' }));
-            gridObj.width = 300;
-            gridObj.dataBind();
-            (<any>gridObj.reorderModule).updateScrollPostion({ clientX: 10, clientY: 10 });
-            (<any>gridObj.reorderModule).updateScrollPostion({ clientX: gridObj.element.getBoundingClientRect().right - 20, clientY: 10 });
-            (<any>gridObj.reorderModule).updateScrollPostion({ changedTouches: [{ clientX: 10, clientY: 10 }] });
-            (<any>gridObj.reorderModule).dragStop({ cancel: true, target: headers[0], column: gridObj.getColumnByField('OrderID') });
-            gridObj.allowGrouping = true;
-            let header: any = headers[2];
-            (<any>gridObj.reorderModule).element = header.parentElement;
-            (<any>gridObj.reorderModule).drag({ target: header, event: { clientX: 55, clientY: 10 } });
-            gridObj.isDestroyed = true;
-            gridObj.reorderModule.destroy();
-            gridObj.reorderModule = new Reorder(gridObj);
-            expect(1).toBe(1);
-            let cols = [];
-            cols.push(gridObj.columns[0]);
-            cols.push(gridObj.columns[1]);
-            cols[1]['columns'] = gridObj.columns[2];
-            (<any>gridObj.reorderModule).getColumnsModel(cols);
+        it('EJ2-6054-script error thrown when render a sample with reorder and filter menu', () => {
+            gridObj.reorderColumns('CustomerID', 'EmployeeID');
+            expect(gridObj.getColumns()[1].field).toBe('CustomerID');
+            let tarele: Element = gridObj.element.querySelectorAll('.e-filtermenudiv')[1];
+            let e: {} = { target: tarele };
+            (<any>gridObj).filterModule.filterIconClickHandler(e);
+            (<any>document.querySelector('.e-flmenu-input')).value = 'V';
+            (<any>document.querySelector('.e-flmenu-okbtn')).click();
+            expect((<any>gridObj.element.querySelectorAll('.e-filtered')).length).toBe(1);
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
@@ -307,5 +308,78 @@ describe('Reorder module', () => {
     //     });
     // });
 
+    describe('Reorder functionalities with Freeze', () => {
+        let gridObj: Grid;
+        let dataBound: Function;
+        let headers: any;
+        let columns: Column[];
+
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    allowSorting: true,
+                    allowReordering: true,
+                    frozenColumns: 2,
+                    frozenRows: 2,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' }],
+                    allowFiltering: true,
+                }, done);
+        });
+
+        it('Reorder Column method testing', (done: Function) => {
+            let dataBound = (args: Object): void => {
+                columns = gridObj.getColumns() as Column[];
+                headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
+                expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+                expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+                expect(headers[2].querySelector('.e-headercelldiv').textContent).toBe('CustomerID');
+                expect(columns[0].field).toBe('EmployeeID');
+                expect(columns[1].field).toBe('OrderID');
+                expect(columns[2].field).toBe('CustomerID');
+                done();
+            };
+            gridObj.dataBound = dataBound;
+            gridObj.dataBind();
+            gridObj.reorderColumns('EmployeeID', 'OrderID');
+        });
+
+        it('Reorder Column simulate testing', (done: Function) => {
+            let cOld: Function = (gridObj.reorderModule as any).chkDropPosition;
+            let ccOld: Function = (gridObj.reorderModule as any).chkDropAllCols;
+            let dataBound = (args: Object): void => {
+                columns = gridObj.getColumns() as Column[];
+                headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
+                expect(headers[2].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+                expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('CustomerID');
+                expect(columns[2].field).toBe('OrderID');
+                expect(columns[1].field).toBe('CustomerID');
+                done();
+                (gridObj.reorderModule as any).chkDropPosition = cOld;
+                (gridObj.reorderModule as any).chkDropAllCols = ccOld;
+            };
+            gridObj.dataBound = dataBound;
+            gridObj.dataBind();
+            let dropClone = createElement('div', { attrs: { 'e-mappinguid': gridObj.getUidByColumnField('OrderID') } });
+            document.body.appendChild(dropClone);
+            (gridObj.headerModule as any).helper({ target: gridObj.getHeaderTable().querySelector('tr'), sender: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('OrderID') } });
+            (gridObj.headerModule as any).dragStart({ target: gridObj.getColumnHeaderByField('OrderID').children[0], event: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('OrderID').children[0] } });
+            (gridObj.headerModule as any).dragStart({ target: gridObj.getColumnHeaderByField('OrderID'), event: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('OrderID').children[0] } });
+            (gridObj.headerModule as any).drag({ target: gridObj.getColumnHeaderByField('CustomerID'), event: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('CustomerID').children[0] } });
+            (gridObj.headerModule as any).dragStop({
+                target: gridObj.getColumnHeaderByField('CustomerID'),
+                element: gridObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tr'), helper: dropClone, event: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('CustomerID').children[0] }
+            });
+            (gridObj.reorderModule as any).element = gridObj.getColumnHeaderByField('OrderID');
+            (gridObj.reorderModule as any).chkDropPosition = () => true;
+            (gridObj.reorderModule as any).chkDropAllCols = () => true;
+            (gridObj.headerModule as any).drop({ target: gridObj.getColumnHeaderByField('CustomerID'), droppedElement: dropClone });
+            (gridObj.reorderModule as any).moveColumns(2, gridObj.getColumnByField('OrderID'));
+        });
+
+        afterAll((done) => {
+            destroy(gridObj);
+        });
+    });
 
 });

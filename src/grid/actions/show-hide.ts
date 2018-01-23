@@ -1,6 +1,6 @@
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
-import { iterateArrayOrObject } from '../base/util';
+import { iterateArrayOrObject, isActionPrevent } from '../base/util';
 import * as events from '../base/constant';
 import { IGrid } from '../base/interface';
 
@@ -26,6 +26,7 @@ export class ShowHide {
      * @return {void} 
      */
     public show(columnName: string | string[], showBy?: string): void {
+        if (this.batchChanges(this.show, columnName, showBy)) { return; }
         let keys: string[] = this.getToggleFields(columnName);
         let columns: Column[] = this.getColumns(keys, showBy);
 
@@ -43,6 +44,7 @@ export class ShowHide {
      * @return {void} 
      */
     public hide(columnName: string | string[], hideBy?: string): void {
+        if (this.batchChanges(this.hide, columnName, hideBy)) { return; }
         let keys: string[] = this.getToggleFields(columnName);
         let columns: Column[] = this.getColumns(keys, hideBy);
 
@@ -51,6 +53,19 @@ export class ShowHide {
         });
 
         this.setVisible(columns);
+    }
+
+    private batchChanges(handler: Function, columnName: string | string[], showHide?: string): boolean {
+        if (isActionPrevent(this.parent)) {
+            this.parent.notify(
+                events.preventBatch,
+                {
+                    instance: this, handler: handler,
+                    arg1: columnName, arg2: showHide
+                });
+            return true;
+        }
+        return false;
     }
 
     private getToggleFields(key: string | string[]): string[] {

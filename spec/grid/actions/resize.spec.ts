@@ -180,14 +180,14 @@ describe('Resize module', () => {
                 });
             gridObj.appendTo('#Grid');
         });
-        it('autoFit from hander', () => {
-            let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
-            let column: Column = gridObj.resizeModule.getTargetColumn({ target: handler });
-            expect(column.field).toEqual('CustomerID');
-            let width: string = (gridObj.getHeaderTable().querySelectorAll('th')[1]).offsetWidth;
-            gridObj.resizeModule.callAutoFit({ target: handler });
-            expect(parseInt((gridObj.getHeaderTable().querySelectorAll('th')[1]).offsetWidth)).toBeLessThan(parseInt(width));
-        });
+        // it('autoFit from hander', () => {
+        //     let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
+        //     let column: Column = gridObj.resizeModule.getTargetColumn({ target: handler });
+        //     expect(column.field).toEqual('CustomerID');
+        //     let width: string = (gridObj.getHeaderTable().querySelectorAll('th')[1]).offsetWidth;
+        //     gridObj.resizeModule.callAutoFit({ target: handler });
+        //     expect(parseInt((gridObj.getHeaderTable().querySelectorAll('th')[1]).offsetWidth)).toBeLessThan(parseInt(width));
+        // });
         it('resize start', () => {
             let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
             gridObj.resizeModule.resizeStart({ target: handler });
@@ -591,12 +591,21 @@ describe('Resize module', () => {
             expect((grid.getFooterContentTable() as HTMLElement).style.width).toBeDefined();
         });
 
+        it('allowResizing - dynamic -testing', () => {
+            grid.allowResizing = false;
+            grid.dataBind();
+            expect(grid.element.classList.contains('e-resize-lines')).toBe(false);
+            grid.allowResizing = true;
+            grid.dataBind();
+            expect(grid.element.classList.contains('e-resize-lines')).toBe(true);
+        });
+
         afterAll(() => {
             destroy(grid);
         });
     });
 
-    describe('Resize module with Freeze pane', () => {
+   describe('Resize module with Freeze pane', () => {
         describe('Resize functionalities for columns', () => {
             let gridObj: Grid;
             let elem: HTMLElement = createElement('div', { id: 'Grid' });
@@ -611,6 +620,7 @@ describe('Resize module', () => {
                         frozenRows: 2,
                         dataSource: data,
                         allowReordering: true,
+                        allowResizing: true,
                         height: 300,
                         width: 700,
                         columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
@@ -628,13 +638,13 @@ describe('Resize module', () => {
             it('Resize OrderID except CustomerID all fields have width', () => {
                 gridObj.autoFitColumns('OrderID');
                 headers = (<HTMLElement>gridObj.getHeaderTable()).style.width
-                expect(headers).toBeFalsy();
+                expect(headers).toBeTruthy();
             });
             it('Resize CustomerID except CustomerID all fields have width', () => {
                 gridObj.autoFitColumns('CustomerID');
                 headers = (<HTMLElement>gridObj.getHeaderTable()).style.width
                 expect(headers).toBeTruthy();
-            });
+            });           
             afterAll(() => {
                 gridObj.destroy();
                 remove(elem);
@@ -728,7 +738,8 @@ describe('Resize module', () => {
                 gridObj.resizeModule.render();
                 gridObj.resizeModule.destroy();
                 expect(gridObj.resizeModule.widthService).toBeNull();
-            });
+            });            
+    
             afterAll(() => {
                 gridObj.destroy();
                 remove(elem);
@@ -831,6 +842,59 @@ describe('Resize module', () => {
                 gridObj.destroy();
                 remove(elem);
             });
+        });
+    });
+
+    describe('Resize functionalities for all columns', () => {
+        let gridObj: Grid;
+        let elem: HTMLElement = createElement('div', { id: 'Grid' });
+        let headers: any;
+        let columns: Column[];
+        beforeAll((done: Function) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(elem);
+            gridObj = new Grid(
+                {
+                    frozenColumns: 2,
+                    frozenRows: 2,
+                    allowResizing: true,
+                    dataSource: data,
+                    columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'EmployeeID' }, { field: 'Freight', headerText: 'Freight', width: 200 },
+                    { field: 'ShipCity', headerText: 'ShipCity' }],
+                    dataBound: dataBound
+                });
+            gridObj.appendTo('#Grid');
+        });
+        it('More than one columns to be Autofit', () => {
+            gridObj.autoFitColumns(['OrderID', 'CustomerID', 'EmployeeID']);
+            headers = gridObj.getColumns()[0] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = gridObj.getColumns()[1] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = gridObj.getColumns()[2] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = (<HTMLElement>gridObj.getHeaderTable()).style.width;
+            expect(headers).toBeTruthy();
+        });
+        it('Resize all columns', () => {
+            gridObj.autoFitColumns('');
+            headers = gridObj.getColumns()[0] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = gridObj.getColumns()[1] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = gridObj.getColumns()[2] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = gridObj.getColumns()[3] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = gridObj.getColumns()[4] as Column;
+            expect(headers.width).toBeTruthy();
+            headers = (gridObj.getHeaderContent().querySelector('.e-movableheader').children[0] as HTMLElement).style.width;
+            expect(headers).toBeTruthy();
+        });
+        afterAll(() => {
+            gridObj.destroy();
+            remove(elem);
         });
     });
 

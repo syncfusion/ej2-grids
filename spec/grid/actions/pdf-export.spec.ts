@@ -16,7 +16,44 @@ import '../../../node_modules/es6-promise/dist/es6-promise';
 import { PdfExport } from '../../../src/grid/actions/pdf-export';
 import { DataManager, Query, ODataV4Adaptor } from '@syncfusion/ej2-data';
 import { QueryCellInfoEventArgs, PdfExportProperties } from '../../../src/grid/base/interface';
+import { createGrid, destroy, getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 Grid.Inject(Page, Group, Selection, Toolbar, PdfExport);
+
+
+describe('Blob data pdf export => ', () => {
+    let gridObj: Grid;
+    let checkBoxFilter: Element; 
+    let exportComplete: () => void;
+    beforeAll((done: Function) => {
+        gridObj = createGrid(
+            {
+                dataSource: data,
+                allowPaging: true,
+                filterSettings: { type: 'menu', showFilterBarStatus: true },
+                columns: [{ field: 'OrderID', type: 'number', visible: true },
+                { field: 'CustomerID', type: 'string', filter: {type: 'checkbox'} },
+                { field: 'Freight', format: 'C2', type: 'number' }
+                ],
+                allowPdfExport: true,
+                pdfExportComplete: exportComplete
+            }, done);
+    });
+
+    it('blob pdf export testing', (done) => {
+        let exportComplete: any = (e: any)=>{            
+            expect(e.promise).not.toBeUndefined();            
+            gridObj.pdfExportComplete = null;
+            done();
+        };
+        gridObj.pdfExportComplete = exportComplete;
+        gridObj.pdfExport(null,null,null,true);       
+    });
+
+    afterAll(() => {
+        destroy(gridObj);
+    });
+});  
+
 
 describe('PDF Export', () => {
     let gridObj: Grid;

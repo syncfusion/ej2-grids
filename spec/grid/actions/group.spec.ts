@@ -410,7 +410,7 @@ describe('Grouping module => ', () => {
             expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(27);
             gridObj.groupModule.expandCollapseRows(expandElem[2]);
             expect(gridObj.getContent().querySelectorAll('tr:not([style*="display: none"])').length).toBe(30);
-        });      
+        });
 
         afterAll(() => {
             destroy(gridObj);
@@ -418,11 +418,11 @@ describe('Grouping module => ', () => {
     });
 
     describe('Grouping columns hide => ', () => {
-        let gridObj: Grid;      
+        let gridObj: Grid;
         let actionBegin: () => void;
         let actionComplete: () => void;
         let columns: any;
-        beforeAll((done: Function) => {           
+        beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
                     dataSource: filterData,
@@ -438,7 +438,7 @@ describe('Grouping module => ', () => {
                     allowPaging: true,
                     actionBegin: actionBegin,
                     actionComplete: actionComplete
-                }, done);          
+                }, done);
         });
 
         it('Single column group testing', (done: Function) => {
@@ -447,7 +447,7 @@ describe('Grouping module => ', () => {
                 expect(gridObj.sortSettings.columns.length).toBe(1);
                 expect(gridObj.element.querySelectorAll('.e-headercell:not(.e-hide)').length).toBe(5);
                 done();
-            };         
+            };
             gridObj.actionComplete = actionComplete;
             gridObj.groupModule.groupColumn('ShipCity');
         });
@@ -625,7 +625,7 @@ describe('Grouping module => ', () => {
             gridObj.dataBind();
             expect((gridObj.element.querySelectorAll('.e-groupdroparea')[0].
                 querySelectorAll('.e-ungroupbutton')[0] as HTMLElement).style.display).toBe('');
-        });      
+        });
 
         it('ungroup from toogele header testing', (done: Function) => {
             actionComplete = (args?: Object): void => {
@@ -1256,10 +1256,103 @@ describe('Grouping module => ', () => {
         it('check data length', () => {
             expect(gridObj.currentViewData.length).toBe(0);
         });
+        it('EJ2-7165-complex data group', () => {
+            expect((<any>gridObj.groupModule).getGHeaderCell('Name.FirstName')).toBeNull();
+        });
         afterAll((done) => {
             destroy(gridObj);
         });
     });
+    describe('EJ2-6791-Groped content not renders properly , when grouping enabled throw set model => ', () => {
+        let gridObj: Grid;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: filterData,
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'ShipCity', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowSorting: true,
+                    allowPaging: true,
+                    allowReordering: true,
+                    actionComplete: actionComplete
+                }, done);
+        });
+        it('Grouping enabled throw set model', () => {
+            gridObj.allowGrouping = true;
+            gridObj.groupSettings.columns = ['EmployeeID'];
+            let actionComplete: any = (args: Object) => {
+                expect(gridObj.getContent().querySelectorAll('.e-recordplusexpand').length).toBe(7);
+            };
+        });
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
+    describe('Grouping functionalites with empty grid => ', () => {
+        let gridObj: Grid;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: [],
+                    columns: [{ field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' },
+                    { field: 'Freight', headerText: 'Freight' },
+                    { field: 'ShipCity', headerText: 'Ship City' },
+                    { field: 'ShipCountry', headerText: 'Ship Country' }],
+                    allowGrouping: true,
+                    groupSettings: {columns:['OrderID']}
+                }, done);
+        });
+
+        it('group drop area - header present testing', (done: Function) => {
+            //Since no event for group complete on init, used set timeout
+            setTimeout(function(){
+                let dropArea: any = gridObj.element.querySelectorAll('.e-groupdroparea');
+                expect(dropArea.length).toBe(1);
+                let headerCell = dropArea[0].querySelectorAll('.e-groupheadercell')
+                expect(headerCell.length).toBe(1);
+                done();
+            }, 100);            
+        });
+        it('group drop area - ungroup column', (done) => {
+            gridObj.actionComplete = function (args) {
+                if (args.requestType === 'ungrouping') {
+                    expect(gridObj.groupSettings.columns.length).toBe(0);
+                    let dropArea: any = gridObj.element.querySelectorAll('.e-groupdroparea');
+                    let headerCell = dropArea[0].querySelectorAll('.e-groupheadercell')
+                    expect(headerCell.length).toBe(0);
+                    done();
+                }
+            }
+            gridObj.ungroupColumn('OrderID')
+        });
+
+        it('group drop area - group column', (done) => {
+            gridObj.actionComplete = function (args) {
+                if (args.requestType === 'grouping') {
+                    expect(gridObj.groupSettings.columns.length).toBe(1);
+                    let dropArea: any = gridObj.element.querySelectorAll('.e-groupdroparea');
+                    let headerCell = dropArea[0].querySelectorAll('.e-groupheadercell')
+                    expect(headerCell.length).toBe(1);
+                    done();
+                }
+            }
+            gridObj.groupColumn('OrderID')
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
 
     //focus strategy script error
     // describe('expand and collapse on enter => ', () => {

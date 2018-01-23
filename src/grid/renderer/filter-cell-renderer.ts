@@ -31,9 +31,8 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
         let innerDIV: HTMLDivElement = <HTMLDivElement>this.getGui();
         let input: Element;
         let column: Column = cell.column;
-
+        tr.appendChild(node);
         if (column.type !== 'checkbox') {
-            tr.appendChild(node);
             if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
                 node.classList.add('e-fltrtemp');
                 attributes(innerDIV, {
@@ -46,7 +45,7 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                     });
                     innerDIV.appendChild(input);
                 } else {
-                    let args: Object = {column: column, node: Element};
+                    let args: Object = { column: column, node: Element };
                     let temp: Function = column.filterBarTemplate.create as Function;
                     if (typeof temp === 'string') {
                         temp = getValue(temp, window);
@@ -90,6 +89,8 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                 node.classList.add('e-hide');
             }
 
+            this.appendHtml(node, innerDIV);
+
             if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
                 let templateWrite: Function = column.filterBarTemplate.write as Function;
                 let args: { element: Element, column: Column } = { element: input, column: column };
@@ -98,8 +99,6 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                 }
                 templateWrite.call(this, args);
             }
-
-            this.appendHtml(node, innerDIV);
         }
 
         return node;

@@ -4,14 +4,14 @@
 import { Grid } from '../../../src/grid/base/grid';
 import { Search } from '../../../src/grid/actions/search';
 import { Page } from '../../../src/grid/actions/page';
-import { createGrid, destroy} from '../base/specutil.spec';
+import { createGrid, destroy } from '../base/specutil.spec';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Search, Page);
 
-describe('Search module', () => {
-    describe('Search methods testing', () => {
+describe('Search module=>', () => {
+    describe('Search methods testing=>', () => {
         let gridObj: Grid;
         let beforePrint: Function;
         let actionComplete: (args?: Object) => void;
@@ -21,8 +21,8 @@ describe('Search module', () => {
                 {
                     dataSource: data,
                     allowPaging: true,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, 
-                    { field: 'EmployeeID' }, 
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' },
+                    { field: 'EmployeeID' },
                     { field: 'ShipCity' }],
                     actionComplete: actionComplete
                 }, done);
@@ -33,7 +33,7 @@ describe('Search module', () => {
                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
                 done();
             };
-            gridObj.actionComplete = actionComplete;            
+            gridObj.actionComplete = actionComplete;
             gridObj.searchModule.search('10249');
         });
 
@@ -83,9 +83,19 @@ describe('Search module', () => {
             actionComplete = (): void => {
                 expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
                 done();
-            };           
+            };
             gridObj.actionComplete = actionComplete;
-            gridObj.searchModule.search('TOMSP');            
+            gridObj.searchModule.search('TOMSP');
+        });
+
+        it('EJ2-7184- Script error resolved when empty search through method', (done: Function) => {
+            actionComplete = (): void => {
+                gridObj.actionComplete = null;
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(12);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.searchModule.search('');
         });
 
         afterAll(() => {
@@ -105,7 +115,7 @@ describe('Search module', () => {
                 {
                     dataSource: data,
                     allowPaging: true,
-                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, 
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' },
                     { field: 'EmployeeID' }],
                     actionComplete: actionComplete,
                     pageSettings: { pageSize: 6, pageCount: 3 }
@@ -127,7 +137,7 @@ describe('Search module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.search('VINET');            
+            gridObj.search('VINET');
         });
         it('clear search value', (done: Function) => {
             actionComplete = (args?: Object) => {
@@ -135,13 +145,13 @@ describe('Search module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.search('');            
+            gridObj.search('');
         });
         afterAll((done) => {
-           destroy(gridObj);
+            destroy(gridObj);
             setTimeout(function () {
                 done();
-            }, 1000);    
+            }, 1000);
         });
     });
 

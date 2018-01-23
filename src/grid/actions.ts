@@ -34,3 +34,4 @@ export * from './actions/context-menu';
 export * from './actions/freeze';
 export * from './actions/column-menu';
 export * from './actions/excel-filter';
+export * from './actions/foreign-key';

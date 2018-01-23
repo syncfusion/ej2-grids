@@ -1,4 +1,4 @@
-import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs } from '@syncfusion/ej2-base';
+import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs, closest } from '@syncfusion/ej2-base';
 import { extend, getValue } from '@syncfusion/ej2-base';
 import { remove, createElement } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
@@ -18,6 +18,7 @@ import { Dialog } from '@syncfusion/ej2-popups';
 import { parentsUntil, changeButtonType } from '../base/util';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { DatePickerEditCell } from '../renderer/datepicker-edit-cell';
+import { calculateRelativeBasedPosition, OffsetPosition } from '@syncfusion/ej2-popups';
 
 /**
  * `Edit` module is used to handle editing actions.
@@ -29,6 +30,7 @@ export class Edit implements IAction {
     private editModule: IEdit;
     /** @hidden */
     public formObj: FormValidator;
+    public mFormObj: FormValidator;
     private editCellType: Object = {
         'dropdownedit': DropDownEditCell, 'numericedit': NumericEditCell,
         'datepickeredit': DatePickerEditCell, 'booleanedit': BooleanEditCell, 'defaultedit': DefaultEditCell
@@ -348,7 +350,8 @@ export class Edit implements IAction {
                 }
                 break;
             case 'date':
-                if (col.editType !== 'datepicker') {
+            case 'datetime':
+                if (col.editType !== 'datepicker' && value && (value as string).length) {
                     val = new Date(value as string);
                 }
                 break;
@@ -357,10 +360,11 @@ export class Edit implements IAction {
     }
 
     private destroyToolTip(): void {
-        let elements: Element[] = [].slice.call(this.parent.getContentTable().querySelectorAll('.e-griderror'));
+        let elements: Element[] = [].slice.call(this.parent.element.querySelectorAll('.e-griderror'));
         for (let elem of elements) {
             remove(elem);
         }
+        (this.parent.getContent().firstElementChild as HTMLElement).style.position = 'relative';
     }
 
     private createConfirmDlg(): void {
@@ -383,7 +387,7 @@ export class Edit implements IAction {
             [
                 {
                     click: this.alertClick.bind(this), buttonModel:
-                    { content: this.l10n.getConstant('OKButton'), cssClass: 'e-flat', isPrimary: true }
+                        { content: this.l10n.getConstant('OKButton'), cssClass: 'e-flat', isPrimary: true }
                 }
             ],
             'EditAlert');
@@ -507,7 +511,9 @@ export class Edit implements IAction {
      * @hidden
      */
     public onActionBegin(e: NotifyArgs): void {
-        if (this.parent.editSettings.mode !== 'batch' && e.requestType as string !== 'save' && this.formObj && !this.formObj.isDestroyed) {
+        let restrictedRequestTypes: string[] = ['filterafteropen', 'filterbeforeopen', 'filterchoicerequest', 'save'];
+        if (this.parent.editSettings.mode !== 'batch' && this.formObj && !this.formObj.isDestroyed
+            && restrictedRequestTypes.indexOf(e.requestType) === -1) {
             this.destroyForm();
             this.destroyWidgets();
         }
@@ -566,7 +572,9 @@ export class Edit implements IAction {
                 break;
             case 'enter':
                 if (!parentsUntil(e.target as HTMLElement, '.e-unboundcelldiv') && this.parent.editSettings.mode !== 'batch' &&
-                    parentsUntil(e.target as HTMLElement, 'e-gridcontent') && !document.querySelectorAll('.e-popup-open').length) {
+                    (parentsUntil(e.target as HTMLElement, 'e-gridcontent') || (this.parent.frozenRows
+                        && parentsUntil(e.target as HTMLElement, 'e-headercontent')))
+                    && !document.querySelectorAll('.e-popup-open').length) {
                     e.preventDefault();
                     this.endEdit();
                 }
@@ -597,15 +605,28 @@ export class Edit implements IAction {
      */
     public applyFormValidation(cols?: Column[]): void {
         let gObj: IGrid = this.parent;
+        let frzCols: number = gObj.getFrozenColumns();
         let form: HTMLFormElement = gObj.element.querySelector('.e-gridform') as HTMLFormElement;
+        let mForm: HTMLFormElement = gObj.element.querySelectorAll('.e-gridform')[1] as HTMLFormElement;
         let rules: Object = {};
+        let mRules: Object = {};
         cols = cols ? cols : gObj.columns as Column[];
         for (let col of cols) {
             if (col.validationRules && form.querySelectorAll('#' + gObj.element.id + col.field).length) {
                 rules[col.field] = col.validationRules;
+            } else if (frzCols && col.validationRules
+                && mForm.querySelectorAll('#' + gObj.element.id + col.field).length) {
+                mRules[col.field] = col.validationRules;
             }
         }
-        this.parent.editModule.formObj = new FormValidator(form, {
+        this.parent.editModule.formObj = this.createFormObj(form, rules);
+        if (frzCols && this.parent.editSettings.mode !== 'dialog') {
+            this.parent.editModule.mFormObj = this.createFormObj(mForm, mRules);
+        }
+    }
+
+    private createFormObj(form: HTMLFormElement, rules: Object): FormValidator {
+        return new FormValidator(form, {
             rules: rules as { [name: string]: { [rule: string]: Object } },
             validationComplete: (args: { status: string, inputName: string, element: HTMLElement, message: string }) => {
                 this.validationComplete(args);
@@ -619,9 +640,7 @@ export class Edit implements IAction {
     private valErrorPlacement(inputElement: HTMLElement, error: HTMLElement): void {
         if (this.parent.isEdit) {
             let id: string = error.getAttribute('for');
-            let parentElem: Element = this.parent.editSettings.mode !== 'dialog' ? this.parent.getContentTable() :
-                this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper');
-            let elem: Element = parentElem.querySelector('#' + id + '_Error');
+            let elem: Element = this.getElemTable(inputElement).querySelector('#' + id + '_Error');
             if (!elem) {
                 this.createTooltip(inputElement, error, id, '');
             } else {
@@ -630,11 +649,19 @@ export class Edit implements IAction {
         }
     }
 
+    private getElemTable(inputElement: Element): Element {
+        let isFHdr: boolean;
+        if (this.parent.editSettings.mode !== 'dialog') {
+            isFHdr = (this.parent.frozenRows && this.parent.frozenRows
+                > (parseInt(inputElement.closest('.e-row').getAttribute('aria-rowindex'), 10) || 0));
+        }
+        return this.parent.editSettings.mode !== 'dialog' ? isFHdr ? this.parent.getHeaderTable() : this.parent.getContentTable() :
+            this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper');
+    }
+
     private validationComplete(args: { status: string, inputName: string, element: HTMLElement, message: string }): void {
         if (this.parent.isEdit) {
-            let parentElem: Element = this.parent.editSettings.mode !== 'dialog' ? this.parent.getContentTable() :
-                this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper');
-            let elem: HTMLElement = parentElem.querySelector('#' + args.inputName + '_Error') as HTMLElement;
+            let elem: HTMLElement = this.getElemTable(args.element).querySelector('#' + args.inputName + '_Error') as HTMLElement;
             if (elem) {
                 if (args.status === 'failure') {
                     elem.style.display = '';
@@ -646,16 +673,32 @@ export class Edit implements IAction {
     }
 
     private createTooltip(element: Element, error: HTMLElement, name: string, display: string): void {
-        let table: Element = this.parent.editSettings.mode !== 'dialog' ? this.parent.getContentTable() :
+        let gcontent: HTMLElement = this.parent.getContent().firstElementChild as HTMLElement;
+        let isScroll: boolean = gcontent.scrollHeight > gcontent.clientHeight;
+        let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
+        let isFHdr: boolean;
+        if (isInline) {
+            isFHdr = (this.parent.frozenRows && this.parent.frozenRows
+                > (parseInt(element.closest('.e-row').getAttribute('aria-rowindex'), 10) || 0));
+        }
+        let fCont: Element = this.parent.getContent().querySelector('.e-frozencontent');
+        let table: Element = isInline ?
+            (isFHdr ? this.parent.getHeaderTable() : this.parent.getContentTable()) :
             this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper').querySelector('.e-dlg-content');
         let client: ClientRect = table.getBoundingClientRect();
-        let inputClient: ClientRect = parentsUntil(element, 'e-rowcell').getBoundingClientRect();
+        let left: number = isInline ?
+            this.parent.element.getBoundingClientRect().left : client.left;
+        let input: HTMLElement = parentsUntil(element, 'e-rowcell') as HTMLElement;
+        let inputClient: ClientRect = input.getBoundingClientRect();
+        let td: ClientRect = (closest(element, 'td') as HTMLElement).getBoundingClientRect();
         let div: HTMLElement = createElement('div', {
             className: 'e-tooltip-wrap e-popup e-griderror',
             id: name + '_Error',
             styles: 'display:' + display + ';top:' +
-            (inputClient.bottom - client.top + table.scrollTop + 9) + 'px;left:' +
-            (inputClient.left - client.left + table.scrollLeft + inputClient.width / 2) + 'px;'
+                ((isFHdr ? inputClient.top + inputClient.height : inputClient.bottom - client.top
+                    - (this.parent.getFrozenColumns() ? fCont.scrollTop : 0)) + table.scrollTop + 9) + 'px;left:' +
+                (inputClient.left - left + table.scrollLeft + inputClient.width / 2) + 'px;' +
+                'max-width:' + td.width + 'px;text-align:center;'
         });
 
         let content: Element = createElement('div', { className: 'e-tip-content' });
@@ -666,8 +709,20 @@ export class Edit implements IAction {
         div.appendChild(content);
         div.appendChild(arrow);
         table.appendChild(div);
+        let lineHeight: number = parseInt(
+            document.defaultView.getComputedStyle(div, null).getPropertyValue('font-size'), 10
+        );
+        if (div.getBoundingClientRect().width < td.width &&
+            div.querySelector('label').getBoundingClientRect().height / (lineHeight * 1.2) >= 2) {
+            div.style.width = div.style.maxWidth;
+        }
 
         div.style.left = (parseInt(div.style.left, 10) - div.offsetWidth / 2) + 'px';
+        if (!isScroll && isInline && !this.parent.allowPaging) {
+            gcontent.style.position = 'static';
+            let pos: OffsetPosition = calculateRelativeBasedPosition(input, div);
+            div.style.top = pos.top + inputClient.height + 9 + 'px';
+        }
     }
 
 }

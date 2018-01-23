@@ -31,11 +31,11 @@ export class Search implements IAction {
      */
     public search(searchString: string): void {
         let gObj: IGrid = this.parent;
+        searchString = isNullOrUndefined(searchString) ? '' : searchString;
         if (isActionPrevent(gObj)) {
             gObj.notify(events.preventBatch, { instance: this, handler: this.search, arg1: searchString });
             return;
         }
-        searchString = searchString.toLowerCase();
         if (searchString !== gObj.searchSettings.key) {
             gObj.searchSettings.key = searchString;
             gObj.dataBind();

@@ -2,11 +2,15 @@ import { Column } from './../models/column';
 import { Row } from './../models/row';
 import { IGrid, ICell } from '../base/interface';
 import { CellType } from '../base/enum';
-import { isNullOrUndefined, DateFormatOptions, Internationalization } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, DateFormatOptions, Internationalization, getValue } from '@syncfusion/ej2-base';
 import { Cell } from '../models/cell';
 import { ValueFormatter } from './../services/value-formatter';
-import { Query } from '@syncfusion/ej2-data';
+import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Data } from '../actions/data';
+import { getForeignData } from '../base/util';
+import { ReturnType } from '../base/type';
+import { Grid } from '../../index';
+
 /**
  * @hidden
  * `ExportHelper` for `PdfExport` & `ExcelExport`
@@ -15,6 +19,7 @@ export class ExportHelper {
     public parent: IGrid;
     private colDepth: number;
     private hideColumnInclude: boolean = false;
+    private foreignKeyData: { [key: string]: Object[] } = {};
     public constructor(parent: IGrid) {
         this.parent = parent;
     }
@@ -23,6 +28,30 @@ export class ExportHelper {
             data.generateQuery(true).requiresCount().take(parent.pageSettings.totalRecordsCount) :
             data.generateQuery(true).requiresCount();
     }
+
+    public getFData(value: string, column: Column): Object {
+        let foreignKeyData: Object = getForeignData(column, {}, value, this.foreignKeyData[column.field])[0];
+        return foreignKeyData;
+    }
+
+    public getColumnData(gridObj: Grid): Promise<Object>  {
+        let columnPromise: Promise<Object>[] = [];
+        let promise: Promise<Object>;
+        let fColumns: Column[] = gridObj.getForeignKeyColumns();
+        if (fColumns.length) {
+            fColumns.forEach((col: Column) => {
+                columnPromise.push((<DataManager>col.dataSource).executeQuery(new Query()));
+            });
+            promise = Promise.all(columnPromise).then((e: ReturnType[]) => {
+                fColumns.forEach((col: Column, index: number) => {
+                    this.foreignKeyData[col.field] = e[index].result;
+                });
+                // tslint:disable-next-line:no-any
+            }) as any;
+        }
+        return promise;
+    }
+
     /* tslint:disable:no-any */
     public getHeaders(column: any[], isHideColumnInclude?: boolean): { rows: any[], columns: Column[] } {
         if (isHideColumnInclude) {
@@ -216,7 +245,7 @@ export class ExportValueFormatter {
 
     /* tslint:disable-next-line:no-any */
     private returnFormattedValue(args: any, customFormat: DateFormatOptions): string {
-        if (!isNullOrUndefined(args.value)) {
+        if (!isNullOrUndefined(args.value) && args.value) {
             return this.valueFormatter.getFormatFunction(customFormat)(args.value);
         } else {
             return '';
@@ -226,8 +255,11 @@ export class ExportValueFormatter {
 
     /* tslint:disable-next-line:no-any */
     public formatCellValue(args: any): string {
+        if (args.isForeignKey) {
+            args.value = getValue(args.column.foreignKeyValue, getForeignData(args.column, {}, args.value)[0]);
+        }
         if (args.column.type === 'number' && args.column.format !== undefined && args.column.format !== '') {
-            return this.internationalization.getNumberFormat({ format: args.column.format })(args.value);
+            return args.value ? this.internationalization.getNumberFormat({ format: args.column.format })(args.value) : '';
         } else if (args.column.type === 'boolean') {
             return args.value ? 'true' : 'false';
             /* tslint:disable-next-line:max-line-length */

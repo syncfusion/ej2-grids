@@ -1,13 +1,14 @@
-import { ChildProperty, compile as baseTemplateComplier, classList } from '@syncfusion/ej2-base';
-import { extend as baseExtend, isNullOrUndefined, getValue, NumberFormatOptions } from '@syncfusion/ej2-base';
-import { setStyleAttribute, addClass, attributes, createElement, remove, DateFormatOptions, removeClass } from '@syncfusion/ej2-base';
-import { IPosition, IGrid, IValueFormatter } from './interface';
+import { ChildProperty, compile as baseTemplateComplier, setValue } from '@syncfusion/ej2-base';
+import { extend as baseExtend, isNullOrUndefined, getValue, classList, NumberFormatOptions } from '@syncfusion/ej2-base';
+import { setStyleAttribute, addClass, attributes, remove, createElement, DateFormatOptions, removeClass } from '@syncfusion/ej2-base';
+import { IPosition, IGrid, IValueFormatter, IRow, ICell } from './interface';
 import { ServiceLocator } from '../services/service-locator';
-import { DataUtil } from '@syncfusion/ej2-data';
+import { DataUtil, Query, DataManager, Predicate } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { ColumnModel, AggregateColumnModel } from '../models/models';
 import { AggregateType } from './enum';
 import { Dialog, calculateRelativeBasedPosition, Popup } from '@syncfusion/ej2-popups';
+import { PredicateModel } from './grid-model';
 
 
 //https://typescript.codeplex.com/discussions/401501
@@ -129,7 +130,9 @@ export function prepareColumns(columns: Column[] | string[] | ColumnModel[], aut
             column = <Column>columns[c];
         }
 
-        column.headerText = isNullOrUndefined(column.headerText) ? column.field || '' : column.headerText;
+        column.headerText = isNullOrUndefined(column.headerText) ? column.foreignKeyValue || column.field || '' : column.headerText;
+
+        column.foreignKeyField = column.foreignKeyField || column.field;
 
         column.valueAccessor = column.valueAccessor || valueAccessor;
 
@@ -457,4 +460,95 @@ export function removeAddCboxClasses(elem: Element, checked: boolean): void {
     } else {
         elem.classList.add('e-uncheck');
     }
+}
+
+/**
+ * Refresh the Row model's foreign data.
+ * @param row - Grid Row model object.
+ * @param columns - Foreign columns array.
+ * @param data - Updated Row data.
+ * @hidden
+ */
+export function refreshForeignData(row: IRow<Column>, columns: Column[], data: Object): void {
+    columns.forEach((col: Column) => {
+        setValue(col.field, getForeignData(col, data), row.foreignKeyData);
+    });
+
+    row.cells.forEach((cell: ICell<Column>) => {
+        if (cell.isForeignKey ) {
+            setValue('foreignKeyData', getValue(cell.column.field, row.foreignKeyData), cell);
+        }
+    });
+}
+
+/**
+ * Get the foreign data for the corresponding cell value.
+ * @param column - Foreign Key column
+ * @param data - Row data.
+ * @param lValue - cell value.
+ * @param foreignData - foreign data source.
+ * @hidden
+ */
+export function getForeignData(column: Column, data?: Object, lValue?: string | number, foreignKeyData?: Object[]): Object[] {
+    let fField: string = column.foreignKeyField;
+    let key: string | Date = <string | Date>(lValue || valueAccessor(column.field, data, column)) || '';
+    let query: Query = new Query();
+    let fdata: Object[] = foreignKeyData || (column.dataSource instanceof DataManager) && column.dataSource.dataSource.offline ?
+    (<DataManager>column.dataSource).dataSource.json : column.columnData;
+    if ((<Date>key).getDay) {
+        query.where(getDatePredicate({ field: fField, operator: 'equal', value: key, matchCase: false }));
+    } else {
+        query.where(fField, '==', key, false);
+    }
+    return  new DataManager(fdata).executeLocal(query);
+}
+
+/**
+ * To use to get the column's object by the foreign key value.
+ * @param foreignKeyValue - Defines ForeignKeyValue.
+ * @param columns - Array of column object.
+ * @hidden
+ */
+export function getColumnByForeignKeyValue(foreignKeyValue: string, columns: Column[]): Column {
+    let column: Column;
+    return columns.some((col: Column) => {
+        column = col;
+        return col.foreignKeyValue === foreignKeyValue;
+    }) && column;
+}
+
+/**
+ * @hidden
+ * @param filterObject - Defines predicate model object
+ */
+export function getDatePredicate(filterObject: PredicateModel): Predicate {
+    let datePredicate: Predicate;
+    let prevDate: Date;
+    let nextDate: Date;
+    let prevObj: PredicateModel = baseExtend({}, getActualProperties(filterObject)) as PredicateModel;
+    let nextObj: PredicateModel = baseExtend({}, getActualProperties(filterObject)) as PredicateModel;
+    let value: Date = new Date(filterObject.value as string);
+    if (filterObject.operator === 'equal' || filterObject.operator === 'notequal') {
+        prevDate = new Date(value.setDate(value.getDate() - 1));
+        nextDate = new Date(value.setDate(value.getDate() + 2));
+        prevObj.value = prevDate;
+        nextObj.value = nextDate;
+        if (filterObject.operator === 'equal') {
+            prevObj.operator = 'greaterthan';
+            nextObj.operator = 'lessthan';
+        } else if (filterObject.operator === 'notequal') {
+            prevObj.operator = 'lessthanorequal';
+            nextObj.operator = 'greaterthanorequal';
+        }
+        let predicateSt: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
+        let predicateEnd: Predicate = new Predicate(nextObj.field, nextObj.operator, nextObj.value, false);
+        datePredicate = filterObject.operator === 'equal' ? predicateSt.and(predicateEnd) : predicateSt.or(predicateEnd);
+    } else {
+        if (typeof (prevObj.value) === 'string') {
+                 prevObj.value = new Date(prevObj.value);
+        }
+        let predicates: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
+        datePredicate = predicates;
+    }
+    return datePredicate;
 }

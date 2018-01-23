@@ -8,22 +8,20 @@ import { Selection } from '../../../src/grid/actions/selection';
 import { Clipboard } from '../../../src/grid/actions/clipboard';
 import { employeeData } from '../base/datasource.spec';
 import { BeforeCopyEventArgs } from '../../../src/grid/base/interface';
+import { createGrid, destroy,  getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Selection, Clipboard);
 
-describe('Grid clipboard copy testing - row type selection', () => {
+describe('Grid clipboard copy testing - row type selection => ', () => {
     let gridObj: Grid;
     let preventDefault: Function = new Function();
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
     let selectionModule: Selection;
     let rows: Element[];
     beforeAll((done: Function) => {
-        let dataBound: EmitType<Object> = () => { done(); };
-        document.body.appendChild(elem);
-        gridObj = new Grid(
+        gridObj = createGrid(
             {
-                dataSource: employeeData, dataBound: dataBound,
+                dataSource: employeeData, 
                 columns: [
                     { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 135, },
                     { field: 'FirstName', headerText: 'Name', width: 125 },
@@ -31,8 +29,7 @@ describe('Grid clipboard copy testing - row type selection', () => {
                 ],
                 allowSelection: true,
                 selectionSettings: { type: 'multiple' }
-            });
-        gridObj.appendTo('#Grid');
+            }, done);
     });
 
     it('Check hidden clipboard textarea', () => {
@@ -81,23 +78,20 @@ describe('Grid clipboard copy testing - row type selection', () => {
     });
 
     afterAll(() => {
-        remove(elem);
+       destroy(gridObj);
     });
 });
 
-describe('Grid clipboard copy testing - cells type selection', () => {
+describe('Grid clipboard copy testing - cells type selection => ', () => {
     let gridObj: Grid;
     let preventDefault: Function = new Function();
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
     let selectionModule: Selection;
     let gridBeforeCopy: (e: BeforeCopyEventArgs) => void;
     let rows: Element[];
     beforeAll((done: Function) => {
-        let dataBound: EmitType<Object> = () => { done(); };
-        document.body.appendChild(elem);
-        gridObj = new Grid(
+        gridObj = createGrid(
             {
-                dataSource: employeeData, dataBound: dataBound,
+                dataSource: employeeData,
                 columns: [
                     { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 135, },
                     { field: 'FirstName', headerText: 'Name', width: 125 },
@@ -106,8 +100,7 @@ describe('Grid clipboard copy testing - cells type selection', () => {
                 allowSelection: true,
                 selectionSettings: { type: 'multiple', mode: 'cell' },
                 beforeCopy: gridBeforeCopy
-            });
-        gridObj.appendTo('#Grid');
+            }, done);
     });
 
     it('Check with cells type selection', () => {
@@ -117,7 +110,7 @@ describe('Grid clipboard copy testing - cells type selection', () => {
         }, {
             rowIndex: 1,
             cellIndexes: [1, 2]
-        }])
+        }]);
         gridObj.copy();
         expect((document.querySelector('.e-clipboard') as HTMLInputElement).value
             === '1\nNancy\nAndrew\nVice President, Sales').toBeTruthy();
@@ -136,23 +129,17 @@ describe('Grid clipboard copy testing - cells type selection', () => {
             === 'Employee ID\n1\nName\nNancy\nName\nAndrew\nTitle\nVice President, Sales').toBeTruthy();
     });
 
-    it('Check with ctrlPlusC key press', () => {
-        let preventDefault: Function = new Function();
-        let args: any = { action: 'ctrlPlusC', preventDefault: preventDefault };
-        gridObj.keyboardModule.keyAction(args);
+    it('Check with ctrlPlusC key press', () => {                
+        gridObj.keyboardModule.keyAction(getKeyActionObj('ctrlPlusC'));
         expect((document.querySelector('.e-clipboard') as HTMLInputElement).value
             === '1\nNancy\nAndrew\nVice President, Sales').toBeTruthy();
     });
 
     it('Check with ctrlShiftPlusH key press', () => {
-        let preventDefault: Function = new Function();
-        let args: any = { action: 'ctrlShiftPlusH', preventDefault: preventDefault };
-        gridObj.keyboardModule.keyAction(args);
+        gridObj.keyboardModule.keyAction(getKeyActionObj('ctrlShiftPlusH'));
         expect((document.querySelector('.e-clipboard') as HTMLInputElement).value
-            === 'Employee ID\n1\nName\nNancy\nName\nAndrew\nTitle\nVice President, Sales').toBeTruthy();
-        args.action = 'space';
-        args.target = document.querySelector('.e-clipboard') as HTMLInputElement;
-        gridObj.keyboardModule.keyAction(args);
+            === 'Employee ID\n1\nName\nNancy\nName\nAndrew\nTitle\nVice President, Sales').toBeTruthy();        
+        gridObj.keyboardModule.keyAction(getKeyActionObj('space', document.querySelector('.e-clipboard') as HTMLInputElement));
     });
 
     it('Check with args cancel for coverage', () => {
@@ -161,12 +148,9 @@ describe('Grid clipboard copy testing - cells type selection', () => {
         };
         gridObj.beforeCopy = gridBeforeCopy;
         gridObj.copy();
-        gridObj.destroy();
-        gridObj.clipboardModule.addEventListener();
-        gridObj.clipboardModule.removeEventListener();
     });
 
     afterAll(() => {
-        remove(elem);
+       destroy(gridObj);
     });
 });

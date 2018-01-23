@@ -12,6 +12,10 @@ import { Page } from '../../../src/grid/actions/page';
 import { DetailRow } from '../../../src/grid/actions/detail-row';
 import { filterData, employeeData, customerData } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { Edit } from '../../../src/grid/actions/edit';
+import { Toolbar } from '../../../src/grid/actions/toolbar';
+import { createGrid, destroy, getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
+
 
 Grid.Inject(Sort, Page, Filter, DetailRow, Group, Selection);
 
@@ -40,7 +44,7 @@ describe('Detail template module', () => {
                     { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
                     { field: 'Freight', width: 120, format: 'C', textAlign: 'right' },
                     { field: 'ShipCity', headerText: 'Ship City', width: 150 }
-                    ],
+                ],
             });
         grid1.appendTo((e.detailElement as Element).querySelector('#detailgrid') as HTMLElement);
     }
@@ -117,6 +121,8 @@ describe('Detail template module', () => {
                     detailTemplate: '#detailtemplate',
                     detailDataBound: detail,
                     allowGrouping: true,
+                    editSettings: { allowAdding: true, allowDeleting: true, allowEditing: true },
+                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
                     selectionSettings: { type: 'multiple', mode: 'row' },
                     allowFiltering: true,
                     allowSorting: true,
@@ -169,6 +175,16 @@ describe('Detail template module', () => {
             expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toBe(1);
         });
 
+        it('EJ2-7253- expand and collapse button is not working well after edit', () => {
+            gridObj.detailRowModule.expand(gridObj.getDataRows()[1].querySelector('.e-detailrowcollapse'));
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toBe(1);
+            gridObj.selectRow(1);
+            gridObj.startEdit();
+            gridObj.endEdit();
+            expect(gridObj.getDataRows()[1].querySelectorAll('.e-detailrowexpand').length).toBeGreaterThan(0);
+        });
+
+
         it('Collapse method testing', () => {
             gridObj.detailRowModule.collapse(gridObj.getDataRows()[1].querySelector('.e-detailrowexpand'));
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(2);
@@ -182,7 +198,7 @@ describe('Detail template module', () => {
         it('Alt Down shortcut testing', (done: Function) => {
             gridObj.element.focus();
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.rowSelected = () => {
                 gridObj.keyboardModule.keyAction(leftArgs);
                 gridObj.keyboardModule.keyAction(args);
@@ -232,7 +248,7 @@ describe('Detail template module', () => {
         it('Alt Down shortcut with selection disabled testing', () => {
             gridObj.allowSelection = false;
             gridObj.dataBind();
-            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(leftArgs);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
@@ -265,7 +281,7 @@ describe('Detail template module', () => {
             gridObj.dataBind();
             gridObj.rowSelected = () => {
                 let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
-                let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+                let leftArgs: any = { action: 'rightArrow', preventDefault: () => { }, target: createElement('div') };
                 gridObj.keyboardModule.keyAction(leftArgs);
                 gridObj.keyboardModule.keyAction(args);
                 expect((gridObj.getContentTable().querySelectorAll('.e-detailrow')[0] as HTMLElement).style.display).toBe('');
@@ -443,7 +459,7 @@ describe('Detail template module', () => {
         it('Alt Down shortcut testing', () => {
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.selectRow(2, true);
-            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(leftArgs);
             gridObj.keyboardModule.keyAction(args);
             expect(gridObj.getContentTable().querySelectorAll('.e-detailrow').length).toBe(3);
@@ -493,7 +509,7 @@ describe('Detail template module', () => {
         it('Alt Down shortcut with selection disabled testing', () => {
             gridObj.allowSelection = false;
             gridObj.dataBind();
-            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(leftArgs);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
@@ -524,7 +540,7 @@ describe('Detail template module', () => {
             gridObj.allowSelection = true;
             gridObj.dataBind();
             gridObj.selectRow(1, true);
-            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { },  target: createElement('div') };
+            let leftArgs: any = { action: 'rightArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(leftArgs);
             let args: any = { action: 'altDownArrow', preventDefault: () => { }, target: createElement('div') };
             gridObj.keyboardModule.keyAction(args);
@@ -563,7 +579,7 @@ describe('Detail template module', () => {
         let actionComplete: Function;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { 
+            let dataBound: EmitType<Object> = () => {
                 gridObj.element.focus();
                 gridObj.dataBound = null;
                 done();
@@ -592,7 +608,7 @@ describe('Detail template module', () => {
         });
         it('Detail expand testing', () => {
             let target: any = (gridObj.getDataRows()[0].querySelector('.e-detailrowcollapse') as HTMLElement);
-            gridObj.keyboardModule.keyAction(<any>{ action: 'enter', target: target, preventDefault: () => {} });
+            gridObj.keyboardModule.keyAction(<any>{ action: 'enter', target: target, preventDefault: () => { } });
             expect(target.classList.contains('e-detailrowexpand')).toBeTruthy();
         });
 

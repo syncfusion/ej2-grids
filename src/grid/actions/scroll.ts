@@ -3,7 +3,7 @@ import { remove, addClass, removeClass } from '@syncfusion/ej2-base';
 import { formatUnit, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { getScrollBarWidth } from '../base/util';
-import { scroll, contentReady, uiUpdate } from '../base/constant';
+import { scroll, contentReady, uiUpdate, onEmpty } from '../base/constant';
 import { ColumnWidthService } from '../services/width-controller';
 import { Grid } from '../base/grid';
 
@@ -44,7 +44,7 @@ export class Scroll implements IAction {
     public setWidth(): void {
         this.parent.element.style.width = formatUnit(this.parent.width);
         if ((<Grid>this.parent).toolbarModule && (<Grid>this.parent).toolbarModule.toolbar &&
-        (<Grid>this.parent).toolbarModule.toolbar.element) {
+            (<Grid>this.parent).toolbarModule.toolbar.element) {
             (<Grid>this.parent).toolbarModule.toolbar.refreshOverflow();
         }
     }
@@ -54,7 +54,7 @@ export class Scroll implements IAction {
     public setHeight(): void {
         let mHdrHeight: number = 0;
         let content: HTMLElement = (<HTMLElement>this.parent.getContent().firstChild);
-        if (this.parent.frozenRows) {
+        if (this.parent.frozenRows && this.parent.height !== 'auto') {
             mHdrHeight =
                 (this.parent.getHeaderContent().querySelector('tbody') as HTMLElement).offsetHeight;
             content.style.height = formatUnit((this.parent.height as number) - mHdrHeight);
@@ -114,6 +114,7 @@ export class Scroll implements IAction {
      */
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.on(onEmpty, this.wireEvents, this);
         this.parent.on(contentReady, this.wireEvents, this);
         this.parent.on(uiUpdate, this.onPropertyChanged, this);
     }
@@ -122,6 +123,7 @@ export class Scroll implements IAction {
      */
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.off(onEmpty, this.wireEvents);
         this.parent.off(contentReady, this.wireEvents);
         this.parent.off(uiUpdate, this.onPropertyChanged);
     }
@@ -197,7 +199,7 @@ export class Scroll implements IAction {
             let top: number = element.scrollTop + (this.pageXY.y - pageXY.y);
             let left: number = element.scrollLeft + (this.pageXY.x - pageXY.x);
             if (this.parent.getHeaderContent().contains(e.target as Element)) {
-                mHdr = this.parent.frozenColumns ?
+                mHdr = this.parent.getFrozenColumns() ?
                     this.parent.getHeaderContent().querySelector('.e-movableheader') : this.parent.getHeaderContent().firstChild as Element;
                 if (this.previousValues.left === left || (left < 0 || (mHdr.scrollWidth - mHdr.clientWidth) < left)) {
                     return;
@@ -244,18 +246,19 @@ export class Scroll implements IAction {
 
     private wireEvents(): void {
         if (this.oneTimeReady) {
+            let frzCols: number = this.parent.getFrozenColumns();
             this.content = <HTMLDivElement>this.parent.getContent().firstChild;
             this.header = <HTMLDivElement>this.parent.getHeaderContent().firstChild;
             let mCont: HTMLElement = this.content.querySelector('.e-movablecontent') as HTMLElement;
             let fCont: HTMLElement = this.content.querySelector('.e-frozencontent') as HTMLElement;
             let mHdr: HTMLElement = this.header.querySelector('.e-movableheader') as HTMLElement;
             if (this.parent.frozenRows) {
-                EventHandler.add(this.parent.frozenColumns ? mHdr : this.header, 'touchstart pointerdown', this.setPageXY(), this);
+                EventHandler.add(frzCols ? mHdr : this.header, 'touchstart pointerdown', this.setPageXY(), this);
                 EventHandler.add(
-                    this.parent.frozenColumns ? mHdr : this.header, 'touchmove pointermove',
-                    this.onTouchScroll(this.parent.frozenColumns ? mCont : this.content), this);
+                    frzCols ? mHdr : this.header, 'touchmove pointermove',
+                    this.onTouchScroll(frzCols ? mCont : this.content), this);
             }
-            if (this.parent.frozenColumns) {
+            if (frzCols) {
                 EventHandler.add(mCont, 'scroll', this.onContentScroll(mHdr), this);
                 EventHandler.add(mCont, 'scroll', this.onFreezeContentScroll(fCont), this);
                 EventHandler.add(fCont, 'scroll', this.onFreezeContentScroll(mCont), this);
@@ -277,16 +280,16 @@ export class Scroll implements IAction {
         let table: Element = this.parent.getContentTable();
         if (table.scrollHeight < this.parent.getContent().clientHeight) {
             addClass(table.querySelectorAll('tr:last-child td'), 'e-lastrowcell');
-            if (this.parent.frozenColumns) {
+            if (this.parent.getFrozenColumns()) {
                 addClass(this.parent.getContent().querySelector('.e-movablecontent').querySelectorAll('tr:last-child td'), 'e-lastrowcell');
             }
         }
         if (!this.parent.enableVirtualization) {
-            this.content.scrollLeft = this.previousValues.left;
+            this.content.scrollLeft = this.header.scrollLeft;
             this.content.scrollTop = this.previousValues.top;
         }
         if (!this.parent.enableColumnVirtualization) {
-            this.content.scrollLeft = this.previousValues.left;
+            this.content.scrollLeft = this.header.scrollLeft;
         }
     }
 
@@ -302,7 +305,7 @@ export class Scroll implements IAction {
     }
 
     private ensureOverflow(content: HTMLElement): void {
-        if (this.parent.frozenColumns) {
+        if (this.parent.getFrozenColumns()) {
             (content.querySelector('.e-movablecontent') as HTMLElement).style.overflowY = this.parent.height === 'auto' ? 'auto' : 'scroll';
         } else {
             content.style.overflowY = this.parent.height === 'auto' ? 'auto' : 'scroll';

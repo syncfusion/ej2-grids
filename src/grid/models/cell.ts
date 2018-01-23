@@ -41,8 +41,17 @@ export class Cell<T> {
 
     public commands: CommandModel[];
 
+    public isForeignKey: boolean;
+
+    public foreignKeyData: Object;
+
     constructor(options: { [x: string]: Object }) {
         merge(this, options);
     }
 
+    public clone(): Cell<T> {
+        let cell: Cell<T> = new Cell<T>({});
+        merge(cell, this);
+        return cell;
+    }
 }

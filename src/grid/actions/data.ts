@@ -1,15 +1,17 @@
-import { isNullOrUndefined, extend, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
-import { Query, DataManager, Predicate } from '@syncfusion/ej2-data';
+import { isNullOrUndefined, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
+import { Query, DataManager, Predicate, Deferred } from '@syncfusion/ej2-data';
 import { IDataProcessor, IGrid } from '../base/interface';
 import { ReturnType } from '../base/type';
+import { Grid } from '../base/grid';
 import { SearchSettingsModel, PredicateModel, SortDescriptorModel } from '../base/grid-model';
-import { getActualProperties, setFormatter } from '../base/util';
+import { setFormatter, getDatePredicate, getColumnByForeignKeyValue } from '../base/util';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
 import { ValueFormatter } from '../services/value-formatter';
 import { ServiceLocator } from '../services/service-locator';
 import { Column } from '../models/column';
 import { CheckBoxFilter } from '../actions/checkbox-filter';
+import { SortDirection } from '../base/enum';
 
 /**
  * Grid data module is used to generate query and data source.
@@ -20,8 +22,8 @@ export class Data implements IDataProcessor {
     public dataManager: DataManager;
 
     //Module declarations    
-    private parent: IGrid;
-    private serviceLocator: ServiceLocator;
+    protected parent: IGrid;
+    protected serviceLocator: ServiceLocator;
 
     /**
      * Constructor for data module.
@@ -60,62 +62,33 @@ export class Data implements IDataProcessor {
         let gObj: IGrid = this.parent;
         let query: Query = gObj.query.clone();
 
-        if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
-            let columns: PredicateModel[] = gObj.filterSettings.columns;
-            let predicate: Predicate;
-            if (gObj.filterSettings.type === 'checkbox' || gObj.filterSettings.type === 'excel') {
-                let excelPredicate: Predicate = CheckBoxFilter.getPredicate(gObj.filterSettings.columns);
-                for (let prop of Object.keys(excelPredicate)) {
-                    let and: string = 'and';
-                    let obj: Predicate | string = excelPredicate[prop] as Predicate | string;
-                    predicate = !isNullOrUndefined(predicate) ?
-                        (predicate as Object)[and](obj as string) as Predicate :
-                        obj as Predicate;
-                }
-                if (predicate !== undefined) {
-                    query.where(predicate);
-                }
-            } else {
-                for (let col of columns) {
-                    let sType: string = gObj.getColumnByField(col.field).type;
-                    if (sType !== 'date' && sType !== 'datetime') {
-                        query.where(col.field, col.operator, col.value, !col.matchCase);
-                    } else {
-                        query.where(this.getDatePredicate(col));
-                    }
-                }
-            }
-        }
+        this.filterQuery(query);
 
-        if (gObj.searchSettings.key.length) {
-            let sSettings: SearchSettingsModel = gObj.searchSettings;
-            sSettings.fields = sSettings.fields.length ? sSettings.fields : gObj.getColumnFieldNames();
-            query.search(sSettings.key, sSettings.fields, sSettings.operator, sSettings.ignoreCase);
-        }
+        this.searchQuery(query);
 
-        gObj.aggregates.forEach((row: AggregateRowModel) => {
+        this.aggregateQuery(query);
+
+        this.sortQuery(query);
+
+        this.pageQuery(query, skipPage);
+
+        this.groupQuery(query);
+
+        return query;
+    }
+
+    protected aggregateQuery(query: Query, isForeign?: boolean): Query {
+        this.parent.aggregates.forEach((row: AggregateRowModel) => {
             row.columns.forEach((column: AggregateColumnModel) => {
                 let types: string[] = column.type instanceof Array ? column.type : [column.type];
                 types.forEach((type: string) => query.aggregate(type, column.field));
             });
         });
+        return query;
+    }
 
-        if ((gObj.allowSorting || gObj.allowGrouping) && gObj.sortSettings.columns.length) {
-            let columns: SortDescriptorModel[] = gObj.sortSettings.columns;
-            let sortGrp: SortDescriptorModel[] = [];
-            for (let i: number = columns.length - 1; i > -1; i--) {
-                if (gObj.groupSettings.columns.indexOf(columns[i].field) === -1) {
-                    query.sortBy(columns[i].field, columns[i].direction);
-                } else {
-                    sortGrp.push(columns[i]);
-                }
-            }
-            for (let i: number = 0, len: number = sortGrp.length; i < len; i++) {
-                query.sortBy(sortGrp[i].field, sortGrp[i].direction);
-
-            }
-        }
-
+    protected pageQuery(query: Query, skipPage?: boolean): Query {
+        let gObj: IGrid = this.parent;
         if ((gObj.allowPaging || gObj.enableVirtualization) && skipPage !== true) {
             gObj.pageSettings.currentPage = Math.max(1, gObj.pageSettings.currentPage);
             if (gObj.pageSettings.pageCount <= 0) {
@@ -126,12 +99,17 @@ export class Data implements IDataProcessor {
             }
             query.page(gObj.pageSettings.currentPage, gObj.pageSettings.pageSize);
         }
+        return query;
+    }
 
+    protected groupQuery(query: Query): Query {
+        let gObj: IGrid = this.parent;
         if (gObj.allowGrouping && gObj.groupSettings.columns.length) {
             let columns: string[] = gObj.groupSettings.columns;
             for (let i: number = 0, len: number = columns.length; i < len; i++) {
-                let isGrpFmt: boolean = gObj.getColumnByField(columns[i]).enableGroupByFormat;
-                let format: string | NumberFormatOptions | DateFormatOptions = gObj.getColumnByField(columns[i]).format;
+                let column: Column = this.getColumnByField(columns[i]);
+                let isGrpFmt: boolean = column.enableGroupByFormat;
+                let format: string | NumberFormatOptions | DateFormatOptions = column.format;
                 if (isGrpFmt) {
                     query.group(columns[i], this.formatGroupColumn.bind(this), format);
                 } else {
@@ -139,8 +117,123 @@ export class Data implements IDataProcessor {
                 }
             }
         }
-
         return query;
+    }
+
+    protected sortQuery(query: Query): Query {
+        let gObj: IGrid = this.parent;
+        if ((gObj.allowSorting || gObj.allowGrouping) && gObj.sortSettings.columns.length) {
+            let columns: SortDescriptorModel[] = gObj.sortSettings.columns;
+            let sortGrp: SortDescriptorModel[] = [];
+            for (let i: number = columns.length - 1; i > -1; i--) {
+                let col: Column = this.getColumnByField(columns[i].field);
+                col.setSortDirection(columns[i].direction);
+                let fn: Function | string = col.sortComparer && !this.isRemote() ? col.sortComparer.bind(col) : columns[i].direction;
+                if (gObj.groupSettings.columns.indexOf(columns[i].field) === -1) {
+                    query.sortBy(col.field, fn);
+                } else {
+                    sortGrp.push({ direction: <SortDirection>fn, field: col.field });
+                }
+
+            }
+            for (let i: number = 0, len: number = sortGrp.length; i < len; i++) {
+                query.sortBy(sortGrp[i].field, sortGrp[i].direction);
+            }
+        }
+        return query;
+    }
+
+    protected searchQuery(query: Query): Query {
+        let sSettings: SearchSettingsModel = this.parent.searchSettings;
+        let fields: string[] = sSettings.fields.length ? sSettings.fields : this.parent.getColumnFieldNames();
+        let predicateList: Predicate[] = [];
+        if (this.parent.searchSettings.key.length) {
+            let predicate: Predicate;
+            if (this.parent.getForeignKeyColumns().length) {
+                fields.forEach((columnName: string) => {
+                    let column: Column = this.getColumnByField(columnName);
+                    let sQuery: Query = new Query();
+                    if (column.isForeignColumn()) {
+                        predicateList = this.fGeneratePredicate(column, predicateList);
+                    } else {
+                        predicateList.push(new Predicate(column.field, sSettings.operator, sSettings.key, sSettings.ignoreCase));
+                    }
+                });
+                query.where(Predicate.or(predicateList));
+            } else {
+                query.search(sSettings.key, fields, sSettings.operator, sSettings.ignoreCase);
+            }
+        }
+        return query;
+    }
+
+    protected filterQuery(query: Query, column?: PredicateModel[], skipFoerign?: boolean): Query {
+        let gObj: IGrid = this.parent;
+        let predicateList: Predicate[] = [];
+        let fPredicate: { predicate?: Predicate } = {};
+        let actualFilter: PredicateModel[] = [];
+        let foreignColumn: Column[] = this.parent.getForeignKeyColumns();
+        if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
+            let columns: PredicateModel[] = column ? column : gObj.filterSettings.columns;
+            let colType: Object = {};
+            for (let col of gObj.columns as Column[]) {
+                colType[col.field] = col.filter.type ? col.filter.type : gObj.filterSettings.type;
+            }
+            let checkBoxCols: PredicateModel[] = [];
+            let defaultFltrCols: PredicateModel[] = [];
+            for (let col of columns) {
+                if (colType[col.field] === 'checkbox' || colType[col.field] === 'excel') {
+                    checkBoxCols.push(col);
+                } else {
+                    defaultFltrCols.push(col);
+                }
+            }
+            if (checkBoxCols.length) {
+                let excelPredicate: Predicate = CheckBoxFilter.getPredicate(checkBoxCols);
+                for (let prop of Object.keys(excelPredicate)) {
+                    let col: Column = getColumnByForeignKeyValue(prop, foreignColumn);
+                    if (col && !skipFoerign) {
+                        predicateList = this.fGeneratePredicate(col, predicateList);
+                        actualFilter.push(col);
+                    } else {
+                        predicateList.push(<Predicate>excelPredicate[prop]);
+                    }
+                }
+            }
+            if (defaultFltrCols.length) {
+                for (let col of defaultFltrCols) {
+                    let column: Column = this.getColumnByField(col.field) ||
+                        getColumnByForeignKeyValue(col.field, this.parent.getForeignKeyColumns());
+                    let sType: string = column.type;
+                    if (getColumnByForeignKeyValue(col.field, foreignColumn) && !skipFoerign) {
+                        actualFilter.push(col);
+                        predicateList = this.fGeneratePredicate(column, predicateList);
+                    } else {
+                        if (sType !== 'date' && sType !== 'datetime') {
+                            predicateList.push(new Predicate(col.field, col.operator, col.value, !col.matchCase));
+                        } else {
+                            predicateList.push(getDatePredicate(col));
+                        }
+                    }
+                }
+            }
+            if (predicateList.length) {
+                query.where(Predicate.and(predicateList));
+            } else {
+                this.parent.notify(events.showEmptyGrid, {});
+            }
+        }
+        return query;
+    }
+    private fGeneratePredicate(col: Column, predicateList: Predicate[]): Predicate[] {
+        let fPredicate: { predicate?: Predicate } = {};
+        if (col) {
+            this.parent.notify(events.generateQuery, { predicate: fPredicate, column: col });
+            if (fPredicate.predicate.predicates.length) {
+                predicateList.push(fPredicate.predicate);
+            }
+        }
+        return predicateList;
     }
 
     /** 
@@ -169,20 +262,24 @@ export class Data implements IDataProcessor {
                 break;
         }
         if (this.dataManager.ready) {
+            let deferred: Deferred = new Deferred();
             let ready: Promise<Object> = this.dataManager.ready;
             ready.then((e: ReturnType) => {
-                this.dataManager = new DataManager(e.result as JSON[]);
-                this.parent.refresh();
+                (<Promise<Object>>this.dataManager.executeQuery(query)).then((result: ReturnType) => {
+                    deferred.resolve(result);
+                });
             }).catch((e: ReturnType) => {
-                this.parent.trigger(events.actionFailure, { error: e });
+                deferred.reject(e);
             });
+            return deferred.promise;
+        } else {
+            return this.dataManager.executeQuery(query);
         }
-        return this.dataManager.executeQuery(query);
     }
     private formatGroupColumn(value: number | Date, field: string): string | object {
         let gObj: IGrid = this.parent;
         let serviceLocator: ServiceLocator = this.serviceLocator;
-        let column: Column = gObj.getColumnByField(field);
+        let column: Column = this.getColumnByField(field);
         let date: Date = value as Date;
         if (!column.type) {
             column.type = date.getDay ? (date.getHours() > 0 || date.getMinutes() > 0 ||
@@ -232,36 +329,6 @@ export class Data implements IDataProcessor {
         return this.dataManager.dataSource.offline !== true && this.dataManager.dataSource.url !== undefined;
     }
 
-    /** @hidden */
-    public getDatePredicate(filterObject: PredicateModel): Predicate {
-        let datePredicate: Predicate;
-        let prevDate: Date;
-        let nextDate: Date;
-        let prevObj: PredicateModel = extend({}, getActualProperties(filterObject)) as PredicateModel;
-        let nextObj: PredicateModel = extend({}, getActualProperties(filterObject)) as PredicateModel;
-        let value: Date = new Date(filterObject.value as string);
-        if (filterObject.operator === 'equal' || filterObject.operator === 'notequal') {
-            prevDate = new Date(value.setDate(value.getDate() - 1));
-            nextDate = new Date(value.setDate(value.getDate() + 2));
-            prevObj.value = prevDate;
-            nextObj.value = nextDate;
-            if (filterObject.operator === 'equal') {
-                prevObj.operator = 'greaterthan';
-                nextObj.operator = 'lessthan';
-            } else if (filterObject.operator === 'notequal') {
-                prevObj.operator = 'lessthanorequal';
-                nextObj.operator = 'greaterthanorequal';
-            }
-            let predicateSt: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
-            let predicateEnd: Predicate = new Predicate(nextObj.field, nextObj.operator, nextObj.value, false);
-            datePredicate = filterObject.operator === 'equal' ? predicateSt.and(predicateEnd) : predicateSt.or(predicateEnd);
-        } else {
-            let predicates: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
-            datePredicate = predicates;
-        }
-        return datePredicate;
-    }
-
     private addRows(e: { toIndex: number, records: Object[] }): void {
         for (let i: number = e.records.length; i > 0; i--) {
             this.dataManager.dataSource.json.splice(e.toIndex, 0, e.records[i - 1]);
@@ -273,7 +340,15 @@ export class Data implements IDataProcessor {
         this.dataManager.dataSource.json = json.filter((value: Object, index: number) => e.records.indexOf(value) === -1);
     }
 
-    private destroy(): void {
+    private getColumnByField(field: string): Column {
+        let col: Column;
+        return ((<{columnModel?: Column[]}>this.parent).columnModel).some((column: Column) => {
+            col = column;
+            return column.field === field;
+        }) && col;
+    }
+
+    protected destroy(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.rowsAdded, this.addRows);
         this.parent.off(events.rowsRemoved, this.removeRows);
@@ -282,6 +357,5 @@ export class Data implements IDataProcessor {
         this.parent.off(events.updateData, this.crudActions);
         this.parent.off(events.addDeleteAction, this.getData);
     }
-
 
 }

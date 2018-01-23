@@ -1,4 +1,4 @@
-@include export-module('grid-theme') {
+﻿@include export-module('grid-theme') {
   /*! Grid theme */
   #{&}.e-grid {
     border-color: $grid-header-border-color;
@@ -135,18 +135,15 @@
       border-color: $grid-header-border-color;
   }
 
-    .e-frozenhdrcont > .e-table tbody tr:last-child td,
-    .e-frozenhdrcont .e-frozenheader > .e-table tbody tr:last-child td,
-    .e-frozenhdrcont .e-movableheader > .e-table tbody tr:last-child td {
+    .e-frozenhdrcont .e-headercontent > .e-table,
+    .e-frozenhdrcont .e-frozenheader > .e-table,
+    .e-frozenhdrcont .e-movableheader > .e-table {
       border-bottom-color: $frozen-border-color;
     }
 
-    .e-frozenheader > .e-table tr,
-    .e-frozencontent > .e-table tr:not(.e-emptyrow) {
-      & th:last-child,
-      & td:last-child {
-        border-right-color: $frozen-border-color;
-    }
+    .e-frozenheader > .e-table,
+    .e-frozencontent > .e-table  {
+      border-right-color: $frozen-border-color;
   }
 
     &.e-gridhover tr[role='row']:not(.e-editedrow):hover .e-rowcell,
@@ -344,6 +341,11 @@
 
     .e-gridcontent .e-normaledit .e-rowcell {
       border-top-color: $grid-header-border-color;
+    }
+
+    .e-excelfilter .e-footer-content {
+      border-color: $grid-columnchooser-footer-border-color;
+      opacity: $grid-columnchooser-footer-border-opacity;
     }
 
     .e-ccdlg {

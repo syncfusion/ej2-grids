@@ -14,6 +14,7 @@ import { ItemModel } from '@syncfusion/ej2-navigations';
 import { data } from '../base/datasource.spec';
 import { DataManager, ODataV4Adaptor } from '@syncfusion/ej2-data';
 import { ExcelExport } from '../../../src/grid/actions/excel-export';
+import { createGrid, destroy, getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 Grid.Inject(Page, Group, Selection, Toolbar, ExcelExport, Aggregate);
@@ -57,6 +58,50 @@ let excelExportProperties: any = {
     },
     exportType: 'currentpage'
 };
+
+describe('Blob data excel export => ', () => {
+    let gridObj: Grid;
+    let checkBoxFilter: Element; 
+    let exportComplete: () => void;
+    beforeAll((done: Function) => {
+        gridObj = createGrid(
+            {
+                dataSource: data,
+                allowPaging: true,
+                filterSettings: { type: 'menu', showFilterBarStatus: true },
+                columns: [{ field: 'OrderID', type: 'number', visible: true },
+                { field: 'CustomerID', type: 'string', filter: {type: 'checkbox'} },
+                { field: 'Freight', format: 'C2', type: 'number' }
+                ],
+                allowExcelExport: true,
+                excelExportComplete: exportComplete
+            }, done);
+    });
+
+    it('blob csv export testing', (done) => {
+        let exportComplete: any = (e: any)=>{            
+            expect(e.promise).not.toBeUndefined();            
+            gridObj.excelExportComplete = null;
+            done();
+        };
+        gridObj.excelExportComplete = exportComplete;
+        gridObj.csvExport(null,null,null,true);       
+    });
+    it('blob excel export testing', (done) => {
+        let exportComplete: any = (e: any)=>{            
+            expect(e.promise).not.toBeUndefined();            
+            gridObj.excelExportComplete = null;
+            done();
+        };
+        gridObj.excelExportComplete = exportComplete;
+        gridObj.excelExport(null,null,null,true);       
+    });
+
+    afterAll(() => {
+        destroy(gridObj);
+    });
+});  
+
 
 describe('excel export', () => {
 
@@ -253,8 +298,6 @@ describe('excel export', () => {
 describe('multiple-grid-exporting', () => {
     let gridObj1: Grid;
     let elem1: HTMLElement = createElement('div', { id: 'Grid1' });
-    let gridObj2: Grid;
-    let elem2: HTMLElement = createElement('div', { id: 'Grid2' });
     let gridObj3: Grid;
     let elem3: HTMLElement = createElement('div', { id: 'Grid3' });
     let actionBegin: (e?: Object) => void;
@@ -330,7 +373,6 @@ describe('multiple-grid-exporting', () => {
     });
     afterAll(() => {
         remove(elem1);
-        remove(elem2);
         remove(elem3);
     });
     let gBook: any;

@@ -1,7 +1,7 @@
 import { L10n, EventHandler, closest, Browser, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { ContextMenu as Menu, MenuEventArgs, OpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
-import { IGrid, IAction, ColumnMenuItemModel, ColumnMenuOpenEventArgs } from '../base/interface';
+import { IGrid, IAction, ColumnMenuItemModel, NotifyArgs, ColumnMenuOpenEventArgs, ColumnMenuClickEventArgs } from '../base/interface';
 import { parentsUntil } from '../base/util';
 import { Column } from '../models/column';
 import { ServiceLocator } from '../services/service-locator';
@@ -124,6 +124,7 @@ export class ColumnMenu implements IAction {
     public addEventListener() : void {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.headerRefreshed, this.wireEvents, this);
+        this.parent.on(events.uiUpdate, this.enableAfterRenderMenu, this);
         this.parent.on(events.initialEnd, this.render, this);
         if (this.isFilterItemAdded()) {
             this.parent.on(events.filterDialogCreated, this.filterPosition, this);
@@ -137,11 +138,22 @@ export class ColumnMenu implements IAction {
     public removeEventListener() : void {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.headerRefreshed, this.unwireEvents);
+        this.parent.off(events.uiUpdate, this.enableAfterRenderMenu);
         this.parent.off(events.initialEnd, this.render);
         if (this.isFilterItemAdded()) {
             this.parent.off(events.filterDialogCreated, this.filterPosition);
         }
         this.parent.off(events.click, this.columnMenuHandlerClick);
+    }
+
+    private enableAfterRenderMenu(e: NotifyArgs): void {
+        if (e.module === this.getModuleName() && e.enable) {
+            if (this.columnMenu) {
+                this.columnMenu.destroy();
+                remove(this.element);
+            }
+            this.render();
+        }
     }
 
     private render(): void {
@@ -201,7 +213,8 @@ export class ColumnMenu implements IAction {
             closest(args.event.target as Node, '.e-menu-parent')) {
             args.cancel = true;
         } else if (args.event && (closest(args.event.target as Element, '.' + this.POP)
-            || (parentsUntil(args.event.target as Element, 'e-popup')))) {
+            || parentsUntil(args.event.target as Element, 'e-popup') ||
+            (parentsUntil(args.event.target as Element, 'e-popup-wrapper')))) {
             args.cancel = true;
         }
     }
@@ -270,7 +283,7 @@ export class ColumnMenu implements IAction {
         return status;
     }
 
-    private columnMenuItemClick(args: MenuEventArgs): void {
+    private columnMenuItemClick(args: ColumnMenuClickEventArgs): void {
         let item: string = this.isChooserItem(args.item) ? 'columnChooser' : this.getKeyFromId(args.item.id);
         switch (item) {
             case 'autoFit':
@@ -306,6 +319,7 @@ export class ColumnMenu implements IAction {
                 this.getFilter(args.element, args.item.id);
                 break;
         }
+        args.column = this.targetColumn;
         this.parent.trigger(events.columnMenuClick, args);
     }
 
@@ -367,7 +381,7 @@ export class ColumnMenu implements IAction {
         }
         this.defaultItems[item] = {
             text: this.getLocaleText(item), id: this.generateID(item),
-            iconCss: menuItem.iconCss ? 'e-icons ' + menuItem.iconCss : ''
+            iconCss: menuItem.iconCss ? 'e-icons ' + menuItem.iconCss : null
         };
         return this.defaultItems[item];
     }
@@ -381,7 +395,8 @@ export class ColumnMenu implements IAction {
     }
 
     private getKeyFromId(id: string, append?: string): string {
-        return id.replace(this.gridID + '_colmenu_' + (append ? append : ''), '');
+        return id.indexOf('_colmenu_') > 0 &&
+            id.replace(this.gridID + '_colmenu_' + (append ? append : ''), '');
     }
 
     public getColumnMenu(): HTMLElement {
@@ -420,7 +435,7 @@ export class ColumnMenu implements IAction {
     private createChooserItems(): ColumnMenuItemModel[] {
         let items: ColumnMenuItemModel[] = [];
         for (let col of this.parent.getColumns()) {
-            if (col.showInColumnChooser) {
+            if (col.showInColumnChooser && col.field) {
                 items.push({ id: this.generateID(col.field, this.CHOOSER), text: col.headerText ? col.headerText : col.field });
             }
         }
