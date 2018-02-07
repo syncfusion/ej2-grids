@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### Bug Fixes
+
+- Renamed event `dataSourceChange` to `dataSourceChanged`.
+
+## 15.4.28-preview (2018-01-30)
+
+### Grid
+
+#### Bug Fixes
+
+- Child Grid editing dialog closes when clicking on edit element.
+- Printing window is blocking by browser and column hiding.
+- `getSelectedRecords` method returns selected records properly with checkbox persist selection fixed.
+- Aggregate with frozen columns scroller is working fine.
+
+## 15.4.27-preview (2018-01-30)
+
+### Grid
+
+#### Bug Fixes
+
+- Disable edit, delete button when Grid is empty.
+- `ShowConfirmDialog` is not showing in Command Column.
+- Grid Validation message is not shown in EJ2 compatibility theme.
+- Checkbox selection fixes with virtual scrolling.
+- Provide support to add row with rowindex in AddRecord method.
+
 ## 15.4.26-preview (2018-01-23)
 
 ### Grid
