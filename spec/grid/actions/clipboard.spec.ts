@@ -23,12 +23,12 @@ describe('Grid clipboard copy testing - row type selection => ', () => {
             {
                 dataSource: employeeData, 
                 columns: [
-                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 135, },
+                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 135, },
                     { field: 'FirstName', headerText: 'Name', width: 125 },
                     { field: 'Title', headerText: 'Title', width: 180 },
                 ],
                 allowSelection: true,
-                selectionSettings: { type: 'multiple' }
+                selectionSettings: { type: 'Multiple' }
             }, done);
     });
 
@@ -93,12 +93,12 @@ describe('Grid clipboard copy testing - cells type selection => ', () => {
             {
                 dataSource: employeeData,
                 columns: [
-                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 135, },
+                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 135, },
                     { field: 'FirstName', headerText: 'Name', width: 125 },
                     { field: 'Title', headerText: 'Title', width: 180 },
                 ],
                 allowSelection: true,
-                selectionSettings: { type: 'multiple', mode: 'cell' },
+                selectionSettings: { type: 'Multiple', mode: 'Cell' },
                 beforeCopy: gridBeforeCopy
             }, done);
     });
@@ -154,3 +154,37 @@ describe('Grid clipboard copy testing - cells type selection => ', () => {
        destroy(gridObj);
     });
 });
+
+    describe('EJ2-7314/7299===>Grid clipboard => ', () => {
+        let gridObj: Grid;
+        let selectionModule: Selection;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: employeeData,
+                    columns: [
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 135, },
+                        { field: 'FirstName', headerText: 'Name', width: 125 },
+                        { field: 'Title', headerText: 'Title', visible: false, width: 180 },
+                        { field: 'Region', headerText: 'Region', width: 180 },
+                        { field: 'Country', headerText: 'Country', width: 180 }
+                    ],
+                    allowSelection: true,
+                    selectionSettings: { type: 'Multiple' }
+                }, done);
+        });
+
+        it('EJ2-7299===>Hiding one column and copying the rows', () => {
+            gridObj.selectRow(0, true);
+            gridObj.copy();
+            expect((gridObj.element.querySelector('.e-clipboard') as HTMLInputElement).value
+                === '1	Nancy		WA	USA').toBeTruthy();
+            gridObj.copy(true);
+            expect((gridObj.element.querySelector('.e-clipboard') as HTMLInputElement).value
+                === 'Employee ID	Name	Region	Country\n1	Nancy		WA	USA').toBeTruthy();
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });

@@ -11,7 +11,7 @@ import * as events from '../base/constant';
 Pager.Inject(ExternalMessage, PagerDropDown);
 
 /**
- * `Page` module is used to render pager and handle paging action.
+ * The `Page` module is used to render pager and handle paging action.
  */
 export class Page implements IAction {
     //Internal variables          
@@ -83,13 +83,21 @@ export class Page implements IAction {
 
     private addAriaAttr(): void {
         if (!(this.pageSettings.template)) {
+            let numericContainerNew: Element = createElement('div', { className: 'e-numericcontainer' });
+            let pagerContainer: Element = this.element.querySelector('.e-pagercontainer');
+            let frag: DocumentFragment = document.createDocumentFragment();
             let numericContainer: Element = this.element.querySelector('.e-numericcontainer');
             let links: NodeList = numericContainer.querySelectorAll('a');
             for (let i: number = 0; i < links.length; i++) {
                 if (this.parent.getContentTable()) {
                     (<Element>links[i]).setAttribute('aria-owns', this.parent.getContentTable().id);
+                    let numericContainerDiv: Element = createElement('div');
+                    numericContainerDiv.appendChild(links[i]);
+                    frag.appendChild(numericContainerDiv);
                 }
             }
+            numericContainerNew.appendChild(frag);
+            pagerContainer.replaceChild(numericContainerNew, numericContainer);
             let classList: string[] = ['.e-mfirst', '.e-mprev', '.e-first', '.e-prev', '.e-next', '.e-last', '.e-mnext', '.e-mlast'];
             classList.forEach((value: string) => {
                 let element: Element = this.element.querySelector(value);
@@ -105,7 +113,7 @@ export class Page implements IAction {
     }
 
     /** 
-     * Refreshes the page count, pager information and external message. 
+     * Refreshes the page count, pager information, and external message. 
      * @return {void} 
      */
     public refresh(): void {
@@ -113,7 +121,7 @@ export class Page implements IAction {
     }
 
     /** 
-     * Navigate to target page by given number. 
+     * Navigates to the target page according to the given number. 
      * @param  {number} pageNo - Defines the page number to navigate. 
      * @return {void} 
      */
@@ -182,32 +190,14 @@ export class Page implements IAction {
     }
 
     private keyPressHandler(e: KeyboardEventArgs): void {
-        if (this.canSkipAction(e.action)) {
-            return;
-        }
-
         if (e.action in keyActions) {
             e.preventDefault();
             (this.element.querySelector(keyActions[e.action]) as HTMLElement).click();
         }
     }
 
-    private canSkipAction(action: string): boolean {
-        let page: { [x: string]: Function } = {
-            pageUp: (el: HTMLElement) => el.scrollTop !== 0,
-            pageDown: (el: HTMLElement) => !(el.scrollTop >= el.scrollHeight - el.clientHeight)
-        };
-        let activeElement: Element = document.activeElement;
-        if (!isNullOrUndefined(activeElement) && activeElement.classList.contains('e-content') &&
-            activeElement.isEqualNode(this.parent.getContent().firstElementChild) && ['pageUp', 'pageDown'].indexOf(action) !== -1) {
-            return page[action](this.parent.getContent().firstChild);
-        }
-
-        return false;
-    }
-
     /** 
-     * Defines the text of external message.
+     * Defines the text of the external message.
      * @param  {string} message - Defines the message to update. 
      * @return {void} 
      */

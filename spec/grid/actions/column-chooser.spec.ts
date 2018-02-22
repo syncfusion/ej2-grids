@@ -30,7 +30,7 @@ describe('Column chooser module', () => {
                     { field: 'ShipCity' }],
                     allowPaging: true,
                     showColumnChooser: true,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
                     dataBound: dataBound
@@ -82,7 +82,7 @@ describe('Column chooser module', () => {
                     { field: 'ShipCity' }],
                     allowPaging: true,
                     showColumnChooser: true,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
                     dataBound: dataBound
@@ -174,7 +174,7 @@ describe('Column chooser module', () => {
                     { field: 'ShipCity' }],
                     allowPaging: true,
                     showColumnChooser: true,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
                     dataBound: dataBound
@@ -222,7 +222,7 @@ describe('Column chooser module', () => {
                     { field: 'ShipCity' }],
                     allowPaging: true,
                     showColumnChooser: true,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
                     dataBound: dataBound
@@ -245,8 +245,6 @@ describe('Column chooser module', () => {
                 (<any>gridObj).columnChooserModule.confirmDlgBtnClick();
                 (gridObj.columnChooserModule as any).columnChooserManualSearch(e);
                 let searchElement = gridObj.element.querySelector('.e-ccsearch');
-                (<any>gridObj).columnChooserModule.searchFocus(searchElement);
-                (<any>gridObj).columnChooserModule.searchBlur(searchElement);
                 // (<any>gridObj).columnChooserModule.columnChooserSearch('e');
                 // (<any>gridObj).columnChooserModule.startTime({keycode: 13});
                 (<any>gridObj).columnChooserModule.destroy();
@@ -278,7 +276,7 @@ describe('Column chooser module', () => {
                     { field: 'ShipCity', showInColumnChooser: false }],
                     allowPaging: true,
                     showColumnChooser: true,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
                     dataBound: dataBound
@@ -344,7 +342,7 @@ describe('Column chooser module', () => {
                     { field: 'ShipCity', showInColumnChooser: false }],
                     allowPaging: true,
                     showColumnChooser: true,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
                     dataBound: dataBound
@@ -388,7 +386,7 @@ describe('Column chooser module', () => {
                     { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity', visible: false }],
                     allowPaging: true,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     showColumnChooser: true,
                     pageSettings: { pageSize: 5 },
                     enableRtl: true,
@@ -452,7 +450,7 @@ describe('Column chooser module', () => {
                     { field: 'ShipCity', headerText: 'Ship City' },
                     { field: 'ShipCountry', headerText: 'Ship Country' }],
                     showColumnChooser: false,
-                    toolbar: ['columnchooser'],
+                    toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                 }, done);
         });
@@ -462,6 +460,25 @@ describe('Column chooser module', () => {
             gridObj.columnChooserModule.openColumnChooser();
             expect(gridObj.element.querySelectorAll('.e-ccdlg').length).toBe(1);
         });
+
+        it('EJ2-7683==>enabling rtl', () => {
+            gridObj.enableRtl = true;
+            gridObj.dataBind();
+        });
+
+        it('EJ2-7683==>checking whether rtl is enabled', () => {
+            let columnChooser: any = (<any>gridObj.element.querySelector('.e-ccdlg'));
+            expect(columnChooser.querySelectorAll('.e-rtl').length).toBeGreaterThan(5);
+            gridObj.enableRtl = false;
+            gridObj.dataBind();
+        });
+
+        it('EJ2-7683==>checking whether rtl is disabled', () => {
+            let columnChooser: any = (<any>gridObj.element.querySelector('.e-ccdlg'));
+            expect(columnChooser.querySelectorAll('.e-rtl').length).toBe(0);
+            gridObj.columnChooserModule.openColumnChooser();
+        });
+
         afterAll(() => {
             destroy(gridObj);
         });

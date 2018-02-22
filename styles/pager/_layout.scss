@@ -79,14 +79,22 @@
     .e-currentitem {
       border-radius: $pager-bigger-current-item-border-radius;
       padding: $pager-bigger-current-item-padding;
-      }
+    }
+
+    .e-numericitem:hover:not(.e-np):not(.e-pp):not(.e-active) {
+      padding: $pager-bigger-current-item-hover-padding;
+    }
 
     &.e-rtl .e-spacing,
     &.e-rtl .e-numericitem:hover,
     &.e-rtl .e-currentitem {
       margin: $pager-bigger-rtl-numeric-margin;
       padding: $pager-bigger-rtl-activeitem-padding;
-      }
+    }
+
+    &.e-rtl .e-numericitem:hover:not(.e-np):not(.e-pp):not(.e-active) {
+      padding: $pager-bigger-rtl-activeitem-hover-padding;
+    }
 
     &.e-rtl {
       & .e-pp,
@@ -194,6 +202,10 @@
       cursor: pointer;
       padding: $pager-numeric-icon-padding;
       text-decoration: none;
+    }
+
+    .e-numericitem:hover:not(.e-np):not(.e-pp):not(.e-active) {
+      padding: $pager-numeric-icon-hover-padding;
     }
 
     .e-currentitem {
@@ -505,6 +517,10 @@
       & .e-currentitem {
         margin: $pager-rtl-numeric-margin;
         padding: $pager-activeitem-padding;
+      }
+
+      & .e-numericitem:hover:not(.e-np):not(.e-pp):not(.e-active) {
+        padding: $pager-activeitem-hover-padding;
       }
 
       & .e-pp,

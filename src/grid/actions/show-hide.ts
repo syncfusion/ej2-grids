@@ -5,7 +5,7 @@ import * as events from '../base/constant';
 import { IGrid } from '../base/interface';
 
 /**
- * `ShowHide` module is used to control column visibility.
+ * The `ShowHide` module is used to control column visibility.
  */
 export class ShowHide {
 
@@ -26,9 +26,9 @@ export class ShowHide {
      * @return {void} 
      */
     public show(columnName: string | string[], showBy?: string): void {
-        if (this.batchChanges(this.show, columnName, showBy)) { return; }
         let keys: string[] = this.getToggleFields(columnName);
         let columns: Column[] = this.getColumns(keys, showBy);
+        this.parent.notify(events.tooltipDestroy, { module: 'edit' });
 
         columns.forEach((value: Column) => {
             value.visible = true;
@@ -44,28 +44,15 @@ export class ShowHide {
      * @return {void} 
      */
     public hide(columnName: string | string[], hideBy?: string): void {
-        if (this.batchChanges(this.hide, columnName, hideBy)) { return; }
         let keys: string[] = this.getToggleFields(columnName);
         let columns: Column[] = this.getColumns(keys, hideBy);
+        this.parent.notify(events.tooltipDestroy, { module: 'edit' });
 
         columns.forEach((value: Column) => {
             value.visible = false;
         });
 
         this.setVisible(columns);
-    }
-
-    private batchChanges(handler: Function, columnName: string | string[], showHide?: string): boolean {
-        if (isActionPrevent(this.parent)) {
-            this.parent.notify(
-                events.preventBatch,
-                {
-                    instance: this, handler: handler,
-                    arg1: columnName, arg2: showHide
-                });
-            return true;
-        }
-        return false;
     }
 
     private getToggleFields(key: string | string[]): string[] {
@@ -107,8 +94,19 @@ export class ShowHide {
      * @return {void}
      */
     public setVisible(columns?: Column[]): void {
+        if (isActionPrevent(this.parent)) {
+            this.parent.notify(
+                events.preventBatch,
+                {
+                    instance: this, handler: this.setVisible,
+                    arg1: columns
+                });
+            return;
+        }
         columns = isNullOrUndefined(columns) ? <Column[]>this.parent.getColumns() : columns;
-
+        if (this.parent.getSelectedRecords().length) {
+            this.parent.clearSelection();
+        }
         this.parent.notify(events.columnVisibilityChanged, columns);
     }
 }

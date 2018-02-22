@@ -7,21 +7,22 @@ import * as events from '../base/constant';
 
 /**
  * 
- * `Print` module is used to handle the print action.
+ * The `Print` module is used to handle print action.
  */
 export class Print {
 
     //Module declarations
     private parent: IGrid;
+    private printWind: Window;
     private scrollModule: Scroll;
     private isAsyncPrint: boolean = false;
     private printing: string = 'isPrinting';
     private static printGridProp: string[] = [
         'aggregates', 'allowGrouping', 'allowFiltering', 'allowMultiSorting', 'allowReordering', 'allowSorting',
         'allowTextWrap', 'childGrid', 'columns', 'currentViewData', 'dataSource', 'detailTemplate', 'enableAltRow',
-        'enableColumnVirtualization', 'filterSettings', 'frozenColumns', 'frozenRows', 'gridLines',
+        'enableColumnVirtualization', 'filterSettings', 'gridLines',
         'groupSettings', 'height', 'locale', 'pageSettings', 'printMode', 'query', 'queryString',
-        'rowHeight', 'rowTemplate', 'sortSettings', 'textWrapSettings', 'width', 'allowPaging',
+        'rowHeight', 'rowTemplate', 'sortSettings', 'textWrapSettings', 'allowPaging',
         events.beforePrint, events.printComplete
     ];
 
@@ -40,12 +41,16 @@ export class Print {
     }
 
     /**
-     * By default, it prints all the pages of Grid and hides pager. 
-     * > Customize print options using [`printMode`](http://ej2.syncfusion.com/documentation/grid/api-grid.html#printmode-string). 
+     * By default, prints all the Grid pages and hides the pager. 
+     * > You can customize print options using the 
+     * [`printMode`](./api-grid.html#printmode-string). 
      * @return {void}
      */
     public print(): void {
         this.renderPrintGrid();
+        this.printWind = window.open('', 'print', 'height=' + window.outerHeight + ',width=' + window.outerWidth + ',tabbar=no');
+        this.printWind.moveTo(0, 0);
+        this.printWind.resizeTo(screen.availWidth, screen.availHeight);
     }
 
     private onEmpty(): void {
@@ -62,13 +67,15 @@ export class Print {
         let gObj: IGrid = this.parent;
         let elem: string = 'element';
         let printGridModel: { [key: string]: object | boolean } = {};
-        let element: HTMLElement = createElement('div', { id: this.parent.element.id + '_print', className: 'e-print-grid' });
+        let element: HTMLElement = createElement('div', {
+            id: this.parent.element.id + '_print', className: gObj.element.className + ' e-print-grid'
+        });
         document.body.appendChild(element);
         for (let key of Print.printGridProp) {
             if (key === 'columns') {
                 printGridModel[key] = getActualPropFromColl(gObj[key]);
             } else if (key === 'allowPaging') {
-                printGridModel[key] = this.parent.printMode === 'currentpage';
+                printGridModel[key] = this.parent.printMode === 'CurrentPage';
             } else {
                 printGridModel[key] = getActualProperties(gObj[key]);
             }
@@ -104,10 +111,9 @@ export class Print {
     }
 
     private printGrid(): void {
-        let printWind: Window;
         let gObj: IGrid = this.parent;
         // Pager eleement process based on primt mode
-        if (gObj.allowPaging && gObj.printMode === 'currentpage') {
+        if (gObj.allowPaging && gObj.printMode === 'CurrentPage') {
             (gObj.element.querySelector('.e-gridpager') as HTMLElement).style.display = 'none';
         }
         // Height adjustment on print grid
@@ -138,7 +144,7 @@ export class Print {
         // hide horizontal scroll
         (gObj.element.querySelector('.e-content') as HTMLElement).style.overflowX = 'hidden';
         //hide filter bar in print grid
-        if (gObj.allowFiltering && gObj.filterSettings.type === 'filterbar') {
+        if (gObj.allowFiltering && gObj.filterSettings.type === 'FilterBar') {
             (gObj.element.querySelector('.e-filterbar') as HTMLElement).style.display = 'none';
         }
         // Hide the waiting popup
@@ -147,14 +153,11 @@ export class Print {
             waitingPop[0].classList.add('e-spin-hide');
             waitingPop[0].classList.remove('e-spin-show');
         }
-        printWind = window.open('', 'print', 'height=' + window.outerHeight + ',width=' + window.outerWidth + ',tabbar=no');
-        printWind.moveTo(0, 0);
-        printWind.resizeTo(screen.availWidth, screen.availHeight);
         if (gObj[this.printing]) {
             detach(gObj.element);
         }
         gObj.element.classList.remove('e-print-grid');
-        printWind = printWindow(gObj.element, printWind);
+        this.printWind = printWindow(gObj.element, this.printWind);
         gObj[this.printing] = false;
         let args: PrintEventArgs = {
             element: gObj.element

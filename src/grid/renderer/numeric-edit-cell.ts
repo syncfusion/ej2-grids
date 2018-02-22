@@ -28,19 +28,19 @@ export class NumericEditCell implements IEditCell {
     }
 
     public read(element: Element): number {
-        (<EJ2Intance>element).ej2_instances[0].focusOut();
+        (element as HTMLElement).blur();
         return (<EJ2Intance>element).ej2_instances[0].value;
     }
 
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         let col: Column = args.column;
-        let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
+        let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         this.obj = new NumericTextBox(extend(
             {
                 value: parseFloat(args.rowData[col.field]), enableRtl: this.parent.enableRtl,
                 placeholder: isInline ? '' : args.column.headerText,
                 enabled: isEditable(args.column, args.requestType, args.element),
-                floatLabelType: this.parent.editSettings.mode !== 'dialog' ? 'Never' : 'Always',
+                floatLabelType: this.parent.editSettings.mode !== 'Dialog' ? 'Never' : 'Always',
             },
             col.edit.params));
         this.obj.appendTo(args.element as HTMLElement);

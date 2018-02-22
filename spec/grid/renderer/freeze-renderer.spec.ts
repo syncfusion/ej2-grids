@@ -5,8 +5,9 @@ import { Grid } from '../../../src/grid/base/grid';
 import { createElement, remove, EmitType } from '@syncfusion/ej2-base';
 import { data } from '../base/datasource.spec';
 import { Freeze } from '../../../src/grid/actions/freeze';
+import { Aggregate } from '../../../src/grid/actions/aggregate';
 
-Grid.Inject(Freeze);
+Grid.Inject(Freeze, Aggregate);
 
 describe('Freeze render module', () => {
     describe('Freeze Row and Column', () => {
@@ -248,7 +249,14 @@ describe('Freeze render module', () => {
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
-                    dataBound: dataBound
+                    dataBound: dataBound,
+                    aggregates: [{
+                        columns: [{
+                            type: 'Count',
+                            field: 'ShipCity',
+                            footerTemplate: 'Count: ${count}'
+                        }]
+                    }],
                 });
             gridObj.appendTo('#Grid');
         });
@@ -260,6 +268,21 @@ describe('Freeze render module', () => {
 
         it('Movable Content testing', () => {
             expect(gridObj.getContent().querySelector('.e-movablecontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
+        });
+
+        it('Aggregate checking', () => {
+            expect(gridObj.element.querySelector('.e-summarycontent').childNodes.length).toBe(2);
+        });
+
+        it('clip board testing', () => {
+            gridObj.selectRow(2);
+            gridObj.copy();
+            expect((<any>gridObj.clipboardModule).copyContent).toBe('HANAR	10250	4	Brazil	Rio de Janeiro');
+        });
+
+        it('copy with header', () => {
+            gridObj.copy(true);
+            expect((<any>gridObj.clipboardModule).copyContent).toBe('CustomerID	OrderID	EmployeeID	ShipCountry	ShipCity\nHANAR	10250	4	Brazil	Rio de Janeiro');
         });
 
         afterAll(() => {

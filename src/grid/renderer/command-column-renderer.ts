@@ -4,6 +4,7 @@ import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ServiceLocator } from '../services/service-locator';
 import { IGrid, ICellRenderer, CommandModel } from '../base/interface';
+import { CommandButtonType } from '../base/enum';
 import { CellRenderer } from './cell-renderer';
 import { appendChildren } from '../base/util';
 
@@ -55,17 +56,22 @@ export class CommandColumnRenderer extends CellRenderer implements ICellRenderer
 
     private renderButton(node: Element, buttonOption: CommandModel, index: number): Element {
         let button: HTMLButtonElement = <HTMLButtonElement>this.buttonElement.cloneNode();
-        attributes(button, { 'id': this.parent.element.id + (buttonOption.type || '') + '_' + index, 'type': 'button' });
+        attributes(button, {
+            'id': this.parent.element.id + (buttonOption.type || '') + '_' + index, 'type': 'button',
+            title: buttonOption.buttonOption.content || buttonOption.type
+        });
         button.onclick = buttonOption.buttonOption.click;
-        node.firstElementChild.appendChild(new Button(buttonOption.buttonOption, button).element);
+        let buttonObj: Button = new Button(buttonOption.buttonOption, button);
+        (<{commandType?: CommandButtonType}> buttonObj).commandType = buttonOption.type;
+        node.firstElementChild.appendChild(buttonObj.element);
         switch (buttonOption.type) {
-            case 'edit':
-            case 'delete':
-                addClass([button], ['e-edit-delete', 'e-' + buttonOption.type + 'button']);
+            case 'Edit':
+            case 'Delete':
+                addClass([button], ['e-edit-delete', 'e-' + buttonOption.type.toLowerCase() + 'button']);
                 break;
-            case 'cancel':
-            case 'save':
-                addClass([button], ['e-save-cancel', 'e-' + buttonOption.type + 'button']);
+            case 'Cancel':
+            case 'Save':
+                addClass([button], ['e-save-cancel', 'e-' + buttonOption.type.toLowerCase() + 'button']);
                 break;
         }
         return node;

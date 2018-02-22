@@ -189,6 +189,7 @@ export class PdfExport {
             } else {
                 this.blobPromise = this.pdfDocument.save();
             }
+            this.pdfDocument.destroy();
         }
     }
     /* tslint:disable-next-line:no-any */
@@ -321,7 +322,7 @@ export class PdfExport {
                         if (!isNullOrUndefined(rows[i].cells[j].rowSpan)) {
                             cell.rowSpan = rows[i].cells[j].rowSpan;
                             /* tslint:disable-next-line:max-line-length */
-                            cell.style.stringFormat = this.getVerticalAlignment('bottom', cell.style.stringFormat, rows[i].cells[j].column.textAlign);
+                            cell.style.stringFormat = this.getVerticalAlignment('Bottom', cell.style.stringFormat, rows[i].cells[j].column.textAlign);
                             for (let k: number = 1; k < rows[i].cells[j].rowSpan; k++) {
                                 pdfGrid.headers.getHeader(i + k).cells.getCell(cellIndex).value = null;
                             }
@@ -352,7 +353,7 @@ export class PdfExport {
             if (!isNullOrUndefined(pdfExportProperties.pageOrientation) || !isNullOrUndefined(pdfExportProperties.pageSize)) {
                 let pdfPageSettings: PdfPageSettings = new PdfPageSettings();
                 /* tslint:disable-next-line:max-line-length */
-                pdfPageSettings.orientation = (pdfExportProperties.pageOrientation === 'landscape') ? PdfPageOrientation.Landscape : PdfPageOrientation.Portrait;
+                pdfPageSettings.orientation = (pdfExportProperties.pageOrientation === 'Landscape') ? PdfPageOrientation.Landscape : PdfPageOrientation.Portrait;
                 pdfPageSettings.size = this.getPageSize(pdfExportProperties.pageSize);
                 section.setPageSettings(pdfPageSettings);
             }
@@ -383,7 +384,7 @@ export class PdfExport {
                 this.customDataSource = true;
                 this.currentViewData = false;
             } else if (!isNullOrUndefined(pdfExportProperties.exportType)) {
-                if (pdfExportProperties.exportType === 'currentpage') {
+                if (pdfExportProperties.exportType === 'CurrentPage') {
                     dataSource = this.parent.getCurrentViewRecords();
                     this.currentViewData = true;
                     this.customDataSource = false;
@@ -406,23 +407,23 @@ export class PdfExport {
         for (let content of element.contents) {
             this.processContentValidation(content);
             switch (content.type) {
-                case 'text':
+                case 'Text':
                     /* tslint:disable-next-line:max-line-length */
                     if (content.value === '' || content.value === undefined || content.value === null || typeof content.value !== 'string') {
                         throw new Error('please enter the valid input value in text content...');
                     }
                     this.drawText(template, content);
                     break;
-                case 'pagenumber':
+                case 'PageNumber':
                     this.drawPageNumber(template, content);
                     break;
-                case 'image':
+                case 'Image':
                     if (content.src === undefined || content.src === null || content.src === '') {
                         throw new Error('please enter the valid base64 string in image content...');
                     }
                     this.drawImage(template, content);
                     break;
-                case 'line':
+                case 'Line':
                     this.drawLine(template, content);
                     break;
                 default:
@@ -436,7 +437,7 @@ export class PdfExport {
         if (content.type === undefined || content.type === null) {
             throw new Error('please set valid content type...');
         } else {
-            if (content.type === 'line') {
+            if (content.type === 'Line') {
                 if (content.points === undefined || content.points === null) {
                     throw new Error('please enter valid points in ' + content.type + ' content...');
                 } else {
@@ -666,22 +667,22 @@ export class PdfExport {
     }
     /* tslint:disable-next-line:no-any */
     private getSummaryWithoutTemplate(data: any): any {
-        if (!isNullOrUndefined(data.sum)) {
-            return data.sum;
-        } else if (!isNullOrUndefined(data.average)) {
-            return data.average;
-        } else if (!isNullOrUndefined(data.max)) {
-            return data.max;
-        } else if (!isNullOrUndefined(data.min)) {
-            return data.min;
-        } else if (!isNullOrUndefined(data.count)) {
-            return data.count;
-        } else if (!isNullOrUndefined(data.truecount)) {
-            return data.truecount;
-        } else if (!isNullOrUndefined(data.falsecount)) {
-            return data.falsecount;
-        } else if (!isNullOrUndefined(data.custom)) {
-            return data.custom;
+        if (!isNullOrUndefined(data.Sum)) {
+            return data.Sum;
+        } else if (!isNullOrUndefined(data.Average)) {
+            return data.Average;
+        } else if (!isNullOrUndefined(data.Max)) {
+            return data.Max;
+        } else if (!isNullOrUndefined(data.Min)) {
+            return data.Min;
+        } else if (!isNullOrUndefined(data.Count)) {
+            return data.Count;
+        } else if (!isNullOrUndefined(data.TrueCount)) {
+            return data.TrueCount;
+        } else if (!isNullOrUndefined(data.FalseCount)) {
+            return data.FalseCount;
+        } else if (!isNullOrUndefined(data.Custom)) {
+            return data.Custom;
         }
     }
     // Set alignment, width and type of the values of the column
@@ -730,7 +731,7 @@ export class PdfExport {
             let gridRow: PdfGridRow = this.setRecordThemeStyle(pdfGrid.rows.addRow(), border);
             for (let j: number = 0; j < columns.length; j++) {
                 /* tslint:disable:no-any */
-                let value: any = getValue(columns[j].field, items) || '';
+                let value: any = (!isNullOrUndefined(columns[j].field) && getValue(columns[j].field, items)) || '';
                 let column: Column = columns[j];
                 let foreignKeyData: Object;
                 if (column.isForeignColumn && column.isForeignColumn()) {
@@ -820,16 +821,16 @@ export class PdfExport {
             format = new PdfStringFormat();
         }
         switch (textAlign) {
-            case 'right':
+            case 'Right':
                 format.alignment = PdfTextAlignment.Right;
                 break;
-            case 'center':
+            case 'Center':
                 format.alignment = PdfTextAlignment.Center;
                 break;
-            case 'justify':
+            case 'Justify':
                 format.alignment = PdfTextAlignment.Justify;
                 break;
-            case 'left':
+            case 'Left':
                 format.alignment = PdfTextAlignment.Left;
                 break;
         }
@@ -845,13 +846,13 @@ export class PdfExport {
             format = this.getHorizontalAlignment(textAlign, format);
         }
         switch (verticalAlign) {
-            case 'bottom':
+            case 'Bottom':
                 format.lineAlignment = PdfVerticalAlignment.Bottom;
                 break;
-            case 'middle':
+            case 'Middle':
                 format.lineAlignment = PdfVerticalAlignment.Middle;
                 break;
-            case 'top':
+            case 'Top':
                 format.lineAlignment = PdfVerticalAlignment.Top;
                 break;
         }
@@ -893,13 +894,13 @@ export class PdfExport {
     }
     private getPageNumberStyle(pageNumberType: PdfPageNumberType): number {
         switch (pageNumberType) {
-            case 'lowerlatin':
+            case 'LowerLatin':
                 return 2;
-            case 'lowerroman':
+            case 'LowerRoman':
                 return 3;
-            case 'upperlatin':
+            case 'UpperLatin':
                 return 4;
-            case 'upperroman':
+            case 'UpperRoman':
                 return 5;
             default:
                 return 1;
@@ -913,13 +914,13 @@ export class PdfExport {
             format = new PdfStringFormat(PdfTextAlignment.Left, PdfVerticalAlignment.Middle);
             if (!isNullOrUndefined(content.style.hAlign)) {
                 switch (content.style.hAlign) {
-                    case 'right':
+                    case 'Right':
                         format.alignment = PdfTextAlignment.Right;
                         break;
-                    case 'center':
+                    case 'Center':
                         format.alignment = PdfTextAlignment.Center;
                         break;
-                    case 'justify':
+                    case 'Justify':
                         format.alignment = PdfTextAlignment.Justify;
                         break;
                     default:
@@ -935,61 +936,61 @@ export class PdfExport {
     }
     private getPageSize(pageSize: PdfPageSize): SizeF {
         switch (pageSize) {
-            case 'letter':
+            case 'Letter':
                 return new SizeF(612, 792);
-            case 'note':
+            case 'Note':
                 return new SizeF(540, 720);
-            case 'legal':
+            case 'Legal':
                 return new SizeF(612, 1008);
-            case 'a0':
+            case 'A0':
                 return new SizeF(2380, 3368);
-            case 'a1':
+            case 'A1':
                 return new SizeF(1684, 2380);
-            case 'a2':
+            case 'A2':
                 return new SizeF(1190, 1684);
-            case 'a3':
+            case 'A3':
                 return new SizeF(842, 1190);
-            case 'a5':
+            case 'A5':
                 return new SizeF(421, 595);
-            case 'a6':
+            case 'A6':
                 return new SizeF(297, 421);
-            case 'a7':
+            case 'A7':
                 return new SizeF(210, 297);
-            case 'a8':
+            case 'A8':
                 return new SizeF(148, 210);
-            case 'a9':
+            case 'A9':
                 return new SizeF(105, 148);
             // case 'A10':
             //     return new SizeF(74, 105);
-            case 'b0':
+            case 'B0':
                 return new SizeF(2836, 4008);
-            case 'b1':
+            case 'B1':
                 return new SizeF(2004, 2836);
-            case 'b2':
+            case 'B2':
                 return new SizeF(1418, 2004);
-            case 'b3':
+            case 'B3':
                 return new SizeF(1002, 1418);
-            case 'b4':
+            case 'B4':
                 return new SizeF(709, 1002);
-            case 'b5':
+            case 'B5':
                 return new SizeF(501, 709);
-            case 'archa':
+            case 'Archa':
                 return new SizeF(648, 864);
-            case 'archb':
+            case 'Archb':
                 return new SizeF(864, 1296);
-            case 'archc':
+            case 'Archc':
                 return new SizeF(1296, 1728);
-            case 'archd':
+            case 'Archd':
                 return new SizeF(1728, 2592);
-            case 'arche':
+            case 'Arche':
                 return new SizeF(2592, 3456);
-            case 'flsa':
+            case 'Flsa':
                 return new SizeF(612, 936);
-            case 'halfletter':
+            case 'HalfLetter':
                 return new SizeF(396, 612);
-            case 'letter11x17':
+            case 'Letter11x17':
                 return new SizeF(792, 1224);
-            case 'ledger':
+            case 'Ledger':
                 return new SizeF(1224, 792);
             default:
                 return new SizeF(595, 842);
@@ -997,13 +998,13 @@ export class PdfExport {
     }
     private getDashStyle(dashStyle: PdfDashStyle): number {
         switch (dashStyle) {
-            case 'dash':
+            case 'Dash':
                 return 1;
-            case 'dot':
+            case 'Dot':
                 return 2;
-            case 'dashdot':
+            case 'DashDot':
                 return 3;
-            case 'dashdotdot':
+            case 'DashDotDot':
                 return 4;
             default:
                 return 0;

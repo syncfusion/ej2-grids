@@ -17,7 +17,8 @@ export class SummaryCellRenderer extends CellRenderer implements ICellRenderer<A
 
     public getValue(field: string, data: Object, column: AggregateColumnModel): Object {
         let key: string;
-        key = !isNullOrUndefined(column.type) ? column.field + ' - ' + (column.type) : column.columnName;
+        key = !isNullOrUndefined(column.type) ?
+            column.field + ' - ' + (typeof column.type === 'string' ? column.type.toLowerCase() : '') : column.columnName;
         return data[column.columnName] ? data[column.columnName][key] : '';
     }
 

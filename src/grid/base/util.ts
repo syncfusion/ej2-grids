@@ -7,7 +7,7 @@ import { DataUtil, Query, DataManager, Predicate } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { ColumnModel, AggregateColumnModel } from '../models/models';
 import { AggregateType } from './enum';
-import { Dialog, calculateRelativeBasedPosition, Popup } from '@syncfusion/ej2-popups';
+import { Dialog, calculateRelativeBasedPosition, Popup, calculatePosition } from '@syncfusion/ej2-popups';
 import { PredicateModel } from './grid-model';
 
 
@@ -287,10 +287,10 @@ export function parents(elem: Element, selector: string, isID?: boolean): Elemen
 
 /** @hidden */
 export function calculateAggregate(type: AggregateType | string, data: Object, column?: AggregateColumnModel, context?: Object): Object {
-    if (type === 'custom') {
+    if (type === 'Custom') {
         return column.customAggregate ? column.customAggregate.call(context, data, column) : '';
     }
-    return DataUtil.aggregates[type](data, column.field);
+    return DataUtil.aggregates[type.toLowerCase()](data, column.field);
 }
 /** @hidden */
 let scrollWidth: number = null;
@@ -343,7 +343,7 @@ export function isEditable(col: Column, type: string, elem: Element): boolean {
 /** @hidden */
 export function isActionPrevent(inst: IGrid): boolean {
     let dlg: HTMLElement = inst.element.querySelector('#' + inst.element.id + 'EditConfirm') as HTMLElement;
-    return inst.editSettings.mode === 'batch' &&
+    return inst.editSettings.mode === 'Batch' &&
         (inst.element.querySelectorAll('.e-updatedtd').length) && inst.editSettings.showConfirmDialog &&
         (dlg ? dlg.classList.contains('e-popup-close') : true);
 }
@@ -416,19 +416,31 @@ export function distinctStringValues(result: string[]): string[] {
 
 /** @hidden */
 
-export function getFilterMenuPostion(target: Element, dialogObj: Dialog): void {
+export function getFilterMenuPostion(target: Element, dialogObj: Dialog, grid: IGrid): void {
     let elementVisible: string = dialogObj.element.style.display;
     dialogObj.element.style.display = 'block';
     let dlgWidth: number = dialogObj.width as number;
-    let newpos: { top: number, left: number } = calculateRelativeBasedPosition
-        ((<HTMLElement>target), dialogObj.element);
-    dialogObj.element.style.display = elementVisible;
-    dialogObj.element.style.top = (newpos.top + target.getBoundingClientRect().height) - 5 + 'px';
-    let leftPos: number = ((newpos.left - dlgWidth) + target.clientWidth);
-    if (leftPos < 1) {
-        dialogObj.element.style.left = (dlgWidth + leftPos) - 16 + 'px'; // right calculation
+    let newpos: { top: number, left: number };
+    if (!grid.enableRtl) {
+        newpos = calculateRelativeBasedPosition((<HTMLElement>target), dialogObj.element);
+        dialogObj.element.style.display = elementVisible;
+        dialogObj.element.style.top = (newpos.top + target.getBoundingClientRect().height) - 5 + 'px';
+        let leftPos: number = ((newpos.left - dlgWidth) + target.clientWidth);
+        if (leftPos < 1) {
+            dialogObj.element.style.left = (dlgWidth + leftPos) - 16 + 'px'; // right calculation
+        } else {
+            dialogObj.element.style.left = leftPos + -4 + 'px';
+        }
     } else {
-        dialogObj.element.style.left = leftPos + -4 + 'px';
+        newpos = calculatePosition((<HTMLElement>target), 'left', 'bottom');
+        dialogObj.element.style.top = (newpos.top + target.getBoundingClientRect().height) - 35 + 'px';
+        dialogObj.element.style.display = elementVisible;
+        let leftPos: number = ((newpos.left - dlgWidth) + target.clientWidth);
+        if (leftPos < 1) {
+            dialogObj.element.style.left = (dlgWidth + leftPos) + - 16 + 'px';
+        } else {
+            dialogObj.element.style.left = leftPos - 16 + 'px';
+        }
     }
 }
 
@@ -475,7 +487,7 @@ export function refreshForeignData(row: IRow<Column>, columns: Column[], data: O
     });
 
     row.cells.forEach((cell: ICell<Column>) => {
-        if (cell.isForeignKey ) {
+        if (cell.isForeignKey) {
             setValue('foreignKeyData', getValue(cell.column.field, row.foreignKeyData), cell);
         }
     });
@@ -494,13 +506,13 @@ export function getForeignData(column: Column, data?: Object, lValue?: string | 
     let key: string | Date = <string | Date>(lValue || valueAccessor(column.field, data, column)) || '';
     let query: Query = new Query();
     let fdata: Object[] = foreignKeyData || (column.dataSource instanceof DataManager) && column.dataSource.dataSource.offline ?
-    (<DataManager>column.dataSource).dataSource.json : column.columnData;
+        (<DataManager>column.dataSource).dataSource.json : column.columnData;
     if ((<Date>key).getDay) {
         query.where(getDatePredicate({ field: fField, operator: 'equal', value: key, matchCase: false }));
     } else {
         query.where(fField, '==', key, false);
     }
-    return  new DataManager(fdata).executeLocal(query);
+    return new DataManager(fdata).executeLocal(query);
 }
 
 /**
@@ -529,8 +541,8 @@ export function getDatePredicate(filterObject: PredicateModel): Predicate {
     let nextObj: PredicateModel = baseExtend({}, getActualProperties(filterObject)) as PredicateModel;
     let value: Date = new Date(filterObject.value as string);
     if (filterObject.operator === 'equal' || filterObject.operator === 'notequal') {
-        prevDate = new Date(value.setDate(value.getDate() - 1));
-        nextDate = new Date(value.setDate(value.getDate() + 2));
+        prevDate = new Date(value.setHours(0) - 1);
+        nextDate = new Date(value.setHours(24));
         prevObj.value = prevDate;
         nextObj.value = nextDate;
         if (filterObject.operator === 'equal') {
@@ -545,10 +557,26 @@ export function getDatePredicate(filterObject: PredicateModel): Predicate {
         datePredicate = filterObject.operator === 'equal' ? predicateSt.and(predicateEnd) : predicateSt.or(predicateEnd);
     } else {
         if (typeof (prevObj.value) === 'string') {
-                 prevObj.value = new Date(prevObj.value);
+            prevObj.value = new Date(prevObj.value);
         }
         let predicates: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
         datePredicate = predicates;
     }
+    filterObject.ejpredicate = datePredicate;
     return datePredicate;
+}
+
+/**
+ * @hidden
+ */
+
+export function renderMovable(ele: Element, frzCols: number): Element {
+    let mEle: Element = ele.cloneNode(true) as Element;
+    for (let i: number = 0; i < frzCols; i++) {
+        mEle.removeChild(mEle.children[0]);
+    }
+    for (let i: number = frzCols, len: number = ele.childElementCount; i < len; i++) {
+        ele.removeChild(ele.children[ele.childElementCount - 1]);
+    }
+    return mEle;
 }

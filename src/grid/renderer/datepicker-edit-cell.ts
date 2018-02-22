@@ -26,7 +26,7 @@ export class DatePickerEditCell implements IEditCell {
         return (<EJ2Intance>element).ej2_instances[0].value;
     }
     public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
-        let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
+        let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         this.obj = new DatePicker(
             extend(
                 {

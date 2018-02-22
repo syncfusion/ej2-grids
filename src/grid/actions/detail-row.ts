@@ -13,7 +13,7 @@ import { Column } from '../models/column';
 import { CellType } from '../base/enum';
 
 /**
- * `DetailRow` module is used to handle Detail Template and Hierarchy Grid operations.
+ * The `DetailRow` module is used to handle detail template and hierarchy Grid operations.
  */
 export class DetailRow {
 
@@ -167,7 +167,7 @@ export class DetailRow {
     }
 
     /** 
-     * Expands all the detail rows of Grid.          
+     * Expands all the detail rows of the Grid.          
      * @return {void} 
      */
     public expandAll(): void {
@@ -175,7 +175,7 @@ export class DetailRow {
     }
 
     /** 
-     * Collapses all the detail rows of Grid.         
+     * Collapses all the detail rows of the Grid.         
      * @return {void} 
      */
     public collapseAll(): void {
@@ -212,7 +212,7 @@ export class DetailRow {
             case 'enter':
                 if (this.parent.isEdit) { return; }
                 let element: HTMLElement = this.focus.getFocusedElement();
-                 if (!(<Element>e.target).classList.contains('e-detailrowcollapse') &&
+                if (!(<Element>e.target).classList.contains('e-detailrowcollapse') &&
                      !(<Element>e.target).classList.contains('e-detailrowexpand')) { break; }
                 this.toogleExpandcollapse(element);
                 break;

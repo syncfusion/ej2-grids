@@ -1,4 +1,4 @@
-import { L10n, closest, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { L10n, closest, isNullOrUndefined, KeyboardEventArgs, EventHandler } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { ContextMenu as Menu, MenuItemModel } from '@syncfusion/ej2-navigations';
 import { OpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
@@ -19,6 +19,7 @@ export const menuClass: CMenuClassList = {
     header: '.e-gridheader',
     content: '.e-gridcontent',
     edit: '.e-inline-edit',
+    batchEdit: '.e-editedbatchcell',
     editIcon: 'e-edit',
     pager: '.e-gridpager',
     delete: 'e-delete',
@@ -44,6 +45,7 @@ export interface CMenuClassList {
     header: string;
     content: string;
     edit: string;
+    batchEdit: string;
     editIcon: string;
     pager: string;
     cancel: string;
@@ -66,7 +68,7 @@ export interface CMenuClassList {
 }
 
 /**
- * 'ContextMenu module used to handle context menu actions.'
+ * The `ContextMenu` module is used to handle context menu actions.
  */
 export class ContextMenu implements IAction {
     //internal variables
@@ -86,6 +88,7 @@ export class ContextMenu implements IAction {
     public isOpen: boolean;
     public row: HTMLTableRowElement;
     public cell: HTMLTableCellElement;
+    private keyPressHandlerFunction: Function;
 
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator) {
         this.parent = parent;
@@ -109,11 +112,20 @@ export class ContextMenu implements IAction {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.initialLoad, this.render);
         this.parent.off(events.uiUpdate, this.enableAfterRenderMenu);
+        EventHandler.remove(this.element, 'keydown', this.keyDownHandler.bind(this));
+    }
+
+    private keyDownHandler(e: KeyboardEventArgs): void {
+        if (e.code === 'Tab' || e.which === 9) {
+            this.contextMenu.close();
+        }
     }
 
     private render(): void {
+        this.parent.element.classList.add('e-noselect');
         this.l10n = this.serviceLocator.getService<L10n>('localization');
         this.element = createElement('ul', { id: this.gridID + '_cmenu' }) as HTMLUListElement;
+        EventHandler.add(this.element, 'keydown', this.keyDownHandler.bind(this));
         this.parent.element.appendChild(this.element);
         let target: string = '#' + this.gridID;
         this.contextMenu = new Menu({
@@ -136,6 +148,7 @@ export class ContextMenu implements IAction {
             if (this.contextMenu) {
                 this.contextMenu.destroy();
                 remove(this.element);
+                this.parent.element.classList.remove('e-noselect');
             }
             this.render();
         }
@@ -177,20 +190,20 @@ export class ContextMenu implements IAction {
     private contextMenuItemClick(args: ContextMenuClickEventArgs): void {
         let item: string = this.getKeyFromId(args.item.id);
         switch (item) {
-            case 'autoFitAll':
+            case 'AutoFitAll':
                 this.parent.autoFitColumns([]);
                 break;
-            case 'autoFit':
+            case 'AutoFit':
                 this.parent.autoFitColumns(this.targetColumn.field);
                 break;
-            case 'group':
+            case 'Group':
                 this.parent.groupColumn(this.targetColumn.field);
                 break;
-            case 'ungroup':
+            case 'Ungroup':
                 this.parent.ungroupColumn(this.targetColumn.field);
                 break;
-            case 'edit':
-                if (this.parent.editSettings.mode === 'batch') {
+            case 'Edit':
+                if (this.parent.editSettings.mode === 'Batch') {
                     if (this.row && this.cell && !isNaN(parseInt(this.cell.getAttribute('aria-colindex'), 10))) {
                         this.parent.editModule.editCell(parseInt(this.row.getAttribute('aria-rowindex'), 10), (this.parent.getColumns()
                         [parseInt(this.cell.getAttribute('aria-colindex'), 10)] as Column).field);
@@ -200,48 +213,48 @@ export class ContextMenu implements IAction {
                     this.parent.editModule.startEdit(this.row);
                 }
                 break;
-            case 'delete':
-                if (this.parent.editSettings.mode !== 'batch') {
+            case 'Delete':
+                if (this.parent.editSettings.mode !== 'Batch') {
                     this.parent.editModule.endEdit();
                 }
                 this.parent.editModule.deleteRow(this.row);
                 break;
-            case 'save':
+            case 'Save':
                 this.parent.editModule.endEdit();
                 break;
-            case 'cancel':
+            case 'Cancel':
                 this.parent.editModule.closeEdit();
                 break;
-            case 'copy':
+            case 'Copy':
                 this.parent.copy();
                 break;
-            case 'pdfExport':
+            case 'PdfExport':
                 this.parent.pdfExport();
                 break;
-            case 'excelExport':
+            case 'ExcelExport':
                 this.parent.excelExport();
                 break;
-            case 'csvExport':
+            case 'CsvExport':
                 this.parent.csvExport();
                 break;
-            case 'sortAscending':
+            case 'SortAscending':
                 this.isOpen = false;
-                this.parent.sortColumn(this.targetColumn.field, 'ascending');
+                this.parent.sortColumn(this.targetColumn.field, 'Ascending');
                 break;
-            case 'sortDescending':
+            case 'SortDescending':
                 this.isOpen = false;
-                this.parent.sortColumn(this.targetColumn.field, 'descending');
+                this.parent.sortColumn(this.targetColumn.field, 'Descending');
                 break;
-            case 'firstPage':
+            case 'FirstPage':
                 this.parent.goToPage(1);
                 break;
-            case 'prevPage':
+            case 'PrevPage':
                 this.parent.goToPage(this.parent.pageSettings.currentPage - 1);
                 break;
-            case 'lastPage':
+            case 'LastPage':
                 this.parent.goToPage(this.getLastPage());
                 break;
-            case 'nextPage':
+            case 'NextPage':
                 this.parent.goToPage(this.parent.pageSettings.currentPage + 1);
                 break;
         }
@@ -282,7 +295,7 @@ export class ContextMenu implements IAction {
             args.cancel = true;
         } else {
             this.targetColumn = this.getColumn(args.event);
-            this.selectRow(args.event, this.parent.selectionSettings.type !== 'multiple');
+            this.selectRow(args.event, this.parent.selectionSettings.type !== 'Multiple');
             for (let item of args.items) {
                 let key: string = this.getKeyFromId(item.id);
                 let dItem: ContextMenuItemModel = this.defaultItems[key];
@@ -290,14 +303,15 @@ export class ContextMenu implements IAction {
                     if (this.ensureDisabledStatus(key)) {
                         this.disableItems.push(item.text);
                     }
-                    if (args.event && this.ensureTarget(args.event.target as HTMLElement, menuClass.edit)) {
-                        if (key !== 'save' && key !== 'cancel') {
+                    if (args.event && (this.ensureTarget(args.event.target as HTMLElement, menuClass.edit) ||
+                        this.ensureTarget(args.event.target as HTMLElement, menuClass.batchEdit))) {
+                        if (key !== 'Save' && key !== 'Cancel') {
                             this.hiddenItems.push(item.text);
                         }
-                    } else if (this.parent.editSettings.mode === 'batch' && ((closest(args.event.target as Element, '.e-gridform')) ||
+                    } else if (this.parent.editSettings.mode === 'Batch' && ((closest(args.event.target as Element, '.e-gridform')) ||
                         this.parent.editModule.getBatchChanges()[changedRecords].length ||
                         this.parent.editModule.getBatchChanges()[addedRecords].length ||
-                        this.parent.editModule.getBatchChanges()[deletedRecords].length) && (key === 'save' || key === 'cancel')) {
+                        this.parent.editModule.getBatchChanges()[deletedRecords].length) && (key === 'Save' || key === 'Cancel')) {
                         continue;
                     } else if (isNullOrUndefined(args.parentItem) && args.event
                         && !this.ensureTarget(args.event.target as HTMLElement, dItem.target)) {
@@ -322,43 +336,50 @@ export class ContextMenu implements IAction {
 
     private ensureTarget(targetElement: HTMLElement, selector: string): boolean {
         let target: Element = targetElement;
-        if (selector === menuClass.header || selector === menuClass.content) {
+        if (this.ensureFrozenHeader(targetElement) && (selector === menuClass.header || selector === menuClass.content)) {
+            target = closest(targetElement as Element, selector === menuClass.header ? 'thead' : 'tbody');
+        } else if (selector === menuClass.content || selector === menuClass.header) {
             target = parentsUntil(closest(targetElement as Element, '.e-table'), selector.substr(1, selector.length));
         } else {
             target = closest(targetElement as Element, selector);
         }
-        return target && parentsUntil(target, 'e-grid') === this.parent.element ? true : false;
+        return target && parentsUntil(target, 'e-grid') === this.parent.element;
+    }
+
+    private ensureFrozenHeader(targetElement: HTMLElement): boolean {
+        return (this.parent.getFrozenColumns() || this.parent.frozenRows)
+            && closest(targetElement, menuClass.header) ? true : false;
     }
 
     private ensureDisabledStatus(item: string): Boolean {
         let status: Boolean = false;
         switch (item) {
-            case 'autoFitAll':
-            case 'autoFit':
+            case 'AutoFitAll':
+            case 'AutoFit':
                 status = !(this.parent.ensureModuleInjected(Resize) && !this.parent.isEdit);
                 break;
-            case 'group':
+            case 'Group':
                 if (!this.parent.allowGrouping || (this.parent.ensureModuleInjected(Group) && this.targetColumn
                     && this.parent.groupSettings.columns.indexOf(this.targetColumn.field) >= 0)) {
                     status = true;
                 }
                 break;
-            case 'ungroup':
+            case 'Ungroup':
                 if (!this.parent.allowGrouping || !this.parent.ensureModuleInjected(Group)
                     || (this.parent.ensureModuleInjected(Group) && this.targetColumn
                         && this.parent.groupSettings.columns.indexOf(this.targetColumn.field) < 0)) {
                     status = true;
                 }
                 break;
-            case 'edit':
-            case 'delete':
-            case 'save':
-            case 'cancel':
-                if (!this.parent.editModule) {
+            case 'Edit':
+            case 'Delete':
+            case 'Save':
+            case 'Cancel':
+                if (!this.parent.editModule || (this.parent.getDataRows().length === 0)) {
                     status = true;
                 }
                 break;
-            case 'copy':
+            case 'Copy':
                 if (this.parent.getSelectedRowIndexes().length === 0 ||
                     this.parent.getCurrentViewRecords().length === 0) {
                     status = true;
@@ -370,40 +391,40 @@ export class ContextMenu implements IAction {
                     status = true;
                 }
                 break;
-            case 'pdfExport':
+            case 'PdfExport':
                 if (!(this.parent.allowPdfExport) || !this.parent.ensureModuleInjected(PdfExport)) {
                     status = true;
                 }
                 break;
-            case 'excelExport':
-            case 'csvExport':
+            case 'ExcelExport':
+            case 'CsvExport':
                 if (!(this.parent.allowExcelExport) || !this.parent.ensureModuleInjected(ExcelExport)) {
                     status = true;
                 }
                 break;
-            case 'sortAscending':
-            case 'sortDescending':
+            case 'SortAscending':
+            case 'SortDescending':
                 if ((!this.parent.allowSorting) || !this.parent.ensureModuleInjected(Sort)) {
                     status = true;
                 } else if (this.parent.ensureModuleInjected(Sort) && this.parent.sortSettings.columns.length > 0 && this.targetColumn) {
                     this.parent.sortSettings.columns.forEach((element: SortDescriptorModel) => {
                         if (element.field === this.targetColumn.field
-                            && element.direction === item.replace('sort', '').toLocaleLowerCase()) {
+                            && element.direction.toLowerCase() === item.toLowerCase().replace('sort', '').toLocaleLowerCase()) {
                             status = true;
                         }
                     });
                 }
                 break;
-            case 'firstPage':
-            case 'prevPage':
+            case 'FirstPage':
+            case 'PrevPage':
                 if (!this.parent.allowPaging || !this.parent.ensureModuleInjected(Page) ||
                     this.parent.getCurrentViewRecords().length === 0 ||
                     (this.parent.ensureModuleInjected(Page) && this.parent.pageSettings.currentPage === 1)) {
                     status = true;
                 }
                 break;
-            case 'lastPage':
-            case 'nextPage':
+            case 'LastPage':
+            case 'NextPage':
                 if (!this.parent.allowPaging || !this.parent.ensureModuleInjected(Page) ||
                     this.parent.getCurrentViewRecords().length === 0 ||
                     (this.parent.ensureModuleInjected(Page) && this.parent.pageSettings.currentPage === this.getLastPage())) {
@@ -415,7 +436,7 @@ export class ContextMenu implements IAction {
     }
 
     /**
-     * Gets the context menu of grid.
+     * Gets the context menu element from the Grid.
      * @return {Element}
      */
     public getContextMenu(): Element {
@@ -423,14 +444,16 @@ export class ContextMenu implements IAction {
     }
 
     /**
-     * To destroy the Context menu.
+     * Destroys the context menu component in the Grid.
      * @method destroy
      * @return {void}
+     * @hidden
      */
     public destroy(): void {
         this.contextMenu.destroy();
         remove(this.element);
         this.removeEventListener();
+        this.parent.element.classList.remove('e-noselect');
     }
 
 
@@ -449,59 +472,59 @@ export class ContextMenu implements IAction {
     private buildDefaultItems(item: string): ContextMenuItemModel {
         let menuItem: ContextMenuItemModel;
         switch (item) {
-            case 'autoFitAll':
-            case 'autoFit':
+            case 'AutoFitAll':
+            case 'AutoFit':
                 menuItem = { target: menuClass.header };
                 break;
-            case 'group':
+            case 'Group':
                 menuItem = { target: menuClass.header, iconCss: menuClass.group };
                 break;
-            case 'ungroup':
+            case 'Ungroup':
                 menuItem = { target: menuClass.header, iconCss: menuClass.ungroup };
                 break;
-            case 'edit':
+            case 'Edit':
                 menuItem = { target: menuClass.content, iconCss: menuClass.editIcon };
                 break;
-            case 'delete':
+            case 'Delete':
                 menuItem = { target: menuClass.content, iconCss: menuClass.delete };
                 break;
-            case 'save':
+            case 'Save':
                 menuItem = { target: menuClass.edit, iconCss: menuClass.save };
                 break;
-            case 'cancel':
+            case 'Cancel':
                 menuItem = { target: menuClass.edit, iconCss: menuClass.cancel };
                 break;
-            case 'copy':
+            case 'Copy':
                 menuItem = { target: menuClass.content, iconCss: menuClass.copy };
                 break;
             case 'export':
                 menuItem = { target: menuClass.content };
                 break;
-            case 'pdfExport':
+            case 'PdfExport':
                 menuItem = { target: menuClass.content, iconCss: menuClass.pdf };
                 break;
-            case 'excelExport':
+            case 'ExcelExport':
                 menuItem = { target: menuClass.content, iconCss: menuClass.excel };
                 break;
-            case 'csvExport':
+            case 'CsvExport':
                 menuItem = { target: menuClass.content, iconCss: menuClass.csv };
                 break;
-            case 'sortAscending':
+            case 'SortAscending':
                 menuItem = { target: menuClass.header, iconCss: menuClass.ascending };
                 break;
-            case 'sortDescending':
+            case 'SortDescending':
                 menuItem = { target: menuClass.header, iconCss: menuClass.descending };
                 break;
-            case 'firstPage':
+            case 'FirstPage':
                 menuItem = { target: menuClass.pager, iconCss: menuClass.fPage };
                 break;
-            case 'prevPage':
+            case 'PrevPage':
                 menuItem = { target: menuClass.pager, iconCss: menuClass.pPage };
                 break;
-            case 'lastPage':
+            case 'LastPage':
                 menuItem = { target: menuClass.pager, iconCss: menuClass.lPage };
                 break;
-            case 'nextPage':
+            case 'NextPage':
                 menuItem = { target: menuClass.pager, iconCss: menuClass.nPage };
                 break;
         }
@@ -513,38 +536,39 @@ export class ContextMenu implements IAction {
     }
 
     private getDefaultItems(): string[] {
-        return ['autoFitAll', 'autoFit',
-            'group', 'ungroup', 'edit', 'delete', 'save', 'cancel', 'copy', 'export',
-            'pdfExport', 'excelExport', 'csvExport', 'sortAscending', 'sortDescending',
-            'firstPage', 'prevPage', 'lastPage', 'nextPage'];
+        return ['AutoFitAll', 'AutoFit',
+            'Group', 'Ungroup', 'Edit', 'Delete', 'Save', 'Cancel', 'Copy', 'export',
+            'PdfExport', 'ExcelExport', 'CsvExport', 'SortAscending', 'SortDescending',
+            'FirstPage', 'PrevPage', 'LastPage', 'NextPage'];
     }
     private setLocaleKey(): { [key: string]: string } {
         return {
-            'autoFitAll': 'autoFitAll',
-            'autoFit': 'autoFit',
-            'copy': 'Copy',
-            'group': 'Group',
-            'ungroup': 'Ungroup',
-            'edit': 'EditRecord',
-            'delete': 'DeleteRecord',
-            'save': 'Save',
-            'cancel': 'CancelButton',
-            'pdfExport': 'Pdfexport',
-            'excelExport': 'Excelexport',
-            'csvExport': 'Csvexport',
+            'AutoFitAll': 'autoFitAll',
+            'AutoFit': 'autoFit',
+            'Copy': 'Copy',
+            'Group': 'Group',
+            'Ungroup': 'Ungroup',
+            'Edit': 'EditRecord',
+            'Delete': 'DeleteRecord',
+            'Save': 'Save',
+            'Cancel': 'CancelButton',
+            'PdfExport': 'Pdfexport',
+            'ExcelExport': 'Excelexport',
+            'CsvExport': 'Csvexport',
             'export': 'Export',
-            'sortAscending': 'SortAscending',
-            'sortDescending': 'SortDescending',
-            'firstPage': 'FirstPage',
-            'lastPage': 'LastPage',
-            'prevPage': 'PreviousPage',
-            'nextPage': 'NextPage'
+            'SortAscending': 'SortAscending',
+            'SortDescending': 'SortDescending',
+            'FirstPage': 'FirstPage',
+            'LastPage': 'LastPage',
+            'PrevPage': 'PreviousPage',
+            'NextPage': 'NextPage'
         };
     }
 
     private getColumn(e: Event): Column {
         let cell: HTMLElement = <HTMLElement>closest(<HTMLElement>e.target, 'th.e-headercell');
         if (cell) {
+            cell.classList.add('e-resized');
             let uid: string = cell.querySelector('.e-headercelldiv').getAttribute('e-mappinguid');
             return this.parent.getColumnByUid(uid);
         }
@@ -553,9 +577,9 @@ export class ContextMenu implements IAction {
 
     private selectRow(e: Event, isSelectable: boolean): void {
         this.cell = (<HTMLElement>e.target) as HTMLTableCellElement;
-        this.row = <HTMLElement>closest(<HTMLElement>e.target, 'tr.e-row') as HTMLTableRowElement;
+        this.row = <HTMLElement>closest(<HTMLElement>e.target, 'tr.e-row') as HTMLTableRowElement || this.row;
         if (this.row && isSelectable) {
-            this.parent.selectRow(this.parent.getDataRows().indexOf(this.row));
+            this.parent.selectRow(parseInt(this.row.getAttribute('aria-rowindex'), 10));
         }
     }
 }

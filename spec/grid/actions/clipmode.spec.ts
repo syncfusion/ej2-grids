@@ -35,11 +35,11 @@ describe('ClipMode module', () => {
                     allowPaging: false,
                     allowGrouping: true,
                     columns: [
-                        { headerText: 'OrderID', field: 'OrderID', clipMode: 'clip' },
-                        { headerText: 'CustomerID', field: 'CustomerID', clipMode: 'ellipsis' },
+                        { headerText: 'OrderID', field: 'OrderID', clipMode: 'Clip' },
+                        { headerText: 'CustomerID', field: 'CustomerID', clipMode: 'Ellipsis' },
                         { headerText: 'OrderDate', field: 'OrderDate' },
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
-                        { headerText: 'ShipAddress', field: 'Shipping Address of the order', clipMode: 'ellipsiswithtooltip' },
+                        { headerText: 'ShipAddress', field: 'Shipping Address of the order', clipMode: 'EllipsisWithTooltip' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                     ],
@@ -53,13 +53,13 @@ describe('ClipMode module', () => {
             row.forEach((element: HTMLElement) => {
                 td = element[0].children;
                 for (let i: number = 0; i < td.length; i++) {
-                    if (gridObj.getColumns()[i].clipMode === 'clip') {
+                    if (gridObj.getColumns()[i].clipMode === 'Clip') {
                         expect(td[i].classList.contains('e-gridclip')).toBeTruthy();
                         expect(td[i].classList.contains('e-ellipsistooltip')).toBeFalsy();
-                    } else if (gridObj.getColumns()[i].clipMode === 'ellipsis') {
+                    } else if (gridObj.getColumns()[i].clipMode === 'Ellipsis') {
                         expect(td[i].classList.contains('e-gridclip')).toBeFalsy();
                         expect(td[i].classList.contains('e-ellipsistooltip')).toBeFalsy();
-                    } else if (gridObj.getColumns()[i].clipMode === 'ellipsiswithtooltip') {
+                    } else if (gridObj.getColumns()[i].clipMode === 'EllipsisWithTooltip') {
                         expect(td[i].classList.contains('e-gridclip')).toBeFalsy();
                         expect(td[i].classList.contains('e-ellipsistooltip')).toBeTruthy();
                     }
@@ -85,14 +85,14 @@ describe('ClipMode module', () => {
                     dataSource: data,
                     allowPaging: false,
                     editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true },
                         { field: 'CustomerID', type: 'string' },
                         { field: 'EmployeeID', type: 'number' },
                         { field: 'ShipAddress'},
                         { field: 'ShipCity' },
-                        { field: 'ShipName',headerText:'Ship Name of the Order griven Ship Name of the Order griven', clipMode:'ellipsiswithtooltip' },
+                        { field: 'ShipName',headerText:'Ship Name of the Order griven Ship Name of the Order griven', clipMode:'EllipsisWithTooltip' },
                         { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
                         { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
                         { field: 'Verified', type: 'boolean', editType: 'booleanedit' }
@@ -126,11 +126,11 @@ describe('ClipMode module', () => {
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
-                        { headerText: 'OrderID', field: 'OrderID', clipMode: 'clip' },
-                        { headerText: 'CustomerID', field: 'CustomerID', clipMode: 'ellipsis' },
+                        { headerText: 'OrderID', field: 'OrderID', clipMode: 'Clip' },
+                        { headerText: 'CustomerID', field: 'CustomerID', clipMode: 'Ellipsis' },
                         { headerText: 'OrderDate', field: 'OrderDate' },
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
-                        { headerText: 'ShipAddress', field: 'Shipping Address of the order', clipMode: 'ellipsiswithtooltip' },
+                        { headerText: 'ShipAddress', field: 'Shipping Address of the order', clipMode: 'EllipsisWithTooltip' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                     ],

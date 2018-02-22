@@ -13,7 +13,7 @@ import { FocusStrategy } from '../services/focus-strategy';
 
 /**
  * 
- * `Group` module is used to handle group action.
+ * The `Group` module is used to handle group action.
  */
 export class Group implements IAction {
     //Internal variables    
@@ -21,6 +21,8 @@ export class Group implements IAction {
     private element: HTMLElement;
     private colName: string;
     private column: Column;
+    private isAppliedGroup: boolean = false;
+    private isAppliedUnGroup: boolean = false;
     private visualElement: HTMLElement = createElement('div', {
         className: 'e-cloneproperties e-dragclone e-gdclone',
         styles: 'line-height:23px', attrs: { action: 'grouping' }
@@ -185,7 +187,8 @@ export class Group implements IAction {
 
     private keyPressHandler(e: KeyboardEventArgs): void {
         let gObj: IGrid = this.parent;
-        if (!this.groupSettings.columns.length) {
+        if ((!this.groupSettings.columns.length ||
+            ['altDownArrow', 'altUpArrow', 'ctrlDownArrow', 'ctrlUpArrow', 'enter'].indexOf(e.action) === -1)) {
             return;
         }
         e.preventDefault();
@@ -214,9 +217,9 @@ export class Group implements IAction {
                 this.collapseAll();
                 break;
             case 'enter':
-                if (this.parent.isEdit) { return; }
+                if (this.parent.isEdit || (closest(e.target as Element, '#' + this.parent.element.id + '_searchbar') !== null)) { return; }
                 let element: HTMLElement = this.focus.getFocusedElement();
-                let row: Element = element.parentElement.querySelector('[class^="e-record"]');
+                let row: Element = element ? element.parentElement.querySelector('[class^="e-record"]') : null;
                 if (!row) { break; }
                 this.expandCollapseRows(row);
                 break;
@@ -260,16 +263,16 @@ export class Group implements IAction {
             !target.classList.contains('e-toggleungroup')) {
             let field: string = gHeader.firstElementChild.getAttribute('ej-mappingname');
             if (gObj.getColumnHeaderByField(field).querySelectorAll('.e-ascending').length) {
-                gObj.sortColumn(field, 'descending', true);
+                gObj.sortColumn(field, 'Descending', true);
             } else {
-                gObj.sortColumn(field, 'ascending', true);
+                gObj.sortColumn(field, 'Ascending', true);
             }
         }
     }
 
     /**  
-     * Expand or collapse grouped rows by target element. 
-     * @param  {Element} target - Defines the target element of grouped row.      
+     * Expands or collapses grouped rows by target element. 
+     * @param  {Element} target - Defines the target element of the grouped row.      
      * @return {void}  
      */
     public expandCollapseRows(target: Element): void {
@@ -348,7 +351,7 @@ export class Group implements IAction {
     }
 
     /** 
-     * Expands all the grouped rows of Grid.          
+     * Expands all the grouped rows of the Grid.          
      * @return {void} 
      */
     public expandAll(): void {
@@ -356,7 +359,7 @@ export class Group implements IAction {
     }
 
     /** 
-     * Collapses all the grouped rows of Grid.         
+     * Collapses all the grouped rows of the Grid.         
      * @return {void} 
      */
     public collapseAll(): void {
@@ -394,7 +397,8 @@ export class Group implements IAction {
             this.element.innerHTML = dragLabel;
             this.element.classList.remove('e-grouped');
         } else {
-            if (this.element.innerHTML === this.l10n.getConstant('GroupDropArea') && this.groupSettings.columns.length === 1) {
+            if (this.element.innerHTML === this.l10n.getConstant('GroupDropArea') && (this.groupSettings.columns.length === 1
+                || !this.isAppliedGroup && !this.isAppliedUnGroup)) {
                 this.element.innerHTML = '';
             }
             this.element.classList.add('e-grouped');
@@ -443,12 +447,14 @@ export class Group implements IAction {
         }
         column.visible = gObj.groupSettings.showGroupedColumn;
         this.colName = columnName;
+        this.isAppliedGroup = true;
         if (this.contentRefresh) {
             this.updateModel();
         } else {
             this.addColToGroupDrop(columnName);
         }
         this.updateGroupDropArea();
+        this.isAppliedGroup = false;
     }
 
     /** 
@@ -481,6 +487,7 @@ export class Group implements IAction {
         }
         this.groupSettings.columns = columns;
         if (gObj.allowGrouping) {
+            this.isAppliedUnGroup = true;
             this.parent.dataBind();
         }
     }
@@ -496,17 +503,7 @@ export class Group implements IAction {
         let columns: string[] = JSON.parse(JSON.stringify(this.groupSettings.columns));
         columns.push(this.colName);
         this.groupSettings.columns = columns;
-        while (i < gObj.sortSettings.columns.length) {
-            if (gObj.sortSettings.columns[i].field === this.colName) {
-                break;
-            }
-            i++;
-        }
-        if (gObj.sortSettings.columns.length === i) {
-            gObj.sortSettings.columns.push({ field: this.colName, direction: 'ascending' });
-        } else if (!gObj.allowSorting) {
-            gObj.sortSettings.columns[i].direction = 'ascending';
-        }
+        this.groupAddSortingQuery(this.colName);
         this.parent.dataBind();
     }
 
@@ -526,15 +523,34 @@ export class Group implements IAction {
             columnName: this.colName, requestType: 'grouping', type: events.actionComplete
         } : { requestType: 'ungrouping', type: events.actionComplete };
         this.parent.trigger(events.actionComplete, extend(e, args));
+        this.colName = null;
     }
 
 
+    private groupAddSortingQuery(colName: string): void {
+        let i: number = 0;
+        while (i < this.parent.sortSettings.columns.length) {
+            if (this.parent.sortSettings.columns[i].field === colName) {
+                break;
+            }
+            i++;
+        }
+        if (this.parent.sortSettings.columns.length === i) {
+            this.parent.sortSettings.columns.push({ field: colName, direction: 'Ascending' });
+        } else if (!this.parent.allowSorting) {
+            this.parent.sortSettings.columns[i].direction = 'Ascending';
+        }
+    }
+
     private addColToGroupDrop(field: string): void {
         let gObj: IGrid = this.parent;
-        let direction: string = 'ascending';
+        let direction: string = 'Ascending';
         let groupedColumn: Element = createElement('div', { className: 'e-grid-icon e-groupheadercell' });
         let childDiv: Element = createElement('div', { attrs: { 'ej-mappingname': field } });
         let column: Column = this.parent.getColumnByField(field);
+        if (isNullOrUndefined(column)) {
+            return;
+        }
         //Todo headerTemplateID for grouped column, disableHtmlEncode                          
         let headerCell: Element = gObj.getColumnHeaderByUid(column.uid);
         if (!isNullOrUndefined(column.headerTemplate)) {
@@ -560,11 +576,12 @@ export class Group implements IAction {
         }
 
         if (headerCell.querySelectorAll('.e-ascending,.e-descending').length) {
-            direction = headerCell.querySelector('.e-ascending') ? 'ascending' : 'descending';
+            direction = headerCell.querySelector('.e-ascending') ? 'Ascending' : 'Descending';
         }
         childDiv.appendChild(createElement(
             'span', {
-                className: 'e-groupsort e-icons ' + ('e-' + direction + ' e-icon-' + direction), innerHTML: '&nbsp;',
+                className: 'e-groupsort e-icons ' +
+                ('e-' + direction.toLowerCase() + ' e-icon-' + direction.toLowerCase()), innerHTML: '&nbsp;',
                 attrs: { tabindex: '-1', 'aria-label': 'sort the grouped column' }
             }));
         childDiv.appendChild(createElement(
@@ -597,7 +614,7 @@ export class Group implements IAction {
                                     (this.groupSettings.columns.indexOf(column.field) > -1 ? 'e-toggleungroup e-icon-ungroup'
                                         : 'e-togglegroup e-icon-group'), attrs: { tabindex: '-1', 'aria-label': 'Group button' }
                                 }));
-                      }
+                        }
                     }
                 }
             }
@@ -605,8 +622,11 @@ export class Group implements IAction {
     }
 
     private removeColFromGroupDrop(field: string): void {
-        remove(this.getGHeaderCell(field));
-        this.updateGroupDropArea();
+        if (!isNullOrUndefined(this.getGHeaderCell(field))) {
+            remove(this.getGHeaderCell(field));
+            this.updateGroupDropArea();
+            this.isAppliedUnGroup = false;
+        }
     }
 
     private onPropertyChanged(e: NotifyArgs): void {
@@ -616,10 +636,25 @@ export class Group implements IAction {
         for (let prop of Object.keys(e.properties)) {
             switch (prop) {
                 case 'columns':
+                    let args: Object;
                     if (this.contentRefresh) {
-                        let args: Object = this.groupSettings.columns.indexOf(this.colName) > -1 ? {
-                            columnName: this.colName, requestType: 'grouping', type: events.actionBegin
-                        } : { requestType: 'ungrouping', type: events.actionBegin };
+                        if (!this.isAppliedUnGroup) {
+                            if (!this.isAppliedGroup) {
+                                this.updateGroupDropArea();
+                                for (let i: number = 0; i < this.groupSettings.columns.length; i++) {
+                                    this.colName = this.groupSettings.columns[i];
+                                    let col: Column = this.parent.getColumnByField(this.colName);
+                                    col.visible = this.parent.groupSettings.showGroupedColumn;
+                                    this.groupAddSortingQuery(this.colName);
+                                    if (i < this.groupSettings.columns.length - 1) {
+                                        this.addColToGroupDrop(this.groupSettings.columns[i]);
+                                    }
+                                }
+                            }
+                            args = { columnName: this.colName, requestType: 'grouping', type: events.actionBegin };
+                        } else {
+                            args = { requestType: 'ungrouping', type: events.actionBegin };
+                        }
                         this.parent.notify(events.modelChanged, args);
                     }
                     break;
@@ -676,7 +711,7 @@ export class Group implements IAction {
     }
 
     /**  
-     * Clears all the grouped columns of Grid.  
+     * Clears all the grouped columns of the Grid.  
      * @return {void} 
      */
     public clearGrouping(): void {
@@ -714,7 +749,7 @@ export class Group implements IAction {
                         'span', { className: 'e-sortnumber', innerHTML: (i + 1).toString() }));
                 }
             } else if (this.getGHeaderCell(cols[i].field) && this.getGHeaderCell(cols[i].field).querySelectorAll('.e-groupsort').length) {
-                if (cols[i].direction === 'ascending') {
+                if (cols[i].direction === 'Ascending') {
                     classList(
                         this.getGHeaderCell(cols[i].field).querySelector('.e-groupsort'),
                         ['e-ascending', 'e-icon-ascending'], ['e-descending', 'e-icon-descending']);

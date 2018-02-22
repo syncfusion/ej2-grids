@@ -53,16 +53,16 @@ describe('column menu module', () => {
                         pageSize: 10
                     },
                     allowFiltering: true,
-                    filterSettings: { type: 'checkbox' },
+                    filterSettings: { type: 'CheckBox' },
                     allowExcelExport: true,
                     allowPdfExport: true,
                     showColumnMenu: true,
                     columns: [
-                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 125 },
+                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'Left', width: 125, isPrimaryKey: true },
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 125 },
                         { field: 'ShipName', headerText: 'Ship Name', width: 120, showColumnMenu: false },
                         { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
-                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'right' }
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                     ]
                 });
             gridObj.appendTo('#Grid');
@@ -170,7 +170,7 @@ describe('column menu module', () => {
         });
         it('chooser item check', () => {
             let colMenu = gridObj.columnMenuModule as any;
-            let item = colMenu.defaultItems['filter'];
+            let item = colMenu.defaultItems['Filter'];
             expect(colMenu.isChooserItem( item )).toBe(false);
             item = {text: 'OrderID'};
             item.id = colMenu.generateID(item.text, '_chooser_');
@@ -184,7 +184,7 @@ describe('column menu module', () => {
         it('before item render check', () => {
             let colMenu = gridObj.columnMenuModule as any;
             let args = {
-                item: colMenu.defaultItems['filter'],
+                item: colMenu.defaultItems['Filter'],
                 element: document.createElement('span')
             }
             colMenu.beforeMenuItemRender(args);
@@ -216,9 +216,19 @@ describe('column menu module', () => {
         it('before close check', () => {
             let colMenu = gridObj.columnMenuModule as any;
             let args = {
-                parentItem: colMenu.defaultItems['columnChooser'],
+                parentItem: colMenu.defaultItems['ColumnChooser'],
                 event: {
-                    target: createElement('span', { className: 'e-menu-parent' })
+                    target: createElement('span', { className: 'e-menu-item' })
+                },
+                cancel: false
+            };
+            colMenu.columnMenuBeforeClose(args);
+            expect(args.cancel).toBe(false);
+            let item: ContextMenuItemModel = colMenu.defaultItems['ColumnChooser'];            
+            args = {
+                parentItem: item,
+                event: {
+                    target: createElement('span', { className: 'e-menu-item', id: item.items[0].id })
                 },
                 cancel: false
             };
@@ -228,7 +238,7 @@ describe('column menu module', () => {
             let tar = createElement('span', { className: 'e-filters' });
             target.appendChild(tar);
             args = {
-                parentItem: colMenu.defaultItems['columnChooser'],
+                parentItem: colMenu.defaultItems['ColumnChooser'],
                 event: { target: tar },
                 cancel: false
             };
@@ -238,7 +248,7 @@ describe('column menu module', () => {
             tar = createElement('span', { className: 'e-filters' });
             target.appendChild(tar);
             args = {
-                parentItem: colMenu.defaultItems['columnChooser'],
+                parentItem: colMenu.defaultItems['ColumnChooser'],
                 event: { target: tar },
                 cancel: false
             };
@@ -261,7 +271,7 @@ describe('column menu module', () => {
             gridObj.columnMenuOpen = function (args) {
                 (args.items[0] as ColumnMenuItemModel).hide = true;
             }
-            gridObj.sortColumn(colMenu.targetColumn.field, 'ascending');
+            gridObj.sortColumn(colMenu.targetColumn.field, 'Ascending');
             colMenu.columnMenuBeforeOpen({ items: colMenuObj.items });
             expect(colMenu.hiddenItems.length).toBe(1);
         });
@@ -280,7 +290,7 @@ describe('column menu module', () => {
             let colMenuObj = colMenu.columnMenu as ContextMenuItemModel;
             let elem = createElement('span', {className: 'e-columnchooser'});
             elem.appendChild(createCheckBox(false,{label: 'OrderID', checked: false}));
-            let columnChooseritem = colMenu.defaultItems['columnChooser'] as ContextMenuItemModel;
+            let columnChooseritem = colMenu.defaultItems['ColumnChooser'] as ContextMenuItemModel;
             let args = {item: columnChooseritem.items[0], element: elem};
             colMenu.columnMenuItemClick(args);
             expect(args.element.querySelectorAll('.e-check').length).toBe(1);
@@ -303,19 +313,19 @@ describe('column menu module', () => {
             let ASCENDING: string = 'e-icon-ascending';
             let DESCENDING: string = 'e-icon-descending';
             let FILTER: string = 'e-icon-filter';
-            expect(colMenu.defaultItems['filter'].iconCss.indexOf(FILTER) >= 0).toBe(true);
-            expect(colMenu.defaultItems['group'].iconCss.indexOf(GROUP) >= 0).toBe(true);
-            expect(colMenu.defaultItems['ungroup'].iconCss.indexOf(UNGROUP) >= 0).toBe(true);
-            expect(colMenu.defaultItems['sortAscending'].iconCss.indexOf(ASCENDING) >= 0).toBe(true);
-            expect(colMenu.defaultItems['sortDescending'].iconCss.indexOf(DESCENDING) >= 0).toBe(true);
+            expect(colMenu.defaultItems['Filter'].iconCss.indexOf(FILTER) >= 0).toBe(true);
+            expect(colMenu.defaultItems['Group'].iconCss.indexOf(GROUP) >= 0).toBe(true);
+            expect(colMenu.defaultItems['Ungroup'].iconCss.indexOf(UNGROUP) >= 0).toBe(true);
+            expect(colMenu.defaultItems['SortAscending'].iconCss.indexOf(ASCENDING) >= 0).toBe(true);
+            expect(colMenu.defaultItems['SortDescending'].iconCss.indexOf(DESCENDING) >= 0).toBe(true);
         });
         it('chooser item check', () => {
-            expect((gridObj.columnMenuModule as any).defaultItems['columnChooser'].items.length === gridObj.getColumns().length - 1).toBe(true);
+            expect((gridObj.columnMenuModule as any).defaultItems['ColumnChooser'].items.length === gridObj.getColumns().length - 1).toBe(true);
         });
 
         it('appendFilter check', (done) => {
             let colMenu = gridObj.columnMenuModule as any;
-            let element = createElement('span', {id: colMenu.defaultItems['filter'].id});
+            let element = createElement('span', {id: colMenu.defaultItems['Filter'].id});
             colMenu.appendFilter({target: element});
             expect(colMenu.isFilterPopupOpen()).toBe(true);
             expect(colMenu.getFilterPop().classList.contains('e-col-menu'));
@@ -335,7 +345,7 @@ describe('column menu module', () => {
 
         it('close filter by column menu close check', () => {
             let colMenu = gridObj.columnMenuModule as any;
-            let element = createElement('span', {id: colMenu.defaultItems['filter'].id});
+            let element = createElement('span', {id: colMenu.defaultItems['Filter'].id});
             colMenu.appendFilter({target: element});
             let args = {
                 element: createElement('span', {id: 'asdfa'}),
@@ -372,13 +382,13 @@ describe('column menu module', () => {
                     },
                     allowFiltering: true,
                     showColumnMenu: true,
-                    columnMenuItems: ['columnChooser'],
+                    columnMenuItems: ['ColumnChooser'],
                     columns: [
-                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 125 },
+                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'Left', width: 125, isPrimaryKey: true },
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 125 },
                         { field: 'ShipName', headerText: 'Ship Name', width: 120, showColumnMenu: false },
                         { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
-                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'right' }
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                     ]
                 });
             gridObj.appendTo('#Grid');
@@ -393,8 +403,8 @@ describe('column menu module', () => {
          });
          it('disabled status', () => {
             let colMenu = gridObj.columnMenuModule as any;
-            expect(colMenu.ensureDisabledStatus('group')).toBe(true);
-            expect(colMenu.ensureDisabledStatus('sortAscending')).toBe(true);
+            expect(colMenu.ensureDisabledStatus('Group')).toBe(true);
+            expect(colMenu.ensureDisabledStatus('SortAscending')).toBe(true);
          });
          it('filter - null- check', () => {
             let colMenu = gridObj.columnMenuModule as any;
@@ -429,11 +439,11 @@ describe('column menu module', () => {
                     showColumnMenu: true,
                     columnMenuItems: [{text: 'clear sorting'}],
                     columns: [
-                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 125 },
+                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'Left', width: 125, isPrimaryKey: true },
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 125 },
                         { field: 'ShipName', headerText: 'Ship Name', width: 120, showColumnMenu: false },
                         { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
-                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'right' }
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                     ]
                 });
             gridObj.appendTo('#Grid');
@@ -485,10 +495,10 @@ describe('column menu module', () => {
                     dataSource: employeeData,
                     allowSorting:true,
                     allowFiltering:true,
-                    filterSettings: { type: 'checkbox' },
-                    toolbar: ['search'],
+                    filterSettings: { type: 'CheckBox' },
+                    toolbar: ['Search'],
                     columns: [
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 100 },
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 100 },
                         { field: 'Name.LastName.startwith.endwith.final', headerText: 'Last Name', width: 120},
                         { field: 'Title', headerText: 'Title', width: 150 }
                        ],
@@ -533,18 +543,18 @@ describe('column menu module', () => {
                         pageSize: 10
                     },
                     allowFiltering: true,
-                    filterSettings: { type: 'checkbox' },
+                    filterSettings: { type: 'CheckBox' },
                     allowExcelExport: true,
                     allowPdfExport: true,
                     actionComplete: actionComplete,
                     columns: [
-                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
+                        { field: 'OrderID', headerText: 'Order ID', textAlign: 'Left', width: 125, isPrimaryKey: true },
                         {
-                            headerText: 'Employee Image', textAlign: 'center',
+                            headerText: 'Employee Image', textAlign: 'Center',
                             template: '#template', width: 150
                         }, { field: 'ShipName', headerText: 'Ship Name', width: 120, showColumnMenu: false },
                         { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
-                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'right' }
+                        { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                     ]
                 },
                 done
@@ -569,11 +579,11 @@ describe('column menu module', () => {
                 dataSource: data,
                 showColumnMenu: true,
                 columns: [
-                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'left', width: 125, isPrimaryKey: true },
-                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 125 },
+                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'Left', width: 125, isPrimaryKey: true },
+                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 125 },
                     { field: 'ShipName', headerText: 'Ship Name', width: 120, showColumnMenu: false },
                     { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
-                    { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'right' }
+                    { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                 ]
             }, done);
         });
@@ -597,7 +607,7 @@ describe('column menu module', () => {
             colMenu.columnMenuItemClick({item: colMenuObj.items[0], element: document.createElement('span')});
         });
         it('dynamic context menu items', () => {
-            gridObj.columnMenuItems = ['autoFitAll'];
+            gridObj.columnMenuItems = ['AutoFitAll'];
             gridObj.dataBind();
             let colMenu = gridObj.columnMenuModule as any;
             let colMenuObj = colMenu.columnMenu as ContextMenuItemModel;
@@ -605,11 +615,11 @@ describe('column menu module', () => {
             expect(document.querySelectorAll('.e-grid-menu').length).toBe(1);
         });
         it('Column menu without icon test', () => {
-            let st: { [key: string]: string } = (gridObj.columnMenuModule as any).getDefaultItem('columnChooser')
+            let st: { [key: string]: string } = (gridObj.columnMenuModule as any).getDefaultItem('ColumnChooser')
             expect(st.iconCss).toBe(null);
         });
         it('get key id from unknown key', () => {
-            let st: boolean = (gridObj.columnMenuModule as any).getKeyFromId('sortAscending')
+            let st: boolean = (gridObj.columnMenuModule as any).getKeyFromId('SortAscending')
             expect(st).toBe(false);
         });
         afterAll(() => {

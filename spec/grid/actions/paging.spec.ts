@@ -49,7 +49,7 @@ describe('Paging module', () => {
         });
         it('page count testing', () => {
             expect(gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes.length).toBe(4);
-            expect((<Element>gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes[0]).hasAttribute('aria-owns')).toBeTruthy();
+            expect((<Element>gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes[0].childNodes[0]).hasAttribute('aria-owns')).toBeTruthy();
         });
         it('totalRecordsCount testing', () => {
             expect(gridObj.pageSettings.totalRecordsCount).toBe(15);
@@ -69,7 +69,7 @@ describe('Paging module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            (gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes[0] as HTMLElement).click();
+            (gridObj.getPager().getElementsByClassName('e-numericcontainer')[0].childNodes[0].childNodes[0] as HTMLElement).click();
         });
         it('pageDown shortcut testing', (done: Function) => {
             actionComplete = (args: Object): void => {

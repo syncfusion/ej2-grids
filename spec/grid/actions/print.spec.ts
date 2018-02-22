@@ -88,9 +88,9 @@ describe('Print module', () => {
                 allowGrouping: true,
                 allowPaging: true,
                 groupSettings: { columns: ['OrderID'] },
-                toolbar: ['add'],
+                toolbar: ['Add'],
                 height: 200,
-                printMode: 'currentpage'
+                printMode: 'CurrentPage'
             }, dataBound);
         });
         

@@ -1,4 +1,4 @@
-import { createElement } from '@syncfusion/ej2-base';
+import { createElement, isNullOrUndefined, remove } from '@syncfusion/ej2-base';
 import { formatUnit } from '@syncfusion/ej2-base';
 import { IRenderer, IGrid } from '../base/interface';
 import { Browser } from '@syncfusion/ej2-base';
@@ -10,6 +10,7 @@ import { ContentRender } from './content-renderer';
 import { RowRenderer } from './row-renderer';
 import { ServiceLocator } from '../services/service-locator';
 import { SummaryModelGenerator } from '../services/summary-model-generator';
+import { renderMovable } from '../base/util';
 
 /**
  * Footer module is used to render grid content
@@ -20,7 +21,9 @@ export class FooterRenderer extends ContentRender implements IRenderer {
     private locator: ServiceLocator;
     protected modelGenerator: SummaryModelGenerator;
     private aggregates: Object = {};
-
+    private freezeTable: HTMLTableElement;
+    private frozenContent: Element;
+    private movableContent: Element;
     constructor(gridModule?: IGrid, serviceLocator?: ServiceLocator) {
         super(gridModule, serviceLocator);
         this.parent = gridModule;
@@ -35,7 +38,17 @@ export class FooterRenderer extends ContentRender implements IRenderer {
     public renderPanel(): void {
         let div: Element = createElement('div', { className: 'e-gridfooter' });
         let innerDiv: Element = createElement('div', { className: 'e-summarycontent' });
-        if (Browser.isDevice) { (<HTMLElement>innerDiv).style.overflowX = 'scroll'; }
+        let movableContent: Element = innerDiv;
+        if (this.parent.getFrozenColumns()) {
+            let fDiv: Element = createElement('div', { className: 'e-frozenfootercontent' });
+            let mDiv: Element = createElement('div', { className: 'e-movablefootercontent' });
+            innerDiv.appendChild(fDiv);
+            innerDiv.appendChild(mDiv);
+            this.frozenContent = fDiv;
+            this.movableContent = mDiv;
+            movableContent = mDiv;
+        }
+        if (Browser.isDevice) { (<HTMLElement>movableContent).style.overflowX = 'scroll'; }
         div.appendChild(innerDiv);
         this.setPanel(div);
         if (this.parent.getPager() != null) {
@@ -49,18 +62,31 @@ export class FooterRenderer extends ContentRender implements IRenderer {
      */
     public renderTable(): void {
         let contentDiv: Element = this.getPanel();
-        let innerDiv: Element = this.createContentTable();
+        let innerDiv: Element = this.createContentTable('_footer_table');
         let table: HTMLTableElement = <HTMLTableElement>innerDiv.querySelector('.e-table');
         let tFoot: HTMLTableSectionElement = <HTMLTableSectionElement>createElement('tfoot');
         table.appendChild(tFoot);
+        if (this.parent.getFrozenColumns()) {
+            let freezeTable: HTMLTableElement = table.cloneNode(true) as HTMLTableElement;
+            this.frozenContent.appendChild(freezeTable);
+            this.freezeTable = freezeTable;
+            this.movableContent.appendChild(table);
+            remove(table.querySelector('colgroup'));
+            let colGroup: Element
+                = ((this.parent.getHeaderContent().querySelector('.e-movableheader').querySelector('colgroup')).cloneNode(true)) as Element;
+            table.insertBefore(colGroup, table.querySelector('tbody'));
+            this.setColGroup(colGroup);
+        }
         this.setTable(table);
     }
 
-    private renderSummaryContent(e?: Object): void {
+    private renderSummaryContent(e?: Object, table?: HTMLTableElement, cStart?: number, cEnd?: number): void {
         let input: Object[] = this.parent.dataSource instanceof Array ? this.parent.dataSource : this.parent.currentViewData;
         let summaries: AggregateRowModel[] = <AggregateRowModel[]>this.modelGenerator.getData();
-        let dummies: Column[] = this.modelGenerator.getColumns();
-        let rows: Row<AggregateColumnModel>[] = this.modelGenerator.generateRows(input, e || this.aggregates);
+        let dummies: Column[] = isNullOrUndefined(cStart) ? this.modelGenerator.getColumns() :
+        this.modelGenerator.getColumns(cStart, cEnd);
+        let rows: Row<AggregateColumnModel>[] = isNullOrUndefined(cStart) ? this.modelGenerator.generateRows(input, e || this.aggregates) :
+        this.modelGenerator.generateRows(input, e || this.aggregates, cStart, cEnd);
         let fragment: DocumentFragment = <DocumentFragment>document.createDocumentFragment();
 
         let rowrenderer: RowRenderer<AggregateColumnModel> = new RowRenderer<AggregateColumnModel>(this.locator, null, this.parent);
@@ -73,29 +99,57 @@ export class FooterRenderer extends ContentRender implements IRenderer {
             fragment.appendChild(tr);
         }
 
-        (<HTMLTableElement>this.getTable()).tFoot.appendChild(fragment);
+        table.tFoot.appendChild(fragment);
         this.aggregates = e;
     }
 
     public refresh(e?: { aggregates?: Object }): void {
+        if (this.parent.getFrozenColumns()) {
+            remove(this.getPanel());
+            this.renderPanel();
+            this.renderTable();
+            this.freezeTable.tFoot.innerHTML = '';
+            this.renderSummaryContent(e, this.freezeTable, 0, this.parent.getFrozenColumns());
+        }
         (<HTMLTableElement>this.getTable()).tFoot.innerHTML = '';
-        this.renderSummaryContent(e);
+        this.renderSummaryContent(e, <HTMLTableElement>this.getTable(), this.parent.getFrozenColumns());
+        // check freeze content have no row case
+        if (this.parent.getFrozenColumns()) {
+            let frozenDiv: HTMLElement = <HTMLElement>this.frozenContent;
+            if (!frozenDiv.offsetHeight) {
+                frozenDiv.style.height = (<HTMLElement>this.getTable()).offsetHeight + 'px';
+            }
+        }
         this.onScroll();
     }
 
     public refreshCol(): void {
-        let headerCol: Node = this.parent.element.querySelector('.e-gridheader').querySelector('colgroup').cloneNode(true);
-        this.getTable().replaceChild(headerCol, this.getColGroup());
-        this.setColGroup(<Element>headerCol);
+        // frozen table 
+        let mheaderCol: Node;
+        let fheaderCol: Node = mheaderCol = this.parent.element.querySelector('.e-gridheader').querySelector('colgroup').cloneNode(true);
+        if (this.parent.getFrozenColumns()) {
+            mheaderCol = renderMovable(<Element>fheaderCol, this.parent.getFrozenColumns());
+            this.freezeTable.replaceChild(fheaderCol, this.freezeTable.querySelector('colGroup'));
+        }
+        this.getTable().replaceChild(mheaderCol, this.getColGroup());
+        this.setColGroup(<Element>mheaderCol);
     }
 
-    private onWidthChange(args: { index: string, width: number, module: string }): void {
-        this.getColGroup().children[args.index].style.width = formatUnit(args.width);
+    private onWidthChange(args: { index: number, width: number, module: string }): void {
+        this.getColFromIndex(args.index).style.width = formatUnit(args.width);
         if (this.parent.allowResizing && args.module === 'resize') { this.updateFooterTableWidth(this.getTable() as HTMLElement); }
     }
 
     private onScroll(e: { left: number } = { left: (<HTMLElement>this.parent.getContent().firstChild).scrollLeft }): void {
-        (<HTMLElement>this.getPanel().firstChild).scrollLeft = e.left;
+        (<HTMLElement>this.getTable().parentElement).scrollLeft = e.left;
+    }
+
+    public getColFromIndex(index?: number): HTMLElement {
+        let fCol: number = this.parent.getFrozenColumns();
+        if (fCol && fCol > index) {
+            return this.freezeTable.querySelector('colGroup').children[index] as HTMLElement;
+        }
+        return this.getColGroup().children[index - fCol] as HTMLElement;
     }
 
     private columnVisibilityChanged(): void {
@@ -122,4 +176,3 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         }
     }
 }
-

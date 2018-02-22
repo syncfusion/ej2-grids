@@ -4,6 +4,7 @@ import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
+import { Input } from '@syncfusion/ej2-inputs';
 
 /**
  * FilterCellRenderer class which responsible for building filter cell.
@@ -75,10 +76,12 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                     }
                 });
                 innerDIV.appendChild(input);
-                innerDIV.appendChild(createElement('span', {
-                    className: 'e-cancel e-hide e-icons e-icon-hide',
-                    attrs: { 'aria-label': 'clear filter cell', tabindex: '-1' }
-                }));
+                Input.createInput({
+                    element: input as HTMLInputElement, floatLabelType: 'Never',
+                    properties: {
+                        enableRtl: this.parent.enableRtl, showClearButton: true
+                    }
+                });
             }
             //TODO: apply intial filtering
             if (column.allowFiltering === false || column.field === '' || isNullOrUndefined(column.field)) {

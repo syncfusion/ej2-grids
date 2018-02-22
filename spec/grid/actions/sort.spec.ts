@@ -14,6 +14,7 @@ import { Group } from '../../../src/grid/actions/group';
 import { data } from '../base/datasource.spec';
 import { createGrid, destroy, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { Column } from '../../../src/grid/models/column';
 
 Grid.Inject(Sort, Page, Filter, Group, Freeze);
 
@@ -43,7 +44,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: any): any => {
                 expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
@@ -56,7 +57,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(cols[0].querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('descending');
+                expect(sortSettings.columns[0].direction).toBe('Descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -66,7 +67,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('CustomerID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -76,7 +77,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('CustomerID');
-                expect(sortSettings.columns[0].direction).toBe('descending');
+                expect(sortSettings.columns[0].direction).toBe('Descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -110,7 +111,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
@@ -122,9 +123,9 @@ describe('Sorting module => ', () => {
                 expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(sortSettings.columns[1].field).toBe('CustomerID');
-                expect(sortSettings.columns[1].direction).toBe('ascending');
+                expect(sortSettings.columns[1].direction).toBe('Ascending');
                 expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(2);
                 done();
             };
@@ -137,9 +138,9 @@ describe('Sorting module => ', () => {
                 expect(cols[1].querySelectorAll('.e-ascending').length).toBe(0);
                 expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(sortSettings.columns[1].field).toBe('CustomerID');
-                expect(sortSettings.columns[1].direction).toBe('descending');
+                expect(sortSettings.columns[1].direction).toBe('Descending');
                 expect(cols[0].parentElement.querySelectorAll('.e-sortnumber').length).toBe(2);
                 done();
             };
@@ -152,11 +153,11 @@ describe('Sorting module => ', () => {
                 expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
                 expect(cols[2].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(sortSettings.columns[1].field).toBe('CustomerID');
-                expect(sortSettings.columns[1].direction).toBe('descending');
+                expect(sortSettings.columns[1].direction).toBe('Descending');
                 expect(sortSettings.columns[2].field).toBe('EmployeeID');
-                expect(sortSettings.columns[2].direction).toBe('ascending');
+                expect(sortSettings.columns[2].direction).toBe('Ascending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(3);
                 done();
             };
@@ -171,7 +172,7 @@ describe('Sorting module => ', () => {
                 expect(cols[1].querySelectorAll('.e-descending').length).toBe(0);
                 expect(cols[2].querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('EmployeeID');
-                expect(sortSettings.columns[0].direction).toBe('descending');
+                expect(sortSettings.columns[0].direction).toBe('Descending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
@@ -192,11 +193,11 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('OrderID', 'ascending', false);
+            gridObj.sortColumn('OrderID', 'Ascending', false);
         });
         it('Multisort column method testing', (done: Function) => {
             gridObj.allowMultiSorting = true;
@@ -204,13 +205,13 @@ describe('Sorting module => ', () => {
                 expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
                 expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(sortSettings.columns[1].field).toBe('CustomerID');
-                expect(sortSettings.columns[1].direction).toBe('descending');
+                expect(sortSettings.columns[1].direction).toBe('Descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('CustomerID', 'descending', true);
+            gridObj.sortColumn('CustomerID', 'Descending', true);
         });
         it('Multisort column - with same column', (done: Function) => {
             gridObj.allowMultiSorting = true;
@@ -224,13 +225,13 @@ describe('Sorting module => ', () => {
             };
             gridObj.actionComplete = actionComplete;
             gridObj.dataBind();
-            gridObj.sortColumn('OrderID', 'descending', true);
+            gridObj.sortColumn('OrderID', 'Descending', true);
         });
         it('Remove sorted column by field method testing', (done: Function) => {
             actionComplete = (args: Object): void => {
                 expect(cols[1].querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('CustomerID');
-                expect(sortSettings.columns[0].direction).toBe('descending');
+                expect(sortSettings.columns[0].direction).toBe('Descending');
                 gridObj.actionComplete = (e?: Object) => undefined;
                 done();
             };
@@ -256,7 +257,7 @@ describe('Sorting module => ', () => {
                     pageSettings: { pageSize: 5 },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
-                    sortSettings: { columns: [{ field: 'OrderID', direction: 'ascending' }, { field: 'CustomerID', direction: 'ascending' }] },
+                    sortSettings: { columns: [{ field: 'OrderID', direction: 'Ascending' }, { field: 'CustomerID', direction: 'Ascending' }] },
                 }, done);
         });
         it('Initial sort settings testing', () => {
@@ -264,10 +265,10 @@ describe('Sorting module => ', () => {
             cols = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
             expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
             expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
-            expect(sortSettings.columns[0].field).toBe('OrderID');
-            expect(sortSettings.columns[0].direction).toBe('ascending');
-            expect(sortSettings.columns[1].field).toBe('CustomerID');
-            expect(sortSettings.columns[1].direction).toBe('ascending');
+            expect(sortSettings.columns[0].field).toBe('CustomerID');
+            expect(sortSettings.columns[0].direction).toBe('Ascending');
+            expect(sortSettings.columns[1].field).toBe('OrderID');
+            expect(sortSettings.columns[1].direction).toBe('Ascending');
             expect(cols[0].querySelectorAll('.e-sortnumber').length).toBe(1);
             expect(cols[1].querySelectorAll('.e-sortnumber').length).toBe(1);
             gridObj.sortModule.removeSortColumn('Freight');
@@ -302,12 +303,12 @@ describe('Sorting module => ', () => {
             actionComplete = (args?: Object): void => {
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('Freight');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect((<any>gridObj.currentViewData[0]).Freight).toBe(3.05);
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('Freight', 'ascending', false);
+            gridObj.sortColumn('Freight', 'Ascending', false);
         });
         it('Disable Allow Sorting', (done: Function) => {
             actionComplete = (args?: Object) => {
@@ -339,7 +340,7 @@ describe('Sorting module => ', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('Freight', 'ascending', false);
+            gridObj.sortColumn('Freight', 'Ascending', false);
         });
         it('Sort and Group testing', (done: Function) => {
             actionComplete = (args?: Object) => {
@@ -359,7 +360,7 @@ describe('Sorting module => ', () => {
                 done();
             }
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('Freight', 'descending');
+            gridObj.sortColumn('Freight', 'Descending');
 
         });
         it('Clear sorting', (done: Function) => {
@@ -519,6 +520,46 @@ describe('Sorting module => ', () => {
         })
     });
 
+    describe('sort comparer', () => {
+        let gridObj: Grid;
+        let sortComparer = (reference: string,
+            comparer:  string) => {
+                if (reference < comparer) {
+                    return -1;
+                }
+                if (reference > comparer) {
+                    return 1;
+                }
+                return 0;
+            };
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    allowSorting: true,
+                    allowPaging: true,
+                    pageSettings: { pageSize: 5 },
+                    columns: [{ field: 'OrderID', sortComparer: sortComparer }, { field: 'CustomerID' },
+                    { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }]
+                }, done);
+        });
+
+        it('Sort comparer check', (done: Function) => {
+            spyOn(<Column>gridObj.columns[0], 'sortComparer');
+            gridObj.actionComplete = () => {
+                expect((<Column>gridObj.columns[0]).sortComparer).toHaveBeenCalled();
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.sortColumn('OrderID', 'Ascending');
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        })
+    });
+
     describe('Sorting with Freeze pane', () => {
         let gridObj: Grid;
         let actionBegin: (e?: Object) => void;
@@ -548,7 +589,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(col1.parentElement.querySelectorAll('.e-sortnumber').length).toBe(0);
                 done();
             };
@@ -561,7 +602,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(col1.querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('descending');
+                expect(sortSettings.columns[0].direction).toBe('Descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -572,7 +613,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('EmployeeID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -584,7 +625,7 @@ describe('Sorting module => ', () => {
             actionComplete = (args: Object): void => {
                 expect(col2.querySelectorAll('.e-descending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('EmployeeID');
-                expect(sortSettings.columns[0].direction).toBe('descending');
+                expect(sortSettings.columns[0].direction).toBe('Descending');
                 done();
             };
             gridObj.actionComplete = actionComplete;
@@ -597,9 +638,9 @@ describe('Sorting module => ', () => {
                 expect(col1.querySelectorAll('.e-ascending').length).toBe(1);
                 expect(col2.querySelectorAll('.e-ascending').length).toBe(1);
                 expect(sortSettings.columns[0].field).toBe('OrderID');
-                expect(sortSettings.columns[0].direction).toBe('ascending');
+                expect(sortSettings.columns[0].direction).toBe('Ascending');
                 expect(sortSettings.columns[1].field).toBe('EmployeeID');
-                expect(sortSettings.columns[1].direction).toBe('ascending');
+                expect(sortSettings.columns[1].direction).toBe('Ascending');
                 expect(gridObj.getHeaderContent().querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(1);
                 expect(gridObj.getHeaderContent().querySelector('.e-movableheader').querySelectorAll('.e-columnheader')[0].querySelectorAll('.e-sortnumber').length).toBe(1);
                 done();
@@ -618,4 +659,3 @@ describe('Sorting module => ', () => {
     });
 
 });
-

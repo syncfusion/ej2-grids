@@ -89,7 +89,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
         node.appendChild(this.sortEle.cloneNode());
 
-        if ((this.parent.allowFiltering && this.parent.filterSettings.type !== 'filterbar') &&
+        if ((this.parent.allowFiltering && this.parent.filterSettings.type !== 'FilterBar') &&
             (column.allowFiltering && !isNullOrUndefined(column.field)) &&
             !(this.parent.showColumnMenu && column.showColumnMenu)) {
             attributes(fltrMenuEle, {
@@ -139,16 +139,16 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         if (!isNullOrUndefined(column.headerTextAlign) || !isNullOrUndefined(column.textAlign)) {
             let alignment: string = column.headerTextAlign || column.textAlign;
             (innerDIV as HTMLElement).style.textAlign = alignment;
-            if (alignment === 'right' || alignment === 'left') {
-                node.classList.add(alignment === 'right' ? 'e-rightalign' : 'e-leftalign');
-            } else if (alignment === 'center') {
+            if (alignment === 'Right' || alignment === 'Left') {
+                node.classList.add(alignment === 'Right' ? 'e-rightalign' : 'e-leftalign');
+            } else if (alignment === 'Center') {
                 node.classList.add('e-centeralign');
             }
         }
 
-        if (column.clipMode === 'clip') {
+        if (column.clipMode === 'Clip') {
             node.classList.add('e-gridclip');
-        } else if (column.clipMode === 'ellipsiswithtooltip') {
+        } else if (column.clipMode === 'EllipsisWithTooltip') {
             node.classList.add('e-ellipsistooltip');
         }
         node.setAttribute('aria-rowspan', (!isNullOrUndefined(cell.rowSpan) ? cell.rowSpan : 1).toString());

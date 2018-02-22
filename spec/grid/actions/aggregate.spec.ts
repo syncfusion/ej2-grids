@@ -3,7 +3,7 @@
  */
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { EmitType } from '@syncfusion/ej2-base';
-import { Query, DataManager, ODataV4Adaptor, DataUtil } from '@syncfusion/ej2-data';
+import { DataUtil } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { CustomSummaryType } from '../../../src/grid/base/type';
 import { Aggregate } from '../../../src/grid/actions/aggregate';
@@ -48,26 +48,26 @@ describe('Aggregates Functionality testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
                             format: 'c2'
                         }]
                     }, {
                         columns: [{
-                            type: 'max',
+                            type: 'Max',
                             field: 'OrderDate',
                             format: { type: 'date', skeleton: 'medium' },
-                            footerTemplate: '${max}'
+                            footerTemplate: '${Max}'
                         }]
                     }]
                 },
@@ -96,26 +96,26 @@ describe('Aggregates Functionality testing', () => {
                     dataSource: [],
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
                             format: 'c2'
                         }]
                     }, {
                         columns: [{
-                            type: 'max',
+                            type: 'Max',
                             field: 'OrderDate',
                             format: { type: 'date', skeleton: 'medium' },
-                            footerTemplate: '${max}'
+                            footerTemplate: '${Max}'
                         }]
                     }]
                 },
@@ -140,26 +140,26 @@ describe('Aggregates Functionality testing', () => {
                     groupSettings: { columns: ['Verified'], showGroupedColumn: true },
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right'
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right'
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
                             format: 'c2'
                         }]
                     }, {
                         columns: [{
-                            type: ['max'],
+                            type: ['Max'],
                             field: 'OrderDate',
                             format: 'yMd',
-                            footerTemplate: '${max}'
+                            footerTemplate: '${Max}'
                         }]
                     }]
                 },
@@ -187,27 +187,27 @@ describe('Aggregates Functionality testing', () => {
                     groupSettings: { columns: ['EmployeeID'] },
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right'
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right'
                         },
                         { field: 'Verified', displayAsCheckBox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
-                            groupFooterTemplate: '${average}'
+                            groupFooterTemplate: '${Average}'
                         }]
                     },
                     {
                         columns: [{
-                            type: ['max'],
+                            type: ['Max'],
                             field: 'OrderDate',
                             format: 'yMd',
-                            groupCaptionTemplate: '${max}'
+                            groupCaptionTemplate: '${Max}'
                         }]
                     }]
                 },
@@ -250,16 +250,16 @@ describe('Aggregates Functionality testing', () => {
                     groupSettings: { columns: ['OrderID'] },
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right'
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right'
                         },
                         { field: 'Freight', format: 'C1' },
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
-                            groupCaptionTemplate: '${average}'
+                            groupCaptionTemplate: '${Average}'
                         }]
                     }]
                 },
@@ -289,23 +289,23 @@ describe('Aggregates Functionality testing', () => {
                     groupSettings: { columns: ['Verified'] },
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right'
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right'
                         },
                         { field: 'Verified', displayAsCheckBox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'custom',
+                            type: 'Custom',
                             columnName: 'EmployeeID',
                             customAggregate: customSum
                         },
                         //Use this to provide title in another column.
                         {
-                            type: 'custom',
+                            type: 'Custom',
                             columnName: 'OrderID',
                             footerTemplate: 'Custom'
                         }]
@@ -348,29 +348,29 @@ describe('Aggregates Functionality testing', () => {
                         groupSettings: { columns: ['Verified'] },
                         columns: [
                             {
-                                field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                                textAlign: 'right'
+                                field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                                textAlign: 'Right'
                             },
                             { field: 'Verified', displayAsCheckBox: true, type: 'boolean' },
                             { field: 'Freight', format: 'C1' },
                             { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                         ]
                     },
                     () => {
                         grid.aggregates = [{
                             columns: [{
-                                type: 'average',
+                                type: 'Average',
                                 field: 'Freight',
-                                groupFooterTemplate: '${average}'
+                                groupFooterTemplate: '${Average}'
                             }]
                         },
                         {
                             columns: [{
-                                type: ['max'],
+                                type: ['Max'],
                                 field: 'OrderDate',
                                 format: 'yMd',
-                                groupCaptionTemplate: '${max}'
+                                groupCaptionTemplate: '${Max}'
                             }]
                         }];
                         grid.dataBind();
@@ -398,21 +398,21 @@ describe('Aggregates Functionality testing', () => {
                         groupSettings: { columns: ['Verified'] },
                         columns: [
                             {
-                                field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                                textAlign: 'right'
+                                field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                                textAlign: 'Right'
                             },
                             { field: 'Verified', displayAsCheckBox: true, type: 'boolean' },
                             { field: 'Freight', format: 'C1' },
                             { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                         ]
                     },
                     () => {
                         grid.aggregates = [{
                             columns: [{
-                                type: 'average',
+                                type: 'Average',
                                 field: 'Freight',
-                                footerTemplate: '${average}'
+                                footerTemplate: '${Average}'
                             }]
                         }];
                         grid.dataBind();
@@ -440,27 +440,27 @@ describe('Aggregates Functionality testing', () => {
                         groupSettings: { disablePageWiseAggregates: true, columns: ['Verified'] },
                         columns: [
                             {
-                                field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                                textAlign: 'right'
+                                field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                                textAlign: 'Right'
                             },
                             { field: 'Verified', displayAsCheckBox: true, type: 'boolean' },
                             { field: 'Freight', format: 'C1' },
                             { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                         ],
                         aggregates: [{
                             columns: [{
-                                type: 'average',
+                                type: 'Average',
                                 field: 'Freight',
-                                groupFooterTemplate: '${average}'
+                                groupFooterTemplate: '${Average}'
                             }]
                         },
                         {
                             columns: [{
-                                type: ['max'],
+                                type: ['Max'],
                                 field: 'OrderDate',
                                 format: 'yMd',
-                                groupCaptionTemplate: '${max}'
+                                groupCaptionTemplate: '${Max}'
                             }]
                         }]
                     },
@@ -492,17 +492,17 @@ describe('Aggregates Functionality testing', () => {
                     groupSettings: { columns: ['Verified'] },
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right'
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right'
                         },
                         { field: 'Verified', displayAsCheckBox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
                         }]
                     }],
@@ -538,26 +538,26 @@ describe('Aggregates Functionality testing', () => {
                     detailTemplate: '${OrderID}',
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
                             format: 'c2'
                         }]
                     }, {
                         columns: [{
-                            type: 'max',
+                            type: 'Max',
                             field: 'OrderDate',
                             format: { type: 'date', skeleton: 'medium' },
-                            footerTemplate: '${max}'
+                            footerTemplate: '${Max}'
                         }]
                     }]
                 },

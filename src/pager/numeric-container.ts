@@ -65,7 +65,8 @@ export class NumericContainer implements IRender {
         for (let i: number = 1; i <= pagerObj.pageCount; i++) {
             link = createElement('a', {
                 className: 'e-link e-numericitem e-spacing e-pager-default',
-                attrs: { role: 'link', tabindex: '-1', 'aria-label': 'Goto Page ' + i }
+                attrs: { role: 'link', tabindex: '-1', 'aria-label': 'Goto Page ' + i,
+                href: 'javascript:void(0);' , name: 'Goto page' + i }
             });
             if (pagerObj.currentPage === i) {
                 classList(link, ['e-currentitem', 'e-active'], ['e-pager-default']);
@@ -137,29 +138,37 @@ export class NumericContainer implements IRender {
     }
 
     private renderPrevPagerSet(pagerContainer: Element): void {
+        let prevPager: Element = createElement('div');
         this.PP = createElement(
             'a', {
                 className: 'e-link e-pp e-spacing', innerHTML: '...',
                 attrs: {
                     title: this.pagerModule.getLocalizedLabel('previousPagerTooltip'), role: 'link',
                     'aria-label': this.pagerModule.getLocalizedLabel('previousPagerTooltip'),
-                    tabindex: '-1'
+                    tabindex: '-1',
+                    name: this.pagerModule.getLocalizedLabel('previousPagerTooltip'),
+                    href: 'javascript:void(0);'
                 }
             });
-        pagerContainer.appendChild(this.PP);
+        prevPager.appendChild(this.PP);
+        pagerContainer.appendChild(prevPager);
     }
 
     private renderNextPagerSet(pagerContainer: Element): void {
+        let nextPager: Element = createElement('div');
         this.NP = createElement(
             'a', {
                 className: 'e-link e-np e-spacing',
                 innerHTML: '...', attrs: {
                     title: this.pagerModule.getLocalizedLabel('nextPagerTooltip'), role: 'link',
                     'aria-label': this.pagerModule.getLocalizedLabel('nextPagerTooltip'),
-                    tabindex: '-1'
+                    tabindex: '-1',
+                    name: this.pagerModule.getLocalizedLabel('nextPagerTooltip'),
+                    href: 'javascript:void(0);'
                 }
             });
-        pagerContainer.appendChild(this.NP);
+        nextPager.appendChild(this.NP);
+        pagerContainer.appendChild(nextPager);
     }
 
     private renderNextNLast(pagerContainer: Element): void {
@@ -219,6 +228,7 @@ export class NumericContainer implements IRender {
                     this.links[i].classList.remove('e-pager-default');
                 }
             } else {
+                this.links[i].innerHTML = !pagerObj.customText ? pageNo.toString() : pagerObj.customText + pageNo;
                 this.links[i].style.display = 'none';
             }
             classList(this.links[i], [], ['e-currentitem', 'e-active']);

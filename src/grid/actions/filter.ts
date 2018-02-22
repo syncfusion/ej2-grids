@@ -20,8 +20,8 @@ import { CheckBoxFilter } from '../actions/checkbox-filter';
 import { ExcelFilter } from '../actions/excel-filter';
 
 /**
- * 
- * `Filter` module is used to handle filtering action.
+ *
+ * The `Filter` module is used to handle filtering action.
  */
 export class Filter implements IAction {
     //Internal variables   
@@ -33,15 +33,15 @@ export class Filter implements IAction {
     private column: Column;
     private fieldName: string;
     private matchCase: boolean;
+    private ignoreAccent: boolean;
     private timer: number;
     private filterStatusMsg: string;
     private currentFilterObject: PredicateModel;
-    private lastFilterElement: HTMLElement;
     private isRemove: boolean;
     private contentRefresh: boolean = true;
     private values: Object = {};
     private nextFlMenuOpen: string = '';
-    private type: Object = { 'menu': FilterMenuRenderer, 'checkbox': CheckBoxFilter, 'excel': ExcelFilter };
+    private type: Object = { 'Menu': FilterMenuRenderer, 'CheckBox': CheckBoxFilter, 'Excel': ExcelFilter };
     private filterModule: { openDialog: Function, closeDialog: Function, destroy: Function };
     private filterOperators: IFilterOperator = {
         contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
@@ -73,11 +73,12 @@ export class Filter implements IAction {
      * @return {void}  
      * @hidden
      */
-    public render(): void {
+    public render(e?: NotifyArgs): void {
+        if (DataUtil.getObject('args.isFrozen', e)) { return; }
         let gObj: IGrid = this.parent;
         this.l10n = this.serviceLocator.getService<L10n>('localization');
         this.getLocalizedCustomOperators();
-        if (this.parent.filterSettings.type === 'filterbar') {
+        if (this.parent.filterSettings.type === 'FilterBar') {
             if (gObj.columns.length) {
                 let fltrElem: Element = this.parent.element.querySelector('.e-filterbar');
                 if (fltrElem) {
@@ -175,7 +176,7 @@ export class Filter implements IAction {
         let field: string = col.isForeignColumn() ? col.foreignKeyValue : this.fieldName;
         this.currentFilterObject = {
             field: field, operator: this.operator, value: this.value as string, predicate: this.predicate,
-            matchCase: this.matchCase, actualFilterValue: {}, actualOperator: {}
+            matchCase: this.matchCase, ignoreAccent: this.ignoreAccent, actualFilterValue: {}, actualOperator: {}
         };
 
         let index: number = this.getFilteredColsIndexByField(col);
@@ -215,16 +216,13 @@ export class Filter implements IAction {
     }
 
     private wireEvents(): void {
-        EventHandler.add(this.parent.getHeaderContent(), 'mousedown', this.updateSpanClass, this);
-        EventHandler.add(this.parent.element, 'focusin', this.updateSpanClass, this);
         EventHandler.add(this.parent.getHeaderContent(), 'keyup', this.keyUpHandler, this);
     }
 
     private unWireEvents(): void {
-        EventHandler.remove(this.parent.element, 'focusin', this.updateSpanClass);
-        EventHandler.remove(this.parent.getHeaderContent(), 'mousedown', this.updateSpanClass);
         EventHandler.remove(this.parent.getHeaderContent(), 'keyup', this.keyUpHandler);
     }
+
 
     private enableAfterRender(e: NotifyArgs): void {
         if (e.module === this.getModuleName() && e.enable) {
@@ -239,7 +237,9 @@ export class Filter implements IAction {
             this.contentRefresh = false;
             for (let col of gObj.filterSettings.columns) {
                 this.filterByColumn(
-                    col.field, col.operator, col.value as string, col.predicate, col.matchCase, col.actualFilterValue, col.actualOperator);
+                    col.field, col.operator, col.value as string, col.predicate, col.matchCase,
+                    col.ignoreAccent, col.actualFilterValue, col.actualOperator
+                );
             }
             this.updateFilterMsg();
             this.contentRefresh = true;
@@ -284,24 +284,25 @@ export class Filter implements IAction {
     }
 
     /**
-     * Filters grid row by column name with given options.
-     * @param  {string} fieldName - Defines the field name of the filter column. 
-     * @param  {string} filterOperator - Defines the operator by how to filter records.
+     * Filters the Grid row by fieldName, filterOperator, and filterValue.
+     * @param  {string} fieldName - Defines the field name of the filter column.
+     * @param  {string} filterOperator - Defines the operator to filter records.
      * @param  {string | number | Date | boolean} filterValue - Defines the value which is used to filter records.
-     * @param  {string} predicate - Defines the relationship between one filter query with another by using AND or OR predicate.   
-     * @param  {boolean} matchCase - If match case set to true, then filter records with exact match or else  
-     * filter records with case insensitive(uppercase and lowercase letters treated as same).
-     * @param  {string} actualFilterValue - Defines the actual filter value for the filter column. 
-     * @param  {string} actualOperator - Defines the actual filter operator for the filter column. 
-     * @return {void} 
+     * @param  {string} predicate - Defines the relationship of one filter query with another by using AND or OR predicate.
+     * @param  {boolean} matchCase - If match case is set to true, then the filter records
+     * the exact match or <br> filters records that are case insensitive (uppercase and lowercase letters treated the same).
+     * @param {boolean} ignoreAccent - If ignoreAccent set to true, then filter ignores the diacritic characters or accents while filtering.
+     * @param  {string} actualFilterValue - Defines the actual filter value for the filter column.
+     * @param  {string} actualOperator - Defines the actual filter operator for the filter column.
+     * @return {void}
      */
     public filterByColumn(
         fieldName: string, filterOperator: string, filterValue: string | number | Date | boolean, predicate?: string, matchCase?: boolean,
-        actualFilterValue?: Object, actualOperator?: Object): void {
+        ignoreAccent?: boolean, actualFilterValue?: Object, actualOperator?: Object): void {
         let gObj: IGrid = this.parent;
         let filterCell: HTMLInputElement;
         this.column = gObj.getColumnByField(fieldName);
-        if (this.filterSettings.type === 'filterbar') {
+        if (this.filterSettings.type === 'FilterBar') {
             filterCell = gObj.getHeaderContent().querySelector('[id=\'' + this.column.field + '_filterBarcell\']') as HTMLInputElement;
         }
         if (!isNullOrUndefined(this.column.allowFiltering) && !this.column.allowFiltering) {
@@ -310,12 +311,13 @@ export class Filter implements IAction {
         if (isActionPrevent(gObj)) {
             gObj.notify(events.preventBatch, {
                 instance: this, handler: this.filterByColumn, arg1: fieldName, arg2: filterOperator, arg3: filterValue, arg4: predicate,
-                arg5: matchCase, arg6: actualFilterValue, arg7: actualOperator
+                arg5: matchCase, arg6: ignoreAccent, arg7: actualFilterValue, arg8: actualOperator
             });
             return;
         }
         this.value = filterValue;
         this.matchCase = matchCase || false;
+        this.ignoreAccent = this.ignoreAccent = !isNullOrUndefined(ignoreAccent) ? ignoreAccent : this.parent.filterSettings.ignoreAccent;
         this.fieldName = fieldName;
         this.predicate = predicate || 'and';
         this.operator = filterOperator;
@@ -329,13 +331,19 @@ export class Filter implements IAction {
             this.updateFilterMsg();
             return;
         }
-        if (this.filterSettings.type === 'filterbar' && filterCell.value !== filterValue) {
+        if (this.filterSettings.type === 'FilterBar' && filterCell.value !== filterValue) {
             filterCell.value = filterValue;
         }
         if (this.checkAlreadyColFiltered(this.column.field)) {
             return;
         }
-        this.values[this.column.field] = filterValue; //this line should be above updateModel
+        if (!isNullOrUndefined(this.column.format)) {
+            let getFlvalue: Date | number | string = (this.column.type === 'date' || this.column.type === 'datetime') ?
+                new Date(filterValue) : parseFloat(filterValue);
+            this.values[this.column.field] = this.setFormatForFlColumn(getFlvalue, this.column);
+        } else {
+            this.values[this.column.field] = filterValue; //this line should be above updateModel
+        }
         this.updateModel();
     }
 
@@ -370,9 +378,9 @@ export class Filter implements IAction {
         }
     }
 
-    /** 
-     * Clears all the filtered rows of Grid.
-     * @return {void} 
+    /**
+     * Clears all the filtered rows of the Grid.
+     * @return {void}
      */
     public clearFiltering(): void {
         let cols: PredicateModel[] = getActualPropFromColl(this.filterSettings.columns);
@@ -457,7 +465,7 @@ export class Filter implements IAction {
             let column: Column = this.parent.getColumnByField(field) ||
                 getColumnByForeignKeyValue(field, this.parent.getForeignKeyColumns());
             if (cols[i].field === field || cols[i].field === column.foreignKeyValue) {
-                if (this.filterSettings.type === 'filterbar' && !isClearFilterBar) {
+                if (this.filterSettings.type === 'FilterBar' && !isClearFilterBar) {
                     let selector: string = '[id=\'' + cols[i].field + '_filterBarcell\']';
                     fCell = this.parent.getHeaderContent().querySelector(selector) as HTMLInputElement;
                     delete this.values[field];
@@ -465,7 +473,7 @@ export class Filter implements IAction {
                 cols.splice(i, 1);
                 let fltrElement: Element = this.parent.getColumnHeaderByField(column.field);
                 fltrElement.removeAttribute('aria-filtered');
-                if (this.filterSettings.type !== 'filterbar') {
+                if (this.filterSettings.type !== 'FilterBar') {
                     let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
                     fltrElement.querySelector(iconClass).classList.remove('e-filtered');
                 }
@@ -496,35 +504,11 @@ export class Filter implements IAction {
             if (!this.column) {
                 return;
             }
-            this.updateCrossIcon(target);
-            if ((this.filterSettings.mode === 'immediate' || e.keyCode === 13) && e.keyCode !== 9) {
+            if ((this.filterSettings.mode === 'Immediate' || e.keyCode === 13) && e.keyCode !== 9) {
                 this.value = target.value.trim();
                 this.processFilter(e);
             }
         }
-    }
-
-
-    private updateSpanClass(e: Event): boolean {
-        let target: HTMLInputElement = e.target as HTMLInputElement;
-        if (e.type === 'mousedown' && target.classList.contains('e-cancel')) {
-            let targetText: HTMLInputElement = target.previousElementSibling as HTMLInputElement;
-            (targetText as HTMLInputElement).value = '';
-            target.classList.add('e-hide');
-            targetText.focus();
-            e.preventDefault();
-        }
-        if (e.type === 'focusin' && target.classList.contains('e-filtertext') && !target.disabled) {
-            if (this.lastFilterElement) {
-                this.lastFilterElement.nextElementSibling.classList.add('e-hide');
-            }
-            this.updateCrossIcon(target);
-            this.lastFilterElement = target;
-        }
-        if (e.type === 'focusin' && !target.classList.contains('e-filtertext') && this.lastFilterElement) {
-            this.lastFilterElement.nextElementSibling.classList.add('e-hide');
-        }
-        return false;
     }
 
     private updateCrossIcon(element: HTMLInputElement): void {
@@ -534,12 +518,13 @@ export class Filter implements IAction {
     }
 
     private updateFilterMsg(): void {
-        if (this.filterSettings.type === 'filterbar') {
+        if (this.filterSettings.type === 'FilterBar') {
             let gObj: IGrid = this.parent;
             let columns: PredicateModel[] = this.filterSettings.columns;
             let formater: IValueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
             let column: Column;
             let value: Date | string | number | boolean;
+
             if (!this.filterSettings.showFilterBarStatus) {
                 return;
             }
@@ -551,7 +536,16 @@ export class Filter implements IAction {
                     if (index) {
                         this.filterStatusMsg += ' && ';
                     }
-                    this.filterStatusMsg += column.headerText + ': ' + this.values[column.field];
+                    if (!isNullOrUndefined(column.format)) {
+                        let flValue: Date | number = (column.type === 'date' || column.type === 'datetime') ?
+                            new Date(this.values[column.field]) :
+                            this.values[column.field];
+                        let getFormatFlValue: string = this.setFormatForFlColumn(flValue, column);
+                        this.filterStatusMsg += column.headerText + ': ' + getFormatFlValue;
+
+                    } else {
+                        this.filterStatusMsg += column.headerText + ': ' + this.values[column.field];
+                    }
                 }
             }
             if (gObj.allowPaging) {
@@ -561,6 +555,11 @@ export class Filter implements IAction {
             //TODO: virtual paging       
             this.filterStatusMsg = '';
         }
+    }
+
+    private setFormatForFlColumn(value: Date | number, column: Column): string {
+        let formater: IValueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
+        return formater.toView(value, column.getFormatter()).toString();
     }
 
     private checkForSkipInput(column: Column, value: string): boolean {
@@ -617,7 +616,7 @@ export class Filter implements IAction {
             return;
         }
         this.validateFilterValue(this.value as string);
-        this.filterByColumn(this.column.field, this.operator, this.value as string, this.predicate, this.matchCase);
+        this.filterByColumn(this.column.field, this.operator, this.value as string, this.predicate, this.matchCase, this.ignoreAccent);
         filterElement.value = filterValue;
         this.updateFilterMsg();
     }
@@ -713,32 +712,27 @@ export class Filter implements IAction {
     }
 
     private columnPositionChanged(e: { fromIndex: number, toIndex: number }): void {
-        if (this.parent.filterSettings.type !== 'filterbar') {
+        if (this.parent.filterSettings.type !== 'FilterBar') {
             return;
-        }
-        let filterCells: Element[] = [].slice.call(this.parent.getHeaderContent().querySelectorAll('.e-filterbarcell'));
-        filterCells.splice(e.toIndex, 0, filterCells.splice(e.fromIndex, 1)[0]);
-        this.element.innerHTML = '';
-        for (let cell of filterCells) {
-            this.element.appendChild(cell);
         }
     }
 
     private getLocalizedCustomOperators(): void {
         let numOptr: Object[] = [
             { value: 'equal', text: this.l10n.getConstant('Equal') },
-            { value: 'greaterThan', text: this.l10n.getConstant('GreaterThan') },
-            { value: 'greaterThanOrEqual', text: this.l10n.getConstant('GreaterThanOrEqual') },
-            { value: 'lessThan', text: this.l10n.getConstant('LessThan') },
-            { value: 'lessThanOrEqual', text: this.l10n.getConstant('LessThanOrEqual') },
-            { value: 'notEqual', text: this.l10n.getConstant('NotEqual') }
+            { value: 'greaterthan', text: this.l10n.getConstant('GreaterThan') },
+            { value: 'greaterthanorequal', text: this.l10n.getConstant('GreaterThanOrEqual') },
+            { value: 'lessthan', text: this.l10n.getConstant('LessThan') },
+            { value: 'lessthanorequal', text: this.l10n.getConstant('LessThanOrEqual') },
+            { value: 'notequal', text: this.l10n.getConstant('NotEqual') }
         ];
         this.customOperators = {
             stringOperator: [
-                { value: 'startsWith', text: this.l10n.getConstant('StartsWith') },
-                { value: 'endsWith', text: this.l10n.getConstant('EndsWith') },
+                { value: 'startswith', text: this.l10n.getConstant('StartsWith') },
+                { value: 'endswith', text: this.l10n.getConstant('EndsWith') },
                 { value: 'contains', text: this.l10n.getConstant('Contains') },
-                { value: 'equal', text: this.l10n.getConstant('Equal') }, { value: 'notEqual', text: this.l10n.getConstant('NotEqual') }],
+                { value: 'equal', text: this.l10n.getConstant('Equal') },
+                { value: 'notequal', text: this.l10n.getConstant('NotEqual') }],
 
             numberOperator: numOptr,
 
@@ -747,7 +741,8 @@ export class Filter implements IAction {
             datetimeOperator: numOptr,
 
             booleanOperator: [
-                { value: 'equal', text: this.l10n.getConstant('Equal') }, { value: 'notEqual', text: this.l10n.getConstant('NotEqual') }
+                { value: 'equal', text: this.l10n.getConstant('Equal') },
+                { value: 'notequal', text: this.l10n.getConstant('NotEqual') }
             ]
         };
 
@@ -755,8 +750,8 @@ export class Filter implements IAction {
 
     private filterIconClickHandler(e: MouseEvent): void {
         let target: Element = e.target as Element;
-        if (target.classList.contains('e-filtermenudiv') && (this.parent.filterSettings.type === 'menu' ||
-            this.parent.filterSettings.type === 'checkbox' || this.parent.filterSettings.type === 'excel')) {
+        if (target.classList.contains('e-filtermenudiv') && (this.parent.filterSettings.type === 'Menu' ||
+            this.parent.filterSettings.type === 'CheckBox' || this.parent.filterSettings.type === 'Excel')) {
             let gObj: IGrid = this.parent;
             let col: Column = gObj.getColumnByUid
                 (parentsUntil(target, 'e-headercell').firstElementChild.getAttribute('e-mappinguid'));
@@ -776,8 +771,8 @@ export class Filter implements IAction {
 
 
     private clickHandler(e: MouseEvent): void {
-        if (this.parent.filterSettings.type === 'menu' ||
-            this.parent.filterSettings.type === 'checkbox' || this.parent.filterSettings.type === 'excel') {
+        if (this.filterSettings.mode === 'Immediate' || this.parent.filterSettings.type === 'Menu' ||
+            this.parent.filterSettings.type === 'CheckBox' || this.parent.filterSettings.type === 'Excel') {
             let gObj: IGrid = this.parent;
             let target: Element = e.target as Element;
             let datepickerEle: boolean = target.classList.contains('e-day'); // due to datepicker popup cause
@@ -788,6 +783,10 @@ export class Filter implements IAction {
                     && (!closest(target, '.e-filter-item.e-menu-item'))
                     && (!parentsUntil(target, 'e-popup'))) && !datepickerEle) {
                 this.filterModule.closeDialog(target);
+            }
+            if (this.filterSettings.mode === 'Immediate' && target.classList.contains('e-clear-icon')) {
+                let targetText: HTMLInputElement = target.previousElementSibling as HTMLInputElement;
+                this.removeFilteredColsByField(targetText.id.slice(0, - 14)); //Length of _filterBarcell = 14
             }
         }
     }

@@ -28,11 +28,11 @@ describe('Command Column ', () => {
                 {
                     columns: [
                         {
-                            commands: [{type: 'edit', buttonOption: {content: 'edit'}},
-                            {type: 'delete', buttonOption: {content: 'delete'}},
-                            {type: 'save', buttonOption: {content: 'save'}},
-                            {type: 'cancel', buttonOption: {content: 'cancel'}}
-                        ], headerText: 'Command Column'
+                            commands: [{ type: 'Edit', buttonOption: { content: 'edit' } },
+                            { type: 'Delete', buttonOption: { content: 'delete' } },
+                            { type: 'Save', buttonOption: { content: 'save' } },
+                            { type: 'Cancel', buttonOption: { content: 'cancel' } }
+                            ], headerText: 'Command Column'
                         }
                     ],
                     dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
@@ -65,7 +65,7 @@ describe('Command Column ', () => {
                 expect(rows.querySelector('.e-unboundcelldiv').children[0].classList.contains('e-deletebutton')).toBeTruthy();
                 done();
             };
-            (<Column>grid.columns[0]).commands = [{type: 'delete', buttonOption: {content: 'delete'}}];
+            (<Column>grid.columns[0]).commands = [{ type: 'Delete', buttonOption: { content: 'delete' } }];
             grid.refresh();
         });
         it('Render Command Column with predefined and custom buttons', (done: Function) => {
@@ -79,8 +79,8 @@ describe('Command Column ', () => {
                 expect((<HTMLElement>rows.querySelector('.e-unboundcelldiv').children[0]).innerText.toLowerCase()).toBe('edit');
                 (<HTMLElement>rows.querySelector('.e-details')).click();
             };
-            (<Column>grid.columns[0]).commands = [{type: 'edit', buttonOption: {content: 'edit'}} ,
-            {buttonOption: { content: 'Details', click: buttonClick, cssClass: 'e-details' }} ];
+            (<Column>grid.columns[0]).commands = [{ type: 'Edit', buttonOption: { content: 'edit' } },
+            { buttonOption: { content: 'Details', click: buttonClick, cssClass: 'e-details' } }];
             grid.refresh();
         });
 
@@ -108,11 +108,11 @@ describe('Command Column ', () => {
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' },
                     {
-                        commands: [{type: 'edit', buttonOption: {content: 'edit'}},
-                        {type: 'delete', buttonOption: {content: 'delete'}},
-                        {type: 'cancel', buttonOption: {content: 'cancel'}},
-                        {type: 'save', buttonOption: {content: 'save'}}
-                    ], headerText: 'Command Column'
+                        commands: [{ type: 'Edit', buttonOption: { content: 'edit' } },
+                        { type: 'Delete', buttonOption: { content: 'delete' } },
+                        { type: 'Cancel', buttonOption: { content: 'cancel' } },
+                        { type: 'Save', buttonOption: { content: 'save' } }
+                        ], headerText: 'Command Column'
                     }],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
@@ -161,11 +161,11 @@ describe('Command Column ', () => {
                     columns: [{ field: 'OrderID', isPrimaryKey: true }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' },
                     {
-                        commands: [{type: 'edit', buttonOption: {content: 'edit'}},
-                        {type: 'delete', buttonOption: {content: 'delete'}},
-                        {type: 'cancel', buttonOption: {content: 'cancel'}},
-                        {type: 'save', buttonOption: {content: 'save'}}
-                    ], headerText: 'Command Column'
+                        commands: [{ type: 'Edit', buttonOption: { content: 'edit' } },
+                        { type: 'Delete', buttonOption: { content: 'delete' } },
+                        { type: 'Cancel', buttonOption: { content: 'cancel' } },
+                        { type: 'Save', buttonOption: { content: 'save' } }
+                        ], headerText: 'Command Column'
                     }],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
@@ -213,7 +213,7 @@ describe('Command Column ', () => {
                 }
             }
             (<any>grid).commandColumnModule.keyPressHandler({ action: 'enter', target: grid.getRows()[0].querySelector('.e-unboundcelldiv').children[0], preventDefault: function () { } });
-            (<any>grid).commandColumnModule.keyPressHandler({ action: 'enter', target: grid.getRows()[0].querySelector('.e-unboundcelldiv') });
+            (<any>grid).commandColumnModule.keyPressHandler({ action: 'enter', target: grid.getRows()[0].querySelector('.e-unboundcelldiv'), preventDefault: function () { } });
         });
 
         afterAll(() => {
@@ -234,11 +234,11 @@ describe('Command Column ', () => {
                     columns: [
                         { field: 'b' },
                         {
-                            commands: [{type: 'edit', buttonOption: {content: 'edit'}},
-                             {type: 'delete', buttonOption: {content: 'delete'}},
-                             {type: 'cancel', buttonOption: {content: 'cancel'}},
-                             {type: 'save', buttonOption: {content: 'save'}},
-                             { buttonOption: {content: 'Details'}}], headerText: 'Command Column'
+                            commands: [{ type: 'Edit', buttonOption: { content: 'edit' } },
+                            { type: 'Delete', buttonOption: { content: 'delete' } },
+                            { type: 'Cancel', buttonOption: { content: 'cancel' } },
+                            { type: 'Save', buttonOption: { content: 'save' } },
+                            { buttonOption: { content: 'Details' } }], headerText: 'Command Column'
                         }
                     ],
                     dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
@@ -282,12 +282,12 @@ describe('Command Column ', () => {
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' },
                     {
-                        field: 'commandcolumn', commands: [{type: 'edit', buttonOption: {content: 'edit'}},
-                        {type: 'delete', buttonOption: {content: 'delete'}},
-                        {type: 'cancel', buttonOption: {content: 'cancel'}},
-                        {type: 'save', buttonOption: {content: 'save'}},
-                        { buttonOption: {content: 'Details'}}
-                    ], headerText: 'Command Column'
+                        field: 'commandcolumn', commands: [{ type: 'Edit', buttonOption: { content: 'edit' } },
+                        { type: 'Delete', buttonOption: { content: 'delete' } },
+                        { type: 'Cancel', buttonOption: { content: 'cancel' } },
+                        { type: 'Save', buttonOption: { content: 'save' } },
+                        { buttonOption: { content: 'Details' } }
+                        ], headerText: 'Command Column'
                     }],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
@@ -329,7 +329,59 @@ describe('Command Column ', () => {
             setTimeout(function () {
                 done();
             }, 1000);
-    
+
+        });
+    });
+    describe('EJ2-7743 ShowConfirmDialog is not showing in Command Column => ', () => {
+        let row: HTMLTableRowElement;
+        let grid: Grid;
+        let element: Element = createElement('div', { id: 'Grid105' });
+        let actionBegin: (e?: Object) => void;
+        let actionComplete: (e?: Object) => void;
+        beforeAll((done: EmitType<Object>) => {
+            let dataBound: EmitType<Object> = () => { done(); };
+            document.body.appendChild(element);
+            grid = new Grid(
+                {
+                    columns: [
+                        { field: 'b' },
+                        {
+                            commands: [{ type: 'Edit', buttonOption: { content: 'edit' } },
+                            { type: 'Delete', buttonOption: { content: 'delete' } },
+                            { type: 'Cancel', buttonOption: { content: 'cancel' } },
+                            { type: 'Save', buttonOption: { content: 'save' } },
+                            { buttonOption: { content: 'Details' } }], headerText: 'Command Column'
+                        }
+                    ],
+                    dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
+                    { data: { a: 2 }, b: 6, c: false, d: new Date() }],
+                    editSettings: { showDeleteConfirmDialog: true, allowAdding: true, allowDeleting: true, allowEditing: true },
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    dataBound: dataBound
+                }
+            );
+            grid.appendTo('#Grid105');
+        });
+
+        it('Editing feature with delete command', () => {
+            grid.clearSelection();
+            (<any>grid).commandColumnModule.commandClickHandler({ target: grid.getRows()[0].querySelector('.e-unboundcelldiv').children[1] });
+            let dlg: any = grid.element.querySelector('#' + grid.element.id + 'EditConfirm');
+            expect(dlg).not.toBeUndefined();
+            grid.element.querySelector('#' + grid.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
+        });
+
+        it('Editing feature with delete command with selection', () => {
+            grid.selectRow(0);
+            (<any>grid).commandColumnModule.commandClickHandler({ target: grid.getRows()[0].querySelector('.e-unboundcelldiv').children[1] });
+            let dlg: any = grid.element.querySelector('#' + grid.element.id + 'EditConfirm');
+            expect(dlg).not.toBeUndefined();
+            grid.element.querySelector('#' + grid.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
+        });
+
+        afterAll(() => {
+            remove(element);
         });
     });
 

@@ -25,8 +25,8 @@ export class InlineEdit extends NormalEdit {
         super.closeEdit();
     }
 
-    public addRecord(data?: Object): void {
-        super.addRecord(data);
+    public addRecord(data?: Object, index?: number): void {
+        super.addRecord(data, index);
     }
 
     public endEdit(): void {

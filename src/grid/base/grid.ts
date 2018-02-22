@@ -1,30 +1,33 @@
 import { Component, ModuleDeclaration, ChildProperty, Browser, closest, extend } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, setValue, getValue } from '@syncfusion/ej2-base';
 import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
-import { Query, DataManager } from '@syncfusion/ej2-data';
+import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';
 import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { createSpinner, hideSpinner, showSpinner, Tooltip } from '@syncfusion/ej2-popups';
 import { GridModel } from './grid-model';
-import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler } from './util';
+import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler, refreshForeignData } from './util';
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';
 import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ExcelExportProperties, PdfExportProperties } from './interface';
-import { ColumnMenuOpenEventArgs, RecordDoubleClickEventArgs } from './interface';
+import { ColumnMenuOpenEventArgs, RecordDoubleClickEventArgs, DataResult, PendingState } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';
 import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs, RowInfo } from './interface';
 import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';
-import { ExcelExportCompleteArgs, PdfExportCompleteArgs } from './interface';
+import { ExcelExportCompleteArgs, PdfExportCompleteArgs, DataStateChangeEventArgs, DataSourceChangedEventArgs } from './interface';
 import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs, CheckBoxChangeEventArgs } from './interface';
 import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
-import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem, ToolbarItem } from './enum';
+import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem, ToolbarItem, CellSelectionMode, EditMode } from './enum';
 import { Data } from '../actions/data';
+import { Cell } from '../models/cell';
+import { RowRenderer } from '../renderer/row-renderer';
+import { CellRenderer } from '../renderer/cell-renderer';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { ServiceLocator } from '../services/service-locator';
 import { ValueFormatter } from '../services/value-formatter';
@@ -61,6 +64,7 @@ import { CommandColumn } from '../actions/command-column';
 import { ContextMenu } from '../actions/context-menu';
 import { BeforeOpenCloseMenuEventArgs, MenuEventArgs } from '@syncfusion/ej2-navigations';
 import { ColumnMenu } from '../actions/column-menu';
+import { CheckState } from './enum';
 
 /** 
  * Represents the field name and direction of sort column. 
@@ -68,12 +72,14 @@ import { ColumnMenu } from '../actions/column-menu';
 export class SortDescriptor extends ChildProperty<SortDescriptor> {
     /** 
      * Defines the field name of sort column. 
+     * @default ''
      */
     @Property()
     public field: string;
 
     /** 
      * Defines the direction of sort column. 
+     * @default ''
      */
     @Property()
     public direction: SortDirection;
@@ -87,12 +93,13 @@ export class SortSettings extends ChildProperty<SortSettings> {
     /** 
      * Specifies the columns to sort at initial rendering of Grid.
      * Also user can get current sorted columns. 
+     * @default []
      */
     @Collection<SortDescriptorModel>([], SortDescriptor)
     public columns: SortDescriptorModel[];
 
     /**
-     * If set to false the user can not get the grid in unsorted state by clicking the sorted column header.
+     * If `allowUnsort` set to false the user can not get the grid in unsorted state by clicking the sorted column header.
      * @default true
      */
     @Property(true)
@@ -100,18 +107,19 @@ export class SortSettings extends ChildProperty<SortSettings> {
 }
 
 /**  
- * Represents the predicate for filter column.  
+ * Represents the predicate for the filter column.  
  */
 export class Predicate extends ChildProperty<Predicate> {
 
     /**  
-     * Defines the field name of filter column.  
+     * Defines the field name of the filter column.  
+     * @default ''
      */
     @Property()
     public field: string;
 
     /**   
-     * Defines the operator by how to filter records. The available operators and its supported data types are 
+     * Defines the operator to filter records. The available operators and its supported data types are:
      * <table> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
@@ -120,56 +128,58 @@ export class Predicate extends ChildProperty<Predicate> {
      * Supported Types<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * startsWith<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value begins with the specified value.<br/></td><td colspan=1 rowspan=1> 
+     * startswith<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value begins with the specified value.<br/></td><td colspan=1 rowspan=1> 
      * String<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * endsWith<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value ends with specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * endswith<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value ends with the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * <br/>String<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
      * contains<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value contains with specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value contains the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * <br/>String<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
      * equal<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value equal to specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value is equal to the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * <br/>String | Number | Boolean | Date<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * notEqual<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value not equal to specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * notequal<br/></td><td colspan=1 rowspan=1> 
+     * Checks for values that are not equal to the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * <br/>String | Number | Boolean | Date<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * greaterThan<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value is greater than with specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * greaterthan<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value is greater than the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * Number | Date<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * greaterThanOrEqual<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value is greater than or equal with specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * greaterthanorequal<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value is greater than or equal to the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * <br/>Number | Date<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * lessThan<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value is less than with specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * lessthan<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value is less than the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * <br/>Number | Date<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * lessThanOrEqual<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a value is less than or equal with specified value.<br/><br/></td><td colspan=1 rowspan=1> 
+     * lessthanorequal<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the value is less than or equal to the specified value.<br/><br/></td><td colspan=1 rowspan=1> 
      * <br/>Number | Date<br/></td></tr> 
      * </table> 
+     * @default null
      */
     @Property()
     public operator: string;
 
     /**  
-     * Defines the value which is used to filter records. 
+     * Defines the value used to filter records. 
+     * @default ''
      */
     @Property()
     public value: string | number | Date | boolean;
@@ -177,12 +187,21 @@ export class Predicate extends ChildProperty<Predicate> {
     /**  
      * If match case set to true, then filter records with exact match or else  
      * filter records with case insensitive(uppercase and lowercase letters treated as same).  
+     * @default null
      */
     @Property()
     public matchCase: boolean;
 
+    /**
+     * If ignoreAccent is set to true, then filter ignores the diacritic characters or accents while filtering.
+     * @default false
+     */
+    @Property()
+    public ignoreAccent: boolean;
+
     /**   
-     * Defines the relationship between one filter query with another by using AND or OR predicate.   
+     * Defines the relationship between one filter query and another by using AND or OR predicate.   
+     * @default null
      */
     @Property()
     public predicate: string;
@@ -215,108 +234,108 @@ export class Predicate extends ChildProperty<Predicate> {
     @Property()
     public ejpredicate: Object;
 
-    /**  
-     * @hidden 
-     * Defines the matchcase of filter column.  
-     */
-    @Property()
-    public matchcase: boolean;
-
-    /**  
-     * @hidden 
-     * Defines the ignoreCase of filter column.  
-     */
-    @Property()
-    public ignoreCase: boolean;
-
 }
 
 /**  
- * Configures the filtering behavior of Grid..  
+ * Configures the filtering behavior of the Grid.  
  */
 export class FilterSettings extends ChildProperty<FilterSettings> {
     /**  
-     * Specifies the columns to filter at initial rendering of Grid.  
-     * Also user can get current filtered columns. 
+     * Specifies the columns to be filtered at initial rendering of the Grid. You can also get the columns that were currently filtered.
+     * @default []
      */
     @Collection<PredicateModel[]>([], Predicate)
     public columns: PredicateModel[];
 
     /**   
      * Defines options for filtering type. The available options are 
-     * * `menu` - Specifies the filter type as menu. 
-     * * `checkbox` - Specifies the filter type as checkbox.      
-     * * `filterbar` - Specifies the filter type as filterbar.  
-     * @default filterbar 
+     * * `Menu` - Specifies the filter type as menu. 
+     * * `CheckBox` - Specifies the filter type as checkbox.      
+     * * `FilterBar` - Specifies the filter type as filterbar.  
+     * * `Excel` - Specifies the filter type as checkbox.      
+     * @default FilterBar 
      */
-    @Property('filterbar')
+    @Property('FilterBar')
     public type: FilterType;
 
     /**  
-     * Defines the filter bar modes. The available options are  
-     * * `onenter` - Initiate filter operation after Enter key is pressed. 
-     * * `immediate` -  Initiate filter operation after certain time interval. By default time interval is 1500 ms. 
-     * @default onenter 
+     * Defines the filter bar modes. The available options are,
+     * * `OnEnter`: Initiates filter operation after Enter key is pressed. 
+     * * `Immediate`: Initiates filter operation after a certain time interval. By default, time interval is 1500 ms. 
+     * @default OnEnter
      */
     @Property()
     public mode: FilterBarMode;
 
     /**  
-     * Shows or hides the filtered status message in the pager.  
-     * @default true 
+     * Shows or hides the filtered status message on the pager.  
+     * @default true
      */
     @Property(true)
     public showFilterBarStatus: boolean;
 
     /**  
-     * Defines the delay (in milliseconds) to filter records when the `Immediate` mode of filter bar is set. 
+     * Defines the time delay (in milliseconds) in filtering records when the `Immediate` mode of filter bar is set. 
      * @default 1500 
      */
     @Property(1500)
     public immediateModeDelay: number;
 
     /** 
-     * Defines the custom operator for Menu filter.
+     * The `operators` is used to override the default operators in filter menu. This should be defined by type wise
+     * (string, number, date and boolean). Based on the column type, this customize operator list will render in filter menu.
+     * 
+     * > Check the [`Filter Menu Operator`](./how-to.html#customizing-filter-menu-operators-list) customization.
      * @default null
      */
     @Property()
     public operators: ICustomOptr;
 
+    /**
+     * If ignoreAccent set to true, then filter ignores the diacritic characters or accents while filtering.
+     * 
+     * > Check the [`Diacritics`](./filtering.html/#diacritics) filtering.
+     * @default false
+     */
+    @Property(false)
+    public ignoreAccent: boolean;
+
 }
 
 /** 
- * Configures the selection behavior of Grid. 
+ * Configures the selection behavior of the Grid. 
  */
 export class SelectionSettings extends ChildProperty<SelectionSettings> {
     /**  
-     * Grid supports row, cell and both(row and cell) selection mode. 
-     * @default row
+     * Grid supports row, cell, and both (row and cell) selection mode. 
+     * @default Row
      */
-    @Property('row')
+    @Property('Row')
     public mode: SelectionMode;
 
     /** 
      * The cell selection modes are flow and box. It requires the selection 
-     * [`mode`](http://ej2.syncfusion.com/documentation/grid/api-selectionSettings.html#mode-selectionmode) 
-     * to be either cell or both.
-     * * `flow` - Select range of cells between the start index and end index which includes in between cells of rows.
-     * * `box` - Select range of cells within the start and end column indexes which includes in between cells of rows within the range.
-     * @default flow
+     * [`mode`](./api-selectionSettings.html#mode-selectionmode) to be either cell or both.
+     * * `Flow`: Selects the range of cells between start index and end index that also includes the other cells of the selected rows.
+     * * `Box`: Selects the range of cells within the start and end column indexes that includes in between cells of rows within the range.
+     * @default Flow
      */
-    @Property('flow')
-    public cellSelectionMode: string;
+    @Property('Flow')
+    public cellSelectionMode: CellSelectionMode;
 
     /**  
      * Defines options for selection type. They are 
-     * * `single` - Allows user to select only a row or cell. 
-     * * `multiple` - Allows user to select multiple rows or cells. 
-     * @default single 
+     * * `Single`: Allows selection of only a row or a cell. 
+     * * `Multiple`: Allows selection of multiple rows or cells. 
+     * @default Single 
      */
-    @Property('single')
+    @Property('Single')
     public type: SelectionType;
 
     /**
-     * If 'checkboxOnly' set to true, then the Grid selection is allowed only through checkbox when checkbox type column has been enabled.
+     * If 'checkboxOnly' set to true, then the Grid selection is allowed only through checkbox.
+     * 
+     * > To enable checkboxOnly selection, should specify the column type as`checkbox`.
      * @default false 
      */
     @Property(false)
@@ -324,7 +343,7 @@ export class SelectionSettings extends ChildProperty<SelectionSettings> {
 
     /**
      * If 'persistSelection' set to true, then the Grid selection is persisted on all operations.
-     * For persisting selection on the Grid, any one of the column should be enabled as a primary key.
+     * For persisting selection in the Grid, any one of the column should be enabled as a primary key.
      * @default false 
      */
     @Property(false)
@@ -332,24 +351,26 @@ export class SelectionSettings extends ChildProperty<SelectionSettings> {
 }
 
 /**    
- * Configures the search behavior of Grid.    
+ * Configures the search behavior of the Grid.    
  */
 export class SearchSettings extends ChildProperty<SearchSettings> {
     /**     
-     * Specifies the collection of fields which is included in search operation. By default, bounded columns of the Grid are included.  
+     * Specifies the collection of fields included in search operation. By default, bounded columns of the Grid are included.  
+     * @default []
      */
     @Property([])
     public fields: string[];
 
     /**    
-     * Specifies the key value to search Grid records at initial rendering.  
-     * Also user can get current search key.
+     * Specifies the key value to search Grid records at initial rendering. 
+     * You can also get the current search key.
+     * @default ''
      */
     @Property('')
     public key: string;
 
     /**   
-     * Defines the operator by how to search records. The available operators are 
+     * Defines the operator to search records. The available operators are:
      * <table> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
@@ -357,24 +378,24 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
      * Description<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * startsWith<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a string begins with the specified string.<br/></td></tr> 
+     * startswith<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the string begins with the specified string.<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * endsWith<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a string ends with specified string.<br/></td></tr> 
+     * endswith<br/></td><td colspan=1 rowspan=1> 
+     * Checks whether the string ends with the specified string.<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
      * contains<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a string contains with specified string. <br/></td></tr> 
+     * Checks whether the string contains the specified string. <br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
      * equal<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a string equal to specified string.<br/></td></tr> 
+     * Checks whether the string is equal to the specified string.<br/></td></tr> 
      * <tr> 
      * <td colspan=1 rowspan=1> 
-     * notEqual<br/></td><td colspan=1 rowspan=1> 
-     * Checks whether a string not equal to specified string. <br/></td></tr> 
+     * notequal<br/></td><td colspan=1 rowspan=1> 
+     * Checks for strings not equal to the specified string. <br/></td></tr> 
      * </table> 
      * @default contains 
      */
@@ -382,8 +403,8 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
     public operator: string;
 
     /**  
-     * If `ignoreCase` set to false, then search records with exact match or else  
-     * search records with case insensitive(uppercase and lowercase letters treated as same).  
+     * If `ignoreCase` is set to false, searches records that match exactly, else  
+     * searches records that are case insensitive(uppercase and lowercase letters treated the same).  
      * @default true 
      */
     @Property(true)
@@ -396,6 +417,7 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
 export class RowDropSettings extends ChildProperty<RowDropSettings> {
     /**   
      * Defines the ID of droppable component on which row drop should occur.   
+     * @default null
      */
     @Property()
     public targetID: string;
@@ -407,13 +429,13 @@ export class RowDropSettings extends ChildProperty<RowDropSettings> {
  */
 export class TextWrapSettings extends ChildProperty<TextWrapSettings> {
     /**   
-     * Defines the `wrapMode` of grid. The available modes are   
-     * * `both` - Wraps both header and content. 
-     * * `content` -Wraps  header alone.
-     * * `header` - Wraps  content alone. 
-     * @default both
+     * Defines the `wrapMode` of the Grid. The available modes are: 
+     * * `Both`: Wraps both the header and content. 
+     * * `Content`: Wraps the header alone.
+     * * `Header`: Wraps the content alone. 
+     * @default Both
      */
-    @Property('both')
+    @Property('Both')
     public wrapMode: WrapMode;
 
 }
@@ -423,7 +445,7 @@ export class TextWrapSettings extends ChildProperty<TextWrapSettings> {
  */
 export class GroupSettings extends ChildProperty<GroupSettings> {
     /**   
-     * If `showDropArea` set to true, then the group drop area element will be visible at the top of Grid.     
+     * If `showDropArea` is set to true, the group drop area element will be visible at the top of the Grid.     
      * @default true 
      */
     @Property(true)
@@ -438,7 +460,7 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
     public showToggleButton: boolean;
 
     /**   
-     * If `showGroupedColumn` set to false, then it hides the grouped column after group.  
+     * If `showGroupedColumn` is set to false, it hides the grouped column after grouping.  
      * @default false  
      */
     @Property(false)
@@ -462,14 +484,17 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
     public disablePageWiseAggregates: boolean;
 
     /**   
-     * Specifies the column names to group at initial rendering of Grid.  
-     * Also user can get current grouped columns.     
+     * Specifies the column names to group at initial rendering of the Grid.  
+     * You can also get the currently grouped columns.   
+     * @default []  
      */
     @Property([])
     public columns: string[];
 
     /**    
      * The Caption Template allows user to display the string or HTML element in group caption.
+     * > It accepts either the [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or the HTML element ID.
+     * @default ''
      */
     @Property()
     public captionTemplate: string;
@@ -483,52 +508,52 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
  */
 export class EditSettings extends ChildProperty<EditSettings> {
     /**   
-     * If `allowAdding` set to true, then you can able to add new record in grid.     
+     * If `allowAdding` is set to true, new records can be added to the Grid.  
      * @default false 
      */
     @Property(false)
     public allowAdding: boolean;
 
     /**   
-     * If `allowEditing` set to true, then you can able to update values in the existing record.     
+     * If `allowEditing` is set to true, values can be updated in the existing record.  
      * @default false 
      */
     @Property(false)
     public allowEditing: boolean;
 
     /**   
-     * If `allowDeleting` set to true, then the user can able to delete existing record in the Grid.     
+     * If `allowDeleting` is set to true, existing record can be deleted from the Grid.    
      * @default false 
      */
     @Property(false)
     public allowDeleting: boolean;
 
     /**   
-     * Defines the mode to perform CRUD operations. The available modes are 
-     * * Inline
+     * Defines the mode to edit. The available editing modes are:
+     * * Normal
      * * Dialog
-     * * Batch        
-     * @default normal 
+     * * Batch
+     * @default Normal 
      */
-    @Property('normal')
-    public mode: string;
+    @Property('Normal')
+    public mode: EditMode;
 
     /**   
-     * If `allowEditOnDblClick` set to false, then Grid will not allow to edit record on double click. 
+     * If `allowEditOnDblClick` is set to false, Grid will not allow editing of a record on double click. 
      * @default true 
      */
     @Property(true)
     public allowEditOnDblClick: boolean;
 
     /**   
-     * If showConfirmDialog set to false, then the confirm dialog does not show while save or discard the batch changes.
+     * if `showConfirmDialog` is set to false, confirm dialog does not show when batch changes are saved or discarded.
      * @default true 
      */
     @Property(true)
     public showConfirmDialog: boolean;
 
     /**   
-     * If `showDeleteConfirmDialog` set to true, then confirm dialog will show at delete action. you can cancel delete command.
+     * If `showDeleteConfirmDialog` is set to true, confirm dialog will show delete action. You can also cancel delete command.
      * @default false 
      */
     @Property(false)
@@ -549,18 +574,18 @@ export class EditSettings extends ChildProperty<EditSettings> {
 export class Grid extends Component<HTMLElement> implements INotifyPropertyChanged {
     // Internal variables  
     private gridPager: Element;
-    private isInitial: boolean = true;
+    private isInitial: boolean;
     private columnModel: Column[];
     private rowTemplateFn: Function;
     private detailTemplateFn: Function;
-    private sortedColumns: string[] = [];
+    private sortedColumns: string[];
     private footerElement: Element;
-    private inViewIndexes: number[] = [];
-    private mediaCol: Column[] = [];
+    private inViewIndexes: number[];
+    private mediaCol: Column[];
     private getShowHideService: ShowHide;
     private mediaColumn: Column[];
-    private isMediaQuery: boolean = false;
-    private isInitialLoad: boolean = false;
+    private isMediaQuery: boolean;
+    private isInitialLoad: boolean;
     private dataBoundFunction: Function;
     private freezeRefresh: Function = Component.prototype.refresh;
     /** @hidden */
@@ -568,9 +593,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**
      * @hidden
      */
-    public mergeCells: { [key: string]: number } = {};
+    public mergeCells: { [key: string]: number };
     /**
-     * Gets the current visible records of Grid.
+     * @hidden
+     */
+    public checkAllRows: CheckState;
+    /**
+     * @hidden
+     */
+    public isCheckBoxSelection: boolean;
+    /**
+     * @hidden
+     */
+    public isPersistSelection: boolean;
+    /**
+     * Gets the currently visible records of the Grid.
      */
     public currentViewData: Object[];
     /** @hidden */
@@ -578,122 +615,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /** @hidden */
     public currentAction: Action;
     /** @hidden */
-    public isEdit: boolean = false;
+    public isEdit: boolean;
     /** @hidden */
-    public filterOperators: IFilterOperator = {
-        contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
-        lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
-    };
+    public filterOperators: IFilterOperator;
     /** @hidden */
     public localeObj: L10n;
-    private defaultLocale: Object = {
-        EmptyRecord: 'No records to display',
-        True: 'true',
-        False: 'false',
-        InvalidFilterMessage: 'Invalid Filter Data',
-        GroupDropArea: 'Drag a column header here to group its column',
-        UnGroup: 'Click here to ungroup',
-        GroupDisable: 'Grouping is disabled for this column',
-        FilterbarTitle: '\'s filter bar cell',
-        EmptyDataSourceError:
-            'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
-        // Toolbar Items
-        Add: 'Add',
-        Edit: 'Edit',
-        Cancel: 'Cancel',
-        Update: 'Update',
-        Delete: 'Delete',
-        Print: 'Print',
-        Pdfexport: 'PDF Export',
-        Excelexport: 'Excel Export',
-        Wordexport: 'Word Export',
-        Csvexport: 'CSV Export',
-        Search: 'Search',
-        Save: 'Save',
-        Item: 'item',
-        Items: 'items',
-        EditOperationAlert: 'No records selected for edit operation',
-        DeleteOperationAlert: 'No records selected for delete operation',
-        SaveButton: 'Save',
-        OKButton: 'OK',
-        CancelButton: 'Cancel',
-        EditFormTitle: 'Details of ',
-        AddFormTitle: 'Add New Record',
-        BatchSaveConfirm: 'Are you sure you want to save changes?',
-        BatchSaveLostChanges: 'Unsaved changes will be lost. Are you sure you want to continue?',
-        ConfirmDelete: 'Are you sure you want to Delete Record?',
-        CancelEdit: 'Are you sure you want to Cancel the changes?',
-        ChooseColumns: 'Choose Column',
-        SearchColumns: 'search columns',
-        Matchs: 'No Matches Found',
-        FilterButton: 'Filter',
-        ClearButton: 'Clear',
-        StartsWith: 'Starts With',
-        EndsWith: 'Ends With',
-        Contains: 'Contains',
-        Equal: 'Equal',
-        NotEqual: 'Not Equal',
-        LessThan: 'Less Than',
-        LessThanOrEqual: 'Less Than Or Equal',
-        GreaterThan: 'Greater Than',
-        GreaterThanOrEqual: 'Greater Than Or Equal',
-        ChooseDate: 'Choose a Date',
-        EnterValue: 'Enter the value',
-        Copy: 'Copy',
-        Group: 'Group by this column',
-        Ungroup: 'Ungroup by this column',
-        autoFitAll: 'Auto Fit all columns',
-        autoFit: 'Auto Fit this column',
-        Export: 'Export',
-        FirstPage: 'First Page',
-        LastPage: 'Last Page',
-        PreviousPage: 'Previous Page',
-        NextPage: 'Next Page',
-        SortAscending: 'Sort Ascending',
-        SortDescending: 'Sort Descending',
-        EditRecord: 'Edit Record',
-        DeleteRecord: 'Delete Record',
-        FilterMenu: 'Filter',
-        Columnchooser: 'Columns'
-    };
-    private keyConfigs: { [key: string]: string } = {
-        downArrow: 'downarrow',
-        upArrow: 'uparrow',
-        rightArrow: 'rightarrow',
-        leftArrow: 'leftarrow',
-        shiftDown: 'shift+downarrow',
-        shiftUp: 'shift+uparrow',
-        shiftRight: 'shift+rightarrow',
-        shiftLeft: 'shift+leftarrow',
-        home: 'home',
-        end: 'end',
-        escape: 'escape',
-        ctrlHome: 'ctrl+home',
-        ctrlEnd: 'ctrl+end',
-        pageUp: 'pageup',
-        pageDown: 'pagedown',
-        ctrlAltPageUp: 'ctrl+alt+pageup',
-        ctrlAltPageDown: 'ctrl+alt+pagedown',
-        altPageUp: 'alt+pageup',
-        altPageDown: 'alt+pagedown',
-        altDownArrow: 'alt+downarrow',
-        altUpArrow: 'alt+uparrow',
-        ctrlDownArrow: 'ctrl+downarrow',
-        ctrlUpArrow: 'ctrl+uparrow',
-        ctrlPlusA: 'ctrl+A',
-        ctrlPlusP: 'ctrl+P',
-        insert: 'insert',
-        delete: 'delete',
-        f2: 'f2',
-        enter: 'enter',
-        ctrlEnter: 'ctrl+enter',
-        shiftEnter: 'shift+enter',
-        tab: 'tab',
-        shiftTab: 'shift+tab',
-        space: 'space',
-        ctrlPlusC: 'ctrl+C',
-        ctrlShiftPlusH: 'ctrl+shift+H'
-    };
+    private defaultLocale: Object;
+    private keyConfigs: { [key: string]: string };
 
     //Module Declarations
     /**
@@ -721,7 +649,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public ariaService: AriaService;
     /**
-     * `keyboardModule` is used to manipulate keyboard interactions in the Grid.
+     * The `keyboardModule` is used to manipulate keyboard interactions in the Grid.
      */
     public keyboardModule: KeyboardEvents;
     /**
@@ -730,60 +658,60 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public widthService: ColumnWidthService;
 
     /**
-     * `rowDragAndDropModule` is used to manipulate row reordering in the Grid.
+     * The `rowDragAndDropModule` is used to manipulate row reordering in the Grid.
      */
     public rowDragAndDropModule: RowDD;
     /**
-     * `pagerModule` is used to manipulate paging in the Grid.
+     * The `pagerModule` is used to manipulate paging in the Grid.
      */
     public pagerModule: Page;
     /**
-     * `sortModule` is used to manipulate sorting in the Grid.
+     * The `sortModule` is used to manipulate sorting in the Grid.
      */
     public sortModule: Sort;
     /**
-     * `filterModule` is used to manipulate filtering in the Grid.
+     * The `filterModule` is used to manipulate filtering in the Grid.
      */
     public filterModule: Filter;
     /**
-     * `selectionModule` is used to manipulate selection behavior in the Grid.
+     * The `selectionModule` is used to manipulate selection behavior in the Grid.
      */
     public selectionModule: Selection;
     /**
-     * `showHiderModule` is used to manipulate column show/hide operation in the Grid.
+     * The `showHider` is used to manipulate column's show/hide operation in the Grid.
      */
     public showHider: ShowHide;
     /**
-     * `searchModule` is used to manipulate searching in the Grid.
+     * The `searchModule` is used to manipulate searching in the Grid.
      */
     public searchModule: Search;
     /**
-     * `scrollModule` is used to manipulate scrolling in the Grid.
+     * The `scrollModule` is used to manipulate scrolling in the Grid.
      */
     public scrollModule: Scroll;
     /**
-     * `reorderModule` is used to manipulate reordering in the Grid.
+     * The `reorderModule` is used to manipulate reordering in the Grid.
      */
     public reorderModule: Reorder;
     /**
-     * `resizeModule` is used to manipulate resize in the Grid.
+     * `resizeModule` is used to manipulate resizing in the Grid.
      * @hidden
      */
     public resizeModule: Resize;
     /**
-     * `groupModule` is used to manipulate grouping behavior from the Grid.
+     * The `groupModule` is used to manipulate grouping behavior in the Grid.
      */
     public groupModule: Group;
     /**
-     * `printModule` is used to manipulate printing feature in the Grid.
+     * The `printModule` is used to handle the printing feature of the Grid.
      */
     public printModule: Print;
     /**
-     * `excelExportModule` is used to manipulate Excel exporting feature in the Grid.
+     * The `excelExportModule` is used to handle Excel exporting feature in the Grid.
      */
     public excelExportModule: ExcelExport;
     /**
-     * `pdfExportModule` is used to manipulate PDF exporting feature in the Grid.
+     * The `pdfExportModule` is used to handle PDF exporting feature in the Grid.
      */
     public pdfExportModule: PdfExport;
 
@@ -793,23 +721,23 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public detailRowModule: DetailRow;
 
-    /**     
-     * `toolbarModule` is used to manipulate toolbar items in the Grid.
+    /**
+     * The `toolbarModule` is used to manipulate ToolBar items and its action in the Grid.
      */
     public toolbarModule: Toolbar;
 
     /**
-     * `contextMenuModule` is used to manipulate context menu items in the Grid.
+     * The `contextMenuModule` is used to handle context menu items and its action in the Grid.
      */
     public contextMenuModule: ContextMenu;
 
     /**
-     * `columnMenuModule` is used to manipulate column menu items in the Grid.
+     * The `columnMenuModule` is used to manipulate column menu items and its action in the Grid.
      */
     public columnMenuModule: ColumnMenu;
 
     /**
-     * `editModule` is used to handle Grid content manipulation.
+     * The `editModule` is used to handle Grid content manipulation.
      */
     public editModule: Edit;
 
@@ -827,6 +755,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private commandColumnModule: CommandColumn;
     private focusModule: FocusStrategy;
 
+    protected needsID: boolean = true;
+
     //Grid Options    
 
     /**     
@@ -838,23 +768,24 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public columns: Column[] | string[] | ColumnModel[];
 
     /**     
-     * If `enableAltRow` set to true, then grid renders row with alternate row styling.   
-     * @default true     
+     * If `enableAltRow` is set to true, the grid will render with `e-altrow` CSS class to the alternative tr elements.    
+     * > Check the [`AltRow`](./row.html#styling-alternate-rows) to customize the styles of alternative rows.
+     * @default true 
      */
     @Property(true)
     public enableAltRow: boolean;
 
     /**     
-     * If `enableHover` set to true, then the row hover will be enabled in Grid.
+     * If `enableHover` is set to true, the row hover is enabled in the Grid.
      * @default true     
      */
     @Property(true)
     public enableHover: boolean;
 
-    /**    
-     * Enables or disables the key board interaction of Grid.     
-     * @default true     
+    /**
+     * Enables or disables the key board interaction of Grid.          
      * @hidden 
+     * @default true     
      */
     @Property(true)
     public allowKeyboard: boolean;
@@ -869,13 +800,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**     
      * Configures the text wrap in the Grid.  
-     * @default {wrapMode:"both"}     
+     * @default {wrapMode:"Both"}     
      */
     @Complex<TextWrapSettingsModel>({}, TextWrapSettings)
     public textWrapSettings: TextWrapSettingsModel;
 
     /**    
-     * If `allowPaging` set to true, then the pager renders at the footer of Grid. It is used to handle page navigation in Grid.   
+     * If `allowPaging` is set to true, the pager renders at the footer of the Grid. It is used to handle page navigation in the Grid.
+     * 
+     * > Check the [`Paging`](./paging.html) to configure the grid pager.
      * @default false     
      */
     @Property(false)
@@ -913,7 +846,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public searchSettings: SearchSettingsModel;
 
     /**    
-     * If `allowSorting` set to true, then it will allow the user to sort grid records when click on the column header.  
+     * If `allowSorting` is set to true, it allows sorting of grid records when column header is clicked.  
+     * 
+     * > Check the [`Sorting`](./sorting.html) to customize its default behavior.
      * @default false    
      */
     @Property(false)
@@ -929,12 +864,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**
      * If `allowExcelExport` set to true, then it will allow the user to export grid to Excel file.
+     * 
+     * > Check the [`ExcelExport`](./excel-exporting.html) to configure exporting document.
      * @default false    
      */
     @Property(false)
     public allowExcelExport: boolean;
     /**    
      * If `allowPdfExport` set to true, then it will allow the user to export grid to Pdf file.
+     * 
+     * > Check the [`Pdfexport`](./pdf-exporting.html) to configure the exporting document.
      * @default false    
      */
     @Property(false)
@@ -947,15 +886,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public sortSettings: SortSettingsModel;
 
     /**    
-     * If `allowSelection` set to true, then it will allow the user to select(highlight row) Grid records by click on it.  
+     * If `allowSelection` is set to true, it allows selection of (highlight row) Grid records by clicking it.  
      * @default true        
      */
     @Property(true)
     public allowSelection: boolean;
 
     /**    
-     * `selectedRowIndex` allows the user to select a row at initial rendering. 
-     * Also, user can get the current selected row index.
+     * The `selectedRowIndex` allows you to select a row at initial rendering. 
+     * You can also get the currently selected row index.
      * @default -1        
      */
     @Property(-1)
@@ -963,7 +902,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**    
      * Configures the selection settings.  
-     * @default {mode: 'row', cellSelectionMode: 'flow', type: 'single'}    
+     * @default {mode: 'Row', cellSelectionMode: 'Flow', type: 'Single'}    
      */
     @Complex<SelectionSettingsModel>({}, SelectionSettings)
     public selectionSettings: SelectionSettingsModel;
@@ -971,30 +910,32 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * If `allowFiltering` set to true the filter bar will be displayed. 
      * If set to false the filter bar will not be displayed. 
-     * Filter bar allows the user to filter grid records with required criteria.        
+     * Filter bar allows the user to filter grid records with required criteria.   
+     * 
+     * > Check the [`Filtering`](./filtering.html) to customize its default behavior.     
      * @default false    
      */
     @Property(false)
     public allowFiltering: boolean;
 
     /**    
-     * If `allowReordering` set to true, then the Grid columns can be reordered. 
-     * Reordering can be done by drag and drop the particular column from one index to another index.
-     * > If Grid rendered with stacked headers, then reordering allows only in same level of column headers.  
+     * If `allowReordering` is set to true, Grid columns can be reordered. 
+     * Reordering can be done by drag and drop of a particular column from one index to another index.  
+     * > If Grid is rendered with stacked headers, reordering is allowed only at the same level as the column headers.
      * @default false    
      */
     @Property(false)
     public allowReordering: boolean;
 
     /**    
-     * If `allowResizing` set to true, then the Grid columns can be resized.      
+     * If `allowResizing` is set to true, Grid columns can be resized.      
      * @default false    
      */
     @Property(false)
     public allowResizing: boolean;
 
     /**    
-     * If `allowRowDragAndDrop` set to true, then it will allow the user to drag grid rows and drop to another grid.    
+     * If `allowRowDragAndDrop` is set to true, you can drag and drop grid rows at another grid.    
      * @default false    
      */
     @Property(false)
@@ -1008,8 +949,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public rowDropSettings: RowDropSettingsModel;
 
     /**    
-     * Configures the filter settings of Grid.  
-     * @default {columns: [], type: 'filterbar', mode: 'immediate', showFilterBarStatus: true, immediateModeDelay: 1500, operators: {}}    
+     * Configures the filter settings of the Grid.  
+     * @default {columns: [], type: 'FilterBar', mode: 'Immediate', showFilterBarStatus: true, immediateModeDelay: 1500 , operators: {}}    
      */
     @Complex<FilterSettingsModel>({}, FilterSettings)
     public filterSettings: FilterSettingsModel;
@@ -1017,13 +958,17 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * If `allowGrouping` set to true, then it will allow the user to dynamically group or ungroup columns.  
      * Grouping can be done by drag and drop columns from column header to group drop area. 
+     * 
+     * > Check the [`Grouping`](./grouping.html) to customize its default behavior.
      * @default false    
      */
     @Property(false)
     public allowGrouping: boolean;
 
     /**    
-     * If `showColumnMenu` set to true, then it will enable the column menu options in each columns.  
+     * If `showColumnMenu` set to true, then it will enable the column menu options in each columns.
+     * 
+     * > Check the [`Column menu`](./columns.html#column-menu) for its configuration.
      * @default false    
      */
     @Property(false)
@@ -1038,7 +983,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**    
      * Configures the edit settings. 
-     * @default { allowAdding: false, allowEditing: false, allowDeleting: false, mode:'normal',
+     * @default { allowAdding: false, allowEditing: false, allowDeleting: false, mode:'Normal',
      * allowEditOnDblClick: true, showConfirmDialog: true, showDeleteConfirmDialog: false }    
      */
     @Complex<EditSettingsModel>({}, EditSettings)
@@ -1046,13 +991,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**
      * Configures the Grid aggregate rows.
+     * > Check the [`Aggregates`](./aggregates.html) for its configuration.
      * @default []
      */
     @Collection<AggregateRowModel>([], AggregateRow)
     public aggregates: AggregateRowModel[];
 
     /**    
-     * If `showColumnChooser` set to true, then you can dynamically show or hide columns.  
+     * If `showColumnChooser` is set to true, it allows you to dynamically show or hide columns.  
+     * 
+     * > Check the [`ColumnChooser`](./columns.html#column-chooser) for its configuration.
      * @default false    
      */
     @Property(false)
@@ -1066,128 +1014,94 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public height: string | number;
 
     /**    
-     * Defines the scrollable width of the grid content.    
+     * Defines the Grid width.    
      * @default auto    
      */
     @Property('auto')
     public width: string | number;
 
     /**   
-     * Defines the grid lines mode. The available modes are   
-     * * `both` - Displays both the horizontal and vertical grid lines. 
-     * * `none` - No grid lines are displayed.
-     * * `horizontal` - Displays the horizontal grid lines only. 
-     * * `vertical` - Displays the vertical grid lines only.
-     * * `default` - Displays grid lines based on the theme.
-     * @default default
+     * Defines the mode of grid lines. The available modes are, 
+     * * `Both`: Displays both horizontal and vertical grid lines. 
+     * * `None`: No grid lines are displayed.
+     * * `Horizontal`: Displays the horizontal grid lines only. 
+     * * `Vertical`: Displays the vertical grid lines only.
+     * * `Default`: Displays grid lines based on the theme.
+     * @default Default
      */
-    @Property('default')
+    @Property('Default')
     public gridLines: GridLine;
 
     /**    
-     * The Row template which renders customized rows from given template. 
+     * The row template that renders customized rows from the given template. 
      * By default, Grid renders a table row for every data source item.
-     * > * It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.   
+     * > * It accepts either [template string](../base/template-engine.html) or HTML element ID.   
      * > * The row template must be a table row.  
+     * 
+     * > Check the [`Row Template`](./row.html) customization.
      */
     @Property()
     public rowTemplate: string;
 
     /**    
-     * The Detail Template allows user to show or hide additional information about a particular row. 
-     * > * It accepts either [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or HTML element ID.
-     * > * The Detail Template content cannot be wider than the total width of parent Grid, unless the Detail Template is scrollable.
+     * The detail template allows you to show or hide additional information about a particular row.
+     *  
+     * > It accepts either the [template string](../base/template-engine.html) or the HTML element ID.
      * 
-     * ```html 
-     * <script id='detailTemplate'>
-     *    <table width="100%" >
-     *        <tbody>
-     *            <tr>
-     *                <td>
-     *                    <span style="font-weight: 500;">First Name: </span> ${FirstName}
-     *                </td>
-     *                <td>
-     *                    <span style="font-weight: 500;">Postal Code: </span> ${PostalCode}
-     *                </td>
-     *            </tr>
-     *            <tr>                  
-     *                <td>
-     *                    <span style="font-weight: 500;">Last Name: </span> ${LastName}
-     *                </td>
-     *                <td>
-     *                    <span style="font-weight: 500;">City: </span> ${City}
-     *                </td>
-     *            </tr>
-     *        </tbody>
-     *    </table>
-     *  </script>  
-     * 
-     * <div id="Grid"></div>  
-     * ``` 
-     * 
-     * ```typescript   
-     * let grid: Grid = new Grid({
-     *  dataSource: employeeData,
-     *  detailTemplate: '#detailTemplate',
-     *  columns: [
-     *   { field: 'FirstName', headerText: 'First Name', width: 110 },
-     *   { field: 'LastName', headerText: 'Last Name', width: 110 },
-     *   { field: 'Title', headerText: 'Title', width: 150 },
-     *   { field: 'Country', headerText: 'Country', width: 110 }
-     *  ],
-     *  height: 315
-     * });
-     * grid.appendTo('#Grid');
-     * ```               
+     * {% codeBlock src="grid/detail-template-api/index.ts" %}{% endcodeBlock %}
      */
     @Property()
     public detailTemplate: string;
 
     /**    
      * Defines Grid options to render child Grid. 
-     * It requires the [`queryString`](http://ej2.syncfusion.com/documentation/grid/api-grid.html#querystring-string) for parent 
-     * and child relationship.
+     * It requires the [`queryString`](./api-grid.html#querystring-string) for parent 
+     * and child relationship. 
+     * 
+     * > Check the [`Child Grid`](./hierarchy-grid.html) for its configuration.
      */
     @Property()
     public childGrid: GridModel;
 
-    /**
-     * Defines the relationship between parent and child datasource. It acts as a foreign key for parent datasource.     
+    /**    
+     * Defines the relationship between parent and child datasource. It acts as the foreign key for parent datasource.       
      */
     @Property()
     public queryString: string;
 
     /**   
      * Defines the print modes. The available print modes are   
-     * * `allpages` - Print all pages records of the Grid. 
-     * * `currentpage` - Print current page records of the Grid.
-     * @default allpages
+     * * `AllPages`: Prints all pages of the Grid. 
+     * * `CurrentPage`: Prints the current page of the Grid.
+     * @default AllPages
      */
-    @Property('allpages')
+    @Property('AllPages')
     public printMode: PrintMode;
 
     /**    
      * It is used to render grid table rows. 
      * If the `dataSource` is an array of JavaScript objects, 
-     * then Grid will create instance of [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html) 
+     * then Grid will create instance of [`DataManager`](../data/api-dataManager.html) 
      * from this `dataSource`. 
-     * If the `dataSource` is an existing [`DataManager`](http://ej2.syncfusion.com/documentation/data/api-dataManager.html),
+     * If the `dataSource` is an existing [`DataManager`](../data/api-dataManager.html),
      *  the Grid will not initialize a new one. 
+     * 
+     * > Check the available [`Adaptors`](../data/adaptors.html) to customize the data operation.
      * @default []    
      */
     @Property([])
-    public dataSource: Object | DataManager;
+    public dataSource: Object | DataManager | DataResult;
 
     /**
-     * Defines the row height for Grid rows.
+     * Defines the height of Grid rows.
      * @default null
      */
     @Property(null)
     public rowHeight: number;
 
     /**    
-     * Defines the external [`Query`](http://ej2.syncfusion.com/documentation/data/api-query.html) 
-     * which will execute along with data processing.    
+     * Defines the external [`Query`](../data/api-query.html) 
+     * that will be executed along with data processing.    
      * @default null    
      */
     @Property()
@@ -1201,39 +1115,27 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private currencyCode: string;
 
     /**    
-     * `toolbar` defines toolbar items for grid. It contains built-in and custom toolbar items. 
-     * If a string value is assigned to the `toolbar` option, it will be considered as a template for the whole Grid Toolbar.
-     * If an Array value is assigned, it will be considered as the list of built-in and custom toolbar items in the Grid's Toolbar.  
+     * `toolbar` defines the ToolBar items of the Grid. 
+     * It contains built-in and custom toolbar items. 
+     * If a string value is assigned to the `toolbar` option, it is considered as the template for the whole Grid ToolBar. 
+     * If an array value is assigned, it is considered as the list of built-in and custom toolbar items in the Grid's Toolbar. 
      * <br><br>     
-     * The available built-in toolbar items are
-     * * add - Add a new record.
-     * * edit - Edit the selected record.
-     * * update - Update the edited record.
-     * * delete - Delete the selected record.
-     * * cancel - Cancel the edit state.
-     * * search - Searches records by given key.
-     * * print - Print the Grid.
-     * * excelexport - Export the Grid to Excel(excelExport() method manually to make export.)
-     * * pdfexport - Export the Grid to PDF(pdfExport() method manually to make export.)
-     * * csvexport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
+     * The available built-in ToolBar items are:
+     * * Add: Adds a new record.
+     * * Edit: Edits the selected record.
+     * * Update: Updates the edited record.
+     * * Delete: Deletes the selected record.
+     * * Cancel: Cancels the edit state.
+     * * Search: Searches records by the given key.
+     * * Print: Prints the Grid.
+     * * ExcelExport - Export the Grid to Excel(excelExport() method manually to make export.)
+     * * PdfExport - Export the Grid to PDF(pdfExport() method manually to make export.)
+     * * CsvExport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
      * The following code example implements the custom toolbar items.
-     * ```html
-     * <style type="text/css" class="cssStyles">
-     * .refreshicon:before
-     * {
-     *    content:"\e898";
-     * }
-     * </style>
-     * <div id="grid"></div>
-     * <script>
-     * var gridObj = new Grid({
-     * datasource: window.gridData,
-     * toolbar : ['Expand', {text: 'Refresh', tooltipText: 'Refresh', prefixIcon: 'refreshicon'}]});
-     * //Expand - To display button with Expand label
-     * //Refresh - To display button with prefixIcon and text
-     * gridObj.appendTo("#grid");
-     * </script>
-     * ```
+     * 
+     *  > Check the [`Toolbar`](./toolbar.html#custom-toolbar-items) to customize its default items.
+     * 
+     * {% codeBlock src="grid/toolbar-api/index.ts" %}{% endcodeBlock %}
      * @default null
      */
     @Property()
@@ -1242,25 +1144,26 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * `contextMenuItems` defines both built-in and custom context menu items.
      * <br><br> 
-     * The available default items are   
-     * * `autoFitAll` - Auto fit the size of all columns. 
-     * * `autoFit` - Auto fit the current column.
-     * * `group` - Group by current column. 
-     * * `ungroup` - Ungroup by current column.
-     * * `edit` - Edit the current record.
-     * * `delete` - Delete the current record.
-     * * `save` - Save the edited record.
-     * * `cancel` - Cancel the edited state.
-     * * `copy` - Copy the selected records.
-     * * `pdfExport` - Export the grid as Pdf format.
-     * * `excelExport` - Export the grid as Excel format.
-     * * `csvExport` - Export the grid as CSV format.
-     * * `sortAscending` - Sort the current column in ascending order.
-     * * `sortDescending` - Sort the current column in descending order.
-     * * `firstPage` - Go to the first page.
-     * * `prevPage` - Go to the previous page.
-     * * `lastPage` - Go to the last page.
-     * * `nextPage` - Go to the next page.
+     * The available built-in items are,  
+     * * `AutoFitAll` - Auto fit the size of all columns. 
+     * * `AutoFit` - Auto fit the current column.
+     * * `Group` - Group by current column. 
+     * * `Ungroup` - Ungroup by current column.
+     * * `Edit` - Edit the current record.
+     * * `Delete` - Delete the current record.
+     * * `Save` - Save the edited record.
+     * * `Cancel` - Cancel the edited state.
+     * * `Copy` - Copy the selected records.
+     * * `PdfExport` - Export the grid as Pdf format.
+     * * `ExcelExport` - Export the grid as Excel format.
+     * * `CsvExport` - Export the grid as CSV format.
+     * * `SortAscending` - Sort the current column in ascending order.
+     * * `SortDescending` - Sort the current column in descending order.
+     * * `FirstPage` - Go to the first page.
+     * * `PrevPage` - Go to the previous page.
+     * * `LastPage` - Go to the last page.
+     * * `NextPage` - Go to the next page.
+     * 
      * @default null
      */
     @Property()
@@ -1269,14 +1172,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * `columnMenuItems` defines both built-in and custom column menu items.
      * <br><br> 
-     * The available default items are   
-     * * `autoFitAll` - Auto fit the size of all columns. 
-     * * `autoFit` - Auto fit the current column.
-     * * `group` - Group by current column. 
-     * * `ungroup` - Ungroup by current column.
-     * * `sortAscending` - Sort the current column in ascending order.
-     * * `sortDescending` - Sort the current column in descending order.
-     * * `filter` - Filter options will show based on filterSettings property like checkbox filter, excel filter
+     * The available built-in items are,
+     * * `AutoFitAll` - Auto fit the size of all columns. 
+     * * `AutoFit` - Auto fit the current column.
+     * * `Group` - Group by current column. 
+     * * `Ungroup` - Ungroup by current column.
+     * * `SortAscending` - Sort the current column in ascending order.
+     * * `SortDescending` - Sort the current column in descending order.
+     * * `Filter` - Filter options will show based on filterSettings property like checkbox filter, excel filter, menu filter.
      * @default null
      */
     @Property()
@@ -1299,14 +1202,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public pagerTemplate: string;
 
     /**
-     * Defines the frozen rows for the grid content
+     * Gets or sets the number of frozen rows.
      * @default 0
      */
     @Property(0)
     public frozenRows: number;
 
     /**
-     * Defines the frozen columns for the grid content
+     * Gets or sets the number of frozen columns.
      * @default 0
      */
     @Property(0)
@@ -1327,13 +1230,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public destroyed: EmitType<Object>;
 
     /** 
-     * This allows any customization of Grid properties before rendering. 
+     * This event allows customization of Grid properties before rendering.
      * @event 
      */
     @Event()
     public load: EmitType<Object>;
     /** 
-     * Triggered every time a request is made to access row information, element and data. 
+     * Triggered every time a request is made to access row information, element, or data. 
      * This will be triggered before the row element is appended to the Grid element.
      * @event 
      */
@@ -1341,7 +1244,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public rowDataBound: EmitType<RowDataBoundEventArgs>;
 
     /** 
-     * Triggered every time a request is made to access cell information, element and data.
+     * Triggered every time a request is made to access cell information, element, or data.
      * This will be triggered before the cell element is appended to the Grid element.
      * @event 
      */
@@ -1350,14 +1253,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /* tslint:disable */
     /** 
-     * Triggers when Grid actions such as Sorting, Filtering, Paging and Grouping etc., starts. 
+     * Triggers when Grid actions such as sorting, filtering, paging, grouping etc., starts. 
      * @event
      */
     @Event()
     public actionBegin: EmitType<PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs | AddEventArgs | SaveEventArgs | EditEventArgs | DeleteEventArgs>;
 
     /** 
-     * Triggers when Grid actions such as Sorting, Filtering, Paging and Grouping etc., completed. 
+     * Triggers when Grid actions such as sorting, filtering, paging, grouping etc. are completed. 
      * @event 
      */
     @Event()
@@ -1365,7 +1268,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /* tslint:enable */
 
     /** 
-     * Triggers when any Grid actions failed to achieve desired results. 
+     * Triggers when any Grid action failed to achieve the desired results. 
      * @event 
      */
     @Event()
@@ -1386,28 +1289,28 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public recordDoubleClick: EmitType<RecordDoubleClickEventArgs>;
 
     /** 
-     * Triggers before any row selection occurs.
+     * Triggers before row selection occurs.
      * @event 
      */
     @Event()
     public rowSelecting: EmitType<RowSelectingEventArgs>;
 
     /** 
-     * Triggers after any row is selected.
+     * Triggers after a row is selected.
      * @event 
      */
     @Event()
     public rowSelected: EmitType<RowSelectEventArgs>;
 
     /** 
-     * Triggers before any particular selected row is deselecting.
+     * Triggers before deselecting the selected row.
      * @event 
      */
     @Event()
     public rowDeselecting: EmitType<RowDeselectEventArgs>;
 
     /** 
-     * Triggers when any particular selected row is deselected.
+     * Triggers when a selected row is deselected.
      * @event 
      */
     @Event()
@@ -1421,49 +1324,49 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public cellSelecting: EmitType<CellSelectingEventArgs>;
 
     /** 
-     * Triggers after any cell is selected.
+     * Triggers after a cell is selected.
      * @event 
      */
     @Event()
     public cellSelected: EmitType<CellSelectEventArgs>;
 
     /** 
-     * Triggers before any particular selected cell is deselecting.
+     * Triggers before the selected cell is deselecting.
      * @event 
      */
     @Event()
     public cellDeselecting: EmitType<CellDeselectEventArgs>;
 
     /** 
-     * Triggers when any particular selected cell is deselected.
+     * Triggers when a particular selected cell is deselected.
      * @event 
      */
     @Event()
     public cellDeselected: EmitType<CellDeselectEventArgs>;
 
     /**  
-     * Triggers when a column header element is drag(move) started. 
+     * Triggers when column header element drag (move) starts. 
      * @event  
      */
     @Event()
     public columnDragStart: EmitType<ColumnDragEventArgs>;
 
     /**  
-     * Triggers when a column header element is dragged (moved) continuously. 
+     * Triggers when column header element is dragged (moved) continuously. 
      * @event  
      */
     @Event()
     public columnDrag: EmitType<ColumnDragEventArgs>;
 
     /**  
-     * Triggers when a column header element is dropped on target column. 
+     * Triggers when a column header element is dropped on the target column. 
      * @event  
      */
     @Event()
     public columnDrop: EmitType<ColumnDragEventArgs>;
 
     /** 
-     * Triggers after print action completed.  
+     * Triggers after print action is completed.  
      * @event 
      */
     @Event()
@@ -1477,7 +1380,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforePrint: EmitType<PrintEventArgs>;
 
     /** 
-     * Triggers before exporting each cell to PDF document.
+     * Triggers before exporting each cell to PDF document. You can also customize the PDF cells.
      * @event 
      */
     @Event()
@@ -1485,6 +1388,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /** 
      * Triggers before exporting each cell to Excel file.
+     * You can also customize the Excel cells.
      * @event
      */
     @Event()
@@ -1492,52 +1396,56 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     /**
      * Triggers before Grid data is exported to Excel file.
+     * @event
      */
     @Event()
     public beforeExcelExport: EmitType<Object>;
 
     /**
      * Triggers after Grid data is exported to Excel file.
+     * @event
      */
     @Event()
     public excelExportComplete: EmitType<ExcelExportCompleteArgs>;
 
     /**
      * Triggers before Grid data is exported to PDF document.
+     * @event
      */
     @Event()
     public beforePdfExport: EmitType<Object>;
 
     /**
      * Triggers after Grid data is exported to PDF document.
+     * @event
      */
     @Event()
     public pdfExportComplete: EmitType<PdfExportCompleteArgs>;
 
     /** 
-     * Triggers after detail row expanded.
-     * > This event triggers at initial expand. 
+     * Triggers after detail row expands.
+     * > This event triggers at initial expand.  
      * @event 
      */
     @Event()
     public detailDataBound: EmitType<DetailDataBoundEventArgs>;
 
     /**  
-     * Triggers when row elements is drag(move) started. 
+     * Triggers when row element's drag(move) starts. 
      * @event  
      */
     @Event()
     public rowDragStart: EmitType<RowDragEventArgs>;
 
     /**  
-     * Triggers when row elements is dragged (moved) continuously. 
+     * Triggers when row elements are dragged (moved) continuously. 
      * @event  
      */
     @Event()
     public rowDrag: EmitType<RowDragEventArgs>;
 
     /**  
-     * Triggers when row elements is dropped on target row. 
+     * Triggers when row elements are dropped on the target row. 
      * @event  
      */
     @Event()
@@ -1558,56 +1466,56 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public beforeOpenColumnChooser: EmitType<ColumnChooserEventArgs>;
 
     /** 
-     * Triggers when record added in batch mode.    
+     * Triggers when records are added in batch mode.   
      * @event
      */
     @Event()
     public batchAdd: EmitType<BatchAddArgs>;
 
     /** 
-     * Triggers when record deleted in batch mode.
+     * Triggers when records are deleted in batch mode.
      * @event
      */
     @Event()
     public batchDelete: EmitType<BatchDeleteArgs>;
 
     /** 
-     * Triggers before record add in batch mode.
+     * Triggers before records are added in batch mode.
      * @event
      */
     @Event()
     public beforeBatchAdd: EmitType<BeforeBatchAddArgs>;
 
     /** 
-     * Triggers before record delete in batch mode.
+     * Triggers before records are deleted in batch mode.
      * @event
      */
     @Event()
     public beforeBatchDelete: EmitType<BeforeBatchDeleteArgs>;
 
     /** 
-     * Triggers before records save in batch mode.
+     * Triggers before records are saved in batch mode.
      * @event
      */
     @Event()
     public beforeBatchSave: EmitType<BeforeBatchSaveArgs>;
 
     /** 
-     * Triggers before the record is going to be edit.
+     * Triggers before the record is to be edit.
      * @event
      */
     @Event()
     public beginEdit: EmitType<BeginEditArgs>;
 
     /** 
-     * Triggers when cell edit.
+     * Triggers when the cell is being edited.
      * @event
      */
     @Event()
     public cellEdit: EmitType<CellEditArgs>;
 
     /** 
-     * Triggers when record cell save.
+     * Triggers when cell is saved.
      * @event
      */
     @Event()
@@ -1621,21 +1529,21 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public resizeStart: EmitType<ResizeArgs>;
 
     /** 
-     * Triggers while column resizing
+     * Triggers on column resizing.
      * @event
      */
     @Event()
-    public onResize: EmitType<ResizeArgs>;
+    public resizing: EmitType<ResizeArgs>;
 
     /** 
-     * Triggers when column resize ends
+     * Triggers when column resize ends.
      * @event
      */
     @Event()
     public resizeStop: EmitType<ResizeArgs>;
 
     /** 
-     * Triggers before data bound to Grid.
+     * Triggers before data is bound to Grid.
      * @event
      */
     @Event()
@@ -1670,7 +1578,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public columnMenuClick: EmitType<MenuEventArgs>;
 
     /** 
-     * Triggers when the check box in checkbox type column is changed.
+     * Triggers when the check box state change in checkbox column.
      * @event
      */
     @Event()
@@ -1682,6 +1590,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Event()
     public beforeCopy: EmitType<BeforeCopyEventArgs>;
+
+    /** 
+     * Triggers when the grid actions such as Sorting, Paging, Grouping etc., are done.
+     * In this event,the current view data and total record count should be assigned to the `dataSource` based on the action performed.
+     * @event
+     */
+    @Event()
+    public dataStateChange: EmitType<DataStateChangeEventArgs>;
+
+    /**
+     * Triggers when the grid data is added, deleted and updated.
+     * Invoke the done method from the argument to start render after edit operation.
+     * @event
+     */
+    @Event()
+    public dataSourceChanged: EmitType<DataSourceChangedEventArgs>;
 
     /**
      * Constructor for creating the component
@@ -1702,7 +1626,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             'filterSettings', 'groupSettings', 'columns', 'searchSettings', 'selectedRowIndex'];
         let ignoreOnPersist: { [x: string]: string[] } = {
             pageSettings: ['template', 'pageSizes', 'enableQueryString', 'totalRecordsCount', 'pageCount'],
-            filterSettings: ['type', 'mode', 'showFilterBarStatus', 'immediateModeDelay'],
+            filterSettings: ['type', 'mode', 'showFilterBarStatus', 'immediateModeDelay', 'ignoreAccent'],
             groupSettings: ['showDropArea', 'showToggleButton', 'showGroupedColumn', 'showUngroupButton',
                 'disablePageWiseAggregates', 'hideCaptionCount'],
             searchSettings: ['fields', 'operator', 'ignoreCase'],
@@ -1827,24 +1751,23 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.getFrozenColumns() || this.frozenRows) {
             modules.push({ member: 'freeze', args: [this, this.serviceLocator] });
         }
-        if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
-            modules.push({
-                member: 'edit',
-                args: [this, this.serviceLocator]
-            });
-        }
-
-        this.extendRequiredModules(modules);
-        return modules;
-    }
-
-    public extendRequiredModules(modules: ModuleDeclaration[]): void {
         if (this.isCommandColumn(<Column[]>this.columns)) {
             modules.push({
                 member: 'commandColumn',
                 args: [this, this.serviceLocator]
             });
         }
+        if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
+            modules.push({
+                member: 'edit',
+                args: [this, this.serviceLocator]
+            });
+        }
+        this.extendRequiredModules(modules);
+        return modules;
+    }
+
+    public extendRequiredModules(modules: ModuleDeclaration[]): void {
 
         if (this.contextMenuItems) {
             modules.push({
@@ -1877,7 +1800,137 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     protected preRender(): void {
         this.serviceLocator = new ServiceLocator;
+        this.initProperties();
         this.initializeServices();
+    }
+
+    private initProperties(): void {
+        /* tslint:disable */
+        this.isInitial = true;
+        this.sortedColumns = [];
+        this.inViewIndexes = [];
+        this.mediaCol = [];
+        this.isMediaQuery = false;
+        this.isInitialLoad = false;
+        this.mergeCells = {};
+        this.isEdit = false;
+        this.checkAllRows = 'None';
+        this.isCheckBoxSelection = false;
+        this.isPersistSelection = false;
+        this.freezeRefresh = Component.prototype.refresh;
+        this.filterOperators = {
+            contains: 'contains', endsWith: 'endswith', equal: 'equal', greaterThan: 'greaterthan', greaterThanOrEqual: 'greaterthanorequal',
+            lessThan: 'lessthan', lessThanOrEqual: 'lessthanorequal', notEqual: 'notequal', startsWith: 'startswith'
+        };
+        this.defaultLocale = {
+            EmptyRecord: 'No records to display',
+            True: 'true',
+            False: 'false',
+            InvalidFilterMessage: 'Invalid Filter Data',
+            GroupDropArea: 'Drag a column header here to group its column',
+            UnGroup: 'Click here to ungroup',
+            GroupDisable: 'Grouping is disabled for this column',
+            FilterbarTitle: '\'s filter bar cell',
+            EmptyDataSourceError:
+                'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
+            // Toolbar Items
+            Add: 'Add',
+            Edit: 'Edit',
+            Cancel: 'Cancel',
+            Update: 'Update',
+            Delete: 'Delete',
+            Print: 'Print',
+            Pdfexport: 'PDF Export',
+            Excelexport: 'Excel Export',
+            Wordexport: 'Word Export',
+            Csvexport: 'CSV Export',
+            Search: 'Search',
+            Columnchooser: 'Columns',
+            Save: 'Save',
+            Item: 'item',
+            Items: 'items',
+            EditOperationAlert: 'No records selected for edit operation',
+            DeleteOperationAlert: 'No records selected for delete operation',
+            SaveButton: 'Save',
+            OKButton: 'OK',
+            CancelButton: 'Cancel',
+            EditFormTitle: 'Details of ',
+            AddFormTitle: 'Add New Record',
+            BatchSaveConfirm: 'Are you sure you want to save changes?',
+            BatchSaveLostChanges: 'Unsaved changes will be lost. Are you sure you want to continue?',
+            ConfirmDelete: 'Are you sure you want to Delete Record?',
+            CancelEdit: 'Are you sure you want to Cancel the changes?',
+            ChooseColumns: 'Choose Column',
+            SearchColumns: 'search columns',
+            Matchs: 'No Matches Found',
+            FilterButton: 'Filter',
+            ClearButton: 'Clear',
+            StartsWith: 'Starts With',
+            EndsWith: 'Ends With',
+            Contains: 'Contains',
+            Equal: 'Equal',
+            NotEqual: 'Not Equal',
+            LessThan: 'Less Than',
+            LessThanOrEqual: 'Less Than Or Equal',
+            GreaterThan: 'Greater Than',
+            GreaterThanOrEqual: 'Greater Than Or Equal',
+            ChooseDate: 'Choose a Date',
+            EnterValue: 'Enter the value',
+            Copy: 'Copy',
+            Group: 'Group by this column',
+            Ungroup: 'Ungroup by this column',
+            autoFitAll: 'Auto Fit all columns',
+            autoFit: 'Auto Fit this column',
+            Export: 'Export',
+            FirstPage: 'First Page',
+            LastPage: 'Last Page',
+            PreviousPage: 'Previous Page',
+            NextPage: 'Next Page',
+            SortAscending: 'Sort Ascending',
+            SortDescending: 'Sort Descending',
+            EditRecord: 'Edit Record',
+            DeleteRecord: 'Delete Record',
+            FilterMenu: 'Filter'
+        };
+        this.keyConfigs = {
+            downArrow: 'downarrow',
+            upArrow: 'uparrow',
+            rightArrow: 'rightarrow',
+            leftArrow: 'leftarrow',
+            shiftDown: 'shift+downarrow',
+            shiftUp: 'shift+uparrow',
+            shiftRight: 'shift+rightarrow',
+            shiftLeft: 'shift+leftarrow',
+            home: 'home',
+            end: 'end',
+            escape: 'escape',
+            ctrlHome: 'ctrl+home',
+            ctrlEnd: 'ctrl+end',
+            pageUp: 'pageup',
+            pageDown: 'pagedown',
+            ctrlAltPageUp: 'ctrl+alt+pageup',
+            ctrlAltPageDown: 'ctrl+alt+pagedown',
+            altPageUp: 'alt+pageup',
+            altPageDown: 'alt+pagedown',
+            altDownArrow: 'alt+downarrow',
+            altUpArrow: 'alt+uparrow',
+            ctrlDownArrow: 'ctrl+downarrow',
+            ctrlUpArrow: 'ctrl+uparrow',
+            ctrlPlusA: 'ctrl+A',
+            ctrlPlusP: 'ctrl+P',
+            insert: 'insert',
+            delete: 'delete',
+            f2: 'f2',
+            enter: 'enter',
+            ctrlEnter: 'ctrl+enter',
+            shiftEnter: 'shift+enter',
+            tab: 'tab',
+            shiftTab: 'shift+tab',
+            space: 'space',
+            ctrlPlusC: 'ctrl+C',
+            ctrlShiftPlusH: 'ctrl+shift+H'
+        };
+        /* tslint:enable */
     }
 
     /**
@@ -1900,21 +1953,31 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.wireEvents();
         this.addListener();
         this.updateDefaultCursor();
+        this.updateStackedFilter();
         this.showSpinner();
         this.notify(events.initialEnd, {});
     }
 
     /**
-     * Method used to show the spinner.
+     * By default, grid shows the spinner for all its actions. You can use this method to show spinner at your needed time.
      */
     public showSpinner(): void {
         showSpinner(this.element);
     }
     /**
-     * Method used to hide the spinner.
+     * Manually showed spinner needs to hide by `hideSpinnner`.
      */
     public hideSpinner(): void {
         hideSpinner(this.element);
+    }
+
+    private updateStackedFilter(): void {
+        if (this.allowFiltering && this.filterSettings.type === 'FilterBar' &&
+            this.getHeaderContent().querySelectorAll('.e-stackedheadercell').length) {
+            this.getHeaderContent().classList.add('e-stackedfilter');
+        } else {
+            this.getHeaderContent().classList.remove('e-stackedfilter');
+        }
     }
 
     private getMediaColumns(): void {
@@ -1967,7 +2030,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * To destroy the component(Detaches/removes all event handlers, attributes, classes and empty the component element).
+     * Destroys the component (detaches/removes all event handlers, attributes, classes, and empties the component element).
      * @method destroy
      * @return {void}
      */
@@ -2027,8 +2090,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     checkCursor = true;
                     break;
                 case 'allowFiltering':
+                    this.updateStackedFilter();
                     this.notify(events.uiUpdate, { module: 'filter', enable: this.allowFiltering });
                     requireRefresh = true;
+                    if (this.filterSettings.type !== 'FilterBar') {
+                        this.refreshHeader();
+                    }
                     break;
                 case 'height':
                 case 'width':
@@ -2119,6 +2186,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     (<EJ2Intance>this.columnMenuModule.getColumnMenu()).ej2_instances[0].enableRtl = newProp.enableRtl;
                     (<EJ2Intance>this.columnMenuModule.getColumnMenu()).ej2_instances[0].dataBind();
                 }
+                this.notify(events.rtlUpdated, {});
                 break;
             case 'enableAltRow':
                 this.renderModule.refresh();
@@ -2153,6 +2221,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.notify(events.uiUpdate, { module: 'columnChooser', enable: this.showColumnChooser });
                 break;
             case 'filterSettings':
+                this.updateStackedFilter();
                 this.notify(events.inBoundModelChanged, { module: 'filter', properties: newProp.filterSettings });
                 break;
             case 'searchSettings':
@@ -2177,8 +2246,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.notify(events.freezeRender, { case: 'textwrap', isModeChg: (prop === 'textWrapSettings') });
                 break;
             case 'dataSource':
-                this.notify(events.dataSourceModified, {});
-                this.renderModule.refresh();
+                let pending: PendingState = this.getDataModule().getState();
+                let gResult: Object = (<DataResult>this.dataSource).result;
+                if (pending.isPending) {
+                    (pending.group || []).forEach((name: string) => { gResult = DataUtil.group(<Object[]>gResult, name); });
+                    this.dataSource = { result: gResult, count: (<DataResult>this.dataSource).count };
+                    pending.resolver(this.dataSource);
+                } else {
+                    this.notify(events.dataSourceModified, {});
+                    this.renderModule.refresh();
+                }
                 break;
             case 'enableHover':
                 let action: Function = newProp.enableHover ? addClass : removeClass;
@@ -2221,13 +2298,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the columns from Grid.
+     * Gets the columns from the Grid.
      * @return {Column[]} 
      */
-    public getColumns(): Column[] {
+    public getColumns(isRefresh?: boolean): Column[] {
         let inview: number[] = this.inViewIndexes.map((v: number) => v - this.groupSettings.columns.length).filter((v: number) => v > -1);
         let vLen: number = inview.length;
-        if (!this.enableColumnVirtualization || isNullOrUndefined(this.columnModel) || this.columnModel.length === 0) {
+        if (!this.enableColumnVirtualization || isNullOrUndefined(this.columnModel) || this.columnModel.length === 0 || isRefresh ) {
             this.columnModel = [];
             this.updateColumnModel(this.columns as Column[]);
         }
@@ -2260,7 +2337,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the visible columns from Grid.
+     * Gets the visible columns from the Grid.
      * @return {Column[]} 
      */
     public getVisibleColumns(): Column[] {
@@ -2274,7 +2351,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the header div of Grid. 
+     * Gets the header div of the Grid. 
      * @return {Element} 
      */
     public getHeaderContent(): Element {
@@ -2282,7 +2359,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Sets the header div of Grid to replace the old header.
+     * Sets the header div of the Grid to replace the old header.
      * @param  {Element} element - Specifies the Grid header.
      * @return {void}
      */
@@ -2291,7 +2368,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the content table of Grid.
+     * Gets the content table of the Grid.
      * @return {Element} 
      */
     public getContentTable(): Element {
@@ -2299,7 +2376,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Sets the content table of Grid to replace old content table.
+     * Sets the content table of the Grid to replace the old content table.
      * @param  {Element} element - Specifies the Grid content table.
      * @return {void}
      */
@@ -2308,7 +2385,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the content div of Grid.
+     * Gets the content div of the Grid.
      * @return {Element} 
      */
     public getContent(): Element {
@@ -2316,7 +2393,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Sets the content div of Grid to replace the old Grid content.
+     * Sets the content div of the Grid to replace the old Grid content.
      * @param  {Element} element - Specifies the Grid content.
      * @return {void}
      */
@@ -2325,7 +2402,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the header table element of Grid.
+     * Gets the header table element of the Grid.
      * @return {Element} 
      */
     public getHeaderTable(): Element {
@@ -2333,7 +2410,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Sets the header table of Grid to replace old header table.
+     * Sets the header table of the Grid to replace the old one.
      * @param  {Element} element - Specifies the Grid header table.
      * @return {void}
      */
@@ -2342,7 +2419,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the footer div of Grid.
+     * Gets the footer div of the Grid.
      * @return {Element} 
      */
     public getFooterContent(): Element {
@@ -2354,7 +2431,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the footer table element of Grid.
+     * Gets the footer table element of the Grid.
      * @return {Element} 
      */
     public getFooterContentTable(): Element {
@@ -2367,7 +2444,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
 
     /**
-     * Gets the pager of Grid.
+     * Gets the pager of the Grid.
      * @return {Element} 
      */
     public getPager(): Element {
@@ -2375,7 +2452,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Sets the pager of Grid to replace old pager.
+     * Sets the pager of the Grid to replace the old pager.
      * @param  {Element} element - Specifies the Grid pager.
      * @return {void}
      */
@@ -2402,7 +2479,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets all the Grid's content rows.
+     * Gets all the data rows of the Grid.
      * @return {Element[]} 
      */
     public getRows(): Element[] {
@@ -2416,12 +2493,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getRowInfo(target: Element | EventTarget): RowInfo {
         let ele: Element = target as Element;
-        let args: Object = {};
+        let args: Object = {target: target};
         if (!isNullOrUndefined(target) && isNullOrUndefined(parentsUntil(ele, 'e-detailrowcollapse')
-            && isNullOrUndefined(parentsUntil(ele, 'e-recordplusexpand')))) {
+            && isNullOrUndefined(parentsUntil(ele, 'e-recordplusexpand'))) && !this.isEdit) {
             let cell: Element = closest(ele, '.e-rowcell');
-            if (!isNullOrUndefined(cell)) {
-                let cellIndex: number = parseInt(cell.getAttribute('aria-colindex'), 10);
+            if (!cell) {
+                return args;
+            }
+            let cellIndex: number = parseInt(cell.getAttribute('aria-colindex'), 10);
+            if (!isNullOrUndefined(cell) && !isNaN(cellIndex)) {
                 let row: Element = closest(cell, '.e-row');
                 let rowIndex: number = parseInt(row.getAttribute('aria-rowindex'), 10);
                 let frzCols: number = this.getFrozenColumns();
@@ -2432,14 +2512,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 let rowData: Object = rowsObject[0].data;
                 let column: Column =
                     rowsObject[0].cells[isMovable ? cellIndex - frzCols : cellIndex].column as Column;
-                args = { cell: cell, cellIndex: cellIndex, row: row, rowIndex: rowIndex, rowData: rowData, column: column };
+                args = { cell: cell, cellIndex: cellIndex, row: row, rowIndex: rowIndex, rowData: rowData, column: column, target: target };
             }
         }
         return args;
     }
 
     /**
-     * Gets all the Grid's movable content rows.
+     * Gets the Grid's movable content rows from frozen grid.
      * @return {Element[]} 
      */
     public getMovableRows(): Element[] {
@@ -2495,6 +2575,69 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         let dataRows: Element[] = this.generateDataRows(rows);
         return dataRows;
     }
+
+    /**
+     * Updates particular cell value based on the given primary key value.
+     * > Primary key column must be specified using `columns.isPrimaryKey` property.
+     * @param {string| number} key - Specifies the PrimaryKey value of dataSource.
+     * @param {string } field - Specifies the field name which you want to update.
+     * @param {string | number | boolean | Date} value - To update new value for the particular cell.  
+     */
+    public setCellValue(key: string | number, field: string, value: string | number | boolean | Date): void {
+        let cells: string = 'cells';
+        let rowData: string = 'data';
+        let rowIdx: string = 'index';
+        let rowuID: string = 'uid';
+        let fieldIdx: number;
+        let col: Column;
+        let tr: Element;
+        let pkName: string = this.getPrimaryKeyFieldNames()[0];
+        let cell: CellRenderer = new CellRenderer(this, this.serviceLocator);
+        let selectedRow: Object = {};
+        let rowObjects: Object = this.contentModule.getRows();
+        fieldIdx = this.getColumnIndexByField(field);
+        col = this.getColumnByField(field);
+        selectedRow = (<Row<{}>[]>rowObjects).filter((r: Row<{}>) =>
+            getValue(pkName, r.data) === key)[0];
+        tr = !isNullOrUndefined(selectedRow) ? this.element.querySelector('[data-uid=' + selectedRow[rowuID] + ']') : null;
+        if (!isNullOrUndefined(tr)) {
+            setValue(field, value, selectedRow[rowData]);
+            let td: Element = tr.childNodes[fieldIdx] as Element;
+            if (!isNullOrUndefined(td)) {
+                cell.refreshTD(td, selectedRow[cells][fieldIdx] as Cell<Column>, selectedRow[rowData]);
+                this.trigger(events.queryCellInfo, {
+                    cell: td, column: col, data: selectedRow[rowData]
+                });
+            }
+        } else {
+            return;
+        }
+    }
+
+    /**
+     * Updates and refresh the particular row values based on the given primary key value.
+     * > Primary key column must be specified using `columns.isPrimaryKey` property.
+     *  @param {string| number} key - Specifies the PrimaryKey value of dataSource.
+     *  @param {Object} rowData - To update new data for the particular row.
+     */
+    public setRowData(key: string | number, rowData?: Object): void {
+        let rwdata: string = 'data';
+        let rowuID: string = 'uid';
+        let rowObjects: Object = this.contentModule.getRows();
+        let selectedRow: Row<Column>;
+        let pkName: string = this.getPrimaryKeyFieldNames()[0];
+        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this);
+        selectedRow = (<Row<{}>[]>rowObjects).filter((r: Row<{}>) =>
+            getValue(pkName, r.data) === key)[0] as Row<Column>;
+        if (!isNullOrUndefined(selectedRow) && this.element.querySelectorAll('[data-uid=' + selectedRow[rowuID] + ']').length) {
+            selectedRow.changes = rowData;
+            refreshForeignData(selectedRow, this.getForeignKeyColumns(), selectedRow.changes);
+            rowRenderer.refresh(selectedRow, this.getColumns() as Column[], true);
+        } else {
+            return;
+        }
+    }
+
 
     /**
      * Gets a cell by row and column index.
@@ -2573,7 +2716,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets a column header by uid.
+     * Gets a column header by UID.
      * @param  {string} field - Specifies the column uid.
      * @return {Element} 
      */
@@ -2613,8 +2756,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets a column by uid.
-     * @param  {string} uid - Specifies the column uid.
+     * Gets a column by UID.
+     * @param  {string} uid - Specifies the column UID.
      * @return {Column}
      */
     public getColumnByUid(uid: string): Column {
@@ -2627,8 +2770,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets a column index by uid.
-     * @param  {string} uid - Specifies the column uid.
+     * Gets a column index by UID.
+     * @param  {string} uid - Specifies the column UID.
      * @return {number}
      */
     public getColumnIndexByUid(uid: string): number {
@@ -2644,7 +2787,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets uid by column name.
+     * Gets UID by column name.
      * @param  {string} field - Specifies the column name.
      * @return {string}
      */
@@ -2715,7 +2858,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Get the names of primary key columns in Grid. 
+     * Get the names of the primary key columns of the Grid. 
      * @return {string[]}
      */
     public getPrimaryKeyFieldNames(): string[] {
@@ -2733,6 +2876,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public refresh(): void {
         this.headerModule.refreshUI();
+        this.updateStackedFilter();
         this.updateDefaultCursor();
         this.renderModule.refresh();
     }
@@ -2777,7 +2921,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Gets the Grid's data. 
+     * Gets the data module. 
      * @return {Data}
      */
     public getDataModule(): Data {
@@ -2785,7 +2929,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /** 
-     * Shows a column by column name. 
+     * Shows a column by its column name. 
      * @param  {string|string[]} keys - Defines a single or collection of column names. 
      * @param  {string} showBy - Defines the column key either as field name or header text. 
      * @return {void} 
@@ -2827,7 +2971,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /** 
-     * Navigate to target page by given number. 
+     * Navigates to the specified target page. 
      * @param  {number} pageNo - Defines the page number to navigate. 
      * @return {void} 
      */
@@ -2845,10 +2989,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /** 
-     * Sorts a column with given options. 
-     * @param {string} columnName - Defines the column name to sort.  
-     * @param {SortDirection} direction - Defines the direction of sorting for field.  
-     * @param {boolean} isMultiSort - Specifies whether the previous sorted columns to be maintained. 
+     * Sorts a column with the given options. 
+     * @param {string} columnName - Defines the column name to be sorted.  
+     * @param {SortDirection} direction - Defines the direction of sorting field.  
+     * @param {boolean} isMultiSort - Specifies whether the previous sorted columns are to be maintained. 
      * @return {void} 
      */
     public sortColumn(columnName: string, direction: SortDirection, isMultiSort?: boolean): void {
@@ -2856,7 +3000,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**  
-     * Clears all the sorted columns of Grid.  
+     * Clears all the sorted columns of the Grid.  
      * @return {void} 
      */
     public clearSorting(): void {
@@ -2874,25 +3018,30 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /** 
-     * Filters grid row by column name with given options. 
-     * @param  {string} fieldName - Defines the field name of the filter column. 
-     * @param  {string} filterOperator - Defines the operator by how to filter records.
-     * @param  {string | number | Date | boolean} filterValue - Defines the value which is used to filter records.
-     * @param  {string} predicate - Defines the relationship between one filter query with another by using AND or OR predicate.   
-     * @param  {boolean} matchCase - If match case set to true, then filter records with exact match or else  
-     * filter records with case insensitive(uppercase and lowercase letters treated as same).
+     * Filters grid row by column name with the given options. 
+     * @param  {string} fieldName - Defines the field name of the column.
+     * @param  {string} filterOperator - Defines the operator to filter records.
+     * @param  {string | number | Date | boolean} filterValue - Defines the value used to filter records.
+     * @param  {string} predicate - Defines the relationship between one filter query and another by using AND or OR predicate.   
+     * @param  {boolean} matchCase - If match case is set to true, the grid filters the records with exact match. if false, it filters case 
+     * insensitive records (uppercase and lowercase letters treated the same).  
+     * @param  {boolean} ignoreAccent - If ignoreAccent set to true, 
+     * then filter ignores the diacritic characters or accents while filtering.
      * @param  {string} actualFilterValue - Defines the actual filter value for the filter column. 
      * @param  {string} actualOperator - Defines the actual filter operator for the filter column. 
      * @return {void} 
      */
     public filterByColumn(
         fieldName: string, filterOperator: string, filterValue: string | number | Date | boolean, predicate?: string, matchCase?: boolean,
-        actualFilterValue?: string, actualOperator?: string): void {
-        this.filterModule.filterByColumn(fieldName, filterOperator, filterValue, predicate, matchCase, actualFilterValue, actualOperator);
+        ignoreAccent?: boolean, actualFilterValue?: string, actualOperator?: string): void {
+        this.filterModule.filterByColumn(
+            fieldName, filterOperator, filterValue, predicate, matchCase, ignoreAccent,
+            actualFilterValue, actualOperator
+        );
     }
 
     /** 
-     * Clears all the filtered rows of Grid.
+     * Clears all the filtered rows of the Grid.
      * @return {void} 
      */
     public clearFiltering(): void {
@@ -2938,8 +3087,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Selects a cell by given index.
-     * @param  {IIndex} cellIndex - Defines the row and column index. 
+     * Selects a cell by the given index.
+     * @param  {IIndex} cellIndex - Defines the row and column indexes. 
      * @param  {boolean} isToggle - If set to true, then it toggles the selection.
      * @return {void}
      */
@@ -2948,7 +3097,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /** 
-     * Searches Grid records by given key.  
+     * Searches Grid records using the given key.
+     * You can customize the default search option by using the
+     * [`searchSettings`](./api-searchSettings.html).
      * @param  {string} searchString - Defines the key.
      * @return {void} 
      */
@@ -2957,8 +3108,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * By default, it prints all the pages of Grid and hides pager.  
-     * > Customize print options using [`printMode`](http://ej2.syncfusion.com/documentation/grid/api-grid.html#printmode-string).
+     * By default, prints all the pages of the Grid and hides the pager.
+     * > You can customize print options using the 
+     * [`printMode`](./api-grid.html#printmode-string). 
      * @return {void}
      */
     public print(): void {
@@ -2968,8 +3120,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**
      * Delete a record with Given options. If fieldname and data is not given then grid will delete the selected record.
      * > `editSettings.allowDeleting` should be true.
-     * @param {string} fieldname - Defines the primary key field Name of the column.
-     * @param {Object} data - Defines the JSON data of record need to be delete.
+     * @param {string} fieldname - Defines the primary key field, 'Name of the column'.
+     * @param {Object} data - Defines the JSON data of the record to be deleted.
      */
     public deleteRecord(fieldname?: string, data?: Object): void {
         this.editModule.deleteRecord(fieldname, data);
@@ -2984,26 +3136,27 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * If Grid is in editable state, then you can save a record by invoking endEdit.
+     * If Grid is in editable state, you can save a record by invoking endEdit.
      */
     public endEdit(): void {
         this.editModule.endEdit();
     }
 
     /**
-     * Cancel edited state.
+     * Cancels edited state.
      */
     public closeEdit(): void {
         this.editModule.closeEdit();
     }
 
     /**
-     * To add a new row at top of rows with given data. If data is not passed then it will render empty row.
+     * Adds a new record to the Grid. Without passing parameters, it adds empty rows.
      * > `editSettings.allowEditing` should be true.
      * @param {Object} data - Defines the new add record data.
+     * @param {number} index - Defines the row index to be added
      */
-    public addRecord(data?: Object): void {
-        this.editModule.addRecord(data);
+    public addRecord(data?: Object, index?: number): void {
+        this.editModule.addRecord(data, index);
     }
 
     /**
@@ -3015,8 +3168,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Copy selected rows or cells data into clipboard.
-     * @param {boolean} withHeader - Specifies whether the column header data need to be copied or not.
+     * Copy the selected rows or cells data into clipboard.
+     * @param {boolean} withHeader - Specifies whether the column header text needs to be copied along with rows or cells.
      */
     public copy(withHeader?: boolean): void {
         this.clipboardModule.copy(withHeader);
@@ -3069,10 +3222,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /** 
-     * Change the column width to automatically fit its content 
-     * which ensures that the width is wide enough to show the content without wrapping/hiding. 
+     * Changes the column width to automatically fit its content to ensure that the width shows the content without wrapping/hiding.
      * > * This method ignores the hidden columns.
-     * > * Use the `autoFitColumns` method in the `dataBound` event to resize at the initial rendering
+     * > * Uses the `autoFitColumns` method in the `dataBound` event to resize at initial rendering.
      * @param  {string |string[]} fieldNames - Defines the column names. 
      * @return {void} 
      * 
@@ -3129,12 +3281,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     }
                 }
                 if (!flag) {
-                    sCols.push({ field: gCols[i], direction: 'ascending' });
+                    sCols.push({ field: gCols[i], direction: 'Ascending' });
                 } else {
                     if (this.allowSorting) {
                         this.sortedColumns.push(sCols[j].field);
                     } else {
-                        sCols[j].direction = 'ascending';
+                        sCols[j].direction = 'Ascending';
                     }
                 }
                 if (!this.groupSettings.showGroupedColumn) {
@@ -3143,6 +3295,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     column.visible = false;
                 }
             }
+        }
+        if (!gCols.length) {
+            sCols.forEach((col: SortDescriptorModel) => {
+                this.sortedColumns.push(col.field);
+            });
         }
         this.rowTemplateFn = templateCompiler(this.rowTemplate);
         this.detailTemplateFn = templateCompiler(this.detailTemplate);
@@ -3213,16 +3370,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private updateGridLines(): void {
         classList(this.element, [], ['e-verticallines', 'e-horizontallines', 'e-hidelines', 'e-bothlines']);
         switch (this.gridLines) {
-            case 'horizontal':
+            case 'Horizontal':
                 this.element.classList.add('e-horizontallines');
                 break;
-            case 'vertical':
+            case 'Vertical':
                 this.element.classList.add('e-verticallines');
                 break;
-            case 'none':
+            case 'None':
                 this.element.classList.add('e-hidelines');
                 break;
-            case 'both':
+            case 'Both':
                 this.element.classList.add('e-bothlines');
                 break;
         }
@@ -3231,7 +3388,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private updateResizeLines(): void {
         if (this.allowResizing &&
-            !(this.gridLines === 'vertical' || this.gridLines === 'both')) {
+            !(this.gridLines === 'Vertical' || this.gridLines === 'Both')) {
             this.element.classList.add('e-resize-lines');
         } else {
             this.element.classList.remove('e-resize-lines');
@@ -3247,12 +3404,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.allowTextWrap) {
             let headerRows: Element[] = [].slice.call(this.element.querySelectorAll('.e-columnheader'));
             switch (this.textWrapSettings.wrapMode) {
-                case 'header':
+                case 'Header':
                     wrap(this.element, false);
                     wrap(this.getContent(), false);
                     wrap(headerRows, true);
                     break;
-                case 'content':
+                case 'Content':
                     wrap(this.getContent(), true);
                     wrap(this.element, false);
                     wrap(headerRows, false);
@@ -3420,7 +3577,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     private checkEdit(e: MouseEvent): boolean {
         let tr: Element = parentsUntil(e.target as Element, 'e-row');
-        let isEdit: boolean = this.editSettings.mode !== 'batch' &&
+        let isEdit: boolean = this.editSettings.mode !== 'Batch' &&
             this.isEdit && tr && (tr.classList.contains('e-editedrow') || tr.classList.contains('e-addedrow'));
         return !parentsUntil(e.target as Element, 'e-unboundcelldiv') && (isEdit || (parentsUntil(e.target as Element, 'e-rowcell') &&
             parentsUntil(e.target as Element, 'e-rowcell').classList.contains('e-editedbatchcell')));
@@ -3442,7 +3599,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             return;
         }
         if (!parentsUntil(e.target as Element, 'e-grid')) {
-            (this.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
+            (this.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'None';
         }
         let filterClear: Element = this.element.querySelector('.e-cancel:not(.e-hide)');
         if (filterClear) {
@@ -3540,20 +3697,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
-     * Refreshes the Grid column changes
+     * Refreshes the Grid column changes.
      */
     public refreshColumns(): void {
         this.updateColumnObject();
         this.refresh();
     }
-     /**
-      * Export Grid data to Excel file(.xlsx).
-      * @param  {ExcelExportProperties} excelExportProperties - Defines the export properties of the Grid.
-      * @param  {boolean} isMultipleExport - Define to enable multiple export.
-      * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
-      * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.
-      * @return {Promise<any>} 
-      */
+    /**
+     * Export Grid data to Excel file(.xlsx).
+     * @param  {ExcelExportProperties} excelExportProperties - Defines the export properties of the Grid.
+     * @param  {boolean} isMultipleExport - Define to enable multiple export.
+     * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
+     * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.
+     * @return {Promise<any>} 
+     */
     public excelExport(
         excelExportProperties?: ExcelExportProperties, isMultipleExport?: boolean,
         /* tslint:disable-next-line:no-any */
@@ -3568,6 +3725,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @param  {workbook} workbook - Defines the Workbook if multiple export is enabled.
      * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.
      * @return {Promise<any>} 
+     * 
      */
     public csvExport(
         excelExportProperties?: ExcelExportProperties,
@@ -3580,8 +3738,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @param  {pdfExportProperties} PdfExportProperties - Defines the export properties of the Grid.
      * @param  {isMultipleExport} isMultipleExport - Define to enable multiple export.
      * @param  {pdfDoc} pdfDoc - Defined the Pdf Document if multiple export is enabled.
-     * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.a
+     * @param  {boolean} isBlob - If 'isBlob' set to true, then it will be returned as blob data.
      * @return {Promise<any>} 
+     * 
      */
     public pdfExport(
         pdfExportProperties?: PdfExportProperties,
@@ -3621,27 +3780,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public ensureModuleInjected(module: Function): boolean {
         return this.getInjectedModules().indexOf(module) >= 0;
     }
-
-    /** 
-     * Shows a column by column name. 
-     * @param  {string|string[]} columnName - Defines a single or collection of column names to show. 
-     * @param  {string} showBy - Defines the column key either as field name or header text. 
-     * @return {void} 
-     */
-    public showColumn(columnName: string | string[], showBy?: string): void {
-        this.showHider.show(columnName, showBy);
-    }
-
-    /** 
-     * Hides a column by column name. 
-     * @param  {string|string[]} columnName - Defines a single or collection of column names to hide. 
-     * @param  {string} hideBy - Defines the column key either as field name or header text. 
-     * @return {void} 
-     */
-    public hideColumn(columnName: string | string[], hideBy?: string): void {
-        this.showHider.hide(columnName, hideBy);
-    }
-
 }
 
 Grid.Inject(Selection);

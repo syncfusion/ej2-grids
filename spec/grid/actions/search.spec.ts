@@ -6,9 +6,11 @@ import { Search } from '../../../src/grid/actions/search';
 import { Page } from '../../../src/grid/actions/page';
 import { createGrid, destroy } from '../base/specutil.spec';
 import { data } from '../base/datasource.spec';
+import { Toolbar } from '../../../src/grid/actions/toolbar';
+import { Edit } from '../../../src/grid/actions/edit';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
-Grid.Inject(Search, Page);
+Grid.Inject(Search, Page, Toolbar, Edit);
 
 describe('Search module=>', () => {
     describe('Search methods testing=>', () => {
@@ -152,6 +154,74 @@ describe('Search module=>', () => {
             setTimeout(function () {
                 done();
             }, 1000);
+        });
+    });
+
+    describe('Search methods testing after editing a column ', () => {
+        let gridObj: Grid;
+        let actionComplete: (args?: Object) => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID' },
+                        { field: 'EmployeeID' }
+                        ],
+                    actionComplete: actionComplete,
+                    pageSettings: { pageSize: 6, pageCount: 3 },
+                    editSettings: {allowEditing: true, mode: 'Normal' },
+                    toolbar: ['edit', 'update'],
+                }, done);
+        });
+
+        it('EJ2-7286==>Searching TOMSP', (done: Function) => {
+            actionComplete = (args: any): void => {
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(1);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;            
+            gridObj.searchModule.search('TOMSP');
+        });
+
+        it('EJ2-7286==>Edit start', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'beginEdit') {
+                    expect(gridObj.isEdit).toBeTruthy();
+                    done();
+                }
+            };
+            gridObj.actionComplete = actionComplete;            
+            gridObj.selectRow(0, true);
+            (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_edit' } });
+        });
+
+        it('EJ2-7286==>Edit complete', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'save') {
+                    expect(gridObj.isEdit).toBeFalsy();
+                    expect((gridObj.currentViewData[0] as any).CustomerID).toBe('updated');
+                    done();
+                }
+            };
+            gridObj.actionComplete = actionComplete;            
+            (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
+            (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_update' } });
+        });
+
+        it('EJ2-7286==>Again Searching TOMSP', (done: Function) => {
+            actionComplete = (args: any): void => {
+                expect(gridObj.element.querySelectorAll('.e-row').length).toBe(0);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;            
+            gridObj.searchModule.search('TOMSP');
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
         });
     });
 

@@ -4,7 +4,7 @@ import { FilterSettings } from '../base/grid';
 import { PredicateModel } from '../base/grid-model';
 import { AutoComplete } from '@syncfusion/ej2-dropdowns';
 import { DataManager } from '@syncfusion/ej2-data';
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement, Browser, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
@@ -78,9 +78,13 @@ export class StringFilterUI implements IFilterMUI {
 
     public read(element: Element, column: Column, filterOptr: string, filterObj: Filter): void {
         let actuiObj: AutoComplete = (<EJ2Intance>document.querySelector('#strui-' + column.uid)).ej2_instances[0];
+        if (Browser.isDevice) {
+            actuiObj.hidePopup();
+            actuiObj.focusOut();
+        }
         let filterValue: string | number = actuiObj.value;
-        if (isNullOrUndefined(filterValue) && filterOptr !== 'equal' && filterOptr !== 'notEqual') {
-            filterValue = '';
+        if (isNullOrUndefined(filterValue) || filterValue === '') {
+            filterValue = null;
         }
         filterObj.filterByColumn(column.field, filterOptr, filterValue, 'and', false);
     }

@@ -1,4 +1,4 @@
-import { extend } from '@syncfusion/ej2-base';
+import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { closest as closestElement, removeClass, classList, createElement, remove } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { getElementIndex, inArray, parentsUntil, getPosition, isActionPrevent } from '../base/util';
@@ -7,7 +7,7 @@ import * as events from '../base/constant';
 
 /**
  * 
- * `Reorder` module is used to handle columns reorder.
+ * The `Reorder` module is used for reordering columns.
  */
 export class Reorder implements IAction {
     //Internal variable
@@ -39,8 +39,8 @@ export class Reorder implements IAction {
 
     private chkDropPosition(srcElem: Element, destElem: Element): boolean {
         return (srcElem.parentElement.isEqualNode(destElem.parentElement) || (this.parent.getFrozenColumns()
-            && Array.prototype.indexOf.call(srcElem.closest('thead').children, srcElem.parentElement)
-            === Array.prototype.indexOf.call(destElem.closest('thead').children, destElem.parentElement)))
+            && Array.prototype.indexOf.call(closestElement(srcElem, 'thead').children, srcElem.parentElement)
+            === Array.prototype.indexOf.call(closestElement(destElem, 'thead').children, destElem.parentElement)))
             && this.targetParentContainerIndex(srcElem, destElem) > -1;
     }
 
@@ -95,12 +95,31 @@ export class Reorder implements IAction {
         }
         let destElem: Element = closestElement(e.target as Element, '.e-headercell');
         if (destElem && !(!this.chkDropPosition(this.element, destElem) || !this.chkDropAllCols(this.element, destElem))) {
-            let headers: Element[] = this.getHeaderCells();
-            let oldIdx: number = getElementIndex(this.element, headers);
-            let columns: Column[] = this.getColumnsModel(this.parent.columns as Column[]);
-            let column: Column = columns[oldIdx];
-            let newIndex: number = this.targetParentContainerIndex(this.element, destElem);
-            this.moveColumns(newIndex, column);
+            if (this.parent.enableColumnVirtualization) {
+                let columns: Column[] = this.parent.columns as Column[];
+                let sourceUid: string = this.element.querySelector('.e-headercelldiv').getAttribute('e-mappinguid');
+                let col: Column[] = this.parent.getColumns(true).filter((col: Column) => col.uid === sourceUid);
+                let colMatchIndex: number = null;
+                let column: Column = col[0];
+                let destUid: string = destElem.querySelector('.e-headercelldiv').getAttribute('e-mappinguid');
+                let bool: boolean = columns.some((col: Column, index: number) => {
+                    if (col.uid === destUid) {
+                        colMatchIndex = index;
+                        return col.uid === destUid;
+                    }
+                    return false;
+                });
+                if (!isNullOrUndefined(colMatchIndex)) {
+                    this.moveColumns(colMatchIndex, column);
+                }
+            } else {
+                let headers: Element[] = this.getHeaderCells();
+                let oldIdx: number = getElementIndex(this.element, headers);
+                let columns: Column[] = this.getColumnsModel(this.parent.columns as Column[]);
+                let column: Column = columns[oldIdx];
+                let newIndex: number = this.targetParentContainerIndex(this.element, destElem);
+                this.moveColumns(newIndex, column);
+            }
         }
     }
 
@@ -169,7 +188,7 @@ export class Reorder implements IAction {
     }
 
     /** 
-     * Changes the Grid column positions by field names. 
+     * Changes the position of the Grid columns by field names. 
      * @param  {string} fromFName - Defines the origin field name. 
      * @param  {string} toFName - Defines the destination field name. 
      * @return {void} 

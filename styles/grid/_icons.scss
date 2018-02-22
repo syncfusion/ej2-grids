@@ -127,8 +127,8 @@
       content: '\e735';
     }
 
-    .e-searchfind::before {
-      content: '\e922';
+    .e-search-icon::before {
+      content: $grid-columnchooser-search-icon-content;
     }
 
     .e-cancel-icon::before {
@@ -156,7 +156,8 @@
     }
 
 
-    .e-ccsearch-icon.e-cc-cancel::before {
+    .e-ccsearch-icon.e-cc-cancel::before,
+    .e-chkcancel-icon::before {
       content: $grid-columnchooser-searchbar-cancel-icon-content;
     }
 

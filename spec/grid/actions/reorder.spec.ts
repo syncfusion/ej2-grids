@@ -222,7 +222,7 @@ describe('Reorder module', () => {
                 columns: [{ field: 'OrderID' }, { field: 'EmployeeID' }, { field: 'CustomerID' }, { field: 'Freight' },
                 { field: 'ShipCity' }],
                 allowFiltering: true,
-                filterSettings: { type: 'menu' },
+                filterSettings: { type: 'Menu' },
                 dataBound: () => { done(); }
             }, done);
         });
@@ -381,5 +381,43 @@ describe('Reorder module', () => {
             destroy(gridObj);
         });
     });
+    describe('Reorder functionalities with virtual scrolling  =>', () => {
+        let gridObj: Grid;
+        let dataBound: Function;
+        let headers: any;
+        let columns: Column[];
 
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    allowSorting: true,
+                    allowReordering: true,
+                    frozenColumns: 2,
+                    frozenRows: 2,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' }],
+                    allowFiltering: true,
+                }, done);
+        });
+        it('Reorder Column method testing', (done: Function) => {
+            let dataBound = (args: Object): void => {
+                columns = gridObj.getColumns(true) as Column[];
+                headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
+                expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('CustomerID');
+                expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('EmployeeID');
+                expect(headers[2].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+                expect(columns[0].field).toBe('CustomerID');
+                expect(columns[1].field).toBe('EmployeeID');
+                expect(columns[2].field).toBe('OrderID');
+                done();
+            };
+            gridObj.dataBound = dataBound;
+            gridObj.dataBind();
+            gridObj.reorderColumns('OrderID', 'EmployeeID');
+        });
+
+        afterAll((done) => {
+            destroy(gridObj);
+        });
+    });
 });

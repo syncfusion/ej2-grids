@@ -22,8 +22,8 @@ describe('Custom Atrributes and html encode module', () => {
             gridObj = new Grid({
                 columns: [
                     {
-                        field: 'data.a', headerText: '<i>A</i>', headerTextAlign: 'center',
-                        disableHtmlEncode: false, textAlign: 'right', customAttributes: {
+                        field: 'data.a', headerText: '<i>A</i>', headerTextAlign: 'Center',
+                        disableHtmlEncode: false, textAlign: 'Right', customAttributes: {
                             class: 'hi',
                             style: { color: 'green', 'background-color': 'wheat' },
                             'data-id': 'grid-cell'

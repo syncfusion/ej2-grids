@@ -55,6 +55,8 @@ export const toolbarClick: string = 'toolbarClick';
 /** @hidden */
 export const batchAdd: string = 'batchAdd';
 /** @hidden */
+export const batchCancel: string = 'batchCancel';
+/** @hidden */
 export const batchDelete: string = 'batchDelete';
 /** @hidden */
 export const beforeBatchAdd: string = 'beforeBatchAdd';
@@ -85,7 +87,7 @@ export const beforeOpenColumnChooser: string = 'beforeOpenColumnChooser';
 /** @hidden */
 export const resizeStart: string = 'resizeStart';
 /** @hidden */
-export const onResize: string = 'onResize';
+export const onResize: string = 'resizing';
 /** @hidden */
 export const resizeStop: string = 'resizeStop';
 /** @hidden */
@@ -280,3 +282,9 @@ export const generateQuery: string = 'generateQuery';
 export const showEmptyGrid: string = 'showEmptyGrid';
 /** @hidden */
 export const foreignKeyData: string = 'foreignKeyData';
+/** @hidden */
+export const dataStateChange: string = 'dataStateChange';
+/** @hidden */
+export const dataSourceChanged: string = 'dataSourceChanged';
+/** @hidden */
+export const rtlUpdated: string = 'rtl-updated';

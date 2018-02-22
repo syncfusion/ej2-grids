@@ -44,7 +44,7 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
         return column.footerTemplate !== undefined;
     }
 
-    public getColumns(): Column[] {
+    public getColumns(start?: number, end?: number): Column[] {
         let columns: Column[] = [];
         if (this.parent.allowGrouping) {
             this.parent.groupSettings.columns.forEach((value: string) => columns.push(new Column({})));
@@ -53,25 +53,26 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
             columns.push(new Column({}));
         }
         columns.push(...<Column[]>this.parent.getColumns());
-        return columns;
+        return isNullOrUndefined(start) ? columns : columns.slice(start, end);
     }
 
-    public generateRows(input: Object[] | Group, args?: Object): Row<AggregateColumnModel>[] {
+    public generateRows(input: Object[] | Group, args?: Object, start?: number, end?: number): Row<AggregateColumnModel>[] {
         if (this.parent.currentViewData.length === 0) { return []; }
         let data: Object[] = this.buildSummaryData(input, <SummaryData>args);
         let rows: Row<AggregateColumnModel>[] = [];
         (<AggregateRowModel[]>this.getData()).forEach((row: AggregateRowModel, index: number) => {
-            rows.push(this.getGeneratedRow(row, data[index], args ? (<SummaryData>args).level : undefined));
+            rows.push(this.getGeneratedRow(row, data[index], args ? (<SummaryData>args).level : undefined, start, end));
         });
         return rows;
     }
 
-    public getGeneratedRow(summaryRow: AggregateRowModel, data: Object, raw: number): Row<AggregateColumnModel> {
+    public getGeneratedRow(summaryRow: AggregateRowModel, data: Object, raw: number, start: number, end: number):
+        Row<AggregateColumnModel> {
         let tmp: Cell<AggregateColumnModel>[] = [];
         let indents: string[] = this.getIndentByLevel(raw);
         let indentLength: number = this.parent.groupSettings.columns.length + (this.parent.detailTemplate ? 1 : 0);
 
-        this.getColumns().forEach((value: Column, index: number) => tmp.push(
+        this.getColumns(start, end).forEach((value: Column, index: number) => tmp.push(
             this.getGeneratedCell(
                 value,
                 summaryRow,
@@ -85,7 +86,7 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
     }
 
     public getGeneratedCell(column: Column, summaryRow: AggregateRowModel, cellType?: CellType, indent?: string)
-    : Cell<AggregateColumnModel> {
+        : Cell<AggregateColumnModel> {
         //Get the summary column by display
         let sColumn: AggregateColumnModel = summaryRow.columns.filter(
             (scolumn: AggregateColumnModel) => scolumn.columnName === column.field)
@@ -138,7 +139,7 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
             types = <AggregateType[]>[column.type];
         }
         types.forEach((type: AggregateType) => {
-            let key: string = column.field + ' - ' + type; let disp: string = column.columnName;
+            let key: string = column.field + ' - ' + type.toLowerCase(); let disp: string = column.columnName;
             let val: Object = group.aggregates && !isNullOrUndefined(group.aggregates[key]) ? group.aggregates[key] :
                 calculateAggregate(type, group.aggregates ? group : <Object[]>data, column, this.parent);
             single[disp] = single[disp] || {}; single[disp][key] = val; single[disp][type] = formatFn(val);
@@ -179,11 +180,11 @@ export class CaptionSummaryModelGenerator extends SummaryModelGenerator implemen
     public getData(): Object {
         let initVal: AggregateRowModel = { columns: [] };
         return [(<AggregateRowModel[]>super.getData()).reduce(
-                (prev: AggregateRowModel, cur: AggregateRowModel) => {
-                    prev.columns = [...prev.columns, ...cur.columns];
-                    return prev;
-                },
-                initVal)];
+            (prev: AggregateRowModel, cur: AggregateRowModel) => {
+                prev.columns = [...prev.columns, ...cur.columns];
+                return prev;
+            },
+            initVal)];
     }
 
     public isEmpty(): boolean {

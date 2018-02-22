@@ -1,4 +1,4 @@
-﻿import { Component, ModuleDeclaration, ChildProperty, Browser, closest, extend } from '@syncfusion/ej2-base';import { isNullOrUndefined, setValue, getValue } from '@syncfusion/ej2-base';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';import { createSpinner, hideSpinner, showSpinner, Tooltip } from '@syncfusion/ej2-popups';import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler, refreshForeignData } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ExcelExportProperties, PdfExportProperties } from './interface';import { ColumnMenuOpenEventArgs, RecordDoubleClickEventArgs, DataResult, PendingState } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs, RowInfo } from './interface';import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';import { ExcelExportCompleteArgs, PdfExportCompleteArgs, DataStateChangeEventArgs, DataSourceChangedEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs, CheckBoxChangeEventArgs } from './interface';import { Render } from '../renderer/render';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem, ToolbarItem } from './enum';import { Data } from '../actions/data';import { Cell } from '../models/cell';import { RowRenderer } from '../renderer/row-renderer';import { CellRenderer } from '../renderer/cell-renderer';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { FocusStrategy } from '../services/focus-strategy';import { PageSettingsModel, AggregateRowModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Resize } from '../actions/resize';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';import { DetailRow } from '../actions/detail-row';import { Toolbar } from '../actions/toolbar';import { AggregateRow } from '../models/aggregate';import { Edit } from '../actions/edit';import { Row } from '../models/row';import { ColumnChooser } from '../actions/column-chooser';import { ExcelExport } from '../actions/excel-export';import { PdfExport } from '../actions/pdf-export';import { Clipboard } from '../actions/clipboard';import { CommandColumn } from '../actions/command-column';import { ContextMenu } from '../actions/context-menu';import { BeforeOpenCloseMenuEventArgs, MenuEventArgs } from '@syncfusion/ej2-navigations';import { ColumnMenu } from '../actions/column-menu';import { CheckState } from './type';
+import { Component, ModuleDeclaration, ChildProperty, Browser, closest, extend } from '@syncfusion/ej2-base';import { isNullOrUndefined, setValue, getValue } from '@syncfusion/ej2-base';import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';import { createSpinner, hideSpinner, showSpinner, Tooltip } from '@syncfusion/ej2-popups';import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler, refreshForeignData } from './util';import * as events from '../base/constant';import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ExcelExportProperties, PdfExportProperties } from './interface';import { ColumnMenuOpenEventArgs, RecordDoubleClickEventArgs, DataResult, PendingState } from './interface';import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';import { BatchAddArgs, BatchDeleteArgs, BeginEditArgs, CellEditArgs, CellSaveArgs, BeforeDataBoundArgs, RowInfo } from './interface';import { DetailDataBoundEventArgs, ColumnChooserEventArgs, AddEventArgs, SaveEventArgs, EditEventArgs, DeleteEventArgs } from './interface';import { ExcelExportCompleteArgs, PdfExportCompleteArgs, DataStateChangeEventArgs, DataSourceChangedEventArgs } from './interface';import { SearchEventArgs, SortEventArgs, ISelectedCell, EJ2Intance, BeforeCopyEventArgs, CheckBoxChangeEventArgs } from './interface';import { Render } from '../renderer/render';import { Column, ColumnModel } from '../models/column';import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem, ToolbarItem, CellSelectionMode, EditMode } from './enum';import { Data } from '../actions/data';import { Cell } from '../models/cell';import { RowRenderer } from '../renderer/row-renderer';import { CellRenderer } from '../renderer/cell-renderer';import { CellRendererFactory } from '../services/cell-render-factory';import { ServiceLocator } from '../services/service-locator';import { ValueFormatter } from '../services/value-formatter';import { RendererFactory } from '../services/renderer-factory';import { ColumnWidthService } from '../services/width-controller';import { AriaService } from '../services/aria-service';import { FocusStrategy } from '../services/focus-strategy';import { PageSettingsModel, AggregateRowModel } from '../models/models';import { PageSettings } from '../models/page-settings';import { Sort } from '../actions/sort';import { Page } from '../actions/page';import { Selection } from '../actions/selection';import { Filter } from '../actions/filter';import { Search } from '../actions/search';import { Resize } from '../actions/resize';import { Reorder } from '../actions/reorder';import { RowDD } from '../actions/row-reorder';import { ShowHide } from '../actions/show-hide';import { Scroll } from '../actions/scroll';import { Group } from '../actions/group';import { Print } from '../actions/print';import { DetailRow } from '../actions/detail-row';import { Toolbar } from '../actions/toolbar';import { AggregateRow } from '../models/aggregate';import { Edit } from '../actions/edit';import { Row } from '../models/row';import { ColumnChooser } from '../actions/column-chooser';import { ExcelExport } from '../actions/excel-export';import { PdfExport } from '../actions/pdf-export';import { Clipboard } from '../actions/clipboard';import { CommandColumn } from '../actions/command-column';import { ContextMenu } from '../actions/context-menu';import { BeforeOpenCloseMenuEventArgs, MenuEventArgs } from '@syncfusion/ej2-navigations';import { ColumnMenu } from '../actions/column-menu';import { CheckState } from './enum';
 import {ComponentModel} from '@syncfusion/ej2-base';
 
 /**
@@ -124,6 +124,7 @@ export interface PredicateModel {
 
     /**
      * If ignoreAccent is set to true, then filter ignores the diacritic characters or accents while filtering.
+     * @default false
      */
     ignoreAccent?: boolean;
 
@@ -172,18 +173,19 @@ export interface FilterSettingsModel {
 
     /**
      * Defines options for filtering type. The available options are 
-     * * `menu` - Specifies the filter type as menu. 
-     * * `checkbox` - Specifies the filter type as checkbox.      
-     * * `filterbar` - Specifies the filter type as filterbar.  
-     * @default filterbar 
+     * * `Menu` - Specifies the filter type as menu. 
+     * * `CheckBox` - Specifies the filter type as checkbox.      
+     * * `FilterBar` - Specifies the filter type as filterbar.  
+     * * `Excel` - Specifies the filter type as checkbox.      
+     * @default FilterBar 
      */
     type?: FilterType;
 
     /**
      * Defines the filter bar modes. The available options are,
-     * * `onenter`: Initiates filter operation after Enter key is pressed. 
-     * * `immediate`: Initiates filter operation after a certain time interval. By default, time interval is 1500 ms. 
-     * @default onenter
+     * * `OnEnter`: Initiates filter operation after Enter key is pressed. 
+     * * `Immediate`: Initiates filter operation after a certain time interval. By default, time interval is 1500 ms. 
+     * @default OnEnter
      */
     mode?: FilterBarMode;
 
@@ -202,17 +204,17 @@ export interface FilterSettingsModel {
     /**
      * The `operators` is used to override the default operators in filter menu. This should be defined by type wise
      * (string, number, date and boolean). Based on the column type, this customize operator list will render in filter menu.
-     * @default null
      * 
      * > Check the [`Filter Menu Operator`](./how-to.html#customizing-filter-menu-operators-list) customization.
+     * @default null
      */
     operators?: ICustomOptr;
 
     /**
      * If ignoreAccent set to true, then filter ignores the diacritic characters or accents while filtering.
-     * @default false
      * 
      * > Check the [`Diacritics`](./filtering.html/#diacritics) filtering.
+     * @default false
      */
     ignoreAccent?: boolean;
 
@@ -225,24 +227,24 @@ export interface SelectionSettingsModel {
 
     /**
      * Grid supports row, cell, and both (row and cell) selection mode. 
-     * @default row
+     * @default Row
      */
     mode?: SelectionMode;
 
     /**
      * The cell selection modes are flow and box. It requires the selection 
      * [`mode`](./api-selectionSettings.html#mode-selectionmode) to be either cell or both.
-     * * `flow`: Selects the range of cells between start index and end index that also includes the other cells of the selected rows.
-     * * `box`: Selects the range of cells within the start and end column indexes that includes in between cells of rows within the range.
-     * @default flow
+     * * `Flow`: Selects the range of cells between start index and end index that also includes the other cells of the selected rows.
+     * * `Box`: Selects the range of cells within the start and end column indexes that includes in between cells of rows within the range.
+     * @default Flow
      */
-    cellSelectionMode?: string;
+    cellSelectionMode?: CellSelectionMode;
 
     /**
      * Defines options for selection type. They are 
-     * * `single`: Allows selection of only a row or a cell. 
-     * * `multiple`: Allows selection of multiple rows or cells. 
-     * @default single 
+     * * `Single`: Allows selection of only a row or a cell. 
+     * * `Multiple`: Allows selection of multiple rows or cells. 
+     * @default Single 
      */
     type?: SelectionType;
 
@@ -342,10 +344,10 @@ export interface TextWrapSettingsModel {
 
     /**
      * Defines the `wrapMode` of the Grid. The available modes are: 
-     * * `both`: Wraps both the header and content. 
-     * * `content`: Wraps the header alone.
-     * * `header`: Wraps the content alone. 
-     * @default both
+     * * `Both`: Wraps both the header and content. 
+     * * `Content`: Wraps the header alone.
+     * * `Header`: Wraps the content alone. 
+     * @default Both
      */
     wrapMode?: WrapMode;
 
@@ -431,12 +433,12 @@ export interface EditSettingsModel {
 
     /**
      * Defines the mode to edit. The available editing modes are:
-     * * Inline
+     * * Normal
      * * Dialog
-     * * Batch  
-     * @default normal 
+     * * Batch
+     * @default Normal 
      */
-    mode?: string;
+    mode?: EditMode;
 
     /**
      * If `allowEditOnDblClick` is set to false, Grid will not allow editing of a record on double click. 
@@ -471,9 +473,9 @@ export interface GridModel extends ComponentModel{
     columns?: Column[] | string[] | ColumnModel[];
 
     /**
-     * If `enableAltRow` is set to true, the grid will render with `e-altrow` CSS class to the alternative tr elements.
-     * @default true     
+     * If `enableAltRow` is set to true, the grid will render with `e-altrow` CSS class to the alternative tr elements.    
      * > Check the [`AltRow`](./row.html#styling-alternate-rows) to customize the styles of alternative rows.
+     * @default true 
      */
     enableAltRow?: boolean;
 
@@ -484,9 +486,9 @@ export interface GridModel extends ComponentModel{
     enableHover?: boolean;
 
     /**
-     * Enables or disables the key board interaction of Grid.     
-     * @default true     
+     * Enables or disables the key board interaction of Grid.          
      * @hidden 
+     * @default true     
      */
     allowKeyboard?: boolean;
 
@@ -499,7 +501,7 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Configures the text wrap in the Grid.  
-     * @default {wrapMode:"both"}     
+     * @default {wrapMode:"Both"}     
      */
     textWrapSettings?: TextWrapSettingsModel;
 
@@ -589,7 +591,7 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Configures the selection settings.  
-     * @default {mode: 'row', cellSelectionMode: 'flow', type: 'single'}    
+     * @default {mode: 'Row', cellSelectionMode: 'Flow', type: 'Single'}    
      */
     selectionSettings?: SelectionSettingsModel;
 
@@ -631,7 +633,7 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Configures the filter settings of the Grid.  
-     * @default {columns: [], type: 'filterbar', mode: 'immediate', showFilterBarStatus: true, immediateModeDelay: 1500 , operators: {}}    
+     * @default {columns: [], type: 'FilterBar', mode: 'Immediate', showFilterBarStatus: true, immediateModeDelay: 1500 , operators: {}}    
      */
     filterSettings?: FilterSettingsModel;
 
@@ -660,7 +662,7 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Configures the edit settings. 
-     * @default { allowAdding: false, allowEditing: false, allowDeleting: false, mode:'normal',
+     * @default { allowAdding: false, allowEditing: false, allowDeleting: false, mode:'Normal',
      * allowEditOnDblClick: true, showConfirmDialog: true, showDeleteConfirmDialog: false }    
      */
     editSettings?: EditSettingsModel;
@@ -694,12 +696,12 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Defines the mode of grid lines. The available modes are, 
-     * * `both`: Displays both horizontal and vertical grid lines. 
-     * * `none`: No grid lines are displayed.
-     * * `horizontal`: Displays the horizontal grid lines only. 
-     * * `vertical`: Displays the vertical grid lines only.
-     * * `default`: Displays grid lines based on the theme.
-     * @default default
+     * * `Both`: Displays both horizontal and vertical grid lines. 
+     * * `None`: No grid lines are displayed.
+     * * `Horizontal`: Displays the horizontal grid lines only. 
+     * * `Vertical`: Displays the vertical grid lines only.
+     * * `Default`: Displays grid lines based on the theme.
+     * @default Default
      */
     gridLines?: GridLine;
 
@@ -738,9 +740,9 @@ export interface GridModel extends ComponentModel{
 
     /**
      * Defines the print modes. The available print modes are   
-     * * `allpages`: Prints all pages of the Grid. 
-     * * `currentpage`: Prints the current page of the Grid.
-     * @default allpages
+     * * `AllPages`: Prints all pages of the Grid. 
+     * * `CurrentPage`: Prints the current page of the Grid.
+     * @default AllPages
      */
     printMode?: PrintMode;
 
@@ -783,16 +785,16 @@ export interface GridModel extends ComponentModel{
      * If an array value is assigned, it is considered as the list of built-in and custom toolbar items in the Grid's Toolbar. 
      * <br><br>     
      * The available built-in ToolBar items are:
-     * * add: Adds a new record.
-     * * edit: Edits the selected record.
-     * * update: Updates the edited record.
-     * * delete: Deletes the selected record.
-     * * cancel: Cancels the edit state.
-     * * search: Searches records by the given key.
-     * * print: Prints the Grid.
-     * * excelexport - Export the Grid to Excel(excelExport() method manually to make export.)
-     * * pdfexport - Export the Grid to PDF(pdfExport() method manually to make export.)
-     * * csvexport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
+     * * Add: Adds a new record.
+     * * Edit: Edits the selected record.
+     * * Update: Updates the edited record.
+     * * Delete: Deletes the selected record.
+     * * Cancel: Cancels the edit state.
+     * * Search: Searches records by the given key.
+     * * Print: Prints the Grid.
+     * * ExcelExport - Export the Grid to Excel(excelExport() method manually to make export.)
+     * * PdfExport - Export the Grid to PDF(pdfExport() method manually to make export.)
+     * * CsvExport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
      * The following code example implements the custom toolbar items.
      * 
      *  > Check the [`Toolbar`](./toolbar.html#custom-toolbar-items) to customize its default items.
@@ -806,24 +808,24 @@ export interface GridModel extends ComponentModel{
      * `contextMenuItems` defines both built-in and custom context menu items.
      * <br><br> 
      * The available built-in items are,  
-     * * `autoFitAll` - Auto fit the size of all columns. 
-     * * `autoFit` - Auto fit the current column.
-     * * `group` - Group by current column. 
-     * * `ungroup` - Ungroup by current column.
-     * * `edit` - Edit the current record.
-     * * `delete` - Delete the current record.
-     * * `save` - Save the edited record.
-     * * `cancel` - Cancel the edited state.
-     * * `copy` - Copy the selected records.
-     * * `pdfExport` - Export the grid as Pdf format.
-     * * `excelExport` - Export the grid as Excel format.
-     * * `csvExport` - Export the grid as CSV format.
-     * * `sortAscending` - Sort the current column in ascending order.
-     * * `sortDescending` - Sort the current column in descending order.
-     * * `firstPage` - Go to the first page.
-     * * `prevPage` - Go to the previous page.
-     * * `lastPage` - Go to the last page.
-     * * `nextPage` - Go to the next page.
+     * * `AutoFitAll` - Auto fit the size of all columns. 
+     * * `AutoFit` - Auto fit the current column.
+     * * `Group` - Group by current column. 
+     * * `Ungroup` - Ungroup by current column.
+     * * `Edit` - Edit the current record.
+     * * `Delete` - Delete the current record.
+     * * `Save` - Save the edited record.
+     * * `Cancel` - Cancel the edited state.
+     * * `Copy` - Copy the selected records.
+     * * `PdfExport` - Export the grid as Pdf format.
+     * * `ExcelExport` - Export the grid as Excel format.
+     * * `CsvExport` - Export the grid as CSV format.
+     * * `SortAscending` - Sort the current column in ascending order.
+     * * `SortDescending` - Sort the current column in descending order.
+     * * `FirstPage` - Go to the first page.
+     * * `PrevPage` - Go to the previous page.
+     * * `LastPage` - Go to the last page.
+     * * `NextPage` - Go to the next page.
      * 
      * @default null
      */
@@ -833,13 +835,13 @@ export interface GridModel extends ComponentModel{
      * `columnMenuItems` defines both built-in and custom column menu items.
      * <br><br> 
      * The available built-in items are,
-     * * `autoFitAll` - Auto fit the size of all columns. 
-     * * `autoFit` - Auto fit the current column.
-     * * `group` - Group by current column. 
-     * * `ungroup` - Ungroup by current column.
-     * * `sortAscending` - Sort the current column in ascending order.
-     * * `sortDescending` - Sort the current column in descending order.
-     * * `filter` - Filter options will show based on filterSettings property like checkbox filter, excel filter, menu filter.
+     * * `AutoFitAll` - Auto fit the size of all columns. 
+     * * `AutoFit` - Auto fit the current column.
+     * * `Group` - Group by current column. 
+     * * `Ungroup` - Ungroup by current column.
+     * * `SortAscending` - Sort the current column in ascending order.
+     * * `SortDescending` - Sort the current column in descending order.
+     * * `Filter` - Filter options will show based on filterSettings property like checkbox filter, excel filter, menu filter.
      * @default null
      */
     columnMenuItems?: ColumnMenuItem[] | ColumnMenuItemModel[];
@@ -1142,7 +1144,7 @@ export interface GridModel extends ComponentModel{
      * Triggers on column resizing.
      * @event
      */
-    onResize?: EmitType<ResizeArgs>;
+    resizing?: EmitType<ResizeArgs>;
 
     /**
      * Triggers when column resize ends.

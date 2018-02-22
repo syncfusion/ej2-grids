@@ -63,4 +63,9 @@ $pager-bigger-messagebar-padding-top: $pager-messagebar-padding-top / .75;
 $pager-bigger-nexticon-marign-left: $pager-next-icon-margin-left / .75;
 $pager-bigger-rtl-nexticon-marign-right: $pager-next-icon-margin-left / .75;
 $pager-bigger-current-item-border-radius: $pager-numericitem-border-radius / .75;
-
+$pager-item-hover-border-width: 0;
+$pager-item-hover-border-color: $pager-border-color;
+$pager-bigger-current-item-hover-padding: $pager-bigger-current-item-padding;
+$pager-numeric-icon-hover-padding: $pager-numeric-icon-padding;
+$pager-bigger-rtl-activeitem-hover-padding:  $pager-bigger-rtl-activeitem-padding;
+$pager-activeitem-hover-padding: $pager-activeitem-padding;

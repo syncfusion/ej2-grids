@@ -66,6 +66,12 @@ export class VirtualRowModelGenerator implements IModelGenerator<Column> {
             }
         });
         info.blockIndexes = loadedBlocks;
+        let grouping: string = 'records';
+        if (this.parent.allowGrouping) {
+            this.parent.currentViewData[grouping] = result.map((m: Row<Column>) => m.data);
+        } else {
+            this.parent.currentViewData = result.map((m: Row<Column>) => m.data);
+        }
         return result;
     }
 
@@ -113,7 +119,7 @@ export class VirtualRowModelGenerator implements IModelGenerator<Column> {
     }
 
     public checkAndResetCache(action: string): boolean {
-        let clear: boolean = ['paging', 'refresh', 'sorting', 'filtering', 'searching', 'grouping', 'ungrouping']
+        let clear: boolean = ['paging', 'refresh', 'sorting', 'filtering', 'searching', 'grouping', 'ungrouping', 'reorder']
             .some((value: string) => action === value);
         if (clear) {
             this.cache = {}; this.data = {}; this.groups = {};

@@ -1,6 +1,6 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
-import { Dialog } from '@syncfusion/ej2-popups';
+import { Dialog, PositionDataModel } from '@syncfusion/ej2-popups';
 import { remove, createElement } from '@syncfusion/ej2-base';
 import { L10n } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
@@ -51,12 +51,15 @@ export class DialogEditRender {
         this.dialog = createElement('div', { id: gObj.element.id + '_dialogEdit_wrapper' });
         gObj.element.appendChild(this.dialog);
         this.setLocaleObj();
+        let position: PositionDataModel = this.parent.element.getBoundingClientRect().height < 400 ?
+            { X: 'center', Y: 'top' } : { X: 'center', Y: 'center' };
         this.dialogObj = new Dialog({
-            header: this.isEdit ? this.l10n.getConstant('EditFormTitle') + args.primaryKeyValue[0] :
+            header: this.isEdit ? this.l10n.getConstant('EditFormTitle') + '  ' + args.primaryKeyValue[0] :
                 this.l10n.getConstant('AddFormTitle'), isModal: true, visible: true, cssClass: 'e-edit-dialog',
             content: this.getEditElement(elements) as HTMLElement,
             showCloseIcon: true,
             allowDragging: true,
+            position: position,
             close: this.dialogClose.bind(this),
             closeOnEscape: true, width: '330px', target: gObj.element, animationSettings: { effect: 'None' },
             buttons: [{
@@ -122,5 +125,10 @@ export class DialogEditRender {
         return div;
     }
 
+    public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
+        this.parent.off(events.dialogDestroy, this.destroy);
+        this.parent.off(events.destroy, this.destroy);
+    }
 }
 

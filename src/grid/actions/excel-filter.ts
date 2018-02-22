@@ -2,7 +2,7 @@ import { extend, createElement, EventHandler, remove, Browser } from '@syncfusio
 import { FilterSettings } from '../base/grid';
 import { parentsUntil } from '../base/util';
 import { IGrid, IFilterArgs, EJ2Intance } from '../base/interface';
-import { ContextMenu, MenuItemModel, ContextMenuModel, MenuEventArgs } from '@syncfusion/ej2-navigations';
+import { ContextMenu, MenuItemModel, ContextMenuModel, MenuEventArgs, BeforeOpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
 import { ServiceLocator } from '../services/service-locator';
 import { CheckBoxFilter } from '../actions/checkbox-filter';
 import { isNullOrUndefined, L10n, } from '@syncfusion/ej2-base';
@@ -124,13 +124,18 @@ export class ExcelFilter extends CheckBoxFilter {
     private createMenu(type: string, isFiltered: boolean, isCheckIcon: boolean): void {
         let options: Object = { string: 'TextFilter', date: 'DateFilter', datetime: 'DateFilter', number: 'NumberFilter' };
         this.menu = createElement('div', { className: 'e-contextmenu-wrapper' });
+        if (this.parent.enableRtl) {
+            this.menu.classList.add('e-rtl');
+        } else {
+            this.menu.classList.remove('e-rtl');
+        }
         let ul: Element = createElement('ul');
         let icon: string = isFiltered ? 'e-excl-filter-icon e-filtered' : 'e-excl-filter-icon';
         ul.appendChild(this.createMenuElem(this.getLocalizedLabel('ClearFilter'), isFiltered ? '' : 'e-disabled', icon));
         if (type !== 'boolean') {
             ul.appendChild(this.createMenuElem(
                 this.getLocalizedLabel(options[type]), 'e-submenu',
-                isCheckIcon ? 'e-icon-check' : icon + ' e-emptyicon', true));
+                isCheckIcon && this.ensureTextFilter() ? 'e-icon-check' : icon + ' e-emptyicon', true));
         }
         this.menu.appendChild(ul);
     }
@@ -157,7 +162,7 @@ export class ExcelFilter extends CheckBoxFilter {
 
     private clickExHandler(e: MouseEvent): void {
         let menuItem: HTMLElement = parentsUntil(e.target as Element, 'e-menu-item') as HTMLElement;
-        if (menuItem && this.getLocalizedLabel('ClearFilter') === menuItem.innerText) {
+        if (menuItem && this.getLocalizedLabel('ClearFilter') === menuItem.innerText.trim()) {
             this.clearFilter();
             this.closeDialog();
         }
@@ -191,28 +196,16 @@ export class ExcelFilter extends CheckBoxFilter {
             this.isCMenuOpen = false;
             this.destroyCMenu();
         }
-        let selectedMenu: string;
-        let predicates: PredicateModel[] = this.existingPredicate[this.options.field];
-        if (predicates  && predicates.length === 2) {
-            if (predicates[0].operator === 'greaterThanOrEqual' && predicates[1].operator === 'lessThanOrEqual') {
-                selectedMenu = 'Between';
-            } else {
-                selectedMenu = 'CustomFilter';
-            }
-        } else {
-            if (predicates && predicates.length === 1) {
-                this.optrData = this.customFilterOperators[this.options.type + 'Operator'];
-                selectedMenu = this.getSelectedText(predicates[0].operator);
-            }
-        }
-
+        let selectedMenu: string = this.ensureTextFilter();
         if (!this.isCMenuOpen && isSubMenu) {
             li.classList.add('e-selected');
             this.isCMenuOpen = true;
             let menuOptions: ContextMenuModel = {
                 items: this.getCMenuDS(this.options.type, selectedMenu ? selectedMenu.replace(/\s/g, '') : undefined),
                 select: this.selectHandler.bind(this),
-                onClose: this.destroyCMenu.bind(this)
+                onClose: this.destroyCMenu.bind(this),
+                enableRtl: this.parent.enableRtl,
+                beforeClose: this.preventClose
             };
             this.parent.element.appendChild(this.cmenu);
             this.menuObj = new ContextMenu(menuOptions, this.cmenu);
@@ -230,6 +223,31 @@ export class ExcelFilter extends CheckBoxFilter {
             this.menuObj.open(pos.top, pos.left);
         }
     }
+
+    private ensureTextFilter(): string {
+        let selectedMenu: string;
+        let predicates: PredicateModel[] = this.existingPredicate[this.options.field];
+        if (predicates && predicates.length === 2) {
+            if (predicates[0].operator === 'greaterThanOrEqual' && predicates[1].operator === 'lessThanOrEqual') {
+                selectedMenu = 'Between';
+            } else {
+                selectedMenu = 'CustomFilter';
+            }
+        } else {
+            if (predicates && predicates.length === 1) {
+                this.optrData = this.customFilterOperators[this.options.type + 'Operator'];
+                selectedMenu = this.getSelectedText(predicates[0].operator);
+            }
+        }
+        return selectedMenu;
+    }
+
+    private preventClose(args: BeforeOpenCloseMenuEventArgs): void {
+        if (args.event instanceof MouseEvent && (<Element>args.event.target).classList.contains('e-submenu')) {
+            args.cancel = true;
+        }
+    }
+
     private getContextBounds(context: ContextMenu): ClientRect {
         let elementVisible: string = this.menuObj.element.style.display;
         this.menuObj.element.style.display = 'block';
@@ -351,7 +369,7 @@ export class ExcelFilter extends CheckBoxFilter {
         }
         this.filterByColumn(
             this.options.field, fOperator.value as string, fValue.value, predicate,
-            checkBoxValue, sOperator.value as string, sValue.value);
+            checkBoxValue, this.parent.filterSettings.ignoreAccent, sOperator.value as string, sValue.value);
         this.removeDialog();
     }
     /**
@@ -360,40 +378,42 @@ export class ExcelFilter extends CheckBoxFilter {
      * @param {string} firstOperator - Defines the first operator by how to filter records.
      * @param {string | number | Date | boolean} firstValue - Defines the first value which is used to filter records.
      * @param  {string} predicate - Defines the relationship between one filter query with another by using AND or OR predicate.
-     * @param {boolean} ignoreCase - If ignore case set to true, then filter records with exact match or else
+     * @param {boolean} matchCase - If ignore case set to true, then filter records with exact match or else
      * filter records with case insensitive(uppercase and lowercase letters treated as same).
+     * @param {boolean} ignoreAccent - If ignoreAccent set to true, then ignores the diacritic characters or accents when filtering.
      * @param {string} secondOperator - Defines the second operator by how to filter records.
      * @param {string | number | Date | boolean} secondValue - Defines the first value which is used to filter records.
      */
     private filterByColumn(
         fieldName: string, firstOperator: string, firstValue: string | number | Date | boolean, predicate?: string,
-        ignoreCase?: boolean, secondOperator?: string, secondValue?: string | number | Date | boolean): void {
+        matchCase?: boolean, ignoreAccent?: boolean, secondOperator?: string, secondValue?: string | number | Date | boolean): void {
         let col: Column = this.parent.getColumnByField(fieldName);
         let field: string = col.isForeignColumn() ? col.foreignKeyValue : fieldName;
         let fColl: PredicateModel[] = [];
         let mPredicate: Predicate;
-        if (firstValue) {
-            fColl.push({
-                field: field,
-                predicate: 'or',
-                matchcase: ignoreCase,
-                operator: firstOperator as string,
-                value: firstValue,
-                type: this.options.type
-            });
-            mPredicate = new Predicate(field, firstOperator.toLowerCase(), firstValue, ignoreCase);
-        }
+        fColl.push({
+            field: field,
+            predicate: predicate,
+            matchCase: matchCase,
+            ignoreAccent: ignoreAccent,
+            operator: firstOperator as string,
+            value: firstValue,
+            type: this.options.type
+        });
+        mPredicate = new Predicate(field, firstOperator.toLowerCase(), firstValue, !matchCase, ignoreAccent);
         if (secondValue) {
+            secondOperator = !isNullOrUndefined(secondOperator) ? secondOperator as string : 'equal';
             fColl.push({
                 field: field,
                 predicate: predicate,
-                matchcase: ignoreCase,
+                matchCase: matchCase,
+                ignoreAccent: ignoreAccent,
                 operator: secondOperator as string,
                 value: secondValue,
                 type: this.options.type
             });
             /* tslint:disable-next-line:max-line-length */
-            mPredicate = (mPredicate as Object)[predicate](field, secondOperator.toLowerCase(), secondValue as string, ignoreCase);
+            mPredicate = (mPredicate as Object)[predicate](field, secondOperator.toLowerCase(), secondValue as string, !matchCase, ignoreAccent);
         }
         let args: Object = {
             action: 'filtering', filterCollection: fColl, field: this.options.field,
@@ -411,7 +431,8 @@ export class ExcelFilter extends CheckBoxFilter {
                         filterCollection.push({
                             field: fpred.field,
                             predicate: 'or',
-                            matchcase: fpred.ignoreCase,
+                            matchCase: fpred.ignoreCase,
+                            ignoreAccent: fpred.ignoreAccent,
                             operator: fpred.operator,
                             value: <string>fpred.value,
                             type: this.options.type
@@ -497,6 +518,10 @@ export class ExcelFilter extends CheckBoxFilter {
         let predicates: PredicateModel[] = this.existingPredicate[column];
         let table: HTMLElement = createElement('table', { className: 'e-xlfl-table' });
         dlgConetntEle.appendChild(table);
+
+        let colGroup: HTMLElement = createElement('colGroup');
+        colGroup.innerHTML = '<col style="width: 50%"></col><col style="width: 50%"></col>';
+        table.appendChild(colGroup);
 
         //Renders first dropdown
         /* tslint:disable-next-line:max-line-length */
@@ -612,7 +637,7 @@ export class ExcelFilter extends CheckBoxFilter {
         matchCase.appendChild(matchCaseDiv);
 
         let flValue: boolean = predicates && predicates.length > 0 ?
-            (predicates && predicates.length === 2 ? predicates[1].matchcase : predicates[0].matchcase) :
+            (predicates && predicates.length === 2 ? predicates[1].matchCase : predicates[0].matchCase) :
             false;
 
         // Initialize Match Case check box.
@@ -673,6 +698,8 @@ export class ExcelFilter extends CheckBoxFilter {
                 actObj.ignoreCase = options.type === 'string' ?
                     !((<EJ2Intance>this.dlgDiv.querySelector('#' + column + '-xlflmtcase')).ej2_instances[0] as CheckBox).checked :
                     true;
+                actObj.filterType = !isNullOrUndefined(actObj.filterType) ? actObj.filterType :
+                    'equal' as 'StartsWith' | 'Contains' | 'EndsWith';
             },
             placeholder: this.getLocalizedLabel('CustomFilterPlaceHolder'),
             enableRtl: isRtl,

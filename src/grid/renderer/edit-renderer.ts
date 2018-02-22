@@ -20,8 +20,8 @@ import { FocusStrategy } from '../services/focus-strategy';
 export class EditRender {
     //Internal variables               
     private editType: Object = {
-        'inline': InlineEditRender,
-        'normal': InlineEditRender, 'batch': BatchEditRender, 'dialog': DialogEditRender
+        'Inline': InlineEditRender,
+        'Normal': InlineEditRender, 'Batch': BatchEditRender, 'Dialog': DialogEditRender
     };
     //Module declarations
     protected parent: IGrid;
@@ -55,8 +55,10 @@ export class EditRender {
         this.convertWidget(args);
     }
 
-    private convertWidget(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element, type?: string,
-        foreignKeyData?: Object }): void {
+    private convertWidget(args: {
+        rowData?: Object, columnName?: string, requestType?: string, row?: Element, type?: string,
+        foreignKeyData?: Object
+    }): void {
         let gObj: IGrid = this.parent;
         let isFocused: boolean;
         let cell: HTMLElement;
@@ -64,7 +66,7 @@ export class EditRender {
         let fForm: Element;
         let frzCols: number = gObj.getFrozenColumns();
         let form: Element = gObj.element.querySelector('.e-gridform');
-        if (frzCols && gObj.editSettings.mode === 'normal') {
+        if (frzCols && gObj.editSettings.mode === 'Normal') {
             let rowIndex: number = parseInt(args.row.getAttribute('aria-rowindex'), 10);
             if (gObj.frozenRows && (args.requestType === 'add' || rowIndex < gObj.frozenRows)) {
                 fForm = gObj.element.querySelector('.e-movableheader').querySelector('.e-gridform');
@@ -72,25 +74,27 @@ export class EditRender {
                 fForm = gObj.element.querySelector('.e-movablecontent').querySelector('.e-gridform');
             }
         }
-        let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
+        let cols: Column[] = gObj.editSettings.mode !== 'Batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
         for (let col of cols) {
             if (!col.visible || col.commands) {
                 continue;
             }
             value = col.valueAccessor(col.field, args.rowData, col) as string;
-            if (frzCols && cols.indexOf(col) >= frzCols && gObj.editSettings.mode === 'normal') {
+            if (frzCols && cols.indexOf(col) >= frzCols && gObj.editSettings.mode === 'Normal') {
                 cell = fForm.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
             } else {
                 cell = form.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
             }
             let temp: Function = col.edit.write as Function;
-            (col.edit.write as Function)({
-                rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
-                foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
-            });
-            if (!isFocused && !cell.getAttribute('disabled')) {
-                this.focusElement(cell as HTMLInputElement, args.type);
-                isFocused = true;
+            if (!isNullOrUndefined(cell)) {
+                (col.edit.write as Function)({
+                    rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
+                    foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
+                });
+                if (!isFocused && !cell.getAttribute('disabled')) {
+                    this.focusElement(cell as HTMLInputElement, args.type);
+                    isFocused = true;
+                }
             }
         }
     }
@@ -100,7 +104,7 @@ export class EditRender {
         if (!isNullOrUndefined(chkBox)) {
             chkBox.nextElementSibling.classList.add('e-focus');
         }
-        if (this.parent.editSettings.mode === 'batch') {
+        if (this.parent.editSettings.mode === 'Batch') {
             this.focus.onClick({ target: closest(elem, 'td') }, true);
         } else {
             elem.focus();
@@ -113,7 +117,7 @@ export class EditRender {
     private getEditElements(args: { rowData?: Object, columnName?: string, requestType?: string, row?: Element }): Object {
         let gObj: IGrid = this.parent;
         let elements: Object = {};
-        let cols: Column[] = gObj.editSettings.mode !== 'batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
+        let cols: Column[] = gObj.editSettings.mode !== 'Batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             let col: Column = cols[i];
             if (!col.visible) {
@@ -125,7 +129,7 @@ export class EditRender {
                 let cellRenderer: ICellRenderer<{}> = cellRendererFact.getCellRenderer(CellType.CommandColumn);
                 let cells: Cell<Column>[] = model.generateRows(args.rowData)[0].cells;
                 let td: Element = cellRenderer.render(
-                    cells[i], args.rowData, <{ [x: string]: string }>{'index': args.row ? args.row.getAttribute('aria-rowindex') : 0 });
+                    cells[i], args.rowData, <{ [x: string]: string }>{ 'index': args.row ? args.row.getAttribute('aria-rowindex') : 0 });
                 let div: Element = td.firstElementChild;
                 div.setAttribute('textAlign', td.getAttribute('textAlign'));
                 elements[col.uid] = div;
@@ -147,7 +151,7 @@ export class EditRender {
                 id: gObj.element.id + col.field,
             });
             classList(input, ['e-input', 'e-field'], []);
-            if (col.textAlign === 'right') {
+            if (col.textAlign === 'Right') {
                 input.classList.add('e-ralign');
             }
             if ((col.isPrimaryKey || col.isIdentity) && args.requestType === 'beginEdit') { // already disabled in cell plugins
@@ -156,6 +160,10 @@ export class EditRender {
             elements[col.uid] = input;
         }
         return elements;
+    }
+
+    public destroy(): void {
+        this.renderer.removeEventListener();
     }
 }
 

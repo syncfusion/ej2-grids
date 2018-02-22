@@ -97,7 +97,7 @@ export class Resize implements IAction {
             headerTable = gObj.getHeaderTable();
             contentTable = gObj.getContentTable();
             headerTextClone = (<HTMLElement>headerTable.querySelectorAll('th')[columnIndex].cloneNode(true));
-            contentTextClone = contentTable.querySelectorAll(`td:nth-child(${columnIndex + 1})`);
+            contentTextClone = contentTable.querySelectorAll(`td:nth-child(${columnIndex + 1}):not(.e-groupcaption)`);
         }
         let indentWidthClone: NodeListOf<Element> = headerTable.querySelector('tr').querySelectorAll('.e-grouptopleftcell');
         if (indentWidthClone.length > 0) {
@@ -215,6 +215,7 @@ export class Resize implements IAction {
      * @hidden
      */
     public render(): void {
+        this.unwireEvents();
         this.wireEvents();
         this.setHandlerHeight();
     }
@@ -465,10 +466,16 @@ export class Resize implements IAction {
         let left: number = Math.floor(this.calcPos(rect).left + (this.parent.enableRtl ? 0 - 1 : rect.offsetWidth - 2));
         let borderWidth: number = 2; // to maintain the helper inside of grid element.
         if (left > this.parentElementWidth) {
-            this.helper.style.left = this.parentElementWidth - borderWidth + 'px';
-        } else {
-            this.helper.style.left = left + 'px';
+            left = this.parentElementWidth - borderWidth;
         }
+        if (this.parent.getFrozenColumns()) {
+            let table: HTMLElement = closest(rect, '.e-table') as HTMLElement;
+            let fLeft: number = table.offsetLeft;
+            if (left < fLeft) {
+                left = fLeft;
+            }
+        }
+        this.helper.style.left = left + 'px';
     }
 
     private calcPos(elem: HTMLElement): OffsetPosition {

@@ -2,6 +2,59 @@
 
 ## [Unreleased]
 
+### Grid
+
+#### New Features
+
+- New Excel like column filtering option is added.
+- Added Look-up table or foreign key data binding to grid column.
+- Row height adjustment feature added.
+
+#### Breaking Changes
+
+- All grid enum property values are changed from camel casing to pascal casing. Please refer the below link for complete API changes from `v15.4.23` to `v16.1.24`.
+[Migration](http://ej2.syncfusion.com/documentation/grid/migration.html).
+
+## 15.4.30-preview (2018-02-14)
+
+### Grid
+
+#### Bug Fixes
+
+- Exporting is working fine with template column.
+- Aggregate with frozen columns scroller is working fine
+
+## 15.4.29-preview (2018-02-07)
+
+### Grid
+
+#### Bug Fixes
+
+- Renamed event `dataSourceChange` to `dataSourceChanged`.
+
+## 15.4.28-preview (2018-01-30)
+
+### Grid
+
+#### Bug Fixes
+
+- Child Grid editing dialog closes when clicking on edit element.
+- Printing window is blocking by browser and column hiding.
+- `getSelectedRecords` method returns selected records properly with checkbox persist selection fixed.
+- Aggregate with frozen columns scroller is working fine.
+
+## 15.4.27-preview (2018-01-30)
+
+### Grid
+
+#### Bug Fixes
+
+- Disable edit, delete button when Grid is empty.
+- `ShowConfirmDialog` is not showing in Command Column.
+- Grid Validation message is not shown in EJ2 compatibility theme.
+- Checkbox selection fixes with virtual scrolling.
+- Provide support to add row with rowindex in AddRecord method.
+
 ## 15.4.26-preview (2018-01-23)
 
 ### Grid

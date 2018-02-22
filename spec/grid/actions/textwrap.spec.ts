@@ -30,7 +30,7 @@ describe('auto wrap testing', () => {
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
                     allowTextWrap: true,
-                    textWrapSettings: { wrapMode: 'header' },
+                    textWrapSettings: { wrapMode: 'Header' },
                     dataBound: dataBound,
                     actionComplete: actionComplete,
                 });
@@ -43,14 +43,14 @@ describe('auto wrap testing', () => {
             expect(gridObj.getContent().classList.contains('e-wrap')).toBeFalsy();
         });
         it('class testing for content', () => {
-            gridObj.textWrapSettings.wrapMode = 'content';
+            gridObj.textWrapSettings.wrapMode = 'Content';
             gridObj.dataBind();
             expect(gridObj.element.classList.contains('e-wrap')).toBeFalsy();
             expect(gridObj.element.querySelector('.e-columnheader').classList.contains('e-wrap')).toBeFalsy();
             expect(gridObj.getContent().classList.contains('e-wrap')).toBeTruthy();
         });
         it('class testing for both', () => {
-            gridObj.textWrapSettings.wrapMode = 'both';
+            gridObj.textWrapSettings.wrapMode = 'Both';
             gridObj.dataBind();
             expect(gridObj.element.classList.contains('e-wrap')).toBeTruthy();
             expect(gridObj.element.querySelector('.e-columnheader').classList.contains('e-wrap')).toBeFalsy();
@@ -58,7 +58,7 @@ describe('auto wrap testing', () => {
         });
         it('class testing for auto wrap property as false', () => {
             gridObj.allowTextWrap = false;
-            gridObj.textWrapSettings.wrapMode = 'both';
+            gridObj.textWrapSettings.wrapMode = 'Both';
             gridObj.dataBind();
             expect(gridObj.element.classList.contains('e-wrap')).toBeFalsy();
             expect(gridObj.element.querySelector('.e-columnheader').classList.contains('e-wrap')).toBeFalsy();
@@ -90,7 +90,7 @@ describe('auto wrap testing', () => {
                     }
                     ],
                     allowTextWrap: true,
-                    textWrapSettings: { wrapMode: 'header' },
+                    textWrapSettings: { wrapMode: 'Header' },
                     dataBound: dataBound,
                     actionComplete: actionComplete,
                 });
@@ -131,7 +131,7 @@ describe('auto wrap testing', () => {
                     }
                     ],
                     allowTextWrap: true,
-                    textWrapSettings: { wrapMode: 'header' },
+                    textWrapSettings: { wrapMode: 'Header' },
                     dataBound: dataBound,
                     actionComplete: actionComplete,
                 });
@@ -168,13 +168,13 @@ describe('auto wrap testing', () => {
                     { field: 'EmployeeID', width: 100, headerText: 'Employee ID' },
                     { field: 'ShipName', width: 100, headerText: 'Ship Name' },
                     { field: 'ShipAddress', width: 100, headerText: 'Ship Address' },
-                    { field: 'OrderDate', headerText: 'Order Date', width: 130, format: 'yMd', textAlign: 'right' },
+                    { field: 'OrderDate', headerText: 'Order Date', width: 130, format: 'yMd', textAlign: 'Right' },
                     { field: 'Freight', width: 110, format: 'C2', headerText: 'Freight' },
                     { field: 'ShipCountry', width: 130, headerText: 'Ship Country' },
                     { field: 'Verified', headerText: 'Verified', width: 190 }
                     ],
                     allowTextWrap: true,
-                    textWrapSettings: { wrapMode: 'header' },
+                    textWrapSettings: { wrapMode: 'Header' },
                     dataBound: dataBound
                 });
             gridObj.appendTo('#Grid');
@@ -189,17 +189,17 @@ describe('auto wrap testing', () => {
                 .querySelector('.e-movableheader').querySelector('tbody').querySelector('tr');
             let fContTr: HTMLElement = gridObj.getContent().querySelector('.e-frozencontent').querySelector('tr');
             let mContTr: HTMLElement = gridObj.getContent().querySelector('.e-movablecontent').querySelector('tr');
-            gridObj.textWrapSettings.wrapMode = 'both';
+            gridObj.textWrapSettings.wrapMode = 'Both';
             gridObj.dataBind();
             expect(fHdrTr.offsetHeight).toBe(mHdrTr.offsetHeight);
             expect(fHdrContTr.offsetHeight).toBe(mHdrContTr.offsetHeight);
             expect(fContTr.offsetHeight).toBe(mContTr.offsetHeight);
-            gridObj.textWrapSettings.wrapMode = 'header';
+            gridObj.textWrapSettings.wrapMode = 'Header';
             gridObj.dataBind();
             expect(fHdrTr.offsetHeight).toBe(mHdrTr.offsetHeight);
             expect(fHdrContTr.offsetHeight).toBe(mHdrContTr.offsetHeight);
             expect(fContTr.offsetHeight).toBe(mContTr.offsetHeight);
-            gridObj.textWrapSettings.wrapMode = 'content';
+            gridObj.textWrapSettings.wrapMode = 'Content';
             gridObj.dataBind();
             expect(fHdrTr.offsetHeight).toBe(mHdrTr.offsetHeight);
             expect(fHdrContTr.offsetHeight).toBe(mHdrContTr.offsetHeight);

@@ -1,5 +1,5 @@
 import { Component, NumberFormatOptions, DateFormatOptions, EmitType, KeyboardEventArgs, L10n } from '@syncfusion/ej2-base';
-import { Query, DataManager } from '@syncfusion/ej2-data';
+import { Query, DataManager, Group } from '@syncfusion/ej2-data';
 import { ItemModel, MenuItemModel, BeforeOpenCloseMenuEventArgs, MenuEventArgs } from '@syncfusion/ej2-navigations';
 import { ButtonModel } from '@syncfusion/ej2-buttons';
 import { Column, ColumnModel } from '../models/column';
@@ -15,6 +15,7 @@ import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems, Com
 import { MultipleExportType, ExportType, ExcelHAlign, ExcelVAlign, BorderLineStyle, ToolbarItem } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
+import { CheckState } from './enum';
 import { Edit } from '../actions/edit';
 import { DropDownListModel } from '@syncfusion/ej2-dropdowns';
 import { NumericTextBoxModel } from '@syncfusion/ej2-inputs';
@@ -330,6 +331,12 @@ export interface IGrid extends Component<HTMLElement> {
 
     mergeCells?: { [key: string]: number };
 
+    checkAllRows?: CheckState;
+
+    isCheckBoxSelection?: boolean;
+
+    isPersistSelection?: boolean;
+
     //public methods
     getHeaderContent?(): Element;
     setGridHeaderContent?(value: Element): void;
@@ -393,8 +400,6 @@ export interface IGrid extends Component<HTMLElement> {
     isContextMenuOpen(): Boolean;
     goToPage(pageNo: number): void;
     getFrozenColumns(): number;
-    showColumn(columnName: string | string[], showBy?: string): void;
-    hideColumn(columnName: string | string[], hideBy?: string): void;
     print(): void;
     /* tslint:disable-next-line:no-any */
     excelExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any>;
@@ -419,6 +424,9 @@ export interface IGrid extends Component<HTMLElement> {
     copy?(withHeader?: boolean): void;
     getLocaleConstants?(): Object;
     getForeignKeyColumns?(): Column[];
+    setCellValue(key: string | number, field: string, value: string | number | boolean | Date): void;
+    setRowData(key: string | number, rowData?: Object): void;
+    getState?(): Object;
 }
 
 /** @hidden */
@@ -439,8 +447,10 @@ export interface IRenderer {
     getMovableRowElements?(): Element[];
     setSelection?(uid: string, set: boolean, clearAll: boolean): void;
     getRowByIndex?(index: number): Element;
+    getVirtualRowIndex?(index: number): number;
     getMovableRowByIndex?(index: number): Element;
     getRowInfo?(target: Element): RowInfo;
+    getState?(): Object;
 }
 
 /**
@@ -581,6 +591,7 @@ export interface NotifyArgs {
     cancel?: boolean;
     rows?: Row<Column>[];
     isFrozen?: boolean;
+    args?: NotifyArgs;
 }
 
 /**
@@ -680,21 +691,21 @@ export interface ActionEventArgs {
 }
 
 export interface FailureEventArgs {
-    /** Defines the error information */
+    /** Defines the error information. */
     error?: Error;
 }
 
 export interface FilterEventArgs extends ActionEventArgs {
-    /** Defines the current filtered object. */
+    /** Defines the object that is currently filtered. */
     currentFilterObject?: PredicateModel;
-    /** Defines the current filtered column name. */
+    /** Defines the column name that is currently filtered. */
     currentFilteringColumn?: string;
     /** Defines the collection of filtered columns. */
     columns?: PredicateModel[];
 }
 
 export interface GroupEventArgs extends ActionEventArgs {
-    /** Defines the field name of current grouped column. */
+    /** Defines the field name of the currently grouped columns. */
     columnName?: string;
 }
 
@@ -706,7 +717,7 @@ export interface PageEventArgs extends ActionEventArgs {
 }
 
 export interface SortEventArgs extends ActionEventArgs {
-    /** Defines the field name of current sorted column. */
+    /** Defines the field name of currently sorted column. */
     columnName?: string;
     /** Defines the direction of sort column. */
     direction?: SortDirection;
@@ -720,14 +731,14 @@ export interface SearchEventArgs extends ActionEventArgs {
 export interface PrintEventArgs extends ActionEventArgs {
     /** Defines the Grid element. */
     element?: Element;
-    /** Defines the current selected rows. */
+    /** Defines the currently selected rows. */
     selectedRows?: NodeListOf<Element>;
     /** Cancel the print action */
     cancel?: boolean;
 }
 
-export interface DetailDataBoundEventArgs extends ActionEventArgs {
-    /** Defines the Details row element. */
+export interface DetailDataBoundEventArgs {
+    /** Defines the details row element. */
     detailElement?: Element;
     /** Defines the selected row data. */
     data?: Object;
@@ -736,9 +747,9 @@ export interface DetailDataBoundEventArgs extends ActionEventArgs {
 export interface ColumnChooserEventArgs {
     /** Defines the parent element. */
     element?: Element;
-    /** Defines the  display columns of column chooser. */
+    /** Defines the display columns of column chooser. */
     columns?: Column[];
-    /** Defines the selected row data. */
+    /** Specifies the instance of column chooser dialog. */
     dialogInstance?: Object;
 }
 
@@ -793,16 +804,16 @@ export interface RowSelectingEventArgs extends RowSelectEventArgs {
 }
 
 export interface CellDeselectEventArgs {
-    /** Defines the current selected/deselected row data. */
+    /** Defines the currently selected/deselected row data. */
     data?: Object;
-    /** Defines the current selected/deselected cell indexes. */
+    /** Defines the indexes of the current selected/deselected cells. */
     cellIndexes?: ISelectedCell[];
-    /** Defines the current selected/deselected cells. */
+    /** Defines the currently selected/deselected cells. */
     cells?: Element[];
 }
 
 export interface CellSelectEventArgs extends CellDeselectEventArgs {
-    /** Defines the current selected cell index. */
+    /** Defines the index of the current selected cell. */
     cellIndex?: IIndex;
     /** Defines the previously selected cell index. */
     previousRowCellIndex?: number;
@@ -813,18 +824,18 @@ export interface CellSelectEventArgs extends CellDeselectEventArgs {
 }
 
 export interface CellSelectingEventArgs extends CellSelectEventArgs {
-    /** Defines whether CTRL key is pressed. */
+    /** Defines whether the CTRL key is pressed or not. */
     isCtrlPressed?: boolean;
-    /** Defines whether SHIFT key is pressed. */
+    /** Defines whether the SHIFT key is pressed or not. */
     isShiftPressed?: boolean;
 }
 
 export interface ColumnDragEventArgs {
-    /** Defines the target element from which drag starts. */
+    /** Defines the target element from which the drag starts. */
     target?: Element;
     /** Defines the type of the element dragged. */
     draggableType?: string;
-    /** Defines the column object which is dragged. */
+    /** Defines the column object that is dragged. */
     column?: Column;
 }
 export interface RowDataBoundEventArgs {
@@ -952,27 +963,6 @@ export interface PdfBorder {
     /** Defines the border dash style */
     dashStyle?: PdfDashStyle;
 }
-export interface ThemeStyle {
-    /** Defines the font color of theme style */
-    fontColor?: string;
-    /** Defines the font name of theme style */
-    fontName?: string;
-    /** Defines the font size of theme style */
-    fontSize?: number;
-    /** Defines the bold of theme style */
-    bold?: boolean;
-    /** Defines the borders of theme style */
-    borders?: Border;
-}
-
-export interface Theme {
-    /** Defines the style of header content */
-    header?: ThemeStyle;
-    /** Defines the theme style of record content */
-    record?: ThemeStyle;
-    /** Defines the theme style of caption content */
-    caption?: ThemeStyle;
-}
 
 export interface ExcelCell {
     /** Defines the index for the cell */
@@ -1026,11 +1016,13 @@ export interface ExcelExportProperties {
 }
 
 export interface RowDragEventArgs {
-    /** Defines the selected rows element. */
+    /** Defines the selected row's element. */
     rows?: Element;
     /** Defines the target element from which drag starts. */
     target?: Element;
-    /** Defines the type of the element dragged. */
+    /** Defines the type of the element to be dragged.
+     * @hidden
+     */
     draggableType?: string;
     /** Defines the selected row data. */
     data?: Object[];
@@ -1201,20 +1193,24 @@ export interface DeleteEventArgs {
 }
 
 export interface AddEventArgs {
-    /** Defines the cancel option value. */
+    /** If `cancel` is set to true, then the current action will stopped. */
     cancel?: boolean;
     /** Defines the request type. */
     requestType?: string;
-    /** Defines the foreign key record object (JSON). @hidden */
+    /** Defines the foreign key record object. 
+     * @hidden 
+     */
     foreignKeyData?: Object;
     /** Defines the record objects. */
     data?: Object;
-    /** Defines the name of the event. */
+    /** Defines the event name. */
     type?: string;
     /** Defines the previous data. */
     previousData?: Object;
     /** Defines the added row. */
     row?: Object;
+    /** Added row index */
+    index?: number;
 }
 
 export interface SaveEventArgs extends AddEventArgs {
@@ -1224,6 +1220,8 @@ export interface SaveEventArgs extends AddEventArgs {
     selectedRow?: number;
     /** Defines the current action. */
     action?: string;
+    /** Added row index */
+    index?: number;
 }
 
 export interface EditEventArgs extends BeginEditArgs {
@@ -1231,6 +1229,7 @@ export interface EditEventArgs extends BeginEditArgs {
     requestType?: string;
     /** Defines foreign data object. */
     foreignKeyData?: Object;
+    addRecord?(data?: Object, index?: number): void;
 }
 
 
@@ -1303,7 +1302,7 @@ export interface IEdit {
     startEdit?(tr?: Element): void;
     endEdit?(): void;
     closeEdit?(): void;
-    addRecord?(data?: Object): void;
+    addRecord?(data?: Object, index?: number): void;
     deleteRow?(tr: HTMLTableRowElement): void;
     endEdit?(data?: Object): void;
     batchSave?(): void;
@@ -1336,9 +1335,12 @@ export interface BeforeCopyEventArgs extends ICancel {
     data?: string;
 }
 
+/**
+ * Defines options for custom command buttons.
+ */
 export interface CommandButtonOptions extends ButtonModel {
     /**
-     * Define handler for click event.
+     * Defines handler for the click event.
      */
     click?: EmitType<Event>;
 }
@@ -1355,6 +1357,79 @@ export interface CommandModel {
      * Define the button model
      */
     buttonOption?: CommandButtonOptions;
+}
+/**
+ * Defines the pending state for Custom Service Data
+ */
+export interface PendingState {
+    /**
+     * The function which resolves the current action's promise.
+     */
+    resolver?: Function;
+    /**
+     * Defines the current state of the action.
+     */
+    isPending?: Boolean;
+    /**
+     * Grouping property for Custom data service
+     */
+    group?: string[];
+}
+
+/**
+ * Sorting property for Custom data Service
+ */
+export interface Sorts {
+    /** Defines the field to be sorted */
+    name?: string;
+    /** Defines the direction of sorting */
+    direction?: string;
+}
+/** Custom data service event types */
+export interface DataStateChangeEventArgs {
+    /** Defines the skip count in datasource record */
+    skip?: number;
+    /** Defines the page size */
+    take?: number;
+    /** Defines the filter criteria  */
+    where?: PredicateModel[];
+    /** Defines the sorted field and direction */
+    sorted?: Sorts[];
+    /** Defines the grouped field names */
+    group?: string[];
+    /** Defines the search criteria */
+    search?: PredicateModel[];
+    /** Defines the grid action details performed by paging, grouping, filtering, searching, sorting */
+    action?: PageEventArgs | GroupEventArgs | FilterEventArgs | SearchEventArgs | SortEventArgs;
+    /** Defines the remote table name */
+    table?: string;
+    /** Defines the selected field names */
+    select?: string[];
+    /** If `count` is set true, then the remote service needs to return records and count */
+    count?: boolean;
+}
+
+export interface DataSourceChangedEventArgs {
+    /** Defines the current action type. */
+    requestType?: string;
+    /** Defines the current action. */
+    action?: string;
+    /** Defines the primary column field */
+    key?: string | string[];
+    /** Defines the state of the performed action */
+    state?: DataStateChangeEventArgs;
+    /** Defines the selected row data. */
+    data?: Object | Object[];
+    /** Defines the primary key value */
+    primaryKeyValues?: Object[];
+    /** Defines the index value */
+    index?: number;
+    /** Defines the end of editing function. */
+    endEdit?: Function;
+    /** Defines the changes made in batch editing */
+    changes?: Object;
+    /** Defines the query */
+    query?: Query;
 }
 
 /**
@@ -1387,11 +1462,13 @@ export interface IFocus {
     onFocus?: Function;
     jump?: (action: string, current: number[]) => SwapInfo;
     getFocusInfo?: () => FocusInfo;
+    getFocusable?: (element: HTMLElement) => HTMLElement;
     selector?: (row: Row<Column>, cell: Cell<Column>) => boolean;
     generateRows?: (rows: Row<Column>[], optionals?: Object) => void;
     getInfo?: (e?: KeyboardEventArgs) => FocusedContainer;
     validator?: () => Function;
     getNextCurrent?: (previous: number[], swap?: SwapInfo, active?: IFocus, action?: string) => number[];
+    preventDefault?: (e: KeyboardEventArgs, info: FocusInfo) => void;
 }
 /**
  * @hidden
@@ -1401,6 +1478,7 @@ export interface FocusInfo {
     elementToFocus?: HTMLElement;
     outline?: boolean;
     class?: string;
+    skipAction?: boolean;
 }
 /**
  * @hidden
@@ -1431,6 +1509,15 @@ export interface FocusedContainer {
     indexes?: number[];
 }
 
+/**
+ * @hidden
+ */
+export interface SwapInfo {
+    swap?: boolean;
+    toHeader?: boolean;
+    toFrozen?: boolean;
+    current?: number[];
+}
 /**
  * @hidden
  */
@@ -1502,44 +1589,33 @@ export interface PdfExportProperties {
 }
 
 export interface Theme {
-    /** Defines the style of header content */
+    /** Defines the style of header content. */
     header?: ThemeStyle;
-    /** Defines the theme style of record content */
+    /** Defines the theme style of record content. */
     record?: ThemeStyle;
-    /** Defines the theme style of caption content */
+    /** Defines the theme style of caption content. */
     caption?: ThemeStyle;
 }
 
 export interface ThemeStyle {
-    /** Defines the font color of theme style */
+    /** Defines the font color of theme style. */
     fontColor?: string;
-    /** Defines the font name of theme style */
+    /** Defines the font name of theme style. */
     fontName?: string;
-    /** Defines the font size of theme style */
+    /** Defines the font size of theme style. */
     fontSize?: number;
-    /** Defines the bold of theme style */
+    /** Defines the bold of theme style. */
     bold?: boolean;
-    /** Defines the borders of theme style */
+    /** Defines the borders of theme style. */
     borders?: Border;
 }
-
-export interface Border {
-    /** Defines the color of border */
-    color?: string;
-    /** Defines the line style of border */
-    lineStyle?: BorderLineStyle;
-}
-
-
-
-
 
 export interface PdfHeader {
     /** Defines the header content distance from top. */
     fromTop?: number;
-    /** Defines the height of header content . */
+    /** Defines the height of header content. */
     height?: number;
-    /** Defines the header contents */
+    /** Defines the header contents. */
     contents?: PdfHeaderFooterContent[];
 }
 
@@ -1654,4 +1730,14 @@ export interface ExcelExportCompleteArgs {
 export interface PdfExportCompleteArgs {
     /** Defines the promise object for blob data. */
     promise?: Promise<{ blobData: Blob }>;
+}
+
+export interface SelectionNotifyArgs extends NotifyArgs {
+    row?: HTMLElement;
+    CheckState?: boolean;
+}
+
+export interface DataResult {
+    result: Object[] | Group[];
+    count: number;
 }

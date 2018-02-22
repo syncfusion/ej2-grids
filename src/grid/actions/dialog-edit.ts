@@ -26,9 +26,9 @@ export class DialogEdit extends NormalEdit {
         super.closeEdit();
     }
 
-    public addRecord(data?: Object): void {
+    public addRecord(data?: Object, index?: number): void {
         //addRecord
-        super.addRecord(data);
+        super.addRecord(data, index);
     }
 
     public endEdit(): void {

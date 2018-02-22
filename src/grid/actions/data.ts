@@ -1,6 +1,6 @@
 import { isNullOrUndefined, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
-import { Query, DataManager, Predicate, Deferred } from '@syncfusion/ej2-data';
-import { IDataProcessor, IGrid } from '../base/interface';
+import { Query, DataManager, Predicate, Deferred, UrlAdaptor } from '@syncfusion/ej2-data';
+import { IDataProcessor, IGrid, DataStateChangeEventArgs, DataSourceChangedEventArgs, PendingState } from '../base/interface';
 import { ReturnType } from '../base/type';
 import { Grid } from '../base/grid';
 import { SearchSettingsModel, PredicateModel, SortDescriptorModel } from '../base/grid-model';
@@ -24,6 +24,7 @@ export class Data implements IDataProcessor {
     //Module declarations    
     protected parent: IGrid;
     protected serviceLocator: ServiceLocator;
+    protected dataState: PendingState = { isPending: false, resolver: null, group: [] };
 
     /**
      * Constructor for data module.
@@ -81,7 +82,7 @@ export class Data implements IDataProcessor {
         this.parent.aggregates.forEach((row: AggregateRowModel) => {
             row.columns.forEach((column: AggregateColumnModel) => {
                 let types: string[] = column.type instanceof Array ? column.type : [column.type];
-                types.forEach((type: string) => query.aggregate(type, column.field));
+                types.forEach((type: string) => query.aggregate(type.toLowerCase(), column.field));
             });
         });
         return query;
@@ -145,7 +146,7 @@ export class Data implements IDataProcessor {
 
     protected searchQuery(query: Query): Query {
         let sSettings: SearchSettingsModel = this.parent.searchSettings;
-        let fields: string[] = sSettings.fields.length ? sSettings.fields : this.parent.getColumnFieldNames();
+        let fields: string[] = sSettings.fields.length ? sSettings.fields : this.parent.getColumns().map((f: Column) => f.field);
         let predicateList: Predicate[] = [];
         if (this.parent.searchSettings.key.length) {
             let predicate: Predicate;
@@ -156,12 +157,14 @@ export class Data implements IDataProcessor {
                     if (column.isForeignColumn()) {
                         predicateList = this.fGeneratePredicate(column, predicateList);
                     } else {
-                        predicateList.push(new Predicate(column.field, sSettings.operator, sSettings.key, sSettings.ignoreCase));
+                        predicateList.push(new Predicate(
+                            column.field, sSettings.operator, sSettings.key, sSettings.ignoreCase, this.parent.filterSettings.ignoreAccent
+                        ));
                     }
                 });
                 query.where(Predicate.or(predicateList));
             } else {
-                query.search(sSettings.key, fields, sSettings.operator, sSettings.ignoreCase);
+                query.search(sSettings.key, fields, sSettings.operator, sSettings.ignoreCase, this.parent.filterSettings.ignoreAccent);
             }
         }
         return query;
@@ -182,7 +185,7 @@ export class Data implements IDataProcessor {
             let checkBoxCols: PredicateModel[] = [];
             let defaultFltrCols: PredicateModel[] = [];
             for (let col of columns) {
-                if (colType[col.field] === 'checkbox' || colType[col.field] === 'excel') {
+                if (colType[col.field] === 'CheckBox' || colType[col.field] === 'Excel') {
                     checkBoxCols.push(col);
                 } else {
                     defaultFltrCols.push(col);
@@ -210,7 +213,9 @@ export class Data implements IDataProcessor {
                         predicateList = this.fGeneratePredicate(column, predicateList);
                     } else {
                         if (sType !== 'date' && sType !== 'datetime') {
-                            predicateList.push(new Predicate(col.field, col.operator, col.value, !col.matchCase));
+                            predicateList.push(new Predicate(
+                                col.field, col.operator, col.value, !col.matchCase, this.parent.filterSettings.ignoreAccent
+                            ));
                         } else {
                             predicateList.push(getDatePredicate(col));
                         }
@@ -244,36 +249,42 @@ export class Data implements IDataProcessor {
      */
     public getData(
         args: {
-            requestType?: string, foreignKeyData?: string[], data?: Object
+            requestType?: string, foreignKeyData?: string[], data?: Object, index?: number
         } =
             { requestType: '' },
         query?: Query): Promise<Object> {
         let key: string = this.getKey(args.foreignKeyData &&
             Object.keys(args.foreignKeyData).length ?
             args.foreignKeyData : this.parent.getPrimaryKeyFieldNames());
-        switch (args.requestType) {
-            case 'delete':
-                query = query ? query : this.generateQuery();
-                this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
-                break;
-            case 'save':
-                query = query ? query : this.generateQuery();
-                this.dataManager.insert(args.data, null, query, 0);
-                break;
-        }
-        if (this.dataManager.ready) {
-            let deferred: Deferred = new Deferred();
-            let ready: Promise<Object> = this.dataManager.ready;
-            ready.then((e: ReturnType) => {
-                (<Promise<Object>>this.dataManager.executeQuery(query)).then((result: ReturnType) => {
-                    deferred.resolve(result);
-                });
-            }).catch((e: ReturnType) => {
-                deferred.reject(e);
-            });
-            return deferred.promise;
+        if (this.parent.dataSource && 'result' in this.parent.dataSource) {
+            let def: Deferred = this.eventPromise(args, query, key);
+            return def.promise;
         } else {
-            return this.dataManager.executeQuery(query);
+            switch (args.requestType) {
+                case 'delete':
+                    query = query ? query : this.generateQuery();
+                    this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
+                    break;
+                case 'save':
+                    query = query ? query : this.generateQuery();
+                    args.index = isNullOrUndefined(args.index) ? 0 : args.index;
+                    this.dataManager.insert(args.data, null, query, args.index);
+                    break;
+            }
+            if (this.dataManager.ready) {
+                let deferred: Deferred = new Deferred();
+                let ready: Promise<Object> = this.dataManager.ready;
+                ready.then((e: ReturnType) => {
+                    (<Promise<Object>>this.dataManager.executeQuery(query)).then((result: ReturnType) => {
+                        deferred.resolve(result);
+                    });
+                }).catch((e: ReturnType) => {
+                    deferred.reject(e);
+                });
+                return deferred.promise;
+            } else {
+                return this.dataManager.executeQuery(query);
+            }
         }
     }
     private formatGroupColumn(value: number | Date, field: string): string | object {
@@ -294,12 +305,15 @@ export class Data implements IDataProcessor {
     private crudActions(args: {
         requestType?: string, foreignKeyData?: string[], data?: Object
     }): void {
-        this.generateQuery();
+        let query: Query = this.generateQuery();
         let promise: Promise<Object> = null;
         let pr: string = 'promise';
         let key: string = this.getKey(args.foreignKeyData &&
             Object.keys(args.foreignKeyData).length ? args.foreignKeyData :
             this.parent.getPrimaryKeyFieldNames());
+        if (this.parent.dataSource && 'result' in this.parent.dataSource) {
+            this.eventPromise(args, query, key);
+        }
         switch (args.requestType) {
             case 'save':
                 promise = this.dataManager.update(key, args.data, null, this.generateQuery()) as Promise<Object>;
@@ -312,9 +326,23 @@ export class Data implements IDataProcessor {
 
     /** @hidden */
     public saveChanges(changes: Object, key: string): Promise<Object> {
-        let promise: Promise<Object> =
-            this.dataManager.saveChanges(changes, key, null, this.generateQuery().requiresCount()) as Promise<Object>;
-        return promise;
+        let query: Query = this.generateQuery().requiresCount();
+        if ('result' in this.parent.dataSource) {
+            let state: DataStateChangeEventArgs;
+            state = this.getStateEventArgument(query);
+            let deff: Deferred = new Deferred();
+            let args: DataSourceChangedEventArgs = {
+                requestType: 'batchsave', changes: changes, key: key, query: query,
+                endEdit: deff.resolve
+            };
+            this.setState({ isPending: true, resolver: deff.resolve });
+            this.parent.trigger(events.dataSourceChanged, args);
+            return deff.promise;
+        } else {
+            let promise: Promise<Object> =
+                this.dataManager.saveChanges(changes, key, null, this.generateQuery().requiresCount()) as Promise<Object>;
+            return promise;
+        }
     }
 
     private getKey(keys: string[]): string {
@@ -342,7 +370,7 @@ export class Data implements IDataProcessor {
 
     private getColumnByField(field: string): Column {
         let col: Column;
-        return ((<{columnModel?: Column[]}>this.parent).columnModel).some((column: Column) => {
+        return ((<{ columnModel?: Column[] }>this.parent).columnModel).some((column: Column) => {
             col = column;
             return column.field === field;
         }) && col;
@@ -356,6 +384,50 @@ export class Data implements IDataProcessor {
         this.parent.off(events.dataSourceModified, this.destroy);
         this.parent.off(events.updateData, this.crudActions);
         this.parent.off(events.addDeleteAction, this.getData);
+    }
+    public getState(): PendingState {
+        return this.dataState;
+    }
+
+    public setState(state: PendingState): Object {
+        return this.dataState = state;
+    }
+
+    public getStateEventArgument(query: Query): PendingState {
+        let adaptr: UrlAdaptor = new UrlAdaptor();
+        let dm: DataManager = new DataManager({ url: '', adaptor: new UrlAdaptor });
+        let state: { data?: string } = adaptr.processQuery(dm, query);
+        return JSON.parse(state.data);
+    }
+
+    private eventPromise(args: { requestType?: string, foreignKeyData?: string[], data?: Object }, query?: Query, key?: string): Deferred {
+        let state: DataStateChangeEventArgs;
+        let dataArgs: DataSourceChangedEventArgs = args;
+        state = this.getStateEventArgument(query);
+        let def: Deferred = new Deferred();
+        let deff: Deferred = new Deferred();
+        if (args.requestType !== undefined) {
+            state.action = <{}>args;
+            if (args.requestType === 'save' || args.requestType === 'delete') {
+                let editArgs: DataSourceChangedEventArgs = args;
+                editArgs.key = key;
+                editArgs.state = state;
+                this.setState({ isPending: true, resolver: deff.resolve });
+                dataArgs.endEdit = deff.resolve;
+                this.parent.trigger(events.dataSourceChanged, editArgs);
+                deff.promise.then((e: ReturnType) => {
+                    this.setState({ isPending: true, resolver: def.resolve, group: state.group });
+                    this.parent.trigger(events.dataStateChange, state);
+                });
+            } else {
+                this.setState({ isPending: true, resolver: def.resolve, group: state.group });
+                this.parent.trigger(events.dataStateChange, state);
+            }
+        } else {
+            this.setState({});
+            def.resolve(this.parent.dataSource);
+        }
+        return def;
     }
 
 }

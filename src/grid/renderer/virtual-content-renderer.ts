@@ -176,6 +176,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
             this.count = e.count;
             this.maxPage = Math.ceil(e.count / this.parent.pageSettings.pageSize);
         }
+        this.vgenerator.checkAndResetCache( e.requestType);
         this.refreshOffsets();
         this.setVirtualHeight();
         this.resetScrollPosition(e.requestType);
@@ -292,6 +293,12 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         let prev: number[] = this.prevInfo.blockIndexes;
         let startIdx: number = (prev[0] - 1) * this.getBlockSize();
         return this.parent.getDataRows()[index - startIdx];
+    }
+
+    public getVirtualRowIndex(index: number): number {
+        let prev: number[] = this.prevInfo.blockIndexes;
+        let startIdx: number = (prev[0] - 1) * this.getBlockSize();
+        return startIdx + index;
     }
 
     private refreshOffsets(): void {

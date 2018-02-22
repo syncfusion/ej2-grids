@@ -33,9 +33,9 @@ export class DefaultEditCell implements IEditCell {
 
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         let col: Column = args.column;
-        let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
+        let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         Input.createInput({
-            element: args.element as HTMLInputElement, floatLabelType: this.parent.editSettings.mode !== 'dialog' ? 'Never' : 'Always',
+            element: args.element as HTMLInputElement, floatLabelType: this.parent.editSettings.mode !== 'Dialog' ? 'Never' : 'Always',
             properties: {
                 enableRtl: this.parent.enableRtl, enabled: isEditable(args.column, args.requestType, args.element),
                 placeholder: isInline ? '' : args.column.headerText

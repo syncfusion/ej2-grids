@@ -49,8 +49,8 @@ describe('Html escaper module', () => {
             gridObj = new Grid({
                 columns: [
                     {
-                        field: 'data.a', headerText: '<i>A</i>', headerTextAlign: 'center',
-                        disableHtmlEncode: true, textAlign: 'right', customAttributes: {
+                        field: 'data.a', headerText: '<i>A</i>', headerTextAlign: 'Center',
+                        disableHtmlEncode: true, textAlign: 'Right', customAttributes: {
                             class: 'hi',
                             style: { color: 'green', 'background-color': 'wheat' },
                             'data-id': 'grid-cell'

@@ -8,7 +8,7 @@ import { ValueFormatter } from '../services/value-formatter';
 
 
 /**
- * Configures the Grid aggregate column.
+ * Configures the Grid's aggregate column.
  */
 export class AggregateColumn extends ChildProperty<AggregateColumn> {
 
@@ -42,18 +42,18 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
     public field: string;
 
     /**
-     * Defines the column name to display the aggregate value.
-     * If `columnName` is not defined, then `field` name value will be assigned to the `columnName` property.
+     * Defines the column name to display the aggregate value. If `columnName` is not defined,
+     * then `field` name value will be assigned to the `columnName` property.
      * @default null
      */
     @Property()
     public columnName: string;
 
     /**    
-     * The format is applied to the calculated value before it is displayed. 
-     * Gets the format from the user which can be standard or custom 
-     * [`number`](http://ej2.syncfusion.com/documentation/base/intl.html#number-formatter-and-parser) 
-     * and [`date`](http://ej2.syncfusion.com/documentation/base/intl.html#date-formatter-and-parser) formats.  
+     * Format is applied to a calculated value before it is displayed.
+     * Gets the format from the user, which can be standard or custom
+     * [`number`](../base/intl.html#number-formatter-and-parser)
+     * and [`date`](../base/intl.html#date-formatter-and-parser) formats.
      * @default null    
      */
     @Property()
@@ -61,27 +61,9 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
 
     /**
      * Defines the footer cell template as a string for the aggregate column.
-     * The `type` name must be used to access aggregate values inside the template.
-     * ```html 
-     * <div id="Grid"></div>
-     * <script>  
-     *  var gridObj = new Grid({
-     *                  dataSource: filterData, 
-     *                  columns: [ 
-     *                      { field: 'OrderID', headerText: 'Order ID' }, 
-     *                      { field: 'Freight', format: 'c2' }
-     *                  ],
-     *                  aggregates: [{
-     *                       columns: [{ 
-     *                           type: ['min', 'max'], 
-     *                           field: 'Freight', 
-     *                           footerTemplate: 'Min: ${min} Max: ${max}'
-     *                      }]
-     *                  }]
-     *  }); 
-     *  gridObj.appendTo('#Grid'); 
-     * </script>
-     * ```
+     * The `type` name should be used to access aggregate values inside the template.
+     * 
+     * {% codeBlock src="grid/footer-template-api/index.ts" %}{% endcodeBlock %}
      * @default null
      */
     @Property()
@@ -89,31 +71,12 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
 
     /**
      * Defines the group footer cell template as a string for the aggregate column. 
-     * The `type` name must be used to access aggregate values inside the template.
+     * The `type` name should be used to access aggregate values inside the template.
      * Additionally, the following fields can be accessed in the template.
-     * * **field**  - The current grouped field.
-     * * **key**    - The current grouped value.
-     * ```html 
-     * <div id="Grid"></div>   
-     * <script>
-     *  var gridObj = new Grid({
-     *                  dataSource: filterData, 
-     *                  allowGrouping: true,
-     *                  columns: [ 
-     *                      { field: 'OrderID', headerText: 'Order ID' }, 
-     *                      { field: 'Freight', format: 'c2' }
-     *                  ],
-     *                  aggregates: [{
-     *                       columns: [{ 
-     *                           type: ['min', 'max'], 
-     *                           field: 'Freight', 
-     *                           groupFooterTemplate: '${field} - Min: ${min} Max: ${max}'
-     *                      }]
-     *                  }]
-     *  }); 
-     *  gridObj.appendTo('#Grid'); 
-     * </script>
-     * ```
+     * * **field**: The current grouped field.
+     * * **key**: The current grouped value.
+     * 
+     * {% codeBlock src="grid/group-footer-api/index.ts" %}{% endcodeBlock %}
      * @default null
      */
     @Property()
@@ -121,65 +84,22 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
 
     /**
      * Defines the group caption cell template as a string for the aggregate column.
-     * The `type` name must be used to access aggregate values inside the template.
+     * The `type` name should be used to access aggregate values inside the template.
      * Additionally, the following fields can be accessed in the template.
-     * * **field**  - The current grouped field name.
-     * * **key**    - The current grouped field value.
-     * ```html 
-     * <div id="Grid"></div>
-     * <script>  
-     *  var gridObj = new Grid({
-     *                  dataSource: filterData, 
-     *                  allowGrouping: true,
-     *                  columns: [ 
-     *                      { field: 'OrderID', headerText: 'Order ID' }, 
-     *                      { field: 'Freight', format: 'c2' }
-     *                  ],
-     *                  aggregates: [{
-     *                       columns: [{ 
-     *                           type: ['min', 'max'], 
-     *                           field: 'Freight', 
-     *                           groupCaptionTemplate: '${field} - Min: ${min} Max: ${max}'
-     *                      }]
-     *                  }]
-     *  }); 
-     *  gridObj.appendTo('#Grid'); 
-     * </script>
-     * ```
+     * * **field**: The current grouped field name.
+     * * **key**: The current grouped field value.
+     * 
+     * {% codeBlock src="grid/group-caption-api/index.ts" %}{% endcodeBlock %}
      * @default null
      */
     @Property()
     public groupCaptionTemplate: string;
 
     /**
-     * Defines a function to calculate custom aggregate value.
-     * The `type` value should be set as `custom` to use custom aggregation.
-     * To use custom aggregate value in the template, we need to use the key as `${custom}`.      
-     * * **Total aggregation** - the custom function will be called with whole data and the current `AggregateColumn` object.
-     * * **Group aggregation** - it will be called with current group details and the `AggregateColumn` object.
-     * ```html 
-     * <div id="Grid"></div>  
-     * <script>
-     *  var customFn = function(data, column){ return data.length };
-     *  var gridObj = new Grid({ 
-     *                  dataSource: filterData, 
-     *                  allowGrouping: true,
-     *                  columns: [ 
-     *                      { field: 'OrderID', headerText: 'Order ID' }, 
-     *                      { field: 'Freight', format: 'c2' }
-     *                  ],
-     *                  aggregates: [{
-     *                      columns: [{ 
-     *                          type: 'custom', 
-     *                          columnName: 'OrderID', 
-     *                          customAggregate: customFn, 
-     *                          footerTemplate: 'Total count: ${custom}' 
-     *                      }]
-     *                  }]   
-     *  }); 
-     *  gridObj.appendTo('#Grid'); 
-     * </script>
-     * ```
+     * Defines a function to calculate custom aggregate value. The `type` value should be set to `custom`.
+     * To use custom aggregate value in the template, use the key as `${custom}`.
+     * **Total aggregation**: The custom function will be called with the whole data and the current `AggregateColumn` object.
+     * **Group aggregation**: This will be called with the current group details and the `AggregateColumn` object.
      * 
      * @default null
      */
@@ -237,7 +157,7 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
 }
 
 /**
- * Configures the aggregate row. 
+ * Configures the aggregate rows. 
  */
 export class AggregateRow extends ChildProperty<AggregateRow> {
 

@@ -281,6 +281,7 @@ export class Render {
             }
             this.parent.hideSpinner();
         }
+        this.parent.notify(events.toolbarRefresh, {});
     }
 
     private dataManagerFailure(e: { result: Object[] }): void {

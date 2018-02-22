@@ -14,7 +14,7 @@ import { FocusStrategy } from '../services/focus-strategy';
 
 /**
  * 
- * `Sort` module is used to handle sorting action.
+ * The `Sort` module is used to handle sorting action.
  */
 export class Sort implements IAction {
     //Internal variables   
@@ -101,10 +101,10 @@ export class Sort implements IAction {
     }
 
     /** 
-     * Sorts a column with given options. 
+     * Sorts a column with the given options. 
      * @param {string} columnName - Defines the column name to sort.  
-     * @param {SortDirection} direction - Defines the direction of sorting for field.  
-     * @param {boolean} isMultiSort - Specifies whether the previous sorted columns to be maintained. 
+     * @param {SortDirection} direction - Defines the direction of sorting field.  
+     * @param {boolean} isMultiSort - Specifies whether the previously sorted columns are to be maintained. 
      * @return {void} 
      */
     public sortColumn(columnName: string, direction: SortDirection, isMultiSort?: boolean): void {
@@ -170,7 +170,7 @@ export class Sort implements IAction {
     }
 
     /**  
-     * Clears all the sorted columns of Grid.  
+     * Clears all the sorted columns of the Grid.  
      * @return {void} 
      */
     public clearSorting(): void {
@@ -303,12 +303,13 @@ export class Sort implements IAction {
             !(e.target as Element).classList.contains('e-stackedheadercell') &&
             !(e.target as Element).classList.contains('e-stackedheadercelldiv') &&
             !(target.classList.contains('e-resized')) &&
+            !(e.target as Element).classList.contains('e-rhandler') &&
             !(e.target as Element).classList.contains('e-columnmenu') &&
             !(e.target as Element).classList.contains('e-filtermenudiv')) {
             let gObj: IGrid = this.parent;
             let colObj: Column = gObj.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;
-            let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'ascending' :
-                'descending';
+            let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'Ascending' :
+                'Descending';
             if (colObj.type !== 'checkbox') {
                 this.initiateSort(target, e, colObj);
                 if (Browser.isDevice) {
@@ -326,8 +327,8 @@ export class Sort implements IAction {
         if (!this.parent.isEdit && (e.action === 'enter' || e.action === 'ctrlEnter' || e.action === 'shiftEnter')
             && closest(ele as Element, '.e-headercell')) {
             let target: Element = this.focus.getFocusedElement();
-            if (!target || (target && !target.classList.contains('e-headercell')) ||
-                (this.parent.getFrozenColumns() || this.parent.frozenRows || isNullOrUndefined(target))) { return; }
+            if (isNullOrUndefined(target) || !target.classList.contains('e-headercell')
+                || !target.querySelector('.e-headercelldiv')) { return; }
 
             let col: Column = this.parent.getColumnByUid(target.querySelector('.e-headercelldiv').getAttribute('e-mappinguid')) as Column;
             this.initiateSort(target, e, col);
@@ -337,8 +338,8 @@ export class Sort implements IAction {
     private initiateSort(target: Element, e: MouseEvent | KeyboardEventArgs, column: Column): void {
         let gObj: IGrid = this.parent;
         let field: string = column.field;
-        let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'ascending' :
-            'descending';
+        let direction: SortDirection = !target.querySelectorAll('.e-ascending').length ? 'Ascending' :
+            'Descending';
         if (e.shiftKey || (this.sortSettings.allowUnsort && target.querySelectorAll('.e-descending').length)
             && !(gObj.groupSettings.columns.indexOf(field) > -1)) {
             this.removeSortColumn(field);
@@ -391,7 +392,7 @@ export class Sort implements IAction {
                     header.querySelector('.e-headertext'));
             }
             filterElement = header.querySelector('.e-sortfilterdiv');
-            if (cols[i].direction === 'ascending') {
+            if (cols[i].direction === 'Ascending') {
                 classList(filterElement, ['e-ascending', 'e-icon-ascending'], []);
             } else {
                 classList(filterElement, ['e-descending', 'e-icon-descending'], []);

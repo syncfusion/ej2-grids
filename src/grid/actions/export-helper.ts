@@ -9,7 +9,7 @@ import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Data } from '../actions/data';
 import { getForeignData } from '../base/util';
 import { ReturnType } from '../base/type';
-import { Grid } from '../../index';
+import { Grid } from '../base/grid';
 
 /**
  * @hidden

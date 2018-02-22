@@ -41,44 +41,44 @@ export type Action =
 
 /** 
  * Defines directions of Sorting. They are
- * * ascending
- * * descending 
+ * * Ascending
+ * * Descending 
  */
 export type SortDirection =
     /**  Defines SortDirection as Ascending */
-    'ascending' |
+    'Ascending' |
     /**  Defines SortDirection as Descending */
-    'descending';
+    'Descending';
 
 
 /** 
  * Defines types of Selection. They are
- * * single - Allows user to select a row or cell.
- * * multiple - Allows user to select multiple rows or cells. 
+ * * Single - Allows user to select a row or cell.
+ * * Multiple - Allows user to select multiple rows or cells. 
  */
 export type SelectionType =
     /**  Defines Single selection in the Grid */
-    'single' |
+    'Single' |
     /**  Defines multiple selections in the Grid */
-    'multiple';
+    'Multiple';
 
 
 /** 
  * Defines alignments of text, they are
- * * left
- * * right
- * * center
- * * justify 
+ * * Left
+ * * Right
+ * * Center
+ * * Justify 
  */
 export type TextAlign =
     /**  Defines Left alignment */
-    'left' |
+    'Left' |
     /**  Defines Right alignment */
-    'right' |
+    'Right' |
     /**  Defines Center alignment */
-    'center' |
+    'Center' |
     /**  Defines Justify alignment */
-    'justify';
+    'Justify';
 
 /** 
  * Defines types of Cell 
@@ -119,23 +119,23 @@ export enum CellType {
 
 /** 
  * Defines modes of GridLine, They are 
- * * both - Displays both the horizontal and vertical grid lines. 
- * * none - No grid lines are displayed.
- * * horizontal - Displays the horizontal grid lines only. 
- * * vertical - Displays the vertical grid lines only. 
- * * default - Displays grid lines based on the theme.
+ * * Both - Displays both the horizontal and vertical grid lines. 
+ * * None - No grid lines are displayed.
+ * * Horizontal - Displays the horizontal grid lines only. 
+ * * Vertical - Displays the vertical grid lines only. 
+ * * Default - Displays grid lines based on the theme.
  */
 export type GridLine =
     /** Show both the vertical and horizontal line in the Grid  */
-    'both' |
+    'Both' |
     /** Hide both the vertical and horizontal line in the Grid  */
-    'none' |
+    'None' |
     /** Shows the horizontal line only in the Grid */
-    'horizontal' |
+    'Horizontal' |
     /** Shows the vertical line only in the Grid  */
-    'vertical' |
+    'Vertical' |
     /** Shows the grid lines based on the theme  */
-    'default';
+    'Default';
 
 /** 
  * Defines types of Render 
@@ -152,225 +152,228 @@ export enum RenderType {
 
 /** 
  * Defines modes of Selection, They are 
- * * row  
- * * cell  
- * * both 
+ * * Row  
+ * * Cell  
+ * * Both 
  */
 export type SelectionMode =
     /**  Defines SelectionMode as Cell */
-    'cell' |
+    'Cell' |
     /**  Defines SelectionMode as Row */
-    'row' |
+    'Row' |
     /**  Defines SelectionMode as Both */
-    'both';
+    'Both';
 
 /** 
  * Print mode options are
- * * allpages - Print all pages records of the Grid. 
- * * currentpage - Print current page records of the Grid.
+ * * AllPages - Print all pages records of the Grid. 
+ * * CurrentPage - Print current page records of the Grid.
  */
 export type PrintMode =
     /**  Defines PrintMode as AllPages */
-    'allpages' |
+    'AllPages' |
     /**  Defines PrintMode as CurrentPage */
-    'currentpage';
+    'CurrentPage';
 
 /** 
  * Defines types of Filter 
- * * menu - Specifies the filter type as menu. 
- * * excel - Specifies the filter type as excel. 
- * * filterbar - Specifies the filter type as filterbar.  
+ * * Menu - Specifies the filter type as menu. 
+ * * Excel - Specifies the filter type as excel. 
+ * * FilterBar - Specifies the filter type as filter bar.  
+ * * CheckBox - Specifies the filter type as check box. 
  */
 export type FilterType =
     /**  Defines FilterType as filterbar */
-    'filterbar' |
+    'FilterBar' |
     /**  Defines FilterType as excel */
-    'excel' |
+    'Excel' |
     /**  Defines FilterType as menu */
-    'menu' |
+    'Menu' |
     /**  Defines FilterType as checkbox */
-    'checkbox';
+    'CheckBox';
 
 /** 
  * Filter bar mode options are 
- * * onenter - Initiate filter operation after Enter key is pressed. 
- * * immediate -  Initiate filter operation after certain time interval. By default time interval is 1500 ms.    
+ * * OnEnter - Initiate filter operation after Enter key is pressed. 
+ * * Immediate -  Initiate filter operation after certain time interval. By default time interval is 1500 ms.    
  */
 export type FilterBarMode =
     /**  Defines FilterBarMode as onenter */
-    'onenter' |
+    'OnEnter' |
     /**  Defines FilterBarMode  as immediate */
-    'immediate';
+    'Immediate';
 
 /**
  * Defines the aggregate types. 
  */
 export type AggregateType =
     /** Defines sum aggregate type */
-    'sum' |
+    'Sum' |
     /** Specifies average aggregate type */
-    'average' |
+    'Average' |
     /** Specifies maximum aggregate type */
-    'max' |
+    'Max' |
     /** Specifies minimum aggregate type */
-    'min' |
+    'Min' |
     /** Specifies count aggregate type */
-    'count' |
+    'Count' |
     /** Specifies true count aggregate type */
-    'truecount' |
+    'TrueCount' |
     /** Specifies false count aggregate type */
-    'falsecount' |
+    'FalseCount' |
     /** Specifies custom aggregate type */
-    'custom';
+    'Custom';
 
 /**
  * Defines the wrap mode.
- * * both -  Wraps both header and content.
- * * header - Wraps header alone.
- * * content - Wraps content alone.
+ * * Both -  Wraps both header and content.
+ * * Header - Wraps header alone.
+ * * Content - Wraps content alone.
  */
 export type WrapMode =
     /** Wraps both header and content */
-    'both' |
+    'Both' |
     /** Wraps  header alone */
-    'header' |
+    'Header' |
     /** Wraps  content alone */
-    'content';
+    'Content';
 
 /**
  * Defines Multiple Export Type.
  */
 export type MultipleExportType =
     /**  Multiple Grids are exported to same Worksheet. */
-    'appendtosheet' |
+    'AppendToSheet' |
     /**  Multiple Grids are exported to separate Worksheet. */
-    'newsheet';
+    'NewSheet';
 
 /**
  * Defines Predefined toolbar items.
+ * @hidden
  */
 export type ToolbarItems =
     /** Add new record */
-    'add' |
+    'Add' |
     /** Delete selected record */
-    'delete' |
+    'Delete' |
     /** Update edited record */
-    'update' |
+    'Update' |
     /** Cancel the edited state */
-    'cancel' |
+    'Cancel' |
     /** Edit the selected record */
-    'edit' |
+    'Edit' |
     /** Searches the grid records by given key */
-    'search' |
+    'Search' |
     /** ColumnChooser used show/gird columns */
-    'columnchooser' |
+    'ColumnChooser' |
     /** Print the Grid */
-    'print' |
+    'Print' |
     /** Export the Grid to PDF format */
-    'pdfexport' |
+    'PdfExport' |
     /** Export the Grid to Excel format */
-    'excelexport' |
+    'ExcelExport' |
     /** Export the Grid to CSV format */
-    'csvexport' |
+    'CsvExport' |
     /** Export the Grid to word fromat */
-    'wordexport';
+    'WordExport';
 
 /** 
  * Defines the cell content's overflow mode. The available modes are   
- * * `clip` -  Truncates the cell content when it overflows its area. 
- * * `ellipsis` -  Displays ellipsis when the cell content overflows its area.
- * * `ellipsiswithtooltip` - Displays ellipsis when the cell content overflows its area 
+ * * `Clip` -  Truncates the cell content when it overflows its area. 
+ * * `Ellipsis` -  Displays ellipsis when the cell content overflows its area.
+ * * `EllipsisWithTooltip` - Displays ellipsis when the cell content overflows its area 
  * also it will display tooltip while hover on ellipsis applied cell.
  */
 export type ClipMode =
     /**  Truncates the cell content when it overflows its area */
-    'clip' |
+    'Clip' |
     /** Displays ellipsis when the cell content overflows its area */
-    'ellipsis' |
+    'Ellipsis' |
     /** Displays ellipsis when the cell content overflows its area also it will display tooltip while hover on ellipsis applied cell. */
-    'ellipsiswithtooltip';
+    'EllipsisWithTooltip';
 
 /**
  * Defines the Command Buttons type.
- * * edit -  Edit the current record.
- * * delete - Delete the current record.
- * * save - Save the current edited record.
- * * cancel - Cancel the edited state.
+ * * Edit -  Edit the current record.
+ * * Delete - Delete the current record.
+ * * Save - Save the current edited record.
+ * * Cancel - Cancel the edited state.
  */
 export type CommandButtonType =
     /** Edit the current row */
-    'edit' |
+    'Edit' |
     /** Delete the current row */
-    'delete' |
+    'Delete' |
     /** Save the current edited row */
-    'save' |
+    'Save' |
     /**  Cancel the edited state */
-    'cancel';
+    'Cancel';
 
 /** 
  * Defines the default items of context menu.
  */
 export type ContextMenuItem =
     /**  Auto fit the size of all columns */
-    'autoFitAll' |
+    'AutoFitAll' |
     /**  Auto fit the current column */
-    'autoFit' |
+    'AutoFit' |
     /**  Group by current column */
-    'group' |
+    'Group' |
     /**  Ungroup by current column */
-    'ungroup' |
+    'Ungroup' |
     /**  Edit the current record */
-    'edit' |
+    'Edit' |
     /**  Delete the current record */
-    'delete' |
+    'Delete' |
     /**  Save the edited record */
-    'save' |
+    'Save' |
     /**  Cancel the edited state */
-    'cancel' |
+    'Cancel' |
     /**  Copy the selected records */
-    'copy' |
+    'Copy' |
     /**  Export the grid as Pdf format */
-    'pdfExport' |
+    'PdfExport' |
     /**  Export the grid as Excel format */
-    'excelExport' |
+    'ExcelExport' |
     /**  Export the grid as CSV format */
-    'csvExport' |
+    'CsvExport' |
     /**  Sort the current column in ascending order */
-    'sortAscending' |
+    'SortAscending' |
     /**  Sort the current column in descending order */
-    'sortDescending' |
+    'SortDescending' |
     /**  Go to the first page */
-    'firstPage' |
+    'FirstPage' |
     /**  Go to the previous page */
-    'prevPage' |
+    'PrevPage' |
     /**  Go to the last page */
-    'lastPage' |
+    'LastPage' |
     /**  Go to the next page */
-    'nextPage';
+    'NextPage';
 
 /** 
  * Defines the default items of Column menu.
  */
 export type ColumnMenuItem =
     /**  Auto fit the size of all columns */
-    'autoFitAll' |
+    'AutoFitAll' |
     /**  Auto fit the current column */
-    'autoFit' |
+    'AutoFit' |
     /**  Group by current column */
-    'group' |
+    'Group' |
     /**  Ungroup by current column */
-    'ungroup' |
+    'Ungroup' |
     /**  Sort the current column in ascending order */
-    'sortAscending' |
+    'SortAscending' |
     /**  Sort the current column in descending order */
-    'sortDescending' |
+    'SortDescending' |
     /**  show the column chooser */
-    'columnChooser' |
+    'ColumnChooser' |
     /**  show the Filter popup */
-    'filter';
+    'Filter';
 
 /**
  * Defines Predefined toolbar items.
+ * @hidden
  */
 export enum ToolbarItem {
     Add,
@@ -388,83 +391,83 @@ export enum ToolbarItem {
 }
 
 export type PdfPageSize =
-    'letter' |
-    'note' |
-    'legal' |
-    'a0' |
-    'a1' |
-    'a2' |
-    'a3' |
-    'a4' |
-    'a5' |
-    'a6' |
-    'a7' |
-    'a8' |
-    'a9' |
-    'b0' |
-    'b1' |
-    'b2' |
-    'b3' |
-    'b4' |
-    'b5' |
-    'archa' |
-    'archb' |
-    'archc' |
-    'archd' |
-    'arche' |
-    'flsa' |
-    'halfletter' |
-    'letter11x17' |
-    'ledger';
+    'Letter' |
+    'Note' |
+    'Legal' |
+    'A0' |
+    'A1' |
+    'A2' |
+    'A3' |
+    'A4' |
+    'A5' |
+    'A6' |
+    'A7' |
+    'A8' |
+    'A9' |
+    'B0' |
+    'B1' |
+    'B2' |
+    'B3' |
+    'B4' |
+    'B5' |
+    'Archa' |
+    'Archb' |
+    'Archc' |
+    'Archd' |
+    'Arche' |
+    'Flsa' |
+    'HalfLetter' |
+    'Letter11x17' |
+    'Ledger';
 
 export type PageOrientation =
-    'landscape' |
-    'portrait';
+    'Landscape' |
+    'Portrait';
 
 export type ContentType =
-    'image' |
-    'line' |
-    'pagenumber' |
-    'text';
+    'Image' |
+    'Line' |
+    'PageNumber' |
+    'Text';
 
 export type PdfPageNumberType =
-    'lowerlatin' |
-    'lowerroman' |
-    'upperlatin' |
-    'upperroman' |
-    'numeric' |
-    'arabic';
+    'LowerLatin' |
+    'LowerRoman' |
+    'UpperLatin' |
+    'UpperRoman' |
+    'Numeric' |
+    'Arabic';
 
 export type PdfDashStyle =
-    'solid' |
-    'dash' |
-    'dot' |
-    'dashdot' |
-    'dashdotdot';
+    'Solid' |
+    'Dash' |
+    'Dot' |
+    'DashDot' |
+    'DashDotDot';
 
 /**
  * Defines PDF horizontal alignment.
  */
 export type PdfHAlign =
     /** left alignment */
-    'left' |
+    'Left' |
     /** right alignment */
-    'right' |
+    'Right' |
     /** center alignment */
-    'center' |
+    'Center' |
     /** justify alignment */
-    'justify';
+    'Justify';
 
 /**
  * Defines PDF vertical alignment.
  */
 export type PdfVAlign =
     /** top alignment */
-    'top' |
+    'Top' |
     /** bottom alignment */
-    'bottom' |
+    'Bottom' |
     /** middle alignment */
-    'middle';
+    'Middle';
 
 
 /**
@@ -472,41 +475,68 @@ export type PdfVAlign =
  */
 export type ExportType =
     /** Current page in grid is exported. */
-    'currentpage' |
+    'CurrentPage' |
     /** All pages of the grid is exported. */
-    'allpages';
+    'AllPages';
 
 /**
  * Defines Excel horizontal alignment.
  */
 export type ExcelHAlign =
     /** left alignment  */
-    'left' |
+    'Left' |
     /** right alignment  */
-    'right' |
+    'Right' |
     /** center alignment  */
-    'center' |
+    'Center' |
     /** fill alignment  */
-    'fill';
+    'Fill';
 
 /**
  * Defines Excel vertical alignment.
  */
 export type ExcelVAlign =
     /** top alignment  */
-    'top' |
+    'Top' |
     /** bottom alignment  */
-    'bottom' |
+    'Bottom' |
     /** center alignment  */
-    'center' |
+    'Center' |
     /** justify alignment  */
-    'justify';
+    'Justify';
 
 /**
  * Defines border line style.
  */
 export type BorderLineStyle =
     /** thin line style  */
-    'thin' |
+    'Thin' |
     /** thick line style  */
-    'thick';
+    'Thick';
+
+export type CheckState = 'Check' | 'Uncheck' | 'Intermediate' | 'None';
+
+/** 
+ * Defines mode of cell selection.
+ * * Ascending
+ * * Descending 
+ */
+export type CellSelectionMode =
+    /**  Defines CellSelectionMode as Flow */
+    'Flow' |
+    /**  Defines CellSelectionMode as Box */
+    'Box';
+
+
+/** 
+ * Defines modes of editing.
+ * * Ascending
+ * * Descending 
+ */
+export type EditMode =
+    /**  Defines EditMode as Normal */
+    'Normal' |
+    /**  Defines EditMode as Dialog */
+    'Dialog' |
+    /**  Defines EditMode as Batch */
+    'Batch';

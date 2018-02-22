@@ -52,8 +52,8 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -288,8 +288,8 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -455,8 +455,8 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: false,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -487,7 +487,7 @@ describe('Batch Editing module', () => {
 
         it('shift tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeFalsy();
         });
 
@@ -506,7 +506,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -614,7 +614,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -622,7 +622,7 @@ describe('Batch Editing module', () => {
             //last action check
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'CustomerID');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -652,7 +652,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -660,7 +660,7 @@ describe('Batch Editing module', () => {
             //last action check
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'ShipName');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -690,7 +690,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -698,7 +698,7 @@ describe('Batch Editing module', () => {
             //last action check
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -727,7 +727,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -735,7 +735,7 @@ describe('Batch Editing module', () => {
             //last action check
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -764,7 +764,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -772,7 +772,7 @@ describe('Batch Editing module', () => {
             //last action check
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
 
@@ -801,7 +801,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeFalsy();
         });
 
@@ -810,7 +810,7 @@ describe('Batch Editing module', () => {
             expect(gridObj.element.querySelector('.e-editedbatchcell')).toBeNull();
             gridObj.editModule.editCell(2, 'CustomerID');
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
         });
 
         it('cell save', (done: Function) => {
@@ -882,8 +882,8 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -910,9 +910,9 @@ describe('Batch Editing module', () => {
         });
 
         it('update row', () => {
-            gridObj.editModule.updateRow(1, { CustomerID: 'updated' });
+            gridObj.editModule.updateRow(1, { CustomerID: 'updatedrow' });
             expect(gridObj.element.querySelectorAll('.e-updatedtd').length).toBe(2);
-            expect((gridObj as any).contentModule.getRows()[1].changes.CustomerID).toBe('updated');
+            expect((gridObj as any).contentModule.getRows()[1].changes.CustomerID).toBe('updatedrow');
         });
 
         it('add record by method', () => {
@@ -929,7 +929,7 @@ describe('Batch Editing module', () => {
         it('getBatch changes method test', () => {
             let batch: any = gridObj.editModule.getBatchChanges();
             expect(batch.changedRecords[0].CustomerID).toBe('updated');
-            expect(batch.changedRecords[1].CustomerID).toBe('updated');
+            expect(batch.changedRecords[1].CustomerID).toBe('updatedrow');
             expect(batch.addedRecords[0].OrderID).toBe(10247);
             expect(batch.deletedRecords[0].OrderID).toBe(10250);
         });
@@ -993,8 +993,8 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -1021,9 +1021,9 @@ describe('Batch Editing module', () => {
         });
 
         it('update row', () => {
-            gridObj.editModule.updateRow(1, { CustomerID: 'updated' });
+            gridObj.editModule.updateRow(1, { CustomerID: 'updatedrow' });
             expect(gridObj.element.querySelectorAll('.e-updatedtd').length).toBe(2);
-            expect((gridObj as any).contentModule.getRows()[1].changes.CustomerID).toBe('updated');
+            expect((gridObj as any).contentModule.getRows()[1].changes.CustomerID).toBe('updatedrow');
         });
 
         it('add record by method', () => {
@@ -1040,7 +1040,7 @@ describe('Batch Editing module', () => {
         it('getBatch changes method test', () => {
             let batch: any = gridObj.editModule.getBatchChanges();
             expect(batch.changedRecords[0].CustomerID).toBe('updated');
-            expect(batch.changedRecords[1].CustomerID).toBe('updated');
+            expect(batch.changedRecords[1].CustomerID).toBe('updatedrow');
             expect(batch.addedRecords[0].OrderID).toBe(10247);
             expect(batch.deletedRecords[0].OrderID).toBe(10250);
         });
@@ -1112,8 +1112,8 @@ describe('Batch Editing module', () => {
                     allowGrouping: true,
                     allowReordering: true,
                     allowSorting: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: true,
                     pageSettings: { pageSize: 8 },
                     columns: [
@@ -1162,7 +1162,7 @@ describe('Batch Editing module', () => {
 
         it('sort method - cancel', () => {
             gridObj.editModule.updateCell(0, 'CustomerID', 'updated');
-            gridObj.sortColumn('OrderID', 'ascending', false);
+            gridObj.sortColumn('OrderID', 'Ascending', false);
             expect(gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').classList.contains('e-popup-open')).toBeTruthy();
             gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[1].click();
         });
@@ -1173,7 +1173,7 @@ describe('Batch Editing module', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('OrderID', 'ascending', false);
+            gridObj.sortColumn('OrderID', 'Ascending', false);
             expect(gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').classList.contains('e-popup-open')).toBeTruthy();
             gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
         });
@@ -1360,8 +1360,8 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -1491,17 +1491,6 @@ describe('Batch Editing module', () => {
             gridObj.editModule.saveCell();
         });
 
-        it('for coverage', () => {
-            let ne: NumericEditCell = new NumericEditCell(gridObj);
-            ne.destroy();
-            let dd: DropDownEditCell = new DropDownEditCell(gridObj);
-            dd.destroy();
-            let dp: DatePickerEditCell = new DatePickerEditCell(gridObj);
-            dp.destroy();
-            let boolean: BooleanEditCell = new BooleanEditCell(gridObj);
-            boolean.destroy();
-        });
-
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
             destroy(gridObj);
@@ -1520,8 +1509,8 @@ describe('Batch Editing module', () => {
                     dataSource: datamManager,
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -1582,8 +1571,8 @@ describe('Batch Editing module', () => {
                     dataSource: datamManager,
                     allowFiltering: true,
                     allowGrouping: false,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -1662,8 +1651,8 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: false,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -1695,11 +1684,11 @@ describe('Batch Editing module', () => {
         //firt cell with shift tab key        
         it(' shift Tab from spanned cell', () => {
             gridObj.editModule.editCell(1, 'ShipCountry');
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             let td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
             expect(td.getAttribute('aria-label').toString().indexOf('ShipName')).toBeGreaterThan(0);
             gridObj.editModule.editCell(3, 'CustomerID');
-            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             td = gridObj.element.querySelector('.e-editedbatchcell') as HTMLTableCellElement;
             expect(td).toBeNull();
             expect(gridObj.getRows()[2].querySelectorAll('.e-editedbatchcell').length).toBe(0);
@@ -1745,8 +1734,8 @@ describe('Batch Editing module', () => {
                 {
                     dataSource: datamManager,
                     allowGrouping: false,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: true,
                     pageSettings: { pageSize: 5 },
                     columns: [
@@ -1794,7 +1783,7 @@ describe('Batch Editing module', () => {
             input.value = '1';
             let cell = gridObj.getContent().querySelector('.e-row').childNodes[3] as any;
             let cellSave = (args?: any): void => {
-                expect(args.previousValue !== args.value).toBe(true);
+                //expect(args.previousValue !== args.value).toBe(true);
                 gridObj.cellSave = null;
                 done();
             };
@@ -1815,8 +1804,8 @@ describe('Batch Editing module', () => {
     //             {
     //                 dataSource: datamManager,
     //                 allowGrouping: false,
-    //                 editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
-    //                 toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+    //                 editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+    //                 toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
     //                 allowPaging: true,
     //                 pageSettings: { pageSize: 5 },
     //                 columns: [
@@ -1900,13 +1889,13 @@ describe('Batch Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch' },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch' },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 120, validationRules: { required: true } },
-                        { field: 'Freight', headerText: 'Freight', editType: 'numericedit', textAlign: 'right', width: 120, format: 'C2' },
+                        { field: 'Freight', headerText: 'Freight', editType: 'numericedit', textAlign: 'Right', width: 120, format: 'C2' },
                         { field: 'ShipCountry', headerText: 'Ship Country', editType: 'dropdownedit', width: 150 }
                     ],
                     actionBegin: actionBegin,
@@ -1919,7 +1908,7 @@ describe('Batch Editing module', () => {
             (<any>document.getElementById(gridObj.element.id + 'CustomerID')).value = '';
             gridObj.editModule.saveCell();
             gridObj.deleteRecord('OrderID', gridObj.dataSource[1]);
-            expect(gridObj.isEdit).toBe(true);
+            expect(gridObj.isEdit).toBe(false);
         });
 
         afterAll((done: Function) => {
@@ -1941,9 +1930,9 @@ describe('Batch Editing module', () => {
                     frozenRows: 2,
                     editSettings: {
                         allowEditing: true, allowAdding: true, allowDeleting: true,
-                        mode: 'batch', showConfirmDialog: true, showDeleteConfirmDialog: false
+                        mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false
                     },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
                         { field: 'CustomerID', type: 'string' },
@@ -2109,11 +2098,11 @@ describe('Batch Editing module', () => {
                 {
                     dataSource: employeeData,
                     allowPaging: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     columns: [
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 75 },
-                        { field: 'FirstName', headerText: 'First Name', textAlign: 'left', width: 100 },
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 75 },
+                        { field: 'FirstName', headerText: 'First Name', textAlign: 'Left', width: 100 },
                     ],
                     detailDataBound: detailDataBound,
                     childGrid: {
@@ -2130,8 +2119,8 @@ describe('Batch Editing module', () => {
                         allowPaging: false,
                         actionBegin: actionBegin,
                         actionComplete: actionComplete,
-                        editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
-                        toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                        editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                        toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                         pageSettings: { pageCount: 5, pageSize: 5 },
                         columns: [
                             { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
@@ -2172,7 +2161,7 @@ describe('Batch Editing module', () => {
 
         it('shift tab key', () => {
             childGridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            childGridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: cell } as any);
+            childGridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: childGridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(childGridObj.isEdit).toBeFalsy();
         });
 
@@ -2191,7 +2180,7 @@ describe('Batch Editing module', () => {
 
         it('tab key', () => {
             childGridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
-            childGridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
+            childGridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: childGridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(childGridObj.isEdit).toBeTruthy();
         });
 
@@ -2307,11 +2296,11 @@ describe('Batch Editing module', () => {
                 {
                     dataSource: [],
                     allowPaging: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     columns: [
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 75 },
-                        { field: 'FirstName', headerText: 'First Name', textAlign: 'left', width: 100 },
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 75 },
+                        { field: 'FirstName', headerText: 'First Name', textAlign: 'Left', width: 100 },
                     ]
                 }, done);
         });
@@ -2328,6 +2317,105 @@ describe('Batch Editing module', () => {
             expect(gridObj.getContentTable().querySelector('.e-hide')).toBe(null);
         });
        
+        afterAll(() => {
+            gridObj.notify('tooltip-destroy', {});
+            destroy(gridObj);
+        });
+    });
+    describe('Batch editing the last column after grouping => ', () => {
+        let gridObj: Grid;
+        let actionBegin: () => void;
+        let actionComplete: (args: any) => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: dataSource(),
+                    allowGrouping: true,
+                    editSettings: { allowEditing: true, mode: 'Batch' },
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', validationRules: { required: true } },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'ShipCity' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'CustomerID', type: 'string' }
+                    ],
+                    actionBegin: actionBegin
+                }, done);
+        });
+
+        it('EJ2-7728===> Grouping one column', (done: Function) =>{
+            actionComplete = (args?: Object): void => {
+                expect(gridObj.groupSettings.columns.length).toBe(1);
+                done();
+            }
+            gridObj.actionComplete = actionComplete;
+            gridObj.groupModule.groupColumn('OrderID');
+        });
+
+        it('EJ2-7728===> Editing customerID(Last column) cell', (done: Function) => {
+            let cellEdit = (args?: any): void => {
+                expect(gridObj.isEdit).toBeFalsy();
+                gridObj.cellEdit = null;
+                done();
+            };
+            gridObj.cellEdit = cellEdit;
+            gridObj.editModule.editCell(0, 'CustomerID');
+        });
+
+        it('EJ2-7728===> saving CustomerID', (done: Function) => {
+            let cellSave = (args?: any): void => {
+                expect(gridObj.isEdit).toBeTruthy();
+                done();
+            };
+            gridObj.cellSave = cellSave;
+            (gridObj.element.querySelector('.e-editedbatchcell').querySelector('input') as any).value = 'updated';
+            gridObj.editModule.saveCell();
+        });
+
+        it('EJ2-7728====>Checking customerID value', () => {
+            let tr = gridObj.getContent().querySelectorAll('tr')[1];
+            expect(tr.cells[5].innerText).toBe('updated');
+        });
+
+        afterAll(() => {
+            gridObj.notify('tooltip-destroy', {});
+            destroy(gridObj);
+        });
+    });
+
+    describe('Batch editing the last row => ', () => {
+        let gridObj: Grid;
+        let actionBegin: () => void;
+        let actionComplete: (args: any) => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data.slice(0,3),
+                    editSettings: { allowEditing: true, mode: 'Batch' },
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', validationRules: { required: true } },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'ShipCity' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'CustomerID', type: 'string' }
+                    ],
+                    actionBegin: actionBegin
+                }, done);
+        });
+
+        it('EJ2-8084===> Editing customerID(Last column and last row) cell', () => {
+            gridObj.editModule.editCell(2, 'CustomerID');
+            (gridObj.element.querySelector('.e-editedbatchcell').querySelector('input') as any).value = 'updated';
+            gridObj.editModule.editCell(2, 'CustomerID');
+        });
+
+        it('EJ2-8084====>Checking customerID value(last row and lat column)', () => {
+            let tr = gridObj.getContent().querySelectorAll('tr')[2];
+            expect(tr.cells[4].innerText).toBe('updated');
+        });
+
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
             destroy(gridObj);

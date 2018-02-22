@@ -6,12 +6,14 @@ import { EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager, ODataV4Adaptor } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { extend } from '../../../src/grid/base/util';
-import { Page } from '../../../src/grid/actions/page';
+import { Page, Sort, Group, Edit, Toolbar } from '../../../src/grid/actions';
 import { Data } from '../../../src/grid/actions/data';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
+import { DataStateChangeEventArgs, DataSourceChangedEventArgs } from '../../../src/grid/base/interface';
 
-Grid.Inject(Page);
+Grid.Inject(Page, Sort, Group, Edit, Toolbar);
 
 describe('Data module', () => {
 
@@ -96,7 +98,7 @@ describe('Data module', () => {
             this.request = jasmine.Ajax.requests.mostRecent();
             this.request.respondWith({
                 status: 200,
-                responseText: JSON.stringify({ d: data, __count: 15 })
+                responseText: JSON.stringify({ d: data.slice(0, 15), __count: 15 })
             });
         });
 
@@ -208,7 +210,7 @@ describe('Data module', () => {
             this.request = jasmine.Ajax.requests.mostRecent();
             this.request.respondWith({
                 status: 200,
-                responseText: JSON.stringify({value: data})
+                responseText: JSON.stringify({value: data.slice(0, 15)})
             });
             let dataBound: EmitType<Object> = () => { done(); };
             document.body.appendChild(elem);
@@ -291,6 +293,156 @@ describe('Data module', () => {
 
         afterAll(() => {
             remove(elem);
+        });
+    });
+    describe('Custom Data Source =>', () => {
+        let gridObj: Grid;
+        let dataStateChange: (s?: DataStateChangeEventArgs) => void;
+        let dataSourceChanged: (s?: DataSourceChangedEventArgs) => void;
+        beforeAll((done: Function) => {
+            let options: Object = {
+                dataSource: { result : data.slice(0,6), count : data.length },
+                allowSorting: true,
+                allowGrouping: true,
+                allowPaging: true,
+                pageSettings: {pageSize: 6},
+                toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true },
+                columns: [
+                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'Right', width: 100, isPrimaryKey: true },
+                    { field: 'CustomerID', headerText: 'Customer ID', width: 120 },
+                    { field: 'Freight', headerText: 'Freight', textAlign: 'Right', width: 120, format: 'C2' },
+                    { field: 'ShipCountry', headerText: 'Ship Country', width: 150 }
+                ],
+                dataStateChange: dataStateChange,
+                dataSourceChanged: dataSourceChanged,
+            };
+            gridObj = createGrid(options, done);
+        });
+    //Local Custom Data Service
+        it('Initial Page rendering ', (done: Function) => {
+            dataStateChange = ( s: DataStateChangeEventArgs ): void => {
+                expect(s.action.requestType).toBe('paging');
+                expect(s.skip).toBe(12);
+                expect(s.take).toBe(6);
+                done();
+            }
+            gridObj.dataStateChange = dataStateChange;
+            gridObj.dataSourceChanged = null;
+            gridObj.goToPage(3);
+        });
+        it('Sorting in Custom Data Service =>', (done: Function) => {
+            dataStateChange = ( s: DataStateChangeEventArgs ): void => {
+                expect(s.action.requestType).toBe('sorting');
+                expect(s.sorted[0].name).toBe('CustomerID');
+                done();
+            }
+            gridObj.dataStateChange = dataStateChange;
+            gridObj.dataSourceChanged = null;
+            gridObj.sortColumn('CustomerID', 'Ascending', false);
+        });
+        it('Grouping in Custom Data Service =>', (done: Function) => {
+            dataStateChange = ( s: DataStateChangeEventArgs ): void => {
+                expect(s.group[0]).toBe('CustomerID');
+                done();
+            }
+            gridObj.dataStateChange = dataStateChange;
+            gridObj.dataSourceChanged = null;
+            gridObj.groupModule.groupColumn('CustomerID');
+        });
+        it('Deleting a record =>', (done: Function) => {
+            dataSourceChanged = ( s: DataSourceChangedEventArgs ): void => {
+                expect(s.requestType).toBe('delete');
+                gridObj.dataStateChange = null;
+                done();
+            }
+            gridObj.dataSourceChanged = dataSourceChanged;
+            gridObj.editModule.deleteRecord('OrderID', gridObj.currentViewData[2]);
+        });
+        afterAll((done) => {
+            destroy(gridObj);
+        });
+     });
+     describe('Custom Data Source with inline editing =>', () => {
+        let gridObj: Grid;
+        let dataStateChange: (s?: DataStateChangeEventArgs) => void;
+        let dataSourceChanged: (s?: DataSourceChangedEventArgs) => void;
+        beforeAll((done: Function) => {
+            let options: Object = {
+                dataSource: { result : data.slice(0,6), count : data.length },
+                allowSorting: true,
+                allowGrouping: true,
+                allowPaging: true,
+                pageSettings: {pageSize: 6},
+                toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true },
+                columns: [
+                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'Right', width: 100, isPrimaryKey: true },
+                    { field: 'CustomerID', headerText: 'Customer ID', width: 120 },
+                    { field: 'Freight', headerText: 'Freight', textAlign: 'Right', width: 120, format: 'C2' },
+                    { field: 'ShipCountry', headerText: 'Ship Country', width: 150 }
+                ],
+                dataStateChange: dataStateChange,
+                dataSourceChanged: dataSourceChanged,
+            };
+            gridObj = createGrid(options, done);
+        });
+        it('Editing a record =>', (done: Function) => {
+            dataSourceChanged = ( s: DataSourceChangedEventArgs ): void => {
+                expect(s.requestType).toBe('save');
+                expect(s.action).toBe('edit');
+                gridObj.dataStateChange = null;
+                done();
+            }
+            gridObj.selectRow(0);
+            gridObj.startEdit();
+            (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
+            gridObj.dataSourceChanged = dataSourceChanged;
+            gridObj.endEdit();
+        });
+        afterAll((done) => {
+            destroy(gridObj);
+        });
+     });
+     describe('Custom Data Source with Batch editing =>', () => {
+        let gridObj: Grid;
+        let dataStateChange: (s?: DataStateChangeEventArgs) => void;
+        let dataSourceChanged: (s?: DataSourceChangedEventArgs) => void;
+        beforeAll((done: Function) => {
+            let options: Object = {
+                dataSource: { result : data.slice(0,6), count : data.length },
+                allowSorting: true,
+                allowGrouping: true,
+                allowPaging: true,
+                pageSettings: {pageSize: 6},
+                toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch'},
+                columns: [
+                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'Right', width: 100, isPrimaryKey: true },
+                    { field: 'CustomerID', headerText: 'Customer ID', width: 120 },
+                    { field: 'Freight', headerText: 'Freight', textAlign: 'Right', width: 120, format: 'C2' },
+                    { field: 'ShipCountry', headerText: 'Ship Country', width: 150 }
+                ],
+                dataStateChange: dataStateChange,
+                dataSourceChanged: dataSourceChanged,
+            };
+            gridObj = createGrid(options, done);
+        });
+        it('Batch Editing a record =>', (done: Function) => {
+            dataSourceChanged = ( s: DataSourceChangedEventArgs ): void => {
+                expect(s.requestType).toBe('batchsave');
+                gridObj.dataStateChange = null;
+                done();
+            }
+            gridObj.dataSourceChanged = dataSourceChanged;
+            gridObj.editModule.editCell(4, 'CustomerID');
+            (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
+            gridObj.editModule.saveCell();
+            gridObj.editModule.batchSave();
+            (gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm')as any).querySelectorAll('button')[0].click();
+        });
+        afterAll((done) => {
+            destroy(gridObj);
         });
 
     });

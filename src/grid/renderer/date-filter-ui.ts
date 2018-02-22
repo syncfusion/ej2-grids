@@ -62,7 +62,7 @@ export class DateFilterUI implements IFilterMUI {
         filterObj.filterByColumn(column.field, filterOptr, filterValue, 'and', true);
     }
 
-    private openPopup(args: { popupElement: Popup }): void {
-        args.popupElement.element.style.zIndex = (this.dialogObj.zIndex + 1).toString();
+    private openPopup(args: { popup: Popup }): void {
+        args.popup.element.style.zIndex = (this.dialogObj.zIndex + 1).toString();
     }
 }

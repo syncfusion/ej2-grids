@@ -17,10 +17,10 @@ module.exports = function (config) {
     files: [
       "test-main.js",
       "styles/grid/material.css",
-      { pattern: "src/**/*.js", included: false },     
+      { pattern: "src/**/*.js", included: false },
       { pattern: "spec/**/datasource.spec.js", included: false },
       { pattern: "spec/**/specutil.spec.js", included: false },
-      { pattern: "spec/**/*.spec.js", included: false },      
+      { pattern: "spec/**/*.spec.js", included: false },
       { pattern: "node_modules/@syncfusion/ej2-base/**/*.js", included: false },
       { pattern: "node_modules/@syncfusion/ej2-data/**/*.js", included: false },
       { pattern: "node_modules/@syncfusion/ej2-inputs/**/*.js", included: false },
@@ -96,10 +96,10 @@ module.exports = function (config) {
       type: "html",
       check: {
         each: {
-          statements: 90,
-          branches: 90,
-          functions: 100,
-          lines: 90
+            statements: 90,
+            branches: 90,
+            functions: 100,
+            lines: 90
         }
       }
     }

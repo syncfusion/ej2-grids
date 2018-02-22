@@ -170,7 +170,7 @@ describe('Resize module', () => {
                 {
                     dataSource: data,
                     allowResizing: true,
-                    gridLines: 'horizontal',
+                    gridLines: 'Horizontal',
                     columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 },
                     { field: 'CustomerID', headerText: 'CustomerID' },
                     { field: 'EmployeeID', headerText: 'EmployeeID', width: 150, minWidth: 100, maxWidth: 200 },
@@ -335,7 +335,7 @@ describe('Resize module', () => {
                     dataBound: dataBound,
                     resizeStart: resizeStartevent,
                     resizeStop: resizeStop,
-                    onResize: resize
+                    resizing: resize
                 });
             gridObj.appendTo('#Grid');
         });
@@ -421,7 +421,7 @@ describe('Resize module', () => {
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
                     dataBound: dataBound,
                     width: 200,
-                    onResize: function (e) {
+                    resizing: function (e) {
                         e.cancel = true;
                     },
 
@@ -553,24 +553,24 @@ describe('Resize module', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd', type: 'datetime' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     allowResizing: true,
                     aggregates: [{
                         columns: [{
-                            type: 'average',
+                            type: 'Average',
                             field: 'Freight',
                             format: 'c2'
                         }]
                     }, {
                         columns: [{
-                            type: 'max',
+                            type: 'Max',
                             field: 'OrderDate',
                             format: { type: 'date', skeleton: 'medium' },
                             footerTemplate: '${max}'
@@ -666,7 +666,7 @@ describe('Resize module', () => {
                         allowResizing: true,
                         height: 300,
                         width: 700,
-                        gridLines: 'horizontal',
+                        gridLines: 'Horizontal',
                         columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 },
                         { field: 'CustomerID', headerText: 'CustomerID' },
                         { field: 'EmployeeID', headerText: 'EmployeeID', width: 150, minWidth: 100, maxWidth: 200 },
@@ -772,7 +772,7 @@ describe('Resize module', () => {
                         dataBound: dataBound,
                         resizeStart: resizeStartevent,
                         resizeStop: resizeStop,
-                        onResize: resize
+                        resizing: resize
                     });
                 gridObj.appendTo('#Grid');
             });

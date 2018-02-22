@@ -78,10 +78,10 @@ export class ColumnMenu implements IAction {
 
     public columnMenuHandlerClick(e: Event): void {
         if ((e.target as HTMLElement).classList.contains('e-columnmenu')) {
-            if (!this.isOpen) {
-                this.openColumnMenu(e);
-            } else if (this.isOpen && this.headerCell !== this.getHeaderCell(e)) {
+            if ((this.isOpen && this.headerCell !== this.getHeaderCell(e)) || document.querySelector('.e-grid-menu .e-menu-parent.e-ul')) {
                 this.columnMenu.close();
+                this.openColumnMenu(e);
+            } else if (!this.isOpen) {
                 this.openColumnMenu(e);
             } else {
                 this.columnMenu.close();
@@ -201,16 +201,17 @@ export class ColumnMenu implements IAction {
             }
             args.element.innerHTML = '';
             args.element.appendChild(check);
-        } else if (args.item.id && this.getKeyFromId(args.item.id) === 'filter') {
+        } else if (args.item.id && this.getKeyFromId(args.item.id) === 'Filter') {
             args.element.appendChild(createElement('span', { className: 'e-icons e-caret' }));
             args.element.className += 'e-filter-item e-menu-caret-icon';
         }
     }
 
     private columnMenuBeforeClose(args: ColumnMenuOpenEventArgs): void {
+        let colChooser: Element = args.event ? closest(args.event.target as Node, '.e-menu-item') : null;
         if (!isNullOrUndefined(args.parentItem) &&
-            this.getKeyFromId(args.parentItem.id) === 'columnChooser' &&
-            closest(args.event.target as Node, '.e-menu-parent')) {
+            this.getKeyFromId(args.parentItem.id) === 'ColumnChooser' &&
+            colChooser && this.isChooserItem(colChooser)) {
             args.cancel = true;
         } else if (args.event && (closest(args.event.target as Element, '.' + this.POP)
             || parentsUntil(args.event.target as Element, 'e-popup') ||
@@ -246,24 +247,24 @@ export class ColumnMenu implements IAction {
     private ensureDisabledStatus(item: string): Boolean {
         let status: Boolean = false;
         switch (item) {
-            case 'group':
+            case 'Group':
                 if (!this.parent.allowGrouping || (this.parent.ensureModuleInjected(Group) && this.targetColumn
                     && this.parent.groupSettings.columns.indexOf(this.targetColumn.field) >= 0)) {
                     status = true;
                 }
                 break;
-            case 'autoFitAll':
-            case 'autoFit':
+            case 'AutoFitAll':
+            case 'AutoFit':
                 status = !this.parent.ensureModuleInjected(Resize);
                 break;
-            case 'ungroup':
+            case 'Ungroup':
                 if (!this.parent.ensureModuleInjected(Group) || (this.parent.ensureModuleInjected(Group) && this.targetColumn
                     && this.parent.groupSettings.columns.indexOf(this.targetColumn.field) < 0)) {
                     status = true;
                 }
                 break;
-            case 'sortDescending':
-            case 'sortAscending':
+            case 'SortDescending':
+            case 'SortAscending':
                 if (this.parent.allowSorting && this.parent.ensureModuleInjected(Sort)
                     && this.parent.sortSettings.columns.length > 0 && this.targetColumn) {
                     this.parent.sortSettings.columns.forEach((ele: SortDescriptorModel) => {
@@ -276,46 +277,46 @@ export class ColumnMenu implements IAction {
                     status = true;
                 }
                 break;
-            case 'filter':
-                status = !(this.parent.allowFiltering && (this.parent.filterSettings.type !== 'filterbar')
+            case 'Filter':
+                status = !(this.parent.allowFiltering && (this.parent.filterSettings.type !== 'FilterBar')
                     && this.parent.ensureModuleInjected(Filter));
         }
         return status;
     }
 
     private columnMenuItemClick(args: ColumnMenuClickEventArgs): void {
-        let item: string = this.isChooserItem(args.item) ? 'columnChooser' : this.getKeyFromId(args.item.id);
+        let item: string = this.isChooserItem(args.item) ? 'ColumnChooser' : this.getKeyFromId(args.item.id);
         switch (item) {
-            case 'autoFit':
+            case 'AutoFit':
                 this.parent.autoFitColumns(this.targetColumn.field);
                 break;
-            case 'autoFitAll':
+            case 'AutoFitAll':
                 this.parent.autoFitColumns([]);
                 break;
-            case 'ungroup':
+            case 'Ungroup':
                 this.parent.ungroupColumn(this.targetColumn.field);
                 break;
-            case 'group':
+            case 'Group':
                 this.parent.groupColumn(this.targetColumn.field);
                 break;
-            case 'sortAscending':
-                this.parent.sortColumn(this.targetColumn.field, 'ascending');
+            case 'SortAscending':
+                this.parent.sortColumn(this.targetColumn.field, 'Ascending');
                 break;
-            case 'sortDescending':
-                this.parent.sortColumn(this.targetColumn.field, 'descending');
+            case 'SortDescending':
+                this.parent.sortColumn(this.targetColumn.field, 'Descending');
                 break;
-            case 'columnChooser':
+            case 'ColumnChooser':
                 let key: string = this.getKeyFromId(args.item.id, this.CHOOSER);
                 let checkbox: HTMLElement = args.element.querySelector('.e-checkbox-wrapper .e-frame') as HTMLElement;
                 if (checkbox && checkbox.classList.contains('e-check')) {
                     checkbox.classList.remove('e-check');
-                    this.parent.hideColumn(key, 'field');
+                    this.parent.hideColumns(key, 'field');
                 } else if (checkbox) {
-                    this.parent.showColumn(key, 'field');
+                    this.parent.showColumns(key, 'field');
                     checkbox.classList.add('e-check');
                 }
                 break;
-            case 'filter':
+            case 'Filter':
                 this.getFilter(args.element, args.item.id);
                 break;
         }
@@ -337,7 +338,7 @@ export class ColumnMenu implements IAction {
     }
 
     private getDefaultItems(): string[] {
-        return ['autoFitAll', 'autoFit', 'sortAscending', 'sortDescending', 'group', 'ungroup', 'columnChooser', 'filter'];
+        return ['AutoFitAll', 'AutoFit', 'SortAscending', 'SortDescending', 'Group', 'Ungroup', 'ColumnChooser', 'Filter'];
     }
 
     private getItems(): ColumnMenuItemModel[] {
@@ -345,7 +346,7 @@ export class ColumnMenu implements IAction {
         let defultItems: string[] | ColumnMenuItemModel[] = this.parent.columnMenuItems ? this.parent.columnMenuItems : this.getDefault();
         for (let item of defultItems) {
             if (typeof item === 'string') {
-                if (item === 'columnChooser') {
+                if (item === 'ColumnChooser') {
                     let col: ColumnMenuItemModel = this.getDefaultItem(item);
                     col.items = this.createChooserItems();
                     items.push(col);
@@ -363,19 +364,19 @@ export class ColumnMenu implements IAction {
     private getDefaultItem(item: string): ColumnMenuItemModel {
         let menuItem: ColumnMenuItemModel = {};
         switch (item) {
-            case 'sortAscending':
+            case 'SortAscending':
                 menuItem = { iconCss: this.ASCENDING };
                 break;
-            case 'sortDescending':
+            case 'SortDescending':
                 menuItem = { iconCss: this.DESCENDING };
                 break;
-            case 'group':
+            case 'Group':
                 menuItem = { iconCss: this.GROUP };
                 break;
-            case 'ungroup':
+            case 'Ungroup':
                 menuItem = { iconCss: this.UNGROUP };
                 break;
-            case 'filter':
+            case 'Filter':
                 menuItem = { iconCss: this.FILTER };
                 break;
         }
@@ -409,14 +410,14 @@ export class ColumnMenu implements IAction {
 
     private setLocaleKey(): { [key: string]: string } {
         return {
-            'autoFitAll': 'autoFitAll',
-            'autoFit': 'autoFit',
-            'group': 'Group',
-            'ungroup': 'Ungroup',
-            'sortAscending': 'SortAscending',
-            'sortDescending': 'SortDescending',
-            'columnChooser': 'Columnchooser',
-            'filter': 'FilterMenu'
+            'AutoFitAll': 'autoFitAll',
+            'AutoFit': 'autoFit',
+            'Group': 'Group',
+            'Ungroup': 'Ungroup',
+            'SortAscending': 'SortAscending',
+            'SortDescending': 'SortDescending',
+            'ColumnChooser': 'Columnchooser',
+            'Filter': 'FilterMenu'
         };
     }
 
@@ -443,7 +444,7 @@ export class ColumnMenu implements IAction {
     }
 
     private appendFilter(e: Event): void {
-        let filter: string = 'filter';
+        let filter: string = 'Filter';
         if (!this.defaultItems[filter]) { return; } else {
             let key: string = this.defaultItems[filter].id;
             if (closest((e as Event).target as Element, '#' + key) && !this.isFilterPopupOpen()) {
@@ -457,7 +458,7 @@ export class ColumnMenu implements IAction {
     private getFilter(target: Element, id: string, isClose?: boolean): void {
         let filterPopup: HTMLElement = this.getFilterPop();
         if (filterPopup) {
-            filterPopup.style.display = isClose ? 'none' : 'block';
+            filterPopup.style.display = !Browser.isDevice && isClose ? 'none' : 'block';
         } else {
             this.parent.notify(events.filterOpen, {
                 col: this.targetColumn, target: target, isClose: isClose, id: id
@@ -505,21 +506,21 @@ export class ColumnMenu implements IAction {
     private getDefault(): string[] {
         let items: string[] = [];
         if (this.parent.ensureModuleInjected(Resize)) {
-            items.push('autoFitAll');
-            items.push('autoFit');
+            items.push('AutoFitAll');
+            items.push('AutoFit');
         }
         if (this.parent.allowGrouping && this.parent.ensureModuleInjected(Group)) {
-            items.push('group');
-            items.push('ungroup');
+            items.push('Group');
+            items.push('Ungroup');
         }
         if (this.parent.allowSorting && this.parent.ensureModuleInjected(Sort)) {
-            items.push('sortAscending');
-            items.push('sortDescending');
+            items.push('SortAscending');
+            items.push('SortDescending');
         }
-        items.push('columnChooser');
-        if (this.parent.allowFiltering && (this.parent.filterSettings.type !== 'filterbar') &&
+        items.push('ColumnChooser');
+        if (this.parent.allowFiltering && (this.parent.filterSettings.type !== 'FilterBar') &&
             this.parent.ensureModuleInjected(Filter)) {
-            items.push('filter');
+            items.push('Filter');
         }
         return items;
     }
@@ -535,6 +536,6 @@ export class ColumnMenu implements IAction {
 
     private isFilterItemAdded(): boolean {
         return (this.parent.columnMenuItems &&
-            (this.parent.columnMenuItems as string[]).indexOf('filter') >= 0) || !this.parent.columnMenuItems;
+            (this.parent.columnMenuItems as string[]).indexOf('Filter') >= 0) || !this.parent.columnMenuItems;
     }
 }

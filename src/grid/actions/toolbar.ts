@@ -7,9 +7,10 @@ import { ServiceLocator } from '../services/service-locator';
 import { EditSettingsModel } from '../base/grid-model';
 import { templateCompiler, appendChildren } from '../base/util';
 import { ToolbarItems, ToolbarItem } from '../base/enum';
+import { SearchBox } from '../services/focus-strategy';
 
 /**
- * `Toolbar` module used to handle toolbar actions.
+ * The `Toolbar` module is used to handle ToolBar actions.
  * @hidden
  */
 export class Toolbar {
@@ -23,8 +24,9 @@ export class Toolbar {
     private parent: IGrid;
     private serviceLocator: ServiceLocator;
     private l10n: L10n;
-    private items: string[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print', 'search',
-        'columnchooser', 'pdfexport', 'excelexport', 'csvexport', 'wordexport'];
+    private items: string[] = ['Add', 'Edit', 'Update', 'Delete', 'Cancel', 'Print', 'Search',
+        'ColumnChooser', 'PdfExport', 'ExcelExport', 'CsvExport', 'WordExport'];
+    private searchBoxObj: SearchBox;
 
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator) {
         this.parent = parent;
@@ -35,24 +37,27 @@ export class Toolbar {
 
     private render(): void {
         this.l10n = this.serviceLocator.getService<L10n>('localization');
-        let preItems: ToolbarItems[] = ['add', 'edit', 'update', 'delete', 'cancel', 'print',
-            'pdfexport', 'excelexport', 'wordexport', 'csvexport'];
+        let preItems: ToolbarItems[] = ['Add', 'Edit', 'Update', 'Delete', 'Cancel', 'Print',
+            'PdfExport', 'ExcelExport', 'WordExport', 'CsvExport'];
         for (let item of preItems) {
-            let localeName: string = item[0].toUpperCase() + item.slice(1);
+            let itemStr: string = item.toLowerCase();
+            let localeName: string = itemStr[0].toUpperCase() + itemStr.slice(1);
             this.predefinedItems[item] = {
-                id: this.gridID + '_' + item, prefixIcon: 'e-' + item,
+                id: this.gridID + '_' + itemStr, prefixIcon: 'e-' + itemStr,
                 text: this.l10n.getConstant(localeName), tooltipText: this.l10n.getConstant(localeName)
             };
         }
-        (this.predefinedItems as { search: Object }).search = {
-            id: this.gridID + '_search', template: '<div class="e-search" role="search" >\
-                         <span id="' + this.gridID + '_searchbutton" class="e-searchfind e-icons" tabindex="-1"\
-                         role="button" aria-label= "search"></span>\
-                         <input id="' + this.gridID + '_searchbar" aria-multiline= "false" type="search"\
-                         placeholder=' + this.l10n.getConstant('Search') + '>\
-                         </input></div>', tooltipText: this.l10n.getConstant('Search'), align: 'right'
+        (this.predefinedItems as { Search: Object }).Search = {
+            id: this.gridID + '_search',
+            template: '<div class="e-input-group e-search" role="search">\
+            <input id="' + this.gridID + '_searchbar" class="e-input" name="input" type="search" \
+            placeholder= \"' + this.l10n.getConstant('Search') + '\"/>\
+            <span id="' + this.gridID + '_searchbutton" class="e-input-group-icon e-search-icon e-icons" \
+            tabindex="-1" title="Search In" aria-label= "search"></span> \
+            </div>',
+            tooltipText: this.l10n.getConstant('Search'), align: 'right', cssClass: 'e-search-wrapper'
         };
-        (this.predefinedItems as { columnchooser: Object }).columnchooser = {
+        (this.predefinedItems as { ColumnChooser: Object }).ColumnChooser = {
             id: this.gridID + '_' + 'columnchooser', cssClass: 'e-cc e-ccdiv e-cc-toolbar', suffixIcon: 'e-' + 'columnchooser-btn',
             text: 'Columns', tooltipText: 'columns', align: 'right',
         };
@@ -60,7 +65,7 @@ export class Toolbar {
     }
 
     /**
-     * Gets the toolbar element of grid.
+     * Gets the toolbar of the Grid.
      * @return {Element}
      * @hidden
      */
@@ -69,7 +74,7 @@ export class Toolbar {
     }
 
     /**
-     * To destroy the toolbar widget of the grid.
+     * Destroys the ToolBar.
      * @method destroy
      * @return {void}
      */
@@ -121,10 +126,11 @@ export class Toolbar {
         let enableItems: string[] = [];
         let disableItems: string[] = [];
         let edit: EditSettingsModel = gObj.editSettings;
+        let hasData: number = gObj.currentViewData && gObj.currentViewData.length;
         edit.allowAdding ? enableItems.push(this.gridID + '_add') : disableItems.push(this.gridID + '_add');
-        edit.allowEditing ? enableItems.push(this.gridID + '_edit') : disableItems.push(this.gridID + '_edit');
-        edit.allowDeleting ? enableItems.push(this.gridID + '_delete') : disableItems.push(this.gridID + '_delete');
-        if (gObj.editSettings.mode === 'batch') {
+        edit.allowEditing && hasData ? enableItems.push(this.gridID + '_edit') : disableItems.push(this.gridID + '_edit');
+        edit.allowDeleting && hasData ? enableItems.push(this.gridID + '_delete') : disableItems.push(this.gridID + '_delete');
+        if (gObj.editSettings.mode === 'Batch') {
             if (gObj.element.querySelectorAll('.e-updatedtd').length && (edit.allowAdding || edit.allowEditing)) {
                 enableItems.push(this.gridID + '_update');
                 enableItems.push(this.gridID + '_cancel');
@@ -176,9 +182,9 @@ export class Toolbar {
     }
 
     /**
-     * Enable or disable toolbar items.
-     * @param {string[]} items - Define the collection of itemID of toolbar items.
-     * @param {boolean} isEnable - Define the items to be enable or disable.
+     * Enables or disables ToolBar items.
+     * @param {string[]} items - Defines the collection of itemID of ToolBar items.
+     * @param {boolean} isEnable - Defines the items to be enabled or disabled.
      * @return {void}
      * @hidden
      */
@@ -217,14 +223,6 @@ export class Toolbar {
             case gID + '_delete':
                 gObj.deleteRecord();
                 break;
-            // case gID + '_pdfexport':
-            //     break;
-            // case gID + '_wordexport':
-            //     break;
-            // case gID + '_excelexport':
-            //     break;
-            // case gID + '_csvexport':
-            //     break;
             case gID + '_search':
                 if ((<HTMLElement>args.originalEvent.target).id === gID + '_searchbutton') {
                     this.search();
@@ -277,13 +275,16 @@ export class Toolbar {
 
     private wireEvent(): void {
         if (this.searchElement) {
+            this.searchBoxObj = new SearchBox(this.searchElement);
             EventHandler.add(this.searchElement, 'keyup', this.keyUpHandler, this);
+            this.searchBoxObj.wireEvent();
         }
     }
 
     private unWireEvent(): void {
         if (this.searchElement) {
             EventHandler.remove(this.searchElement, 'keyup', this.keyUpHandler);
+            this.searchBoxObj.unWireEvent();
         }
     }
 

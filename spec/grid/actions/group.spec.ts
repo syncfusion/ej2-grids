@@ -248,8 +248,8 @@ describe('Grouping module => ', () => {
             actionComplete = (args?: Object): void => {
                 expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toBe(0);
                 expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toBe(2);
-                expect(gridObj.sortSettings.columns[0].direction).toBe('ascending');
-                expect(gridObj.sortSettings.columns[1].direction).toBe('ascending');
+                expect(gridObj.sortSettings.columns[0].direction).toBe('Ascending');
+                expect(gridObj.sortSettings.columns[1].direction).toBe('Ascending');
                 expect(gridObj.getColumnHeaderByField('CustomerID').querySelectorAll('.e-ascending').length).toBe(1);
                 expect(gridObj.getColumnHeaderByField('ShipCity').querySelectorAll('.e-ascending').length).toBe(1);
                 done();
@@ -267,7 +267,7 @@ describe('Grouping module => ', () => {
             actionComplete = (args?: Object): void => {
                 expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toBe(1);
                 expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toBe(1);
-                expect(gridObj.sortSettings.columns[1].direction).toBe('descending');
+                expect(gridObj.sortSettings.columns[1].direction).toBe('Descending');
                 expect(gridObj.getColumnHeaderByField('ShipCity').querySelectorAll('.e-descending').length).toBe(1);
                 done();
             };
@@ -280,7 +280,7 @@ describe('Grouping module => ', () => {
             actionComplete = (args?: Object): void => {
                 expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-descending').length).toBe(2);
                 expect(gridObj.element.querySelector('.e-groupdroparea').querySelectorAll('.e-ascending').length).toBe(0);
-                expect(gridObj.sortSettings.columns[1].direction).toBe('descending');
+                expect(gridObj.sortSettings.columns[1].direction).toBe('Descending');
                 expect(gridObj.getColumnHeaderByField('CustomerID').querySelectorAll('.e-descending').length).toBe(1);
                 done();
             };
@@ -586,7 +586,7 @@ describe('Grouping module => ', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('CustomerID', 'ascending', false);
+            gridObj.sortColumn('CustomerID', 'Ascending', false);
         });
 
         it('hide drop area', () => {
@@ -691,7 +691,7 @@ describe('Grouping module => ', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('OrderDate', 'ascending');
+            gridObj.sortColumn('OrderDate', 'Ascending');
         });
         it('ungroup a column', (done: Function) => {
             let actionComplete = (args: Object) => {
@@ -890,7 +890,7 @@ describe('Grouping module => ', () => {
                     { field: 'ShipCountry', headerText: 'Ship Country' }],
                     allowGrouping: true,
                     groupSettings: { columns: ['EmployeeID'] },
-                    sortSettings: { columns: [{ field: 'EmployeeID', direction: 'ascending' }] },
+                    sortSettings: { columns: [{ field: 'EmployeeID', direction: 'Ascending' }] },
                     allowSorting: true,
                     allowPaging: true,
                     actionBegin: actionBegin,
@@ -1054,7 +1054,7 @@ describe('Grouping module => ', () => {
                 done();
             };
             gridObj.actionComplete = actionComplete;
-            gridObj.sortColumn('OrderID', 'ascending');
+            gridObj.sortColumn('OrderID', 'Ascending');
         });
         it('ungroup a column', (done: Function) => {
             let actionComplete: any = (args: Object) => {
@@ -1176,7 +1176,7 @@ describe('Grouping module => ', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.getColumnByField('OrderDate').type = 'undefined';
             gridObj.dataSource[0].OrderDate = new Date('07 07 1996 00:01:23');
-            gridObj.sortColumn('OrderID', 'ascending');
+            gridObj.sortColumn('OrderID', 'Ascending');
             gridObj.dataBind();
         });
         it('ungroup a column', (done: Function) => {

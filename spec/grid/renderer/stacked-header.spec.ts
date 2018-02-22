@@ -26,12 +26,12 @@ describe('Stacked header render module', () => {
                     allowGrouping: true,
                     columns: [
                         {
-                            headerText: 'Order Details', toolTip: 'Order Details', textAlign: 'center',
-                            columns: [{ field: 'OrderID', textAlign: 'right', headerText: 'Order ID' },
-                            { field: 'OrderDate', textAlign: 'right', headerText: 'Order Date', format: { skeleton: 'yMd', type: 'date' }, type: 'date' }]
+                            headerText: 'Order Details', toolTip: 'Order Details', textAlign: 'Center',
+                            columns: [{ field: 'OrderID', textAlign: 'Right', headerText: 'Order ID' },
+                            { field: 'OrderDate', textAlign: 'Right', headerText: 'Order Date', format: { skeleton: 'yMd', type: 'date' }, type: 'date' }]
                         },
                         { field: 'CustomerID', headerText: 'Customer ID' },
-                        { field: 'EmployeeID', textAlign: 'right', headerText: 'Employee ID' },
+                        { field: 'EmployeeID', textAlign: 'Right', headerText: 'Employee ID' },
                         {
                             headerText: 'Ship Details',
                             columns: [
@@ -46,8 +46,8 @@ describe('Stacked header render module', () => {
                             ],
                         },
                         {
-                            headerText: 'Hidden', toolTip: 'Hidden', textAlign: 'center',
-                            columns: [{ field: 'HiddenCol', textAlign: 'right', headerText: 'Hidden Column', visible: false }]
+                            headerText: 'Hidden', toolTip: 'Hidden', textAlign: 'Center',
+                            columns: [{ field: 'HiddenCol', textAlign: 'Right', headerText: 'Hidden Column', visible: false }]
                         },
                     ],
                     allowReordering: true,
@@ -104,15 +104,15 @@ describe('Stacked header render module', () => {
                     frozenRows: 2,
                     columns: [
                         {
-                            headerText: 'Order Details', toolTip: 'Order Details', textAlign: 'center',
-                            columns: [{ field: 'OrderID', width: 120, textAlign: 'right', headerText: 'Order ID' },
+                            headerText: 'Order Details', toolTip: 'Order Details', textAlign: 'Center',
+                            columns: [{ field: 'OrderID', width: 120, textAlign: 'Right', headerText: 'Order ID' },
                             {
-                                field: 'OrderDate', width: 120, textAlign: 'right', headerText: 'Order Date',
+                                field: 'OrderDate', width: 120, textAlign: 'Right', headerText: 'Order Date',
                                 format: { skeleton: 'yMd', type: 'date' }, type: 'date'
                             }]
                         },
                         { field: 'CustomerID', width: 120, headerText: 'Customer ID' },
-                        { field: 'EmployeeID', width: 120, textAlign: 'right', headerText: 'Employee ID' },
+                        { field: 'EmployeeID', width: 120, textAlign: 'Right', headerText: 'Employee ID' },
                         {
                             headerText: 'Ship Details',
                             columns: [

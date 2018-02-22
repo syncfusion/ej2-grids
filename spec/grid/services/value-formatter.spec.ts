@@ -56,13 +56,13 @@ describe('ValueFormatter Service', () => {
             this.grid = createGrid({
                 columns: [
                     {
-                        field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'right',
-                        disbleHtmlEncode: false, textAlign: 'right'
+                        field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'Right',
+                        disbleHtmlEncode: false, textAlign: 'Right'
                     },
                     { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                     { field: 'Freight', format: 'C1' },
                     { field: 'OrderDate', format: 'yMd' },
-                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                    { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                 ], allowPaging: false, allowSelection: false,
             }, done);
         });
@@ -87,13 +87,13 @@ describe('ValueFormatter Service', () => {
     //         this.grid = createGrid({
     //             columns: [
     //                 {
-    //                     field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'right',
-    //                     disbleHtmlEncode: false, textAlign: 'right'
+    //                     field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'Right',
+    //                     disbleHtmlEncode: false, textAlign: 'Right'
     //                 },
     //                 { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
     //                 { field: 'Freight', format: 'C1' },
     //                 { field: 'OrderDate', format: 'dd/MM/yyyy' },
-    //                 { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+    //                 { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
     //             ], allowPaging: false, allowSelection: false,
     //             locale: 'de-DE'
     //         }, done);
@@ -125,13 +125,13 @@ describe('ValueFormatter Service', () => {
     //         this.grid = createGrid({
     //             columns: [
     //                 {
-    //                     field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'right',
-    //                     disbleHtmlEncode: false, textAlign: 'right'
+    //                     field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'Right',
+    //                     disbleHtmlEncode: false, textAlign: 'Right'
     //                 },
     //                 { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
     //                 { field: 'Freight', format: 'C1' },
     //                 { field: 'OrderDate', format: 'dd/MM/yyyy' },
-    //                 { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+    //                 { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
     //             ], allowPaging: false, allowSelection: false,
     //             locale: 'de-DE'
     //         }, setModel);
@@ -159,8 +159,8 @@ describe('ValueFormatter Service', () => {
             grid = createGrid({
                 columns: [
                     {
-                        field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'right',
-                        disbleHtmlEncode: false, textAlign: 'right'
+                        field: 'OrderID', headerText: '<i>Order ID</i>', headerTextAlign: 'Right',
+                        disbleHtmlEncode: false, textAlign: 'Right'
                     },
                     { field: 'OrderDate', format: 'yMd' },
                     { field: 'Freight', format: { format: 'C1' } },

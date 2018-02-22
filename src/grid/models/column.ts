@@ -22,7 +22,7 @@ export class Column {
     public field: string;
 
     /**    
-     * Gets the unique identifier value of column. It is used to get column object.   
+     * Gets the unique identifier value of the column. It is used to get the column object.   
      * @default undefined    
      */
 
@@ -37,57 +37,56 @@ export class Column {
     public headerText: string;
 
     /**    
-     * Defines the width of column in pixels or percentage.    
+     * Defines the width of the column in pixels or percentage.    
      * @default undefined    
      */
 
     public width: string | number;
 
     /**    
-     * Defines the minimum Width of column in pixels or percentage.    
+     * Defines the minimum Width of the column in pixels or percentage.    
      * @default undefined    
      */
     public minWidth: string | number;
 
     /**    
-     * Defines the maximum width of column in pixels or percentage.    
+     * Defines the maximum width of the column in pixel or percentage, which will restrict resizing beyond this pixel or percentage.   
      * @default undefined    
      */
     public maxWidth: string | number;
 
     /**    
-     * Define the alignment of column in both header and content cells.    
-     * @default left  
+     * Defines the alignment of the column in both header and content cells.    
+     * @default Left  
      */
 
     public textAlign: TextAlign;
 
     /**
      * Defines the cell content's overflow mode. The available modes are
-     * * `clip` -  Truncates the cell content when it overflows its area. 
-     * * `ellipsis` -  Displays ellipsis when the cell content overflows its area.
-     * * `ellipsiswithtooltip` - Displays ellipsis when the cell content overflows its area 
+     * * `Clip` -  Truncates the cell content when it overflows its area. 
+     * * `Ellipsis` -  Displays ellipsis when the cell content overflows its area.
+     * * `EllipsisWithTooltip` - Displays ellipsis when the cell content overflows its area 
      * also it will display tooltip while hover on ellipsis applied cell.
-     * @default ellipsis
+     * @default Ellipsis
      */
     public clipMode: ClipMode;
 
     /**   
      * Define the alignment of column header which is used to align the text of column header.       
-     * @default left  
-     * @hidden  
+     * @default Left       
      */
     public headerTextAlign: TextAlign;
 
     /**    
-     * If `disableHtmlEncode` set to true, then it encodes the html of header and content cells.  
+     * If `disableHtmlEncode` is set to true, it encodes the HTML of the header and content cells.  
      * @default false    
      */
 
     public disableHtmlEncode: boolean;
 
     /**    
-     * Defines the data type of column.    
+     * Defines the data type of the column.    
      * @default null    
      */
 
@@ -96,21 +95,22 @@ export class Column {
     /**    
      * It is used to change display value with the given format and does not affect the original data.  
      * Gets the format from the user which can be standard or custom 
-     * [`number`](http://ej2.syncfusion.com/documentation/base/intl.html#number-formatter-and-parser) 
-     * and [`date`](http://ej2.syncfusion.com/documentation/base/intl.html#date-formatter-and-parser) formats.  
+     * [`number`](../base/intl.html#number-formatter-and-parser) 
+     * and [`date`](../base/intl.html#date-formatter-and-parser) formats.  
      * @default null    
      */
 
     public format: string | NumberFormatOptions | DateFormatOptions;
 
     /**    
-     * If `visible` set to false, then hide the particular column. By default all columns are displayed.  
-     * @default true    
+     * If `visible` is set to false, hides the particular column. By default, columns are displayed.    
+     * @default true  
      */
     public visible: boolean;
 
-    /**    
-     * Defines the column template as string or HTML element ID which is used to add customized element in each cells of the column.       
+    /**
+     * Defines the column template that renders customized element in each cell of the column.
+     * It accepts either [template string](../base/template-engine.html) or HTML element ID.   
      * @default null    
      */
 
@@ -124,7 +124,7 @@ export class Column {
     public headerTemplate: string;
 
     /**        
-     * If `isFrozen` set to true, then the column will be in frozen state.
+     * You can use this property to freeze selected columns in grid
      * @default false
      */
     public isFrozen: boolean;
@@ -137,9 +137,9 @@ export class Column {
 
     public allowSorting: boolean = true;
 
-    /**    
-     * If `allowResizing` set to false, then it disables resize option of a particular column.  
-     * By default all columns can be resized. 
+    /**         
+     * If `allowResizing` is set to false, it disables resize option of a particular column.  
+     * By default all the columns can be resized. 
      * @default true    
      */
 
@@ -185,40 +185,23 @@ export class Column {
     public allowEditing: boolean = true;
 
     /**    
-     * User can customize css styles and attributes of the content cells of a particular column. 
+     * The CSS styles and attributes of the content cells of a particular column can be customized. 
      *  
-     * ```html 
-     * <div id="Grid"></div>  
-     * ``` 
-     * ```typescript
-     * let gridObj: Grid = new Grid({ 
-     * dataSource: filterData, 
-     * columns: [ 
-     *    { field: 'OrderID', headerText: 'Order ID' }, 
-     *    { 
-     *        field: 'EmployeeID', headerText: 'Employee ID', customAttributes: { 
-     *           class: 'employeeid', 
-     *           type: 'employee-id-cell' 
-     *      } 
-     *   }] 
-     * }); 
-     * gridObj.appendTo('#Grid'); 
-     * ``` 
-     *  
+     * {% codeBlock src="grid/custom-attribute-api/index.ts" %}{% endcodeBlock %}
      * @default null   
      */
 
     public customAttributes: { [x: string]: Object };
 
     /**    
-     * If `displayAsCheckBox` set as true, then it displays column value as check box instead of boolean values.    
-     * @default true    
+     * If `displayAsCheckBox` is set to true, it displays the column value as a check box instead of Boolean value.    
+     * @default false    
      */
 
     public displayAsCheckBox: boolean;
 
     /**    
-     * Defines the `dataSource` of the column which is used to bind the foreign key data source.    
+     * Defines the column data source which will act as foreign data source.
      * @default null 
      */
 
@@ -227,47 +210,15 @@ export class Column {
     /**    
      * Defines the method which is used to achieve custom formatting from an external function. 
      * This function triggers before rendering of each cell.  
-     *   
-     * ```html
-     * <div id="Grid"></div>  
-     * ```
-     * ```typescript
-     * class ExtendedFormatter implements ICellFormatter { 
-     * public getValue(column: Column, data: Object): Object { 
-     *   return '<span style="color:' + (data['Verified'] ? 'green' : 'red') + '"><i>' + data['Verified'] + '</i><span>'; 
-     * } 
-     * } 
-     * let gridObj: Grid = new Grid({ 
-     *     dataSource: filterData, 
-     *     columns: [ 
-     *         { field: 'ShipName', headerText: 'Ship Name' }, 
-     *         { field: 'Verified', headerText: 'Verified Status', formatter: ExtendedFormatter }] 
-     * }); 
-     * gridObj.appendTo('#Grid'); 
-     * ``` 
-     *  
+     * {% codeBlock src="grid/formatter-api/index.ts" %}{% endcodeBlock %} 
      * @default null   
      */
     public formatter: { new(): ICellFormatter } | ICellFormatter | Function;
 
     /**    
-     * Defines the method which is used to apply custom cell values from external function and display this on each cells of render.     
+     * Defines the method used to apply custom cell values from external function and display this on each cell rendered.     
      *     
-     * ```html
-     * <div id="Grid"></div>
-     * ```
-     * ```typescript
-     * let gridObj: Grid = new Grid({
-     * dataSource: [{ EmployeeID: 1, EmployeeName: ['John', 'M'] }, { EmployeeID: 2, EmployeeName: ['Peter', 'A'] }],
-     * columns: [
-     *     { field: 'EmployeeID', headerText: 'Employee ID' },
-     *     { field: 'EmployeeName', headerText: 'Employee First Name', 
-     *       valueAccessor: (field: string, data: Object, column: Column) => {
-     *             return data['EmployeeName'][0];
-     *         },
-     *     }]
-     * }); 
-     * ```
+     * {% codeBlock src="grid/value-accessor-api/index.ts" %}{% endcodeBlock %}
      *  
      * @default null    
      */
@@ -277,38 +228,10 @@ export class Column {
     /**
      * The `filterBarTemplate` is used to add a custom component instead of default input component for filter bar.   
      * It have create and read functions.  
-     * * create – It is used for creating custom components.  
-     * * read – It is used to perform custom filter action. 
+     * * create: It is used for creating custom components.  
+     * * read: It is used to perform custom filter action. 
      *  
-     * ```html
-     * <div id="Grid"></div>
-     * ```
-     * ```typescript  
-     * let gridObj: Grid = new Grid({ 
-     * dataSource: filterData, 
-     * columns: [ 
-     *   { field: 'OrderID', headerText: 'Order ID' }, 
-     *   { 
-     *      field: 'EmployeeID', filterBarTemplate: { 
-     *         create: (args: { element: Element, column: Column }) => {                     
-     *              let input: HTMLInputElement = document.createElement('input'); 
-     *              input.id = 'EmployeeID'; 
-     *              input.type = 'text'; 
-     *              return input; 
-     *         }, 
-     *         write: (args: { element: Element, column: Column }) => {                     
-     *             args.element.addEventListener('input', args.column.filterBarTemplate.read as EventListener); 
-     *         }, 
-     *         read: (args: { element: HTMLInputElement, columnIndex: number, column: Column }) => { 
-     *             gridObj.filterByColumn(args.element.id, 'equal', args.element.value); 
-     *        } 
-     *     } 
-     *  }], 
-     *   allowFiltering: true 
-     * }); 
-     * gridObj.appendTo('#Grid'); 
-     * ```
-     *  
+     * {% codeBlock src="grid/filter-template-api/index.ts" %}{% endcodeBlock %}
      * @default null    
      */
 
@@ -318,66 +241,19 @@ export class Column {
      *  It is used to customize the default filter options for a specific columns. 
      * * type -  Specifies the filter type as menu or checkbox.
      * * ui - to render custom component for specific column it has following functions.
-     * * create – It is used for creating custom components. 
-     * * read -  It is used for read the value from the component.
-     * * write - It is used to apply component model as dynamically.
+     * * ui.create – It is used for creating custom components. 
+     * * ui.read -  It is used for read the value from the component.
+     * * ui.write - It is used to apply component model as dynamically.
+     * {% codeBlock src="grid/filter-menu-api/index.ts" %}{% endcodeBlock %}
      * 
-     *  ``` html
-     * <div id="Grid"></div>
-     * ```
-     * ```typescript
-     * let gridObj: Grid = new Grid({ 
-     * dataSource: filterData, 
-     * allowFiltering: true,
-     * filterSettings: { type: 'menu'},
-     *  columns: [
-     *      {
-     *          field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right', filter: {
-     *              ui: {
-     *                  create: (args: { target: Element, column: Object }) => {
-     *                      let db: Object = new DataManager(data);
-     *                      let flValInput: HTMLElement = createElement('input', { className: 'flm-input' });
-     *                      args.target.appendChild(flValInput);
-     *                      this.dropInstance = new DropDownList({
-     *                          dataSource: new DataManager(data),
-     *                          fields: { text: 'OrderID', value: 'OrderID' },
-     *                          placeholder: 'Select a value',
-     *                          popupHeight: '200px'
-     *                      });
-     *                      this.dropInstance.appendTo(flValInput);
-     *                  },
-     *                  write: (args: {
-     *                      column: Object, target: Element, parent: any,
-     *                      filteredValue: number | string
-     *                  }) => {
-     *                      this.dropInstance.value = args.filteredValue;
-     *                  },
-     *                  read: (args: { target: Element, column: any, operator: string, fltrObj: Filter }) => {
-     *                      args.fltrObj.filterByColumn(args.column.field, args.operator, this.dropInstance.value);
-     *
-     *                  }
-     *              }
-     *          }
-     *      },
-     *      { field: 'CustomerID', headerText: 'Customer Name', width: 150 },
-     *      { field: 'EmployeeID', headerText: 'Employee ID', width: 150 },
-     *      {
-     *          field: 'ShipCountry', headerText: 'Ship Country', filter: {
-     *              type: 'checkbox'
-     *          }, width: 150
-     *      }
-     *  ]
-     * }); 
-     * gridObj.appendTo('#Grid'); 
-     * ```
-     * 
+     * > Check the [`Filter UI`](./filtering.html#custom-component-in-filter-menu) for its customization.
      *  @default null
      */
 
     public filter: IFilter = {};
 
     /**    
-     * It is used to render multiple header rows(stacked headers) on the Grid header.      
+     * Used to render multiple header rows(stacked headers) on the Grid header.     
      * @default null    
      */
 
@@ -391,7 +267,7 @@ export class Column {
     public toolTip: string;
 
     /**    
-     * If `isPrimaryKey` set to true, then consider this column as primary key constraint.   
+     * If `isPrimaryKey` is set to true, considers this column as the primary key constraint.   
      * @default false         
      */
     public isPrimaryKey: boolean;
@@ -418,13 +294,13 @@ export class Column {
     public editType: string;
 
     /**    
-     * Defines rules to validate data before create and update.
+     * Defines rules to validate data before creating and updating.
      * @default null         
      */
     public validationRules: Object;
 
     /**    
-     * Defines the default values for component while adding a new record to the Grid.
+     * Defines default values for the component when adding a new record to the Grid.
      * @default null         
      */
     public defaultValue: string;
@@ -442,13 +318,14 @@ export class Column {
     public isIdentity: boolean;
 
     /**    
-     * Defines the value to bind the field which is in foreign column datasource based on the foreignKeyField.
+     * Defines the display column name from the foreign data source which will be obtained from comparing local and foreign data.
      * @default null         
      */
     public foreignKeyValue: string;
 
     /**    
-     * To define foreign key field name of the grid datasource.
+     * Defines the mapping column name of the foreign data source.
+     * If it is not defined then the `columns.field` will be considered as mapping column name 
      * @default null         
      */
     public foreignKeyField: string;
@@ -463,31 +340,11 @@ export class Column {
     /**
      * `commands` provides an option to display command buttons in every cell.
      * The available built-in command buttons are
-     * * edit - Edit the record.
-     * * delete - Delete the record.
-     * * save - Save the record.
-     * * cancel - Cancel the edit state.
-     *
-     * The following code example implements the custom command column.
-     * ```html
-     * <style type="text/css" class="cssStyles">
-     * .details-icon:before
-     * {
-     *    content:"\e74d";
-     * }
-     * </style>
-     * <div id="Grid"></div>
-     * ```
-     * ```typescript
-     * var gridObj = new Grid({
-     * datasource: window.gridData,
-     * columns : [
-     *  { field: 'CustomerID', headerText: 'Customer ID' },
-     *  { field: 'CustomerName', headerText: 'Customer Name' },
-     *  {commands: [{buttonOption:{content: 'Details', click: onClick, cssClass: details-icon}}], headerText: 'Customer Details'}
-     * ]
-     * gridObj.appendTo("#Grid");
-     * ```
+     * * Edit - Edit the record.
+     * * Delete - Delete the record.
+     * * Save - Save the record.
+     * * Cancel - Cancel the edit state.
+     * {% codeBlock src="grid/command-column-api/index.ts" %}{% endcodeBlock %}
      * @default null
      */
     public commands: CommandModel[];
@@ -514,7 +371,7 @@ export class Column {
             this.allowSorting = false;
         }
         if (this.commands && !this.textAlign) {
-            this.textAlign = 'right';
+            this.textAlign = 'Right';
         }
         if (this.template || this.commandsTemplate) {
             this.templateFn = templateCompiler(this.template || this.commandsTemplate);
@@ -531,11 +388,23 @@ export class Column {
             };
         }
 
+        if (this.sortComparer) {
+            let a: Function = this.sortComparer;
+            this.sortComparer = function comparer(x: number | string, y: number | string): number {
+                if (this.sortDirection === 'Descending') {
+                    let z: number | string = x;
+                    x = y;
+                    y = z;
+                }
+                return a(x, y);
+            };
+        }
+
         if (!this.sortComparer && this.isForeignColumn()) {
             this.sortComparer = (x: number | string, y: number | string) => {
                 x = getValue(this.foreignKeyValue, getForeignData(this, {}, <string>x)[0]);
                 y = getValue(this.foreignKeyValue, getForeignData(this, {}, <string>y)[0]);
-                return this.sortDirection === 'descending' ? DataUtil.fnDescending(x, y) : DataUtil.fnAscending(x, y);
+                return this.sortDirection === 'Descending' ? DataUtil.fnDescending(x, y) : DataUtil.fnAscending(x, y);
             };
         }
     }
@@ -545,7 +414,7 @@ export class Column {
     private templateFn: Function;
     private fltrTemplateFn: Function;
 
-    private sortDirection: string = 'descending';
+    private sortDirection: string = 'Descending';
 
     /** @hidden */
     public getSortDirection(): string {
@@ -568,11 +437,15 @@ export class Column {
 
     /**
      * Defines the custom sort comparer function.
+     * The sort comparer function has the same functionality like 
+     * [`Array.sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) sort comparer.
+     * {% codeBlock src="grid/sort-comparer-api/index.ts" %}{% endcodeBlock %}
      */
     public sortComparer: (x: number | string, y: number | string) => number;
 
     /**
-     * Gets the column is foreign key column or not.
+     * @hidden
+     * It defines the column is foreign key column or not.
      */
     public isForeignColumn(): boolean {
         return !!(this.dataSource && this.foreignKeyValue);
@@ -624,7 +497,7 @@ export interface ColumnModel {
     field?: string;
 
     /**    
-     * Gets the unique identifier value of column. It is used to get column object.   
+     * Gets the unique identifier value of the column. It is used to get the object.   
      * @default undefined    
      */
     uid?: string;
@@ -637,52 +510,52 @@ export interface ColumnModel {
     headerText?: string;
 
     /**    
-     * Defines the width of column in pixels or percentage.    
+     * Defines the width of the column in pixels or percentage.    
      * @default undefined    
      */
     width?: string | number;
 
     /**    
-     * Defines the minimum width of column in pixels or percentage.    
+     * Defines the minimum width of the column in pixels or percentage.    
      * @default undefined    
      */
     minWidth?: string | number;
     /**    
-     * Defines the maximum width of column in pixels or percentage.    
+     * Defines the maximum width of the column in pixel or percentage, which will restrict resizing beyond this pixel or percentage.  
      * @default undefined    
      */
     maxWidth?: string | number;
     /**   
-     * Define the alignment of column in both header and content cells.      
-     * @default left 
+     * Defines the alignment of the column in both header and content cells.    
+     * @default Left 
      */
-    textAlign?: string | TextAlign; //Should be enum
+    textAlign?: TextAlign;
 
     /**   
      * Defines the cell content's overflow mode. The available modes are
-     * * `clip` -  Truncates the cell content when it overflows its area. 
-     * * `ellipsis` -  Displays ellipsis when the cell content overflows its area.
-     * * `ellipsiswithtooltip` - Displays ellipsis when the cell content overflows its area 
+     * * `Clip` -  Truncates the cell content when it overflows its area. 
+     * * `Ellipsis` -  Displays ellipsis when the cell content overflows its area.
+     * * `EllipsisWithTooltip` - Displays ellipsis when the cell content overflows its area 
      * also it will display tooltip while hover on ellipsis applied cell.
-     * @default ellipsis 
+     * @default Ellipsis 
      */
     clipMode?: ClipMode;
 
     /**   
      * Define the alignment of column header which is used to align the text of column header.       
-     * @default left  
+     * @default Left  
      * @hidden  
      */
-    headerTextAlign?: string | TextAlign; //Should be enum
+    headerTextAlign?: TextAlign;
 
     /**    
-     * If `disableHtmlEncode` set to true, then it encodes the html of header and content cells.  
+     * If `disableHtmlEncode` is set to true, it encodes the HTML of the header and content cells.  
      * @default false    
      */
     disableHtmlEncode?: boolean;
 
     /**    
-     * Defines the data type of column.    
+     * Defines the data type of the column.    
      * @default null    
      */
     type?: string;
@@ -690,34 +563,34 @@ export interface ColumnModel {
     /**    
      * It is used to change display value with the given format and does not affect the original data.   
      * Gets the format from the user which can be standard or custom 
-     * [`number`](http://ej2.syncfusion.com/documentation/base/intl.html#number-formatter-and-parser) 
-     * and [`date`](http://ej2.syncfusion.com/documentation/base/intl.html#date-formatter-and-parser) formats.  
+     * [`number`](../base/intl.html#number-formatter-and-parser) 
+     * and [`date`](../base/intl.html#date-formatter-and-parser) formats.  
      * @default null    
      */
     format?: string | NumberFormatOptions | DateFormatOptions;
 
     /**    
-     * If `visible` set to false, then hide the particular column. By default all columns are displayed.   
+     * If `visible` is set to false, hides the particular column. By default, all columns are displayed.      
      * @default true    
      */
     visible?: boolean;
 
-    /**    
-     * Defines the column template as string or HTML element ID which is used to add customized element in each cells of the column.     
+    /**
+     * Defines the column template that renders customized element in each cell of the column.
+     * It accepts either [template string](../base/template-engine.html) or HTML element ID.   
      * @default null    
      */
     template?: string;
 
     /**        
      * Defines the column template as string or HTML element ID which is used to add customized element in the column header.      
-     * @default null    
-     * @hidden  
+     * @default null         
      */
 
     headerTemplate?: string;
 
     /**        
-     * If `isFrozen` set to true, then the column will be in frozen state.
+     * You can use this property to freeze selected columns in grid.
      * @default false
      */
     isFrozen?: boolean;
@@ -730,7 +603,7 @@ export interface ColumnModel {
     allowSorting?: boolean;
 
     /**         
-     * If `allowResizing` set to false, then it disables resize option of a particular column.  
+     * If `allowResizing` set to false, it disables resize option of a particular column. 
      * @default true    
      */
     allowResizing?: boolean;
@@ -772,7 +645,7 @@ export interface ColumnModel {
     allowEditing?: boolean;
 
     /**   
-     * User can customize css styles and attributes of the content cells of a particular column.   
+     * The CSS styles and attributes of the content cells of a particular column can be customized.   
      * 
      * ```html
      * <div id="Grid"></div>
@@ -798,13 +671,13 @@ export interface ColumnModel {
     customAttributes?: { [x: string]: Object };
 
     /**    
-     * If `displayAsCheckBox` set as true, then it displays column value as check box instead of boolean values.      
-     * @default true    
+     * If `displayAsCheckBox` is set to true, it displays the column value as a check box instead of Boolean value.    
+     * @default false    
      */
     displayAsCheckBox?: boolean;
 
     /**    
-     * Defines the data source of the column which is used to bind the foreign key data source.    
+     * Defines the column data source  which will act as foreign data source.
      * @default null 
      */
     dataSource?: Object[] | DataManager;
@@ -836,7 +709,7 @@ export interface ColumnModel {
     formatter?: { new(): ICellFormatter } | ICellFormatter | Function;
 
     /**    
-     * Defines the method which is used to apply custom cell values from external function and display this on each cells of render.     
+     * Defines the method used to apply custom cell values from external function and display this on each cell rendered.     
      *     
      * ```html
      * <div id="Grid"></div>
@@ -861,8 +734,8 @@ export interface ColumnModel {
     /**    
      * The `filterBarTemplate` is used to add a custom component instead of default input component for filter bar.   
      * It have create and read functions.  
-     * * create – It is used for creating custom components.  
-     * * read – It is used to perform custom filter action. 
+     * * create: It is used for creating custom components.  
+     * * read: It is used to perform custom filter action. 
      * 
      * ```html
      * <div id="Grid"></div>
@@ -905,38 +778,38 @@ export interface ColumnModel {
     filter?: IFilter;
 
     /**    
-     * It is used to render multiple header rows(stacked headers) on the Grid header.      
+     * Used to render multiple header rows(stacked headers) on the Grid header.          
      * @default null    
      */
     columns?: Column[] | string[] | ColumnModel[];
 
     /**    
      * Defines the tool tip text for stacked headers.    
-     * @default null    
      * @hidden   
+     * @default null    
      */
     toolTip?: string;
 
     /**    
-     * If `isPrimaryKey` set to true, then consider this column as primary key constraint.   
+     * If `isPrimaryKey` is set to true, considers this column as the primary key constraint.   
      * @default false         
      */
     isPrimaryKey?: boolean;
 
     /**    
-     * Defines the type of component for editable.
+     * Defines the type of component for editing.
      * @default stringedit         
      */
     editType?: string;
 
     /**    
-     * Defines rules to validate data before create and update.
+     * Defines rules to validate data before creating and updating.
      * @default null         
      */
     validationRules?: Object;
 
     /**    
-     * Defines the default values for component while adding a new record to the Grid.
+     * Defines default values for the component when adding a new record to the Grid.
      * @default null         
      */
     defaultValue?: string;
@@ -954,13 +827,14 @@ export interface ColumnModel {
     isIdentity?: boolean;
 
     /**    
-     * To define foreign key field name of the grid datasource.
+     * Defines the mapping column name of the foreign data source.
+     * If it is not defined then the `columns.field` will be considered as mapping column name 
      * @default null         
      */
     foreignKeyField?: string;
 
     /**    
-     * Defines the value to bind the field which is in foreign column datasource based on the foreignKeyField.
+     * Defines the display column name from the foreign data source which will be obtained from comparing local and foreign data 
      * @default null         
      */
     foreignKeyValue?: string;
@@ -989,10 +863,10 @@ export interface ColumnModel {
     /**
      * `commands` provides an option to display command buttons in every cell.
      * The available built-in command buttons are
-     * * edit - Edit the record.
-     * * delete - Delete the record.
-     * * save - Save the record.
-     * * cancel - Cancel the edit state.
+     * * Edit - Edit the record.
+     * * Delete - Delete the record.
+     * * Save - Save the record.
+     * * Cancel - Cancel the edit state.
      *
      * The following code example implements the custom command column.
      * ```html
@@ -1025,6 +899,7 @@ export interface ColumnModel {
     sortComparer?: (x: number | string, y: number | string) => number;
 
     /**
+     * @hidden
      * It defines the column is foreign key column or not.
      */
     isForeignColumn?: () => boolean;

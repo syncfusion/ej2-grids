@@ -270,12 +270,12 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      */
     public onPropertyChanged(newProp: PagerModel, oldProp: PagerModel): void {
         if (this.isDestroyed) { return; }
+        if (newProp.pageCount !== oldProp.pageCount) {
+            this.containerModule.refreshNumericLinks();
+            this.containerModule.refresh();
+        }
         for (let prop of Object.keys(newProp)) {
             switch (prop) {
-                case 'pageCount':
-                    this.containerModule.refreshNumericLinks();
-                    this.containerModule.refresh();
-                    break;
                 case 'currentPage':
                     if (this.checkGoToPage(newProp.currentPage, oldProp.currentPage)) {
                         this.currentPageChanged();

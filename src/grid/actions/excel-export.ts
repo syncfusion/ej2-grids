@@ -38,7 +38,7 @@ export class ExcelExport {
     private rowLength: number = 1;
     /* tslint:disable-next-line:no-any */
     private footer: any;
-    private expType: MultipleExportType = 'appendtosheet';
+    private expType: MultipleExportType = 'AppendToSheet';
     private includeHiddenColumn: boolean = false;
     private isCsvExport: boolean = false;
     private isBlob: boolean;
@@ -82,7 +82,7 @@ export class ExcelExport {
         this.rowLength = 1;
         /* tslint:disable-next-line:no-any */
         this.footer = undefined;
-        this.expType = 'appendtosheet';
+        this.expType = 'AppendToSheet';
         this.includeHiddenColumn = false;
         this.exportValueFormatter = new ExportValueFormatter();
     }
@@ -153,7 +153,7 @@ export class ExcelExport {
         let blankRows: number = 5;
         if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.multipleExport)) {
             /* tslint:disable-next-line:max-line-length */
-            this.expType = (!isNullOrUndefined(exportProperties.multipleExport.type) ? exportProperties.multipleExport.type : 'appendtosheet');
+            this.expType = (!isNullOrUndefined(exportProperties.multipleExport.type) ? exportProperties.multipleExport.type : 'AppendToSheet');
             if (!isNullOrUndefined(exportProperties.multipleExport.blankRows)) {
                 blankRows = exportProperties.multipleExport.blankRows;
             }
@@ -163,7 +163,7 @@ export class ExcelExport {
             this.rows = [];
             this.columns = [];
             this.styles = [];
-        } else if (this.expType === 'newsheet') {
+        } else if (this.expType === 'NewSheet') {
             this.workSheet = workbook.worksheets;
             this.rows = [];
             this.columns = [];
@@ -179,11 +179,11 @@ export class ExcelExport {
 
         if (!isNullOrUndefined(exportProperties)) {
             if (!isNullOrUndefined(isMultipleExport)) {
-                if (!isNullOrUndefined(exportProperties.header) && (isMultipleExport || this.expType === 'newsheet')) {
+                if (!isNullOrUndefined(exportProperties.header) && (isMultipleExport || this.expType === 'NewSheet')) {
                     this.processExcelHeader(JSON.parse(JSON.stringify(exportProperties.header)));
                 }
                 if (!isNullOrUndefined(exportProperties.footer)) {
-                    if (this.expType === 'appendtosheet') {
+                    if (this.expType === 'AppendToSheet') {
                         if (!isMultipleExport) {
                             this.footer = JSON.parse(JSON.stringify(exportProperties.footer));
                         }
@@ -215,7 +215,7 @@ export class ExcelExport {
         /* tslint:disable-next-line:max-line-length */
         if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.dataSource) && !(exportProperties.dataSource instanceof DataManager)) {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties.dataSource as Object[]);
-        } else if (!isNullOrUndefined(exportProperties) && exportProperties.exportType === 'currentpage') {
+        } else if (!isNullOrUndefined(exportProperties) && exportProperties.exportType === 'CurrentPage') {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport, gObj.getCurrentViewRecords());
         } else {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport);
@@ -253,7 +253,7 @@ export class ExcelExport {
 
         //footer template add
         if (!isNullOrUndefined(this.footer)) {
-            if ((this.expType === 'appendtosheet' && !isMultipleExport) || (this.expType === 'newsheet')) {
+            if ((this.expType === 'AppendToSheet' && !isMultipleExport) || (this.expType === 'NewSheet')) {
                 this.processExcelFooter(this.footer);
             }
         }
@@ -384,7 +384,7 @@ export class ExcelExport {
             index = 1;
             for (let c: number = 0, len: number = headerRow.columns.length; c < len; c++) {
                 /* tslint:disable-next-line:no-any */
-                let value: any = getValue(headerRow.columns[c].field, record[r]);
+                let value: any = !isNullOrUndefined(headerRow.columns[c].field) ? getValue(headerRow.columns[c].field, record[r]) : '';
                 let column: Column = headerRow.columns[c] as Column;
                 let foreignKeyData: Object;
                 // tslint:disable-next-line:max-line-length
@@ -473,22 +473,22 @@ export class ExcelExport {
                         } else {
                             for (let key of Object.keys(row.data[cell.column.field])) {
                                 if (key === cell.column.type) {
-                                    if (!isNullOrUndefined(row.data[cell.column.field].sum)) {
-                                        eCell.value = row.data[cell.column.field].sum;
-                                    } else if (!isNullOrUndefined(row.data[cell.column.field].average)) {
-                                        eCell.value = row.data[cell.column.field].average;
-                                    } else if (!isNullOrUndefined(row.data[cell.column.field].max)) {
-                                        eCell.value = row.data[cell.column.field].max;
-                                    } else if (!isNullOrUndefined(row.data[cell.column.field].min)) {
-                                        eCell.value = row.data[cell.column.field].min;
-                                    } else if (!isNullOrUndefined(row.data[cell.column.field].count)) {
-                                        eCell.value = row.data[cell.column.field].count;
-                                    } else if (!isNullOrUndefined(row.data[cell.column.field].truecount)) {
-                                        eCell.value = row.data[cell.column.field].truecount;
-                                    } else if (!isNullOrUndefined(row.data[cell.column.field].falsecount)) {
-                                        eCell.value = row.data[cell.column.field].falsecount;
-                                    } else if (!isNullOrUndefined(row.data[cell.column.field].custom)) {
-                                        eCell.value = row.data[cell.column.field].custom;
+                                    if (!isNullOrUndefined(row.data[cell.column.field].Sum)) {
+                                        eCell.value = row.data[cell.column.field].Sum;
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].Average)) {
+                                        eCell.value = row.data[cell.column.field].Average;
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].Max)) {
+                                        eCell.value = row.data[cell.column.field].Max;
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].Min)) {
+                                        eCell.value = row.data[cell.column.field].Min;
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].Count)) {
+                                        eCell.value = row.data[cell.column.field].Count;
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].TrueCount)) {
+                                        eCell.value = row.data[cell.column.field].TrueCount;
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].FalseCount)) {
+                                        eCell.value = row.data[cell.column.field].FalseCount;
+                                    } else if (!isNullOrUndefined(row.data[cell.column.field].Custom)) {
+                                        eCell.value = row.data[cell.column.field].Custom;
                                     }
                                 }
                             }
@@ -692,7 +692,7 @@ export class ExcelExport {
     }
     /* tslint:disable-next-line:no-any */
     private processExcelHeader(header: ExcelHeader): void {
-        if (!isNullOrUndefined(header.rows) && (this.expType === 'newsheet' || this.rowLength === 1)) {
+        if (!isNullOrUndefined(header.rows) && (this.expType === 'NewSheet' || this.rowLength === 1)) {
             let noRows: number;
             if (header.headerRows === undefined) {
                 this.rowLength = header.rows.length;

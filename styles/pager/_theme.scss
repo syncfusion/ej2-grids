@@ -30,6 +30,10 @@
       opacity: $pager-content-opacity;
     }
 
+    .e-numericitem:hover:not(.e-np):not(.e-pp):not(.e-active) {
+      border: $pager-item-hover-border-width solid $pager-item-hover-border-color;
+    }
+
     .e-numericitem:not(.e-active):not(.e-np):not(.e-pp):hover {
       background-color: $pager-number-hover-bg-color;
       opacity: 1;

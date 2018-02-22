@@ -76,7 +76,14 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         if (row.isDataRow) {
             row.isSelected = this.parent.getSelectedRowIndexes().indexOf(row.index) > -1;
         }
+        if (row.isDataRow && this.parent.isCheckBoxSelection
+            && this.parent.checkAllRows === 'Check' && this.parent.enableVirtualization) {
+            row.isSelected = true;
+            if (this.parent.getSelectedRowIndexes().indexOf(row.index) === -1) {
+                this.parent.getSelectedRowIndexes().push(row.index);
+            }
 
+        }
         this.buildAttributeFromRow(tr, row);
 
         addAttributes(tr, attrCopy as { [x: string]: string });
@@ -87,13 +94,15 @@ export class RowRenderer<T> implements IRowRenderer<T> {
             let cell: Cell<T> = row.cells[i]; cell.isSelected = row.isSelected;
             let cellRenderer: ICellRenderer<T> = cellRendererFact.getCellRenderer(row.cells[i].cellType || CellType.Data);
             let attrs: {} = { 'index': !isNullOrUndefined(row.index) ? row.index.toString() : '' };
-            if (row.isExpand) { attrs['class'] = 'e-detailrowexpand'; }
+            if (row.isExpand && row.cells[i].cellType === CellType.DetailExpand) { attrs['class'] = 'e-detailrowexpand'; }
             let td: Element = cellRenderer.render(row.cells[i], row.data, attrs);
             if (row.cells[i].cellType !== CellType.Filter) {
-                if (row.cells[i].cellType === CellType.Data) {
+                if (row.cells[i].cellType === CellType.Data || row.cells[i].cellType === CellType.CommandColumn) {
                     this.parent.trigger(queryCellInfo, extend(
-                        cellArgs, <QueryCellInfoEventArgs>{ cell: td, column: <{}>cell.column, colSpan: 1,
-                        foreignKeyData: row.cells[i].foreignKeyData }));
+                        cellArgs, <QueryCellInfoEventArgs>{
+                            cell: td, column: <{}>cell.column, colSpan: 1,
+                            foreignKeyData: row.cells[i].foreignKeyData
+                        }));
                     if (cellArgs.colSpan > 1 || row.cells[i].cellSpan > 1) {
                         let cellMerge: CellMergeRender<T> = new CellMergeRender(this.serviceLocator, this.parent);
                         td = cellMerge.render(cellArgs, row, i, td);

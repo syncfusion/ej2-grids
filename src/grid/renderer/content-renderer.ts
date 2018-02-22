@@ -1,4 +1,4 @@
-import { Droppable, DropEventArgs, Browser } from '@syncfusion/ej2-base';
+import { Droppable, DropEventArgs } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { createElement, setStyleAttribute, remove } from '@syncfusion/ej2-base';
 import { getUpdateUsingRaf } from '../base/util';
@@ -6,6 +6,7 @@ import * as events from '../base/constant';
 import { IRenderer, IGrid, NotifyArgs, IModelGenerator } from '../base/interface';
 import { Column } from '../models/column';
 import { Row } from '../models/row';
+import { Cell } from '../models/cell';
 import { RowRenderer } from './row-renderer';
 import { CellMergeRender } from './cell-merge-renderer';
 import { ServiceLocator } from '../services/service-locator';
@@ -88,9 +89,6 @@ export class ContentRender implements IRenderer {
         let innerDiv: Element = createElement('div', {
             className: 'e-content'
         });
-        if (!Browser.isDevice) {
-            innerDiv.setAttribute('tabindex', '0');
-        }
         this.ariaService.setOptions(<HTMLElement>innerDiv, { busy: false });
         div.appendChild(innerDiv);
         this.setPanel(div);
@@ -102,10 +100,10 @@ export class ContentRender implements IRenderer {
      */
     public renderTable(): void {
         let contentDiv: Element = this.getPanel();
-        contentDiv.appendChild(this.createContentTable());
+        contentDiv.appendChild(this.createContentTable('_content_table'));
         this.setTable(contentDiv.querySelector('.e-table'));
         this.ariaService.setOptions(<HTMLElement>this.getTable(), {
-            multiselectable: this.parent.selectionSettings.type === 'multiple'
+            multiselectable: this.parent.selectionSettings.type === 'Multiple'
         });
         this.initializeContentDrop();
         if (this.parent.frozenRows) {
@@ -118,12 +116,12 @@ export class ContentRender implements IRenderer {
      * @return {Element} 
      * @hidden
      */
-    public createContentTable(): Element {
+    public createContentTable(id: String): Element {
         let innerDiv: Element = <Element>this.getPanel().firstChild;
         let table: Element = createElement('table', {
             className: 'e-table', attrs: {
                 cellspacing: '0.25px', role: 'grid',
-                id: this.parent.element.id + '_content_table'
+                id: this.parent.element.id + id
             }
         });
         this.setColGroup(<Element>this.parent.element.querySelector('.e-gridheader').querySelector('colgroup').cloneNode(true));
@@ -397,8 +395,8 @@ export class ContentRender implements IRenderer {
 
     private colGroupRefresh(): void {
         if (this.getColGroup()) {
-            let colGroup: Element = this.getColGroup();
-            colGroup.innerHTML = this.parent.element.querySelector('.e-gridheader').querySelector('colgroup').innerHTML;
+            let colGroup: Element = <Element>this.parent.element.querySelector('.e-gridheader').querySelector('colgroup').cloneNode(true);
+            this.getTable().replaceChild(colGroup, this.getColGroup());
             this.setColGroup(colGroup);
         }
     }
@@ -441,11 +439,18 @@ export class ContentRender implements IRenderer {
                 (row: Row<Column>) => clearAll || uid === row.uid).forEach((row: Row<Column>) => row.isSelected = set);
         }
         (<Row<Column>[]>this.getRows()).filter((row: Row<Column>) => clearAll || uid === row.uid)
-            .forEach((row: Row<Column>) => row.isSelected = set);
+            .forEach((row: Row<Column>) => {
+                row.isSelected = set;
+                row.cells.forEach((cell: Cell<Column>) => cell.isSelected = set);
+            });
     }
 
     public getRowByIndex(index: number): Element {
         return this.parent.getDataRows()[index];
+    }
+
+    public getVirtualRowIndex(index: number): number {
+        return index;
     }
 
     public getMovableRowByIndex(index: number): Element {

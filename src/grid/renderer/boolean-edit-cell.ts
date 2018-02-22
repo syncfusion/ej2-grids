@@ -60,7 +60,7 @@ export class BooleanEditCell implements IEditCell {
         this.obj = new CheckBox(
             extend(
                 {
-                    label: this.parent.editSettings.mode !== 'dialog' ? '' : args.column.headerText,
+                    label: this.parent.editSettings.mode !== 'Dialog' ? '' : args.column.headerText,
                     checked: chkState,
                     disabled: !isEditable(args.column, args.requestType, args.element), enableRtl: this.parent.enableRtl,
                     change: this.checkBoxChange.bind(this)
@@ -70,7 +70,7 @@ export class BooleanEditCell implements IEditCell {
     }
 
     private checkBoxChange(args: ChangeEventArgs): void {
-        if (this.editRow && this.editType !== 'dialog') {
+        if (this.editRow && this.editType !== 'Dialog') {
             let add: boolean = false;
             if (!args.checked) {
                 this.editRow.removeAttribute('aria-selected');

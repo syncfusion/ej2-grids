@@ -1,5 +1,5 @@
 import { extend } from '@syncfusion/ej2-base';
-import { remove, classList } from '@syncfusion/ej2-base';
+import { remove, classList, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, NotifyArgs, EditEventArgs, AddEventArgs, SaveEventArgs } from '../base/interface';
 import { parentsUntil, refreshForeignData } from '../base/util';
 import * as events from '../base/constant';
@@ -23,6 +23,7 @@ export class NormalEdit {
     protected previousData: Object;
     private editRowIndex: number;
     private rowIndex: number;
+    private addedRowIndex: number;
     private uid: string;
     private args: { data?: Object, requestType: string, previousData: Object, selectedRow: Number, type: string };
 
@@ -36,8 +37,9 @@ export class NormalEdit {
     protected clickHandler(e: MouseEvent): void {
         let target: Element = e.target as Element;
         let gObj: IGrid = this.parent;
-        if (parentsUntil(target, 'e-gridcontent') || (gObj.frozenRows
-            && parentsUntil(target, 'e-headercontent')) && !parentsUntil(target, 'e-unboundcelldiv')) {
+        if ((((parentsUntil(target, 'e-gridcontent') &&
+            parentsUntil(parentsUntil(target, 'e-gridcontent'), 'e-grid').id === gObj.element.id)) || (gObj.frozenRows
+                && parentsUntil(target, 'e-headercontent'))) && !parentsUntil(target, 'e-unboundcelldiv')) {
             this.rowIndex = parentsUntil(target, 'e-rowcell') ? parseInt(target.parentElement.getAttribute('aria-rowindex'), 10) : -1;
             if (gObj.isEdit) {
                 gObj.editModule.endEdit();
@@ -60,8 +62,8 @@ export class NormalEdit {
         this.parent.isEdit = false;
         switch (e.requestType as string) {
             case 'save':
-                if (!(this.parent.element.classList.contains('e-checkboxselection') || this.parent.selectionSettings.type === 'multiple')
-                    || (!this.parent.element.classList.contains('e-persistselection'))) {
+                if (!(this.parent.isCheckBoxSelection || this.parent.selectionSettings.type === 'Multiple')
+                    || (!this.parent.isPersistSelection)) {
                     this.parent.selectRow(0);
                 }
                 this.parent.trigger(events.actionComplete, extend(e, {
@@ -103,7 +105,7 @@ export class NormalEdit {
         }
         gObj.isEdit = true;
         gObj.clearSelection();
-        if (gObj.editSettings.mode === 'dialog') {
+        if (gObj.editSettings.mode === 'Dialog') {
             args.row.classList.add('e-dlgeditrow');
         }
         this.renderer.update(args);
@@ -128,7 +130,7 @@ export class NormalEdit {
             previousData: this.previousData, selectedRow: gObj.selectedRowIndex, foreignKeyData: {}
         };
         editedData = gObj.editModule.getCurrentEditedData(gObj.element.querySelector('.e-gridform'), editedData);
-        if (gObj.getFrozenColumns() && gObj.editSettings.mode === 'normal') {
+        if (gObj.getFrozenColumns() && gObj.editSettings.mode === 'Normal') {
             let mForm: Element = gObj.element.querySelector('.e-movableheader').querySelector('.e-gridform');
             if (gObj.frozenRows && mForm) {
                 editedData = gObj.editModule.getCurrentEditedData(mForm, editedData);
@@ -149,14 +151,16 @@ export class NormalEdit {
         } else {
             args.action = 'add';
             args.selectedRow = 0;
+            args.index = this.addedRowIndex;
             gObj.notify(events.modelChanged, args);
+            this.addedRowIndex = null;
             if (args.cancel) {
                 return;
             }
             this.destroyElements();
         }
         this.stopEditStatus();
-        if (gObj.editSettings.mode === 'dialog' && args.action !== 'add') {
+        if (gObj.editSettings.mode === 'Dialog' && args.action !== 'add') {
             gObj.element.querySelector('.e-dlgeditrow').classList.remove('e-dlgeditrow');
         }
     }
@@ -196,11 +200,10 @@ export class NormalEdit {
         this.parent.isEdit = false;
         this.refreshRow(args.data);
         this.parent.trigger(events.actionComplete, args);
-        if (!(this.parent.element.classList.contains('e-checkboxselection') || this.parent.selectionSettings.type === 'multiple')
-            || (!this.parent.element.classList.contains('e-persistselection'))) {
+        if (!(this.parent.isCheckBoxSelection || this.parent.selectionSettings.type === 'Multiple')
+            || (!this.parent.isPersistSelection)) {
             this.parent.selectRow(this.rowIndex > -1 ? this.rowIndex : this.editRowIndex);
         }
-        this.parent.element.focus();
         this.parent.hideSpinner();
     }
 
@@ -237,10 +240,13 @@ export class NormalEdit {
             requestType: 'cancel', type: events.actionBegin, data: this.previousData, selectedRow: gObj.selectedRowIndex
         };
         gObj.trigger(events.actionBegin, args);
+        if (this.parent.editSettings.mode === 'Dialog') {
+            this.parent.notify(events.dialogDestroy, {});
+        }
         gObj.isEdit = false;
         this.stopEditStatus();
         args.type = events.actionComplete;
-        if (gObj.editSettings.mode !== 'dialog') {
+        if (gObj.editSettings.mode !== 'Dialog') {
             this.refreshRow(args.data);
         }
         if (gObj.getContentTable().querySelector('tr.e-emptyrow') &&
@@ -251,11 +257,12 @@ export class NormalEdit {
         gObj.trigger(events.actionComplete, args);
     }
 
-    protected addRecord(data?: Object): void {
+    protected addRecord(data?: Object, index?: number): void {
         let gObj: IGrid = this.parent;
+        this.addedRowIndex = !isNullOrUndefined(index) ? index : 0;
         if (data) {
             gObj.notify(events.modelChanged, {
-                requestType: 'save', type: events.actionBegin, data: data, selectedRow: 0, action: 'add'
+                requestType: 'save', type: events.actionBegin, data: data, selectedRow: 0, action: 'add', index: index
             });
             return;
         }
@@ -269,7 +276,7 @@ export class NormalEdit {
         }
         let args: AddEventArgs = {
             cancel: false, foreignKeyData: {}, //foreign key support
-            requestType: 'add', data: this.previousData, type: events.actionBegin
+            requestType: 'add', data: this.previousData, type: events.actionBegin, index: index
         };
         gObj.trigger(events.actionBegin, args);
         if (args.cancel) {
@@ -347,6 +354,7 @@ export class NormalEdit {
      */
     public destroy(): void {
         this.removeEventListener();
+        this.renderer.destroy();
     }
 }
 

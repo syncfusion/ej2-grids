@@ -59,13 +59,13 @@ describe('Scrolling module', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 done
@@ -93,13 +93,13 @@ describe('Scrolling module', () => {
                     width: 300, height: '50%',
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 done
@@ -134,13 +134,13 @@ describe('Scrolling module', () => {
                     enableRtl: true,
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 done
@@ -179,13 +179,13 @@ describe('Scrolling module', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -235,13 +235,13 @@ describe('Scrolling module', () => {
                     width: 300,
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -306,13 +306,13 @@ describe('Scrolling module', () => {
                     allowPaging: true,
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', width: 200
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', width: 200
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean', width: 200 },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd', width: 200 },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 200 }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 200 }
                     ]
                 },
                 done
@@ -346,13 +346,13 @@ describe('Scrolling module', () => {
                     allowPaging: true,
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', width: 200
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', width: 200
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean', width: 200 },
                         { field: 'Freight', format: 'C1', width: 200 },
                         { field: 'OrderDate', format: 'yMd', width: 200 },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 200 }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 200 }
                     ]
                 },
                 done

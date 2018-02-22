@@ -39,7 +39,7 @@ describe('filter menu module =>', () => {
                     dataSource: filterData,
                     allowFiltering: true,
                     allowPaging: true,
-                    filterSettings: { type: 'menu' },
+                    filterSettings: { type: 'Menu' },
                     columns: [{ field: 'OrderID', type: 'number' },
                     { field: 'CustomerID', type: 'string' },
                     { field: 'Freight', format: 'C2', type: 'number', allowFiltering: false },
@@ -137,7 +137,7 @@ describe('filter menu module =>', () => {
             actionComplete = (args?: any): void => {
                 if (args.requestType === 'filterafteropen') {
                     (<HTMLInputElement>document.querySelector('.e-flmenu-okbtn')).click();
-                    expect(gridObj.filterSettings.columns.length).toBe(0);
+                    expect(gridObj.filterSettings.columns.length).toBe(1);
                     gridObj.clearFiltering();
                     expect(gridObj.filterSettings.columns.length).toBe(0);
                     gridObj.actionBegin = null;
@@ -277,7 +277,7 @@ describe('filter menu module =>', () => {
                     dataSource: filterData,
                     allowFiltering: true,
                     allowPaging: true,
-                    filterSettings: { type: 'menu' },
+                    filterSettings: { type: 'Menu' },
                     columns: [{ field: 'OrderID', type: 'number' },
                     { field: 'CustomerID', type: 'string' },
                     { field: 'Freight', format: 'C2', type: 'number', allowFiltering: false },
@@ -340,7 +340,7 @@ describe('filter menu module =>', () => {
                     dataSource: filterData,
                     allowFiltering: true,
                     allowPaging: true,
-                    filterSettings: { type: 'menu' },
+                    filterSettings: { type: 'Menu' },
                     allowReordering: true,
                     columns: [{ field: 'OrderID', type: 'number' },
                     { field: 'CustomerID', type: 'string' },
@@ -375,7 +375,7 @@ describe('filter menu module =>', () => {
                     dataSource: new DataManager(filterData),
                     allowFiltering: true,
                     allowPaging: true,
-                    filterSettings: { type: 'menu' },
+                    filterSettings: { type: 'Menu' },
                     allowReordering: true,
                     columns: [{ field: 'OrderID', type: 'number' },
                     { field: 'CustomerID', type: 'string' },
@@ -434,13 +434,13 @@ describe('filter menu module =>', () => {
                     dataSource: filterData,
                     allowFiltering: true,
                     allowPaging: true,
-                    filterSettings: { type: 'menu' },
+                    filterSettings: { type: 'Menu' },
                     allowReordering: true,
                     columns: [{ field: 'OrderID', type: 'number' },
-                    { field: 'CustomerID', type: 'string', filter: { type: 'menu' } },
+                    { field: 'CustomerID', type: 'string', filter: { type: 'Menu' } },
                     { field: 'Freight', format: 'C2', type: 'number', allowFiltering: false },
                     { field: 'OrderDate', format: 'yMd' },
-                    { field: 'Verified', filter: { type: 'checkbox' } }
+                    { field: 'Verified', filter: { type: 'CheckBox' } }
                     ],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete
@@ -478,7 +478,7 @@ describe('filter menu module =>', () => {
                     allowFiltering: true,
                     allowPaging: true,
                     filterSettings: {
-                        type: 'menu', operators: {
+                        type: 'Menu', operators: {
                             stringOperator: [
                                 { value: 'startsWith', text: 'starts with' },
                                 { value: 'endsWith', text: 'ends with' },

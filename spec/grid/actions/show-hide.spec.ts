@@ -49,13 +49,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 done
@@ -89,13 +89,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -132,13 +132,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -175,13 +175,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -218,13 +218,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -261,13 +261,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -304,13 +304,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -347,13 +347,13 @@ describe('ShowHide module testing', () => {
                 {
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckbox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ]
                 },
                 () => {
@@ -407,13 +407,13 @@ describe('ShowHide module testing', () => {
                     allowFiltering: true,
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', displayAsCheckBox: true, type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     dataBound: dataBound
                 });
@@ -463,13 +463,13 @@ describe('ShowHide module testing', () => {
                     frozenRows: 2,
                     columns: [
                         {
-                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'right',
-                            textAlign: 'right', visible: false
+                            field: 'OrderID', headerText: 'Order ID', headerTextAlign: 'Right',
+                            textAlign: 'Right', visible: false
                         },
                         { field: 'Verified', type: 'boolean' },
                         { field: 'Freight', format: 'C1' },
                         { field: 'OrderDate', format: 'yMd' },
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right' }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right' }
                     ],
                     actionBegin: actionBegin,
                     dataBound: dataBound
@@ -593,6 +593,40 @@ describe('ShowHide module testing', () => {
             }
             gridObj.dataBound = dBound;
         });
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
+    describe('EJ2-7262===>After Enabled The Hidden Column Editing Throws Script Error', () => {
+        let gridObj: Grid;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    allowSelection: true,
+                    selectionSettings: {type:'Multiple'},
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', validationRules: { required: true } },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'ShipCity' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'CustomerID', type: 'string' }
+                    ]
+                }, done);
+        });
+
+        it('EJ2-7262===> Calling setVisible Method', () =>{
+            gridObj.selectionModule.selectRow(0, true);
+            let isRefreshed: boolean = false;
+            gridObj.selectionModule.clearSelection = ()=>{
+                isRefreshed = true;
+            };
+            gridObj.showHider.setVisible();
+            expect(isRefreshed).toBeTruthy();
+        });
+
         afterAll(() => {
             destroy(gridObj);
         });

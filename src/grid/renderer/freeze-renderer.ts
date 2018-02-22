@@ -6,6 +6,7 @@ import { ContentRender } from './content-renderer';
 import { ServiceLocator } from '../services/service-locator';
 import { FreezeRowModelGenerator } from '../services/freeze-row-model-generator';
 import * as events from '../base/constant';
+import { renderMovable } from '../base/util';
 
 /**
  * Freeze module is used to render grid content with frozen rows and columns
@@ -111,7 +112,7 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         this.rfshMovable();
         this.getMovableHeader().querySelector('tbody').innerHTML = tbody.innerHTML;
         this.updateColgroup();
-        this.renderMovable(this.parent.getContentTable().querySelector('colgroup'));
+        renderMovable(this.parent.getContentTable().querySelector('colgroup'), this.parent.getFrozenColumns());
         this.initializeHeaderDrag();
         this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: false } });
     }
@@ -127,7 +128,7 @@ export class FreezeRender extends HeaderRender implements IRenderer {
             let filterRow: Element = this.getTable().querySelector('.e-filterbar');
             if (this.parent.allowFiltering && filterRow && this.getMovableHeader().querySelector('thead')) {
                 this.getMovableHeader().querySelector('thead')
-                    .appendChild(this.renderMovable(filterRow));
+                    .appendChild(renderMovable(filterRow, this.parent.getFrozenColumns()));
             }
         } else if (obj.case === 'textwrap') {
             let fRows: NodeListOf<HTMLElement>;
@@ -137,22 +138,22 @@ export class FreezeRender extends HeaderRender implements IRenderer {
             let cont: Element = this.parent.getContent();
             let wrapMode: string = this.parent.textWrapSettings.wrapMode;
             let hdrClassList: DOMTokenList = (this.parent.getHeaderContent().firstChild as Element).classList;
-            if (wrapMode !== 'header' || obj.isModeChg) {
+            if (wrapMode !== 'Header' || obj.isModeChg) {
                 fRows = cont.querySelector('.e-frozencontent').querySelectorAll('tr') as NodeListOf<HTMLElement>;
                 mRows = cont.querySelector('.e-movablecontent').querySelectorAll('tr') as NodeListOf<HTMLElement>;
                 this.setWrapHeight(fRows, mRows, obj.isModeChg, true);
             }
-            if (wrapMode === 'content' && this.parent.allowTextWrap) {
+            if (wrapMode === 'Content' && this.parent.allowTextWrap) {
                 hdrClassList.add('e-wrap');
             } else {
                 hdrClassList.remove('e-wrap');
             }
-            if (wrapMode === 'both' || obj.isModeChg) {
+            if (wrapMode === 'Both' || obj.isModeChg) {
                 fRows = fHdr.querySelectorAll('tr') as NodeListOf<HTMLElement>;
                 mRows = mHdr.querySelectorAll('tr') as NodeListOf<HTMLElement>;
             } else {
-                fRows = fHdr.querySelector(wrapMode === 'content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
-                mRows = mHdr.querySelector(wrapMode === 'content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
+                fRows = fHdr.querySelector(wrapMode === 'Content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
+                mRows = mHdr.querySelector(wrapMode === 'Content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
             }
             this.setWrapHeight(fRows, mRows, obj.isModeChg, false, this.colDepth > 1);
             this.refreshStackedHdrHgt();
@@ -175,8 +176,8 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         let tHead: Element = this.parent.getHeaderContent().querySelector('thead');
         let tBody: Element = this.parent.getHeaderContent().querySelector('tbody');
         for (let i: number = 0, len: number = fRows.length; i < len; i++) {
-            if (isModeChg && ((wrapMode === 'header' && isContReset) || ((wrapMode === 'content' && tHead.contains(fRows[i]))
-            || (wrapMode === 'header' && tBody.contains(fRows[i])))) || isStackedHdr) {
+            if (isModeChg && ((wrapMode === 'Header' && isContReset) || ((wrapMode === 'Content' && tHead.contains(fRows[i]))
+                || (wrapMode === 'Header' && tBody.contains(fRows[i])))) || isStackedHdr) {
                 fRows[i].style.height = null;
                 mRows[i].style.height = null;
             }
@@ -251,18 +252,8 @@ export class FreezeRender extends HeaderRender implements IRenderer {
     private updateColgroup(): void {
         let mTable: Element = this.getMovableHeader().querySelector('table');
         remove(this.getMovableHeader().querySelector('colgroup'));
-        mTable.insertBefore(this.renderMovable(this.getFrozenHeader().querySelector('colgroup')), mTable.querySelector('thead'));
-    }
-
-    private renderMovable(ele: Element): Element {
-        let frzCols: number = this.parent.getFrozenColumns();
-        let mEle: Element = ele.cloneNode(true) as Element;
-        for (let i: number = 0; i < frzCols; i++) {
-            mEle.removeChild(mEle.children[0]);
-        }
-        for (let i: number = frzCols, len: number = ele.childElementCount; i < len; i++) {
-            ele.removeChild(ele.children[ele.childElementCount - 1]);
-        }
-        return mEle;
+        mTable.insertBefore(
+            renderMovable(this.getFrozenHeader().querySelector('colgroup'), this.parent.getFrozenColumns()),
+            mTable.querySelector('thead'));
     }
 }

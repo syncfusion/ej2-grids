@@ -41,6 +41,8 @@ export class InlineEditRender {
                 mTbody = this.parent.getContent().querySelector('.e-movablecontent').querySelector('tbody');
             }
             mTbody.insertBefore(mEle, mTbody.firstChild);
+            args.row.querySelector('.e-normaledit').setAttribute('colspan', this.parent.getFrozenColumns() + '');
+            mEle.setAttribute('colspan', '' + (this.parent.getColumns().length - this.parent.getFrozenColumns()));
         }
     }
 
@@ -186,5 +188,8 @@ export class InlineEditRender {
         return td;
     }
 
+    public removeEventListener(): void {
+        //To destroy the renderer
+    }
 }
 

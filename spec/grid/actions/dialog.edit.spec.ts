@@ -45,8 +45,8 @@ describe('Dialog Editing module', () => {
                     dataSource: dataSource(),
                     allowFiltering: true,
                     allowGrouping: true,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'dialog', showConfirmDialog: false, showDeleteConfirmDialog: false },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Dialog', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
                     allowPaging: false,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },

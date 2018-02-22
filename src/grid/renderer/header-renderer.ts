@@ -23,6 +23,7 @@ export class HeaderRender implements IRenderer {
     private headerTable: Element;
     private headerPanel: Element;
     private colgroup: Element;
+    private caption: Element;
     protected colDepth: number;
     private column: Column;
     protected rows: Row<Column>[];
@@ -56,7 +57,7 @@ export class HeaderRender implements IRenderer {
             }
         } else {
             visualElement.textContent = headercelldiv ?
-            col.headerText : element.firstElementChild.innerHTML;
+                col.headerText : element.firstElementChild.innerHTML;
         }
         visualElement.style.width = element.offsetWidth + 'px';
         visualElement.style.height = element.offsetHeight + 'px';
@@ -234,6 +235,7 @@ export class HeaderRender implements IRenderer {
         let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
         let thead: Element = findHeaderRow.thead;
         let tbody: Element = createElement('tbody', { className: this.parent.frozenRows ? '' : 'e-hide' });
+        this.caption = createElement('caption', { innerHTML: this.parent.element.id + '_header_table', className: 'e-hide' });
         let colGroup: Element = createElement('colgroup');
         let rowBody: Element = createElement('tr');
         let bodyCell: Element;
@@ -254,6 +256,7 @@ export class HeaderRender implements IRenderer {
         table.appendChild(this.setColGroup(colGroup));
         table.appendChild(thead);
         table.appendChild(tbody);
+        table.appendChild(this.caption);
         this.ariaService.setOptions(table as HTMLElement, { colcount: gObj.getColumns().length.toString() });
         return table;
     }
@@ -507,7 +510,7 @@ export class HeaderRender implements IRenderer {
         if (!frzCols) {
             this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: this.parent.getFrozenColumns() !== 0 } });
         }
-        if (this.parent.allowTextWrap && this.parent.textWrapSettings.wrapMode === 'header') {
+        if (this.parent.allowTextWrap && this.parent.textWrapSettings.wrapMode === 'Header') {
             wrap(rows, true);
         }
     }

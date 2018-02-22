@@ -62,7 +62,9 @@ export class ForeignKey extends Data {
             });
             args.promise.resolve(args.result);
         }).catch((e: Object) => {
-            args.promise.reject(e);
+            if (args.promise && args.promise.reject) {
+                args.promise.reject(e);
+            }
             return e;
         });
     }

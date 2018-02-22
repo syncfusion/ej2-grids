@@ -44,6 +44,7 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         }
         node.setAttribute('colspan', cell.colSpan.toString());
         node.setAttribute('aria-label', node.innerHTML + ' is groupcaption cell');
+        node.setAttribute('title', node.innerHTML);
         return node;
     }
 }

@@ -5,8 +5,7 @@ import { isActionPrevent } from '../base/util';
 import { SearchSettingsModel } from '../base/grid-model';
 
 /**
- * 
- * `Search` module is used to handle search action.
+ * The `Search` module is used to handle search action.
  */
 export class Search implements IAction {
 
@@ -14,6 +13,8 @@ export class Search implements IAction {
 
     //Module declarations
     private parent: IGrid;
+    private refreshSearch: boolean;
+    private actionCompleteFunc: Function;
 
     /**
      * Constructor for Grid search module.
@@ -25,7 +26,9 @@ export class Search implements IAction {
     }
 
     /** 
-     * Searches Grid records by given key.  
+     * Searches Grid records by given key.
+     * 
+     * > You can customize the default search action by using [`searchSettings`](./api-grid.html#searchsettings-searchsettingsmodel).
      * @param  {string} searchString - Defines the key.
      * @return {void} 
      */
@@ -37,8 +40,10 @@ export class Search implements IAction {
             return;
         }
         if (searchString !== gObj.searchSettings.key) {
-            gObj.searchSettings.key = searchString;
+            gObj.searchSettings.key = searchString.toString();
             gObj.dataBind();
+        } else if (this.refreshSearch) {
+            gObj.refresh();
         }
     }
     /**
@@ -47,8 +52,10 @@ export class Search implements IAction {
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
-        this.parent.on(events.searchComplete, this.onActionComplete, this);
+        this.parent.on(events.searchComplete, this.onSearchComplete, this);
         this.parent.on(events.destroy, this.destroy, this);
+        this.actionCompleteFunc = this.onActionComplete.bind(this);
+        this.parent.addEventListener(events.actionComplete, this.actionCompleteFunc);
     }
     /**
      * @hidden
@@ -56,8 +63,9 @@ export class Search implements IAction {
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
-        this.parent.off(events.searchComplete, this.onActionComplete);
+        this.parent.off(events.searchComplete, this.onSearchComplete);
         this.parent.off(events.destroy, this.destroy);
+        this.parent.removeEventListener(events.actionComplete, this.actionCompleteFunc);
     }
 
     /**
@@ -91,10 +99,14 @@ export class Search implements IAction {
      * @return {void}
      * @hidden
      */
-    public onActionComplete(e: NotifyArgs): void {
+    public onSearchComplete(e: NotifyArgs): void {
         this.parent.trigger(events.actionComplete, extend(e, {
             searchString: this.parent.searchSettings.key, requestType: 'searching', type: events.actionComplete
         }));
+    }
+
+    public onActionComplete(e: NotifyArgs): void {
+        this.refreshSearch = e.requestType !== 'searching';
     }
 
     /**

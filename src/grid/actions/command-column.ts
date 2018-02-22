@@ -2,9 +2,10 @@ import { closest, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { initialEnd, click, keyPressed } from '../base/constant';
 import { CellType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
-import { IGrid } from '../base/interface';
+import { IGrid, EJ2Intance } from '../base/interface';
 import { CellRendererFactory } from '../services/cell-render-factory';
 import { CommandColumnRenderer } from '../renderer/command-column-renderer';
+import { ButtonModel } from '@syncfusion/ej2-buttons';
 
 /**
  * `CommandColumn` used to handle the command column actions.
@@ -30,25 +31,33 @@ export class CommandColumn {
 
     private commandClickHandler(e: Event): void {
         let gObj: IGrid = this.parent;
-        let gID: string = this.parent.element.id;
+        let gID: string = gObj.element.id;
         let target: HTMLElement = (<HTMLElement>closest(<Node>e.target, 'button'));
-        if (!target || !gObj.editModule) {
+        if (!target || !gObj.editModule || !(<HTMLElement>closest(<Node>e.target, '.e-unboundcell'))) {
             return;
         }
-        switch (target.id.split('_')[0]) {
-            case gID + 'edit':
-                this.parent.editModule.endEdit();
+        let buttonObj: ButtonModel = (<EJ2Intance>target).ej2_instances[0];
+        let type: string = (<{commandType?: string}> buttonObj).commandType;
+        if (buttonObj.disabled) {
+            return;
+        }
+        switch (type) {
+            case 'Edit':
+                gObj.editModule.endEdit();
                 gObj.editModule.startEdit(<HTMLTableRowElement>closest(target, 'tr'));
                 break;
-            case gID + 'cancel':
+            case 'Cancel':
                 gObj.editModule.closeEdit();
                 break;
-            case gID + 'save':
-                this.parent.editModule.endEdit();
+            case 'Save':
+                gObj.editModule.endEdit();
                 break;
-            case gID + 'delete':
-                this.parent.editModule.endEdit();
-                gObj.editModule.deleteRow(<HTMLTableRowElement>closest(target, 'tr'));
+            case 'Delete':
+                gObj.editModule.endEdit();
+                gObj.clearSelection();
+                //for toogle issue when dbl click
+                gObj.selectRow(parseInt(closest(target, 'tr').getAttribute('aria-rowindex'), 10), false);
+                gObj.editModule.deleteRecord();
                 break;
         }
     }
@@ -84,7 +93,7 @@ export class CommandColumn {
     }
 
     private keyPressHandler(e: KeyboardEventArgs): void {
-        if (e.action === 'enter' && closest(<Node>e.target, 'button')) {
+        if (e.action === 'enter' && closest(<Node>e.target, '.e-unboundcelldiv')) {
             this.commandClickHandler(e);
             e.preventDefault();
         }

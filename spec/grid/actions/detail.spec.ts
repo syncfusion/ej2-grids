@@ -31,7 +31,7 @@ describe('Detail template module', () => {
         let grid1: Grid = new Grid(
             {
                 dataSource: filterData,
-                selectionSettings: { type: 'multiple', mode: 'row' },
+                selectionSettings: { type: 'Multiple', mode: 'Row' },
                 allowSorting: true,
                 allowPaging: true,
                 pageSettings: { pageSize: 3 },
@@ -40,9 +40,9 @@ describe('Detail template module', () => {
                 allowTextWrap: true,
                 allowFiltering: true,
                 columns: [
-                    { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right' },
+                    { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'Right' },
                     { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
-                    { field: 'Freight', width: 120, format: 'C', textAlign: 'right' },
+                    { field: 'Freight', width: 120, format: 'C', textAlign: 'Right' },
                     { field: 'ShipCity', headerText: 'Ship City', width: 150 }
                 ],
             });
@@ -64,14 +64,14 @@ describe('Detail template module', () => {
                     detailTemplate: '#detailtemplate1',
                     detailDataBound: detail,
                     allowGrouping: true,
-                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    selectionSettings: { type: 'Multiple', mode: 'Row' },
                     allowFiltering: true,
                     allowSorting: true,
                     allowReordering: true,
                     columns: [
-                        { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right' },
+                        { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'Right' },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
-                        { field: 'Freight', width: 120, format: 'C', textAlign: 'right' },
+                        { field: 'Freight', width: 120, format: 'C', textAlign: 'Right' },
                         { field: 'ShipCity', headerText: 'Ship City', width: 150 }
                     ],
                     dataBound: dataBound
@@ -122,16 +122,16 @@ describe('Detail template module', () => {
                     detailDataBound: detail,
                     allowGrouping: true,
                     editSettings: { allowAdding: true, allowDeleting: true, allowEditing: true },
-                    toolbar: ['add', 'edit', 'delete', 'update', 'cancel'],
-                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                    selectionSettings: { type: 'Multiple', mode: 'Row' },
                     allowFiltering: true,
                     allowSorting: true,
                     allowReordering: true,
                     actionComplete: actionComplete,
                     columns: [
-                        { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right' },
+                        { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'Right' },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
-                        { field: 'Freight', width: 120, format: 'C', textAlign: 'right' },
+                        { field: 'Freight', width: 120, format: 'C', textAlign: 'Right' },
                         { field: 'ShipCity', headerText: 'Ship City', width: 150 }
                     ],
                     dataBound: dataBound
@@ -329,23 +329,23 @@ describe('Detail template module', () => {
                     dataSource: employeeData,
                     allowPaging: true,
                     allowGrouping: true,
-                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    selectionSettings: { type: 'Multiple', mode: 'Row' },
                     allowFiltering: true,
                     allowSorting: true,
                     allowReordering: true,
                     actionComplete: actionComplete,
                     columns: [
-                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 75 },
-                        { field: 'FirstName', headerText: 'First Name', textAlign: 'left', width: 100 },
-                        { field: 'Title', headerText: 'Title', textAlign: 'left', width: 120 },
-                        { field: 'City', headerText: 'City', textAlign: 'left', width: 100 },
-                        { field: 'Country', headerText: 'Country', textAlign: 'left', width: 100 }
+                        { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 75 },
+                        { field: 'FirstName', headerText: 'First Name', textAlign: 'Left', width: 100 },
+                        { field: 'Title', headerText: 'Title', textAlign: 'Left', width: 120 },
+                        { field: 'City', headerText: 'City', textAlign: 'Left', width: 100 },
+                        { field: 'Country', headerText: 'Country', textAlign: 'Left', width: 100 }
                     ],
                     childGrid: {
                         dataSource: filterData, queryString: 'EmployeeID',
                         allowPaging: true,
                         allowGrouping: true,
-                        selectionSettings: { type: 'multiple', mode: 'row' },
+                        selectionSettings: { type: 'Multiple', mode: 'Row' },
                         pageSettings: { pageCount: 5, pageSize: 5 },
                         allowFiltering: true,
                         allowSorting: true,
@@ -353,17 +353,17 @@ describe('Detail template module', () => {
                         allowReordering: true,
                         allowTextWrap: true,
                         columns: [
-                            { field: 'OrderID', headerText: 'Order ID', textAlign: 'right', width: 75 },
-                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'right', width: 75 },
-                            { field: 'ShipCity', headerText: 'Ship City', textAlign: 'left', width: 100 },
-                            { field: 'Freight', headerText: 'Freight', textAlign: 'left', width: 120 },
-                            { field: 'ShipName', headerText: 'Ship Name', textAlign: 'left', width: 100 }
+                            { field: 'OrderID', headerText: 'Order ID', textAlign: 'Right', width: 75 },
+                            { field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 75 },
+                            { field: 'ShipCity', headerText: 'Ship City', textAlign: 'Left', width: 100 },
+                            { field: 'Freight', headerText: 'Freight', textAlign: 'Left', width: 120 },
+                            { field: 'ShipName', headerText: 'Ship Name', textAlign: 'Left', width: 100 }
                         ],
                         childGrid: {
                             dataSource: customerData,
                             allowPaging: true,
                             allowGrouping: true,
-                            selectionSettings: { type: 'multiple', mode: 'row' },
+                            selectionSettings: { type: 'Multiple', mode: 'Row' },
                             pageSettings: { pageCount: 5, pageSize: 5 },
                             allowFiltering: true,
                             allowSorting: true,
@@ -372,10 +372,10 @@ describe('Detail template module', () => {
                             allowTextWrap: true,
                             queryString: 'CustomerID',
                             columns: [
-                                { field: 'CustomerID', headerText: 'Customer ID', textAlign: 'right', width: 75 },
-                                { field: 'Phone', headerText: 'Phone', textAlign: 'left', width: 100 },
-                                { field: 'Address', headerText: 'Address', textAlign: 'left', width: 120 },
-                                { field: 'Country', headerText: 'Country', textAlign: 'left', width: 100 }
+                                { field: 'CustomerID', headerText: 'Customer ID', textAlign: 'Right', width: 75 },
+                                { field: 'Phone', headerText: 'Phone', textAlign: 'Left', width: 100 },
+                                { field: 'Address', headerText: 'Address', textAlign: 'Left', width: 120 },
+                                { field: 'Country', headerText: 'Country', textAlign: 'Left', width: 100 }
                             ],
                         },
                     },
@@ -592,14 +592,14 @@ describe('Detail template module', () => {
                     detailTemplate: '#detailtemplate',
                     detailDataBound: detail,
                     allowGrouping: true,
-                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    selectionSettings: { type: 'Multiple', mode: 'Row' },
                     allowFiltering: true,
                     allowSorting: true,
                     allowReordering: true,
                     columns: [
-                        { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'right' },
+                        { field: 'OrderID', headerText: 'Order ID', width: 120, textAlign: 'Right' },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
-                        { field: 'Freight', width: 120, format: 'C', textAlign: 'right' },
+                        { field: 'Freight', width: 120, format: 'C', textAlign: 'Right' },
                         { field: 'ShipCity', headerText: 'Ship City', width: 150 }
                     ],
                     dataBound: dataBound

@@ -74,7 +74,7 @@ describe('Reorder row functionalities', () => {
                 allowRowDragAndDrop: true,
                 rowDropSettings: { targetID: undefined },
                 allowSelection: true,
-                selectionSettings: { type: 'multiple', mode: 'row' },
+                selectionSettings: { type: 'Multiple', mode: 'Row' },
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                 { field: 'ShipCity' }],
                 allowSorting: true,
@@ -92,7 +92,7 @@ describe('Reorder row functionalities', () => {
                 allowRowDragAndDrop: true,
                 rowDropSettings: { targetID: 'Grid' },
                 allowSelection: true,
-                selectionSettings: { type: 'multiple', mode: 'row' },
+                selectionSettings: { type: 'Multiple', mode: 'Row' },
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                 { field: 'ShipCity' }],
                 allowSorting: true,
@@ -159,7 +159,7 @@ describe('Row Drag and Drop module', () => {
                     allowRowDragAndDrop: true,
                     rowDropSettings: { targetID: undefined },
                     allowSelection: true,
-                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    selectionSettings: { type: 'Multiple', mode: 'Row' },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     allowSorting: true,
@@ -177,7 +177,7 @@ describe('Row Drag and Drop module', () => {
                     allowRowDragAndDrop: true,
                     rowDropSettings: { targetID: 'Grid' },
                     allowSelection: true,
-                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    selectionSettings: { type: 'Multiple', mode: 'Row' },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     allowSorting: true,
@@ -404,7 +404,7 @@ describe('Row Drag and Drop module', () => {
                         allowRowDragAndDrop: true,
                         rowDropSettings: { targetID: 'Grid1' },
                         allowSelection: true,
-                        selectionSettings: { type: 'multiple', mode: 'row' },
+                        selectionSettings: { type: 'Multiple', mode: 'Row' },
                         columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                         { field: 'ShipCity' }],
                         allowSorting: true,
@@ -422,7 +422,7 @@ describe('Row Drag and Drop module', () => {
                         allowRowDragAndDrop: true,
                         rowDropSettings: { targetID: 'Grid' },
                         allowSelection: true,
-                        selectionSettings: { type: 'multiple', mode: 'row' },
+                        selectionSettings: { type: 'Multiple', mode: 'Row' },
                         columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                         { field: 'ShipCity' }],
                         allowSorting: true,
@@ -501,7 +501,7 @@ describe('Row Drag and Drop module', () => {
         //                 allowRowDragAndDrop: true,
         //                 rowDropSettings: { targetID: 'Grid1' },
         //                 allowSelection: true,
-        //                 selectionSettings: { type: 'multiple', mode: 'row' },
+        //                 selectionSettings: { type: 'Multiple', mode: 'Row' },
         //                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
         //                 { field: 'ShipCity' }],
         //                 allowSorting: true,
@@ -519,7 +519,7 @@ describe('Row Drag and Drop module', () => {
         //                 allowRowDragAndDrop: true,
         //                 rowDropSettings: { targetID: 'Grid' },
         //                 allowSelection: true,
-        //                 selectionSettings: { type: 'multiple', mode: 'row' },
+        //                 selectionSettings: { type: 'Multiple', mode: 'Row' },
         //                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
         //                 { field: 'ShipCity' }],
         //                 allowSorting: true,
@@ -591,7 +591,7 @@ describe('Row Drag and Drop module', () => {
                     allowSorting: true,
                     allowPaging: true,
                     pageSettings: { pageSize: 6, currentPage: 1 },
-                    selectionSettings: { type: 'multiple' },
+                    selectionSettings: { type: 'Multiple' },
                     actionComplete: actionComplete,
                     dataBound: dataBound
                 });
@@ -604,7 +604,7 @@ describe('Row Drag and Drop module', () => {
                     allowRowDragAndDrop: true,
                     rowDropSettings: { targetID: 'Grid' },
                     allowSelection: true,
-                    selectionSettings: { type: 'multiple', mode: 'row' },
+                    selectionSettings: { type: 'Multiple', mode: 'Row' },
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight', format: 'c2' },
                     { field: 'OrderDate', format: 'yMd' }],
                     allowSorting: true,
@@ -913,7 +913,7 @@ describe('Row Drag and Drop module', () => {
         //     gridObj.actionComplete = actionComplete;
         //     gridObj1.dataBound = undefined;
         //     gridObj.dataBound = undefined;
-        //     gridObj.sortColumn('EmployeeID', 'ascending');
+        //     gridObj.sortColumn('EmployeeID', 'Ascending');
         //     gridObj.dataBind();
         // });
 
@@ -958,7 +958,7 @@ describe('Row Drag and Drop module', () => {
         //     };
         //     gridObj.actionComplete = actionComplete;
         //     gridObj.allowPaging = true,
-        //         gridObj.selectionSettings.mode = 'row';
+        //         gridObj.selectionSettings.mode = 'Row';
         //     gridObj.dataBind();
         //     expect(gridObj.element.querySelectorAll('.e-cellselectionbackground').length).toBe(0);
         // });

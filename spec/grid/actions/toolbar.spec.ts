@@ -41,7 +41,7 @@ describe('Toolbar functionalities', () => {
                 width: "400px",
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                 { field: 'ShipCity' }],
-                toolbar: ['print', 'edit', { text: 'hello', id: 'hello' }, 'expand', ToolbarItem.Add] as any,
+                toolbar: ['Print', 'Edit', { text: 'hello', id: 'hello' }, 'expand', ToolbarItem.Add] as any,
                 actionBegin: actionBegin,
                 actionComplete: actionComplete,
                 dataBound: dataBound
@@ -76,7 +76,7 @@ describe('Toolbar functionalities', () => {
         expect(gridObj.toolbarModule.getToolbar().classList.contains('e-rtl')).toBeFalsy();
     });
     it('change toolbar value', () => {
-        gridObj.toolbar = ['search', 'add', 'update', 'cancel', 'hi'];
+        gridObj.toolbar = ['Search', 'Add', 'Update', 'Cancel', 'hi'];
         gridObj.dataBind();
         expect(gridObj.toolbarModule.getToolbar().querySelector('.e-toolbar-left').children.length).toBe(4);
         expect(gridObj.toolbarModule.getToolbar().querySelector('.e-toolbar-right').children.length).toBe(1);
@@ -84,8 +84,8 @@ describe('Toolbar functionalities', () => {
     });
     it('check aria-attribute', () => {
         let search: Element = gridObj.toolbarModule.getToolbar().querySelector('.e-search');
-        expect(search.querySelector('.e-searchfind').hasAttribute('tabindex')).toBeTruthy();
-        expect(search.querySelector('.e-searchfind').hasAttribute('aria-label')).toBeTruthy();
+        expect(search.querySelector('.e-search-icon').hasAttribute('tabindex')).toBeTruthy();
+        expect(search.querySelector('.e-search-icon').hasAttribute('aria-label')).toBeTruthy();
     });
     it('Enable Toolbar items', () => {
         gridObj.toolbarModule.enableItems(['Grid_update'], true);
@@ -98,8 +98,8 @@ describe('Toolbar functionalities', () => {
         expect(gridObj.toolbarModule).toBe(undefined);
     });
     it('render all predefined items', () => {
-        gridObj.toolbar = ['add', 'edit', 'delete', 'update', 'cancel', 'print', 'excelexport', 'pdfexport', 'wordexport',
-        'search', 'csvexport'];
+        gridObj.toolbar = ['Add', 'Edit', 'Delete', 'Update', 'Cancel', 'Print', 'ExcelExport', 'PdfExport', 'WordExport',
+        'Search', 'CsvExport'];
         gridObj.dataBind();
         expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-toolbar-item').length).toBe(11);
         //expect(gridObj.toolbarModule.toolbar.items[9].align).toBe('left');

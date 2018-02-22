@@ -133,8 +133,10 @@ export class ColumnWidthService {
         let columns: Column[] = this.parent.getColumns();
         columns.splice(0, this.parent.getFrozenColumns());
         let movableWidth: string = formatUnit(this.getTableWidth(columns));
-        (this.parent.getHeaderContent().querySelector('.e-movableheader').firstElementChild as HTMLTableElement).style.width
+        if (this.parent.getHeaderContent().querySelector('.e-movableheader').firstElementChild) {
+            (this.parent.getHeaderContent().querySelector('.e-movableheader').firstElementChild as HTMLTableElement).style.width
             = movableWidth;
+        }
         (this.parent.getContent().querySelector('.e-movablecontent').firstElementChild as HTMLTableElement).style.width =
             movableWidth;
     }

@@ -21,7 +21,7 @@ import { DatePickerEditCell } from '../renderer/datepicker-edit-cell';
 import { calculateRelativeBasedPosition, OffsetPosition } from '@syncfusion/ej2-popups';
 
 /**
- * `Edit` module is used to handle editing actions.
+ * The `Edit` module is used to handle editing actions.
  */
 export class Edit implements IAction {
     //Internal variables                  
@@ -35,14 +35,13 @@ export class Edit implements IAction {
         'dropdownedit': DropDownEditCell, 'numericedit': NumericEditCell,
         'datepickeredit': DatePickerEditCell, 'booleanedit': BooleanEditCell, 'defaultedit': DefaultEditCell
     };
-    private editType: Object = { 'inline': InlineEdit, 'normal': InlineEdit, 'batch': BatchEdit, 'dialog': DialogEdit };
+    private editType: Object = { 'Inline': InlineEdit, 'Normal': InlineEdit, 'Batch': BatchEdit, 'Dialog': DialogEdit };
     //Module declarations
     protected parent: IGrid;
     protected serviceLocator: ServiceLocator;
     protected l10n: L10n;
     private dialogObj: Dialog;
     private alertDObj: Dialog;
-    private tapped: boolean | number = false;
     private actionBeginFunction: Function;
     private actionCompleteFunction: Function;
     private preventObj: {
@@ -131,12 +130,16 @@ export class Edit implements IAction {
 
     private tapEvent(e: TouchEventArgs): void {
         if (this.getUserAgent()) {
-            if (!this.tapped) {
-                this.tapped = setTimeout(this.timeoutHandler(), 300);
+            if (!Global.timer) {
+                Global.timer = (setTimeout(
+                    () => {
+                        Global.timer = null;
+                    },
+                    300) as Object);
             } else {
-                clearTimeout(this.tapped as number);
+                clearTimeout(Global.timer as number);
+                Global.timer = null;
                 this.parent.notify(events.doubleTap, e);
-                this.tapped = null;
             }
         }
     }
@@ -146,17 +149,13 @@ export class Edit implements IAction {
         return (/iphone|ipod|ipad/ as RegExp).test(userAgent);
     }
 
-    private timeoutHandler(): void {
-        this.tapped = null;
-    }
-
     /**
-     * To edit any particular row by TR element.
+     * Edits any bound record in the Grid by TR element.
      * @param {HTMLTableRowElement} tr - Defines the table row to be edited.
      */
     public startEdit(tr?: HTMLTableRowElement): void {
         let gObj: IGrid = this.parent;
-        if (!gObj.editSettings.allowEditing || gObj.isEdit || gObj.editSettings.mode === 'batch') {
+        if (!gObj.editSettings.allowEditing || gObj.isEdit || gObj.editSettings.mode === 'Batch') {
             return;
         }
         if (!gObj.getSelectedRows().length) {
@@ -177,10 +176,10 @@ export class Edit implements IAction {
     }
 
     /**
-     * Cancel edited state.
+     * Cancels edited state.
      */
     public closeEdit(): void {
-        if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog
+        if (this.parent.editSettings.mode === 'Batch' && this.parent.editSettings.showConfirmDialog
             && this.parent.element.querySelectorAll('.e-updatedtd').length) {
             this.showDialog('CancelEdit', this.dialogObj);
             return;
@@ -195,24 +194,25 @@ export class Edit implements IAction {
     }
 
     /**
-     * To add a new row at top of rows with given data. If data is not passed then it will render empty row.
+     * To adds a new row at the top with the given data. When data is not passed, it will add empty rows.
      * > `editSettings.allowEditing` should be true.
      * @param {Object} data - Defines the new add record data.
+     * @param {number} index - Defines the row index to be added
      */
-    public addRecord(data?: Object): void {
+    public addRecord(data?: Object, index?: number): void {
         if (!this.parent.editSettings.allowAdding) {
             return;
         }
-        this.editModule.addRecord(data);
+        this.editModule.addRecord(data, index);
         this.refreshToolbar();
         this.parent.notify('start-add', {});
     }
 
     /**
-     * Delete a record with Given options. If fieldname and data is not given then grid will delete the selected record.
+     * Deletes a record with the given options. If fieldname and data are not given, the Grid will delete the selected record.
      * > `editSettings.allowDeleting` should be true.
-     * @param {string} fieldname - Defines the primary key field Name of the column.
-     * @param {Object} data - Defines the JSON data of record need to be delete.
+     * @param {string} fieldname - Defines the primary key field name of the column.
+     * @param {Object} data - Defines the JSON data record to be deleted.
      */
     public deleteRecord(fieldname?: string, data?: Object): void {
         let gObj: IGrid = this.parent;
@@ -224,16 +224,16 @@ export class Edit implements IAction {
                 this.showDialog('DeleteOperationAlert', this.alertDObj);
                 return;
             }
-            if (gObj.editSettings.showDeleteConfirmDialog) {
-                this.showDialog('ConfirmDelete', this.dialogObj);
-                return;
-            }
+        }
+        if (gObj.editSettings.showDeleteConfirmDialog) {
+            this.showDialog('ConfirmDelete', this.dialogObj);
+            return;
         }
         this.editModule.deleteRecord(fieldname, data);
     }
 
     /**
-     * Delete any visible row by TR element.
+     * Deletes a visible row by TR element.
      * @param {HTMLTableRowElement} tr - Defines the table row element.
      */
     public deleteRow(tr: HTMLTableRowElement): void {
@@ -241,10 +241,11 @@ export class Edit implements IAction {
     }
 
     /**
-     * If Grid is in editable state, then you can save a record by invoking endEdit.
+     * If Grid is in editable state, you can save a record by invoking endEdit.
      */
     public endEdit(): void {
-        if (this.parent.editSettings.mode === 'batch' && this.parent.editSettings.showConfirmDialog) {
+        if (this.parent.editSettings.mode === 'Batch' && this.parent.editSettings.showConfirmDialog &&
+            (isNullOrUndefined(this.formObj) || this.formObj.validate())) {
             this.showDialog('BatchSaveConfirm', this.dialogObj);
             return;
         }
@@ -252,41 +253,41 @@ export class Edit implements IAction {
     }
 
     /**
-     * To update value of any cell without change into edit mode.
-     * @param {number} rowIndex - Defines the row index.
-     * @param {string} field - Defines the column field.
-     * @param {string | number | boolean | Date} value - Defines the value to change.
+     * To update the specified cell by given value without changing into edited state. 
+     * @param {number} rowIndex Defines the row index.
+     * @param {string} field Defines the column field.
+     * @param {string | number | boolean | Date} value - Defines the value to be changed.
      */
     public updateCell(rowIndex: number, field: string, value: string | number | boolean | Date): void {
         this.editModule.updateCell(rowIndex, field, value);
     }
 
     /**
-     * To update values of a row without changing into edit mode.
-     * @param {number} index - Defines the row index.
-     * @param {Object} data - Defines the data object to update.
+     * To update the specified row by given values without changing into edited state.
+     * @param {number} index Defines the row index.
+     * @param {Object} data Defines the data object to be updated.
      */
     public updateRow(index: number, data: Object): void {
         this.editModule.updateRow(index, data);
     }
 
     /**
-     * To reset added, edited and deleted records in batch mode.
+     * Resets added, edited, and deleted records in the batch mode.
      */
     public batchCancel(): void {
         this.closeEdit();
     }
 
     /**
-     * To bulk Save added, edited and deleted records in batch mode.
+     * Bulk saves added, edited, and deleted records in the batch mode.
      */
     public batchSave(): void {
         this.endEdit();
     }
 
     /**
-     * To turn any particular cell into edited state by row index and field name in batch mode.
-     * @param {number} index - Defines row index to edit particular cell.
+     * Changes a particular cell into edited state based on the row index and field name provided in the `batch` mode.
+     * @param {number} index - Defines row index to edit a particular cell.
      * @param {string} field - Defines the field name of the column to perform batch edit.
      */
     public editCell(index: number, field: string): void {
@@ -294,7 +295,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * To check current status of validation at the time of edited state. If validation passed then it will return true.
+     * Checks the status of validation at the time of editing. If validation is passed, it returns true.
      * @return {boolean}
      */
     public editFormValidate(): boolean {
@@ -305,7 +306,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * To get added, edited and deleted data before bulk save to data source in batch mode.
+     * Gets the added, edited,and deleted data before bulk save to the DataSource in batch mode.
      * @return {Object}
      */
     public getBatchChanges(): Object {
@@ -313,7 +314,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * To get current value of edited component.
+     * Gets the current value of the edited component.
      */
     public getCurrentEditCellData(): string {
         let obj: Object = this.getCurrentEditedData(this.formObj.element, {});
@@ -321,7 +322,7 @@ export class Edit implements IAction {
     }
 
     /**
-     * To save current edited cell in batch. It does not save value to data source.
+     * Saves the cell that is currently edited. It does not save the value to the DataSource.
      */
     public saveCell(): void {
         this.editModule.saveCell();
@@ -512,7 +513,7 @@ export class Edit implements IAction {
      */
     public onActionBegin(e: NotifyArgs): void {
         let restrictedRequestTypes: string[] = ['filterafteropen', 'filterbeforeopen', 'filterchoicerequest', 'save'];
-        if (this.parent.editSettings.mode !== 'batch' && this.formObj && !this.formObj.isDestroyed
+        if (this.parent.editSettings.mode !== 'Batch' && this.formObj && !this.formObj.isDestroyed
             && restrictedRequestTypes.indexOf(e.requestType) === -1) {
             this.destroyForm();
             this.destroyWidgets();
@@ -565,13 +566,15 @@ export class Edit implements IAction {
                 this.addRecord();
                 break;
             case 'delete':
-                this.deleteRecord();
+                if ((e.target as HTMLElement).tagName !== 'INPUT' && !document.querySelector('.e-popup-open')) {
+                    this.deleteRecord();
+                }
                 break;
             case 'f2':
                 this.startEdit();
                 break;
             case 'enter':
-                if (!parentsUntil(e.target as HTMLElement, '.e-unboundcelldiv') && this.parent.editSettings.mode !== 'batch' &&
+                if (!parentsUntil(e.target as HTMLElement, '.e-unboundcelldiv') && this.parent.editSettings.mode !== 'Batch' &&
                     (parentsUntil(e.target as HTMLElement, 'e-gridcontent') || (this.parent.frozenRows
                         && parentsUntil(e.target as HTMLElement, 'e-headercontent')))
                     && !document.querySelectorAll('.e-popup-open').length) {
@@ -620,7 +623,7 @@ export class Edit implements IAction {
             }
         }
         this.parent.editModule.formObj = this.createFormObj(form, rules);
-        if (frzCols && this.parent.editSettings.mode !== 'dialog') {
+        if (frzCols && this.parent.editSettings.mode !== 'Dialog') {
             this.parent.editModule.mFormObj = this.createFormObj(mForm, mRules);
         }
     }
@@ -651,11 +654,11 @@ export class Edit implements IAction {
 
     private getElemTable(inputElement: Element): Element {
         let isFHdr: boolean;
-        if (this.parent.editSettings.mode !== 'dialog') {
+        if (this.parent.editSettings.mode !== 'Dialog') {
             isFHdr = (this.parent.frozenRows && this.parent.frozenRows
-                > (parseInt(inputElement.closest('.e-row').getAttribute('aria-rowindex'), 10) || 0));
+                > (parseInt(closest(inputElement, '.e-row').getAttribute('aria-rowindex'), 10) || 0));
         }
-        return this.parent.editSettings.mode !== 'dialog' ? isFHdr ? this.parent.getHeaderTable() : this.parent.getContentTable() :
+        return this.parent.editSettings.mode !== 'Dialog' ? isFHdr ? this.parent.getHeaderTable() : this.parent.getContentTable() :
             this.parent.element.querySelector('#' + this.parent.element.id + '_dialogEdit_wrapper');
     }
 
@@ -675,11 +678,11 @@ export class Edit implements IAction {
     private createTooltip(element: Element, error: HTMLElement, name: string, display: string): void {
         let gcontent: HTMLElement = this.parent.getContent().firstElementChild as HTMLElement;
         let isScroll: boolean = gcontent.scrollHeight > gcontent.clientHeight;
-        let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
+        let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         let isFHdr: boolean;
         if (isInline) {
             isFHdr = (this.parent.frozenRows && this.parent.frozenRows
-                > (parseInt(element.closest('.e-row').getAttribute('aria-rowindex'), 10) || 0));
+                > (parseInt(closest(element, '.e-row').getAttribute('aria-rowindex'), 10) || 0));
         }
         let fCont: Element = this.parent.getContent().querySelector('.e-frozencontent');
         let table: Element = isInline ?
@@ -692,7 +695,7 @@ export class Edit implements IAction {
         let inputClient: ClientRect = input.getBoundingClientRect();
         let td: ClientRect = (closest(element, 'td') as HTMLElement).getBoundingClientRect();
         let div: HTMLElement = createElement('div', {
-            className: 'e-tooltip-wrap e-popup e-griderror',
+            className: 'e-tooltip-wrap e-control e-popup e-griderror',
             id: name + '_Error',
             styles: 'display:' + display + ';top:' +
                 ((isFHdr ? inputClient.top + inputClient.height : inputClient.bottom - client.top
@@ -725,4 +728,9 @@ export class Edit implements IAction {
         }
     }
 
+}
+
+/** @hidden */
+export namespace Global {
+    export let timer: Object = null;
 }

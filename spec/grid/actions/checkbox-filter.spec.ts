@@ -15,6 +15,7 @@ import { Selection } from '../../../src/grid/actions/selection';
 import { filterData } from '../base/datasource.spec';
 import { createGrid, destroy, getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { Edit } from '../../../src/grid/actions/edit';
 
 Grid.Inject(Filter, Page, Selection, Group, Freeze);
 
@@ -33,7 +34,7 @@ describe('Checkbox Filter module => ', () => {
             isEqual = isEqual && obj.value === value;
         }
         if (matchCase) {
-            isEqual = isEqual && obj.matchcase === matchCase;
+            isEqual = isEqual && obj.matchCase === matchCase;
         }
         return isEqual;
     };
@@ -67,7 +68,7 @@ describe('Checkbox Filter module => ', () => {
                     dataSource: filterData,
                     allowFiltering: true,
                     allowPaging: false,
-                    filterSettings: { type: 'checkbox', showFilterBarStatus: true },
+                    filterSettings: { type: 'CheckBox', showFilterBarStatus: true },
                     columns: [{ field: 'OrderID', type: 'number', visible: true },
                     { field: 'CustomerID', type: 'string' },
                     { field: 'Freight', format: 'C2', type: 'number' },
@@ -1669,6 +1670,42 @@ describe('Checkbox Filter module => ', () => {
             (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('OrderDate').querySelector('.e-filtermenudiv')));
         });
 
+        it('EJ2-7690-Search In Filtering Dialog Box Get Closed While Press "Enter Key" ', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if(args.requestType === 'filterafteropen'){
+                    (<any>gridObj.filterModule).filterModule.sInput.value = 'Vinet';
+                    (<any>gridObj.filterModule).filterModule.btnClick({target: (<any>gridObj.filterModule).filterModule.sInput});
+                }
+                if (args.requestType === 'filtering') {
+                    expect(gridObj.currentViewData[0]['CustomerID']).toBe('VINET');
+                    gridObj.actionComplete =null;
+                    done();
+                }
+            };
+            gridObj.actionComplete = actionComplete;        
+            (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
+        });
+
+        it('EJ2-7257-Need to hide the filter button in check box filter when no matches found like EJ1 ', (done: Function) => {            
+            actionComplete = (args?: any): void => {
+                if(args.requestType === 'filterafteropen'){
+                    checkBoxFilter = gridObj.element.querySelector('.e-checkboxfilter');
+                    (<any>gridObj.filterModule).filterModule.sInput.value = 'edybh';
+                    (<any>gridObj.filterModule).filterModule.refreshCheckboxes();
+                    expect(checkBoxFilter.querySelector('.e-footer-content').children[0].hasAttribute('disabled')).toBeTruthy();
+                    let edit: any = (<any>new Edit(gridObj, gridObj.serviceLocator));
+                    spyOn(edit, 'deleteRecord');
+                    edit.keyPressHandler({action: 'delete', target: gridObj.element});
+                    expect(edit.deleteRecord).not.toHaveBeenCalled();
+                    gridObj.actionComplete = null;
+                    done();
+                }
+            };
+            gridObj.actionComplete = actionComplete;        
+            (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
+        });
+
+
         //scenario5 case completed
 
         afterAll(() => {
@@ -1687,9 +1724,9 @@ describe('Checkbox Filter module => ', () => {
                     dataSource: filterData,
                     allowFiltering: true,
                     allowPaging: false,
-                    filterSettings: { type: 'menu', showFilterBarStatus: true },
+                    filterSettings: { type: 'Menu', showFilterBarStatus: true },
                     columns: [{ field: 'OrderID', type: 'number', visible: true },
-                    { field: 'CustomerID', type: 'string', filter: {type: 'checkbox'} },
+                    { field: 'CustomerID', type: 'string', filter: {type: 'CheckBox'} },
                     { field: 'Freight', format: 'C2', type: 'number' }
                     ],
                     actionBegin: actionBegin,

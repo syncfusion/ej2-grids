@@ -3,11 +3,11 @@ import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
-import { ICellRenderer, IValueFormatter, ICellFormatter, ICell, IGrid } from '../base/interface';
+import { ICellRenderer, IValueFormatter, ICellFormatter, IGrid, ICell } from '../base/interface';
 import { doesImplementInterface, setStyleAndAttributes, appendChildren } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 import { CheckBox, createCheckBox } from '@syncfusion/ej2-buttons';
-import { foreignKeyData }from '../base/constant';
+import { foreignKeyData } from '../base/constant';
 
 /**
  * CellRenderer class which responsible for building cell content. 
@@ -145,14 +145,16 @@ export class CellRenderer implements ICellRenderer<Column> {
         let fromFormatter: Object = this.invokeFormatter(column, value, data);
 
         innerHtml = !isNullOrUndefined(column.formatter) ? isNullOrUndefined(fromFormatter) ? '' : fromFormatter.toString() : innerHtml;
-
-        node.setAttribute('aria-label', innerHtml + ' column header ' + cell.column.headerText);
+        node.setAttribute('aria-label', (innerHtml === '' ? 'empty' : innerHtml) + ' column header ' + cell.column.headerText);
+        if (!isNullOrUndefined(cell.column.headerText)) {
+            node.setAttribute('aria-label', innerHtml + ' column header ' + cell.column.headerText);
+        }
 
         if (this.evaluate(node, cell, data, attributes, fData) && column.type !== 'checkbox') {
             this.appendHtml(node, innerHtml, column.getDomSetter ? column.getDomSetter() : 'innerHTML');
         } else if (column.type === 'checkbox') {
             node.classList.add('e-gridchkbox');
-            node.setAttribute('aria-label', 'column header ' + cell.column.headerText);
+            node.setAttribute('aria-label', 'checkbox');
             if (this.parent.selectionSettings.persistSelection) {
                 value = value === 'true';
             } else {
@@ -163,6 +165,10 @@ export class CellRenderer implements ICellRenderer<Column> {
             node.appendChild(checkWrap);
         }
 
+        if (this.parent.checkAllRows === 'Check' && this.parent.enableVirtualization) {
+            cell.isSelected = true;
+        }
+
         this.setAttributes(<HTMLElement>node, cell, attributes);
 
         if (column.type === 'boolean') {
@@ -171,6 +177,7 @@ export class CellRenderer implements ICellRenderer<Column> {
                 checked: isNaN(parseInt(value as string, 10)) ? value === 'true' : parseInt(value as string, 10) > 0
             });
             obj.appendTo(node.firstElementChild as HTMLElement);
+            node.setAttribute('aria-label', obj.checked + ' column header ' + cell.column.headerText);
         }
 
         return node;
@@ -191,7 +198,7 @@ export class CellRenderer implements ICellRenderer<Column> {
      */
     public setAttributes(node: HTMLElement, cell: Cell<Column>, attributes?: { [x: string]: Object }): void {
         let column: Column = cell.column;
-        this.buildAttributeFromCell(node, cell);
+        this.buildAttributeFromCell(node, cell, column.type === 'checkbox');
 
         setStyleAndAttributes(node, attributes);
         setStyleAndAttributes(node, cell.attributes);
@@ -204,14 +211,14 @@ export class CellRenderer implements ICellRenderer<Column> {
             node.style.textAlign = column.textAlign;
         }
 
-        if (column.clipMode === 'clip') {
+        if (column.clipMode === 'Clip') {
             node.classList.add('e-gridclip');
-        } else if (column.clipMode === 'ellipsiswithtooltip') {
+        } else if (column.clipMode === 'EllipsisWithTooltip') {
             node.classList.add('e-ellipsistooltip');
         }
     }
 
-    public buildAttributeFromCell<Column>(node: HTMLElement, cell: Cell<Column>): void {
+    public buildAttributeFromCell<Column>(node: HTMLElement, cell: Cell<Column>, isCheckBoxType?: boolean): void {
         let attr: ICell<Column> & { 'class'?: string[] } = {};
         let prop: { 'colindex'?: string } = { 'colindex': 'aria-colindex' };
         let classes: string[] = [];
@@ -230,6 +237,9 @@ export class CellRenderer implements ICellRenderer<Column> {
 
         if (cell.isSelected) {
             classes.push(...['e-selectionbackground', 'e-active']);
+            if (isCheckBoxType) {
+                node.querySelector('.e-frame').classList.add('e-check');
+            }
         }
 
         if (!isNullOrUndefined(cell.index)) {

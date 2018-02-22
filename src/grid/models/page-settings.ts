@@ -1,25 +1,25 @@
 import { Property, ChildProperty } from '@syncfusion/ej2-base';
 
 /**  
- * Configures the paging behavior of Grid.  
+ * Configures the paging behavior of the Grid.  
  */
 export class PageSettings extends ChildProperty<PageSettings> {
     /** 
-     * Defines the number of records displayed per page.
+     * Defines the number of records to be displayed per page.
      * @default 12
      */
     @Property(12)
     public pageSize: number;
 
     /** 
-     * Defines the number of pages to display in pager container.  
+     * Defines the number of pages to be displayed in the pager container.  
      * @default 8 
      */
     @Property(8)
     public pageCount: number;
 
     /** 
-     * Defines the current page number of pager.
+     * Defines the current page number of the pager.
      * @default 1
      */
     @Property(1)
@@ -49,7 +49,8 @@ export class PageSettings extends ChildProperty<PageSettings> {
     public pageSizes: boolean | number[];
 
     /**    
-     * Defines the template as string or HTML element ID which renders customized elements in pager instead of default elements.    
+     * Defines the template which renders customized elements in pager instead of default elements.     
+     * It accepts either [template string](../base/template-engine.html) or HTML element ID.   
      * @default null    
      */
     @Property(null)

@@ -35,7 +35,7 @@ export class DropDownEditCell implements IEditCell {
 
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         this.column = args.column;
-        let isInline: boolean = this.parent.editSettings.mode !== 'dialog';
+        let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         this.obj = new DropDownList(extend(
             {
                 dataSource: this.parent.dataSource instanceof DataManager ?

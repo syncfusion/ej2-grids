@@ -52,7 +52,7 @@ export class FilterMenuRenderer {
 
     private openDialog(args: IFilterArgs): void {
         this.col = this.parent.getColumnByField(args.field);
-        if (isNullOrUndefined(this.col.filter) || (isNullOrUndefined(this.col.filter.type) || this.col.filter.type === 'menu')) {///
+        if (isNullOrUndefined(this.col.filter) || (isNullOrUndefined(this.col.filter.type) || this.col.filter.type === 'Menu')) {///
             this.renderDlgContent(args.target, this.col);
         }
 
@@ -107,7 +107,7 @@ export class FilterMenuRenderer {
 
     private dialogCreated(target: Element, column: Column): void {
         if (!Browser.isDevice) {
-            getFilterMenuPostion(target, this.dlgObj);
+            getFilterMenuPostion(target, this.dlgObj, this.parent);
         }
         this.renderFilterUI(target, column);
         this.parent.notify(events.filterDialogCreated, {});
@@ -221,6 +221,6 @@ export class FilterMenuRenderer {
     }
 
     public destroy(): void {
-        //destroy
+        this.closeDialog();
     }
 }
