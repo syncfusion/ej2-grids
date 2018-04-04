@@ -1,7 +1,7 @@
 import { extend, addClass, removeClass } from '@syncfusion/ej2-base';
 import { remove, classList, createElement } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-inputs';
-import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { IGrid, BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from '../base/interface';
 import { BatchAddArgs, CellEditArgs, CellSaveArgs, CellFocusArgs } from '../base/interface';
 import { CellType } from '../base/enum';
@@ -57,6 +57,7 @@ export class BatchEdit {
         this.dataBoundFunction = this.dataBound.bind(this);
         this.parent.addEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.on(events.doubleTap, this.dblClickHandler, this);
+        this.parent.on(events.keyPressed, this.keyDownHandler, this);
     }
 
     /**
@@ -70,6 +71,7 @@ export class BatchEdit {
         this.parent.off(events.cellFocused, this.onCellFocused);
         this.parent.removeEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.off(events.doubleTap, this.dblClickHandler);
+        this.parent.off(events.keyPressed, this.keyDownHandler);
     }
 
     private dataBound(): void {
@@ -504,7 +506,8 @@ export class BatchEdit {
         for (let i: number = columnIndex; i < endIndex; i++) {
             if (!isAdd && this.checkNPCell(cols[i])) {
                 return i;
-            } else if (isAdd && !cols[i].template && cols[i].visible && cols[i].allowEditing) {
+            } else if (isAdd && !cols[i].template && cols[i].visible && cols[i].allowEditing &&
+                !(cols[i].isIdentity && cols[i].isPrimaryKey)) {
                 return i;
             }
         }
@@ -557,18 +560,22 @@ export class BatchEdit {
             } else {
                 row = gObj.getDataRows()[index];
             }
-            if ((keys[0] === col.field && !row.classList.contains('e-insertedrow')) || col.template || col.columns) {
+            if ((keys[0] === col.field && !row.classList.contains('e-insertedrow')) || col.template || col.columns ||
+                (col.isPrimaryKey && col.isIdentity)) {
                 return;
             }
             let rowObj: Row<Column> = gObj.getRowObjectFromUID(row.getAttribute('data-uid'));
             let rowData: Object = extend({}, this.getDataByIndex(index));
             let cells: Element[] = [].slice.apply((row as HTMLTableRowElement).cells);
+            let isComplexField: boolean = col.field.split('.').length > 1;
+            let splits: string[] = col.field.split('.');
             let args: CellEditArgs = {
                 cell: cells[this.getColIndex(cells, this.getCellIdx(col.uid))], row: row,
                 columnName: col.field, columnObject: col, isForeignKey: !isNullOrUndefined(col.foreignKeyValue),
                 primaryKey: keys, rowData: rowData,
                 validationRules: extend({}, col.validationRules ? col.validationRules : {}),
-                value: rowData[col.field], type: !isAdd ? 'edit' : 'add', cancel: false,
+                value: isComplexField ? rowData[splits[0]][splits[1]] : rowData[col.field],
+                type: !isAdd ? 'edit' : 'add', cancel: false,
                 foreignKeyData: rowObj && rowObj.foreignKeyData
             };
             if (!args.cell) { return; }
@@ -610,9 +617,12 @@ export class BatchEdit {
     }
 
     private setChanges(rowObj: Row<Column>, field: string, value: string | number | boolean | Date): void {
+        let isComplexField: boolean = field.split('.').length > 1;
+        let splits: string[] = field.split('.');
         if (!rowObj.changes) {
             rowObj.changes = extend({}, rowObj.data);
         }
+        isComplexField ? rowObj.changes[splits[0]][splits[1]] = value : rowObj.changes[field] = value;
         rowObj.changes[field] = value;
         if (rowObj.data[field] !== value) {
             rowObj.isDirty = true;
@@ -671,10 +681,12 @@ export class BatchEdit {
         let tr: Element = parentsUntil(this.form, 'e-row');
         let column: Column = this.cellDetails.column;
         let editedData: Object = gObj.editModule.getCurrentEditedData(this.form, {});
+        let isComplexField: boolean = column.field.split('.').length > 1;
+        let splits: string[] = column.field.split('.');
         editedData = extend(this.cellDetails.rowData, editedData);
         let args: CellSaveArgs = {
             columnName: column.field,
-            value: editedData[column.field],
+            value: isComplexField ? editedData[splits[0]][splits[1]] : editedData[column.field],
             rowData: this.cellDetails.rowData,
             previousValue: this.cellDetails.value,
             columnObject: column,
@@ -688,12 +700,12 @@ export class BatchEdit {
             return;
         }
         gObj.editModule.destroyForm();
+        gObj.isEdit = false;
         gObj.editModule.destroyWidgets([column]);
         this.parent.notify(events.tooltipDestroy, {});
         this.refreshTD(args.cell, column, gObj.getRowObjectFromUID(tr.getAttribute('data-uid')), args.value);
         removeClass([tr], ['e-editedrow', 'e-batchrow']);
         removeClass([args.cell], ['e-editedbatchcell', 'e-boolcell']);
-        gObj.isEdit = false;
         if (!isNullOrUndefined(args.value) && args.value.toString() ===
             (!isNullOrUndefined(this.cellDetails.value) ? this.cellDetails.value : '').toString() && !this.isColored) {
             args.cell.classList.remove('e-updatedtd');
@@ -705,5 +717,20 @@ export class BatchEdit {
     protected getDataByIndex(index: number): Object {
         let row: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getDataRows()[index].getAttribute('data-uid'));
         return row.changes ? row.changes : row.data;
+    }
+
+    private keyDownHandler(e: KeyboardEventArgs): void {
+        if (e.action === 'tab' && this.parent.isEdit) {
+            let rowcell: Element = parentsUntil(e.target as Element, 'e-rowcell');
+            if (rowcell) {
+                let cell: Element = rowcell.querySelector('.e-field');
+                if (cell) {
+                    let visibleColumns: Column[] = this.parent.getVisibleColumns();
+                    if (visibleColumns[visibleColumns.length - 1].field === cell.getAttribute('name')) {
+                        this.saveCell();
+                    }
+                }
+            }
+        }
     }
 }

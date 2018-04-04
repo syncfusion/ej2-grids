@@ -2,6 +2,66 @@
 
 ## [Unreleased]
 
+## 16.1.32 (2018-04-04)
+
+### Grid
+
+#### Bug Fixes
+
+- Script error thrown while opening checkbox filter with empty data source.
+- Dynamically enabled aggregation is now added properly.
+
+## 16.1.32 (2018-03-29)
+
+### Grid
+
+#### Bug Fixes
+
+- Grid refreshes before insert operation completed resolved.
+- Grid refresh prevented when column showing or hiding dynamically through `hideAtMedia`.
+- Initial multi sorted column icons is ordered correctly.
+- Removed filter bar border when using compatibility theme.
+- Provide complex data editing support.
+- Grouping with search always shown the spinner when data source has no value is resolved.
+- Filtering the column while field has underscore value is resolved.
+- Aggregate returns the null value when grouped has no aggregate field is resolved.
+- Header text shown along with header template is resolved.
+
+## 16.1.30 (2018-03-20)
+
+### Grid
+
+#### Bug Fixes
+
+- Column properties is not persisted after reordering columns resolved.
+- `args.cancel`  has included in `rowSelecting` event while select the rows through method and user interaction.
+
+## 16.1.29 (2018-03-13)
+
+### Grid
+
+#### Bug Fixes
+
+- `args.cancel`  has included in `rowSelecting` event.
+- Dynamically changing filter settings does not update `Filterbar` value and filter status message is resolved.
+- Batch edit should close on clicking outside grid and on pressing enter or tab key is resolved.
+- `updateRow` method is provided for Normal editing and Dialog editing.
+- Duplicate columns added in group drop area issue resolved.
+
+## 16.1.28 (2018-03-09)
+
+### Grid
+
+#### Bug Fixes
+
+- Minimum height for edit dialog is provided.
+- Identity column is not disabled when adding resolved.
+- Script error thrown when destroy the Grid with custom toolbar template issue resolved.
+- Batch editing save action shows empty grid issue resolved.
+- `currentViewData` is not changed in remote data editing issue resolved.
+
+## 16.1.24 (2018-02-22)
+
 ### Grid
 
 #### New Features
@@ -9,6 +69,10 @@
 - New Excel like column filtering option is added.
 - Added Look-up table or foreign key data binding to grid column.
 - Row height adjustment feature added.
+
+#### Bug Fixes
+
+- Angular and React `enablePersistence` issue resolved.
 
 #### Breaking Changes
 

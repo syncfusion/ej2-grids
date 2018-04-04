@@ -104,7 +104,7 @@ export class ShowHide {
             return;
         }
         columns = isNullOrUndefined(columns) ? <Column[]>this.parent.getColumns() : columns;
-        if (this.parent.getSelectedRecords().length) {
+        if (this.parent.allowSelection && this.parent.getSelectedRecords().length) {
             this.parent.clearSelection();
         }
         this.parent.notify(events.columnVisibilityChanged, columns);

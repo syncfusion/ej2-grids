@@ -574,40 +574,41 @@ describe('Grid base module', () => {
         });
     });
 
-    describe('media columns testing', () => {
-        let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: data, allowPaging: false,
-                    columns: [
-                        { headerText: 'OrderID', field: 'OrderID', hideAtMedia: '(min-width:500px)' },
-                        { headerText: 'CustomerID', field: 'CustomerID' },
-                        { headerText: 'EmployeeID', field: 'EmployeeID' },
-                        { headerText: 'ShipCountry', field: 'ShipCountry' },
-                        { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
-        });
+    // describe('Datamodule testing', () => {
+    //     let gridObj: Grid;
+    //     let elem: HTMLElement = createElement('div', { id: 'Grid' });
+    //     beforeAll((done: Function) => {
+    //         let dataBound: EmitType<Object> = () => { done(); };
+    //         document.body.appendChild(elem);
+    //         gridObj = new Grid(
+    //             {
+    //                 dataSource: data, allowPaging: false,
+    //                 columns: [
+    //                     { headerText: 'OrderID', field: 'OrderID' },
+    //                     { headerText: 'CustomerID', field: 'CustomerID' },
+    //                     { headerText: 'EmployeeID', field: 'EmployeeID' },
+    //                     { headerText: 'ShipCountry', field: 'ShipCountry' },
+    //                     { headerText: 'ShipCity', field: 'ShipCity' },
+    //                 ],
+    //                 dataBound: dataBound
+    //             });
+    //         gridObj.appendTo('#Grid');
+    //     });
 
 
-        it('getDataModule tets', (done: Function) => {
-             gridObj.dataBound = () => {
-            let gdata = gridObj.getDataModule();
-            expect(gdata).not.toBeNull();
-            done();
-        }
-        });
+    //     it('getDataModule tets', (done: Function) => {
+    //          gridObj.dataBound = () => {
+    //         let gdata = gridObj.getDataModule();
+    //         expect(gdata).not.toBeNull();
+    //         done();
+    //     }
+    //     });
 
-        afterAll(() => {
-            remove(elem);
-        });
-    });
+    //     afterAll(() => {
+    //         remove(elem);
+    //     });
+    // });
+
 
     describe('row Information', () => {
 

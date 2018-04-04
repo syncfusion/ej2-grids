@@ -146,15 +146,18 @@ export class EditRender {
                 input = div.firstChild as Element;
             }
             let isInput: number = input.tagName !== 'input' && input.querySelectorAll('input').length;
+            let isComplexField: boolean = col.field.split('.').length > 1;
+            let splits: string[] = col.field.split('.');
             attributes(isInput ? input.querySelector('input') : input, {
-                name: col.field, 'e-mappinguid': col.uid,
-                id: gObj.element.id + col.field,
+                name: isComplexField ? splits[0] + splits[1] : col.field, 'e-mappinguid': col.uid,
+                id: isComplexField ? gObj.element.id + splits[0] + splits[1] : gObj.element.id + col.field
             });
             classList(input, ['e-input', 'e-field'], []);
             if (col.textAlign === 'Right') {
                 input.classList.add('e-ralign');
             }
-            if ((col.isPrimaryKey || col.isIdentity) && args.requestType === 'beginEdit') { // already disabled in cell plugins
+            if ((col.isPrimaryKey || col.isIdentity) && args.requestType === 'beginEdit' ||
+                (col.isIdentity && args.requestType === 'add')) { // already disabled in cell plugins
                 input.setAttribute('disabled', 'true');
             }
             elements[col.uid] = input;

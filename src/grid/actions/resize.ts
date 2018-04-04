@@ -250,6 +250,8 @@ export class Resize implements IAction {
     private callAutoFit(e: PointerEvent | TouchEvent): void {
         let col: Column = this.getTargetColumn(e);
         this.resizeColumn(col.field, this.parent.getNormalizedColumnIndex(col.uid), col.uid);
+        let header: HTMLElement = <HTMLElement>closest(<HTMLElement>e.target, resizeClassList.header);
+        header.classList.add('e-resized');
     }
 
     private resizeStart(e: PointerEvent | TouchEvent): void {

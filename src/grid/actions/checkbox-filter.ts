@@ -43,18 +43,6 @@ export class CheckBoxFilter {
     protected existingPredicate: { [key: string]: PredicateModel[] } = {};
     protected foreignKeyData: Object[];
     protected filterState: boolean = true;
-    protected defaultConstants: Object = {
-        Search: 'Search',
-        OK: 'OK',
-        Cancel: 'Cancel',
-        Filter: 'Filter',
-        Clear: 'Clear',
-        SelectAll: 'Select All',
-        Blanks: 'Blanks',
-        True: 'True',
-        False: 'False',
-        NoResult: 'No Matches Found'
-    };
     protected values: Object = {};
     private cBoxTrue: Element = createCheckBox(false, { checked: true, label: ' ' });
     private cBoxFalse: Element = createCheckBox(false, { checked: false, label: ' ' });
@@ -77,7 +65,6 @@ export class CheckBoxFilter {
         this.serviceLocator = serviceLocator;
         this.filterSettings = filterSettings;
         this.valueFormatter = new ValueFormatter(this.parent.locale);
-        this.initLocale(this.defaultConstants);
         this.cBoxTrue.insertBefore(
             createElement('input', {
                 className: 'e-chk-hidden', attrs: { type: 'checkbox' }
@@ -92,10 +79,6 @@ export class CheckBoxFilter {
         if (this.parent.enableRtl) {
             addClass([this.cBoxTrue, this.cBoxFalse], ['e-rtl']);
         }
-    }
-
-    protected initLocale(constants: Object): void {
-        this.localeObj = new L10n(this.getModuleName(), this.defaultConstants, this.parent.locale || 'en-US');
     }
 
     /** 
@@ -178,8 +161,8 @@ export class CheckBoxFilter {
         this.options.query = options.query || new Query();
         this.options.allowCaseSensitive = options.allowCaseSensitive || false;
         this.values = {};
+        this.localeObj = options.localeObj;
         this.isFiltered = options.filteredColumns.length;
-        extend(this.defaultConstants, options.localizedStrings);
     }
 
     protected getAndSetChkElem(options: IFilterArgs): HTMLElement {
@@ -387,10 +370,10 @@ export class CheckBoxFilter {
         let predicte: Predicate;
         if (this.options.type === 'boolean') {
             if (parsed !== undefined &&
-                this.getLocalizedLabel('True').toLowerCase().indexOf((parsed as string).toLowerCase()) !== -1) {
+                this.getLocalizedLabel('FilterTrue').toLowerCase().indexOf((parsed as string).toLowerCase()) !== -1) {
                 parsed = 'true';
             } else if (parsed !== undefined &&
-                this.getLocalizedLabel('False').toLowerCase().indexOf((parsed as string).toLowerCase()) !== -1) {
+                this.getLocalizedLabel('FilterFalse').toLowerCase().indexOf((parsed as string).toLowerCase()) !== -1) {
                 parsed = 'false';
             }
         }
@@ -476,7 +459,7 @@ export class CheckBoxFilter {
         let col: Column = this.options.column;
         let res: { records: Object[] } = CheckBoxFilter.getDistinct(result, this.options.field, col, this.foreignKeyData) as
             { records: Object[] };
-        this.filteredData = res.records;
+        this.filteredData = res.records || [];
 
         this.processDataSource(null, true);
         (<HTMLElement>this.dialogObj.element.querySelector('.e-searchinput')).focus();
@@ -651,7 +634,7 @@ export class CheckBoxFilter {
                     obj[ejValue] = value;
                     lookup[value] = true;
                     value = isForeignKey ? getValue(column.foreignKeyValue, getForeignData(column, {}, value, foreignKeyData)[0]) : value;
-                    setValue(field, value || null, obj);
+                    setValue(field, isNullOrUndefined(value) ? null : value,  obj);
                     result.push(obj);
                 }
             }
@@ -660,7 +643,7 @@ export class CheckBoxFilter {
     }
 
     public static getPredicate(columns: PredicateModel[]): Predicate {
-        let cols: PredicateModel[] = (CheckBoxFilter.getDistinct(columns, 'field') as { records: Object[] }).records;
+        let cols: PredicateModel[] = (CheckBoxFilter.getDistinct(columns, 'field') as { records: Object[] }).records || [];
 
         let collection: Object[] = [];
         let pred: Predicate = {} as Predicate;

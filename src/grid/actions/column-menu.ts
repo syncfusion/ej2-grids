@@ -269,7 +269,7 @@ export class ColumnMenu implements IAction {
                     && this.parent.sortSettings.columns.length > 0 && this.targetColumn) {
                     this.parent.sortSettings.columns.forEach((ele: SortDescriptorModel) => {
                         if (ele.field === this.targetColumn.field
-                            && ele.direction === item.replace('sort', '').toLocaleLowerCase()) {
+                            && ele.direction.toLocaleLowerCase() === item.toLocaleLowerCase().replace('sort', '')) {
                             status = true;
                         }
                     });

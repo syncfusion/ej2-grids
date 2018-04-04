@@ -27,10 +27,13 @@ export class BooleanEditCell implements IEditCell {
         if (col.type === 'checkbox') {
             classNames = 'e-field e-boolcell e-edit-checkselect';
         }
+        let isComplexField: boolean = args.column.field.split('.').length > 1;
+        let splits: string[] = args.column.field.split('.');
         return createElement('input', {
             className: classNames, attrs: {
                 type: 'checkbox', value: args.value, 'e-mappinguid': col.uid,
-                id: this.parent.element.id + col.field, name: col.field
+                id: isComplexField ? this.parent.element.id + splits[0] + splits[1] : this.parent.element.id + col.field,
+                name: isComplexField ? splits[0] + splits[1] : col.field
             }
         });
     }
@@ -42,11 +45,17 @@ export class BooleanEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string, row: Element }): void {
         let selectChkBox: Element;
         let chkState: boolean;
+        let isComplexField: boolean = args.column.field.split('.').length > 1;
+        let splits: string[] = args.column.field.split('.');
         if (!isNullOrUndefined(args.row)) {
             selectChkBox = args.row.querySelector('.e-edit-checkselect') as Element;
         }
-        if (args.rowData[args.column.field]) {
+        if (!isComplexField && args.rowData[args.column.field]) {
             chkState = JSON.parse(args.rowData[args.column.field].toString().toLowerCase());
+        }
+        if (isComplexField && args.rowData[splits[0]][splits[1]]) {
+
+            chkState = JSON.parse(args.rowData[splits[0]][splits[1]].toString().toLowerCase());
         }
         if (!isNullOrUndefined(selectChkBox)) {
             this.editType = this.parent.editSettings.mode;

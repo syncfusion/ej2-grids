@@ -580,11 +580,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private detailTemplateFn: Function;
     private sortedColumns: string[];
     private footerElement: Element;
-    private inViewIndexes: number[];
+    private inViewIndexes: number[] = [];
     private mediaCol: Column[];
     private getShowHideService: ShowHide;
     private mediaColumn: Column[];
-    private isMediaQuery: boolean;
     private isInitialLoad: boolean;
     private dataBoundFunction: Function;
     private freezeRefresh: Function = Component.prototype.refresh;
@@ -622,6 +621,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public localeObj: L10n;
     private defaultLocale: Object;
     private keyConfigs: { [key: string]: string };
+    private keyPress: boolean;
 
     //Module Declarations
     /**
@@ -1633,7 +1633,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             sortSettings: [], columns: [], selectedRowIndex: []
         };
         let ignoreOnColumn: string[] = ['filter', 'edit', 'filterBarTemplate', 'headerTemplate', 'template',
-            'commandTemplate', 'commands'];
+            'commandTemplate', 'commands', 'dataSource'];
         keyEntity.forEach((value: string) => {
             let currentObject: Object = this[value];
             for (let val of ignoreOnPersist[value]) {
@@ -1810,7 +1810,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.sortedColumns = [];
         this.inViewIndexes = [];
         this.mediaCol = [];
-        this.isMediaQuery = false;
         this.isInitialLoad = false;
         this.mergeCells = {};
         this.isEdit = false;
@@ -1890,7 +1889,27 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             SortDescending: 'Sort Descending',
             EditRecord: 'Edit Record',
             DeleteRecord: 'Delete Record',
-            FilterMenu: 'Filter'
+            FilterMenu: 'Filter',
+            OK: 'OK',
+            Filter: 'Filter',
+            Clear: 'Clear',
+            SelectAll: 'Select All',
+            Blanks: 'Blanks',
+            FilterTrue: 'True',
+            FilterFalse: 'False',
+            NoResult: 'No Matches Found',
+            ClearFilter: 'Clear Filter',
+            NumberFilter: 'Number Filters',
+            TextFilter: 'Text Filters',
+            DateFilter: 'Date Filters',
+            MatchCase: 'Match Case',
+            Between: 'Between',
+            CustomFilter: 'Custom Filter',
+            CustomFilterPlaceHolder: 'Enter the value',
+            CustomFilterDatePlaceHolder: 'Choose a date',
+            AND: 'AND',
+            OR: 'OR',
+            ShowRowsWhere: 'Show rows where:'
         };
         this.keyConfigs = {
             downArrow: 'downarrow',
@@ -2001,7 +2020,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public mediaQueryUpdate(columnIndex: number, e?: MediaQueryList): void {
-        this.isMediaQuery = true;
         let col: Column = this.getColumns()[columnIndex];
         col.visible = e.matches;
         if (this.isInitialLoad) {
@@ -2013,12 +2031,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         }
     }
     private refreshMediaCol(): void {
-        if (this.isMediaQuery) {
-            this.refresh();
-            this.isMediaQuery = false;
-        }
         this.isInitialLoad = true;
-
     }
 
     /**
@@ -2134,7 +2147,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                         requireRefresh = true;
                         checkCursor = true;
                     }
-                    this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings });
+                    this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings,
+                    oldProperties: oldProp.groupSettings });
                     break;
                 case 'aggregates':
                     this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
@@ -2247,8 +2261,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'dataSource':
                 let pending: PendingState = this.getDataModule().getState();
-                let gResult: Object = (<DataResult>this.dataSource).result;
                 if (pending.isPending) {
+                    let gResult: Object = !isNullOrUndefined(this.dataSource) ? (<DataResult>this.dataSource).result : [];
                     (pending.group || []).forEach((name: string) => { gResult = DataUtil.group(<Object[]>gResult, name); });
                     this.dataSource = { result: gResult, count: (<DataResult>this.dataSource).count };
                     pending.resolver(this.dataSource);
@@ -2304,7 +2318,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public getColumns(isRefresh?: boolean): Column[] {
         let inview: number[] = this.inViewIndexes.map((v: number) => v - this.groupSettings.columns.length).filter((v: number) => v > -1);
         let vLen: number = inview.length;
-        if (!this.enableColumnVirtualization || isNullOrUndefined(this.columnModel) || this.columnModel.length === 0 || isRefresh ) {
+        if (!this.enableColumnVirtualization || isNullOrUndefined(this.columnModel) || this.columnModel.length === 0 || isRefresh) {
             this.columnModel = [];
             this.updateColumnModel(this.columns as Column[]);
         }
@@ -2493,7 +2507,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getRowInfo(target: Element | EventTarget): RowInfo {
         let ele: Element = target as Element;
-        let args: Object = {target: target};
+        let args: Object = { target: target };
         if (!isNullOrUndefined(target) && isNullOrUndefined(parentsUntil(ele, 'e-detailrowcollapse')
             && isNullOrUndefined(parentsUntil(ele, 'e-recordplusexpand'))) && !this.isEdit) {
             let cell: Element = closest(ele, '.e-rowcell');
@@ -3605,6 +3619,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (filterClear) {
             filterClear.classList.add('e-hide');
         }
+        if (!e.relatedTarget && !this.keyPress && this.editSettings.mode === 'Batch' && this.isEdit) {
+            this.editModule.saveCell();
+        }
+        this.keyPress = false;
     }
 
     private isChildGrid(e: MouseEvent | KeyboardEvent | TouchEvent): boolean {
@@ -3623,10 +3641,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             this.isProtectedOnChange = true;
             for (let key of keys) {
                 if ((typeof this[key] === 'object') && !isNullOrUndefined(this[key])) {
-                    if (Array.isArray(this[key])) {
-                        this[key].forEach((element: Object, index: number) => {
-                            extend(element, dataObj[key][index]);
-                        });
+                    if (Array.isArray(this[key]) && key === 'columns') {
+                        this.mergeColumns(<Column[]>dataObj[key], <Column[]>this[key]);
+                        this[key] = dataObj[key];
                     } else {
                         extend(this[key], dataObj[key]);
                     }
@@ -3636,6 +3653,24 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             }
             this.isProtectedOnChange = false;
         }
+    }
+
+    private mergeColumns(storedColumn: Column[], columns: Column[]): void {
+        (<Column[]>storedColumn).forEach((col: Column, index: number, arr: Column[]) => {
+            let ind: number;
+            let localCol: Column = this.getColumnByField(col.field) ||
+            columns.some((element: Column, i: number) => {
+                ind = i; return element.headerText === col.headerText;
+            }) && columns[ind];
+
+            if (!isNullOrUndefined(localCol)) {
+                if (localCol.columns && localCol.columns.length) {
+                    this.mergeColumns(<Column[]>col.columns, <Column[]>localCol.columns);
+                } else {
+                    arr[index] = <Column>extend({}, localCol, col, true);
+                }
+            }
+        });
     }
 
     private isDetail(): boolean {
@@ -3661,6 +3696,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private keyActionHandler(e: KeyboardEventArgs): void {
+        this.keyPress = true;
         if (this.isChildGrid(e) ||
             (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'shiftEnter'
                 && e.action !== 'tab' && e.action !== 'shiftTab')) {
@@ -3779,6 +3815,14 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public ensureModuleInjected(module: Function): boolean {
         return this.getInjectedModules().indexOf(module) >= 0;
+    }
+
+    /**
+     * Destroys the given template reference.
+     * @param {string[]} propertyNames - Defines the collection of template name.
+     */
+    public destroyTemplate(propertyNames?: string[]): void {
+        this.clearTemplate(propertyNames);
     }
 }
 

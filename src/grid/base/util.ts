@@ -332,6 +332,8 @@ export function isEditable(col: Column, type: string, elem: Element): boolean {
             return false;
         }
         return true;
+    } else if (type === 'add' && col.isIdentity && col.isPrimaryKey) {
+        return false;
     } else {
         if (isOldRow && !col.allowEditing && !col.isIdentity && !col.isPrimaryKey) {
             return false;

@@ -118,6 +118,17 @@ export class NormalEdit {
         }
     }
 
+    protected updateRow(index: number, data: Object): void {
+        let gObj: IGrid = this.parent;
+        let args: SaveEventArgs = {
+            requestType: 'save', type: events.actionBegin, data: data, cancel: false,
+            previousData: gObj.getCurrentViewRecords()[index]
+        };
+        gObj.showSpinner();
+        gObj.notify(events.updateData, args);
+        gObj.refresh();
+    }
+
     protected endEdit(): void {
         let gObj: IGrid = this.parent;
         if (!this.parent.isEdit || !gObj.editModule.formObj.validate() ||
@@ -176,7 +187,7 @@ export class NormalEdit {
         if (args.promise) {
             args.promise.then((e: ReturnType) => this.edSucc(e, args)).catch((e: ReturnType) => this.edFail(e));
         } else {
-            this.editSuccess({} as ReturnType, args);
+            this.editSuccess(args.data, args);
         }
     }
 
@@ -188,17 +199,19 @@ export class NormalEdit {
         this.editFailure(e);
     }
 
+    private updateCurrentViewData(data: Object): void {
+        this.parent.getCurrentViewRecords()[this.editRowIndex] = data;
+    }
 
-    private editSuccess(e: ReturnType, args: EditArgs): void {
-        if (e.result) {
-            this.parent.trigger(events.beforeDataBound, e);
-            args.data = e.result;
-        } else {
-            this.parent.trigger(events.beforeDataBound, args);
+    private editSuccess(e: Object, args: EditArgs): void {
+        if (!isNullOrUndefined(e)) {
+            args.data = e;
         }
+        this.parent.trigger(events.beforeDataBound, args);
         args.type = events.actionComplete;
         this.parent.isEdit = false;
         this.refreshRow(args.data);
+        this.updateCurrentViewData(args.data);
         this.parent.trigger(events.actionComplete, args);
         if (!(this.parent.isCheckBoxSelection || this.parent.selectionSettings.type === 'Multiple')
             || (!this.parent.isPersistSelection)) {

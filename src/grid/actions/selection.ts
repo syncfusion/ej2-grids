@@ -77,6 +77,8 @@ export class Selection implements IAction {
     //Module declarations
     private parent: IGrid;
     private focus: FocusStrategy;
+    private isCancelDeSelect: boolean = false;
+    private isPreventCellSelect: boolean = false;
 
     /**
      * Constructor for the Grid selection module
@@ -175,14 +177,19 @@ export class Selection implements IAction {
         let isRowSelected: boolean = selectedRow.hasAttribute('aria-selected');
         isToggle = !isToggle ? isToggle : index === this.prevRowIndex && isRowSelected;
         let args: Object;
+        let can: string = 'cancel';
         if (!isToggle) {
             args = {
                 data: selectData, rowIndex: index, isCtrlPressed: this.isMultiCtrlRequest,
                 isShiftPressed: this.isMultiShiftRequest, row: selectedRow,
-                previousRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex, target: this.target
+                previousRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex, target: this.target,
+                cancel: false
             };
             args = this.addMovableArgs(args, selectedMovableRow);
             this.onActionBegin(args, events.rowSelecting);
+        }
+        if (!isNullOrUndefined(args) && args[can] === true) {
+            return;
         }
         this.clearRow();
         if (!isToggle) {
@@ -233,6 +240,7 @@ export class Selection implements IAction {
         let selectedMovableRow: Element = this.getSelectedMovableRow(rowIndex);
         let frzCols: number = gObj.getFrozenColumns();
         let selectedData: Object = gObj.getCurrentViewRecords()[rowIndexes[0]];
+        let can: string = 'cancel';
         if (!this.isRowType() || this.isEditing()) {
             return;
         }
@@ -240,10 +248,13 @@ export class Selection implements IAction {
             rowIndexes: rowIndexes, row: selectedRow, rowIndex: rowIndex, target: this.target,
             prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex,
             isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest,
-            data: selectedData
+            data: selectedData, cancel: false
         };
         args = this.addMovableArgs(args, selectedMovableRow);
         this.onActionBegin(args, events.rowSelecting);
+        if (!isNullOrUndefined(args) && args[can] === true) {
+            return;
+        }
         this.clearRow();
         if (!this.isSingleSel()) {
             for (let rowIdx of rowIndexes) {
@@ -273,6 +284,7 @@ export class Selection implements IAction {
      */
     public addRowsToSelection(rowIndexes: number[]): void {
         let gObj: IGrid = this.parent;
+        let can: string = 'cancel';
         let selectedRow: Element = !this.isSingleSel() ? gObj.getRowByIndex(rowIndexes[0]) :
             gObj.getRowByIndex(rowIndexes[rowIndexes.length - 1]);
         let selectedMovableRow: Element = !this.isSingleSel() ? this.getSelectedMovableRow(rowIndexes[0]) :
@@ -304,10 +316,13 @@ export class Selection implements IAction {
                     data: rowObj.data, rowIndex: rowIndex, row: selectedRow, target: this.target,
                     prevRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex,
                     isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest,
-                    foreignKeyData: rowObj.foreignKeyData
+                    foreignKeyData: rowObj.foreignKeyData, cancel: false
                 };
                 args = this.addMovableArgs(args, selectedMovableRow);
                 this.onActionBegin(args, events.rowSelecting);
+                if (!isNullOrUndefined(args) && args[can] === true) {
+                    return;
+                }
                 if (this.isSingleSel()) {
                     this.clearRow();
                 }
@@ -463,6 +478,9 @@ export class Selection implements IAction {
                 }
             }
             this.rowDeselect(events.rowDeselecting, rowIndex, data, row, foreignKeyData, mRow);
+            if (this.isCancelDeSelect === true) {
+                return;
+            }
             rows.filter((record: HTMLElement) => record.hasAttribute('aria-selected')).forEach((ele: HTMLElement) => {
                 ele.removeAttribute('aria-selected');
                 this.addRemoveClassesForRow(ele, false, true, 'e-selectionbackground', 'e-active');
@@ -486,9 +504,11 @@ export class Selection implements IAction {
     }
 
     private rowDeselect(type: string, rowIndex: number[], data: Object, row: Element[], foreignKeyData: Object[], mRow?: Element[]): void {
+        let cancl: string = 'cancel';
         this.updatePersistCollection(row[0], false);
-        let rowDeselectObj: Object = { rowIndex: rowIndex, data: data, row: row, foreignKeyData: foreignKeyData };
+        let rowDeselectObj: Object = { rowIndex: rowIndex, data: data, row: row, foreignKeyData: foreignKeyData, cancel: false };
         this.parent.trigger(type, this.parent.getFrozenColumns() ? { ...rowDeselectObj, ...{ mRow: mRow } } : rowDeselectObj);
+        this.isCancelDeSelect = rowDeselectObj[cancl];
         this.updateCheckBoxes(row[0]);
     }
 
@@ -531,6 +551,8 @@ export class Selection implements IAction {
         let selectedTable: NodeListOf<Element>;
         let cIdx: number;
         this.currentIndex = cellIndex.rowIndex;
+        let args: Object;
+        let cncl: string = 'cancel';
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
         if (!this.isCellType() || !selectedCell || this.isEditing()) {
             return;
@@ -541,14 +563,17 @@ export class Selection implements IAction {
             isCellSelected);
 
         if (!isToggle) {
-            this.onActionBegin(
-                {
-                    data: selectedData, cellIndex: cellIndex, currentCell: selectedCell,
-                    isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
-                    previousRowCell: this.prevECIdxs ?
-                        this.getCellIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
-                },
-                events.cellSelecting);
+            args = {
+                data: selectedData, cellIndex: cellIndex, currentCell: selectedCell,
+                isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
+                previousRowCell: this.prevECIdxs ?
+                    this.getCellIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined,
+                cancel: false
+            };
+            this.onActionBegin(args, events.cellSelecting);
+        }
+        if (!isNullOrUndefined(args) && args[cncl] === true) {
+            return;
         }
         this.clearCell();
         if (!isToggle) {
@@ -591,18 +616,21 @@ export class Selection implements IAction {
         let stIndex: IIndex = startIndex;
         let edIndex: IIndex = endIndex = endIndex ? endIndex : startIndex;
         let cellIndexes: number[];
+        let cancl: string = 'cancel';
         this.currentIndex = startIndex.rowIndex;
         let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
         if (this.isSingleSel() || !this.isCellType() || this.isEditing()) {
             return;
         }
-        this.onActionBegin(
-            {
-                data: selectedData, cellIndex: startIndex, currentCell: selectedCell,
-                isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
-                previousRowCell: this.prevECIdxs ? this.getCellIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
-            },
-            events.cellSelecting);
+        let args: object = {
+            data: selectedData, cellIndex: startIndex, currentCell: selectedCell,
+            isCtrlPressed: this.isMultiCtrlRequest, isShiftPressed: this.isMultiShiftRequest, previousRowCellIndex: this.prevECIdxs,
+            previousRowCell: this.prevECIdxs ? this.getCellIndex(this.prevECIdxs.rowIndex, this.prevECIdxs.cellIndex) : undefined
+        };
+        this.onActionBegin(args, events.cellSelecting);
+        if (!isNullOrUndefined(args) && args[cancl] === true) {
+            return;
+        }
         this.clearCell();
         if (startIndex.rowIndex > endIndex.rowIndex) {
             let temp: IIndex = startIndex;
@@ -826,12 +854,15 @@ export class Selection implements IAction {
     }
 
     private cellDeselect(type: string, cellIndexes: ISelectedCell[], data: Object, cells: Element[], foreignKeyData: Object[]): void {
+        let cancl: string = 'cancel';
         if (cells[0] && cells[0].classList.contains('e-gridchkbox')) {
             this.updateCheckBoxes(closest(cells[0], 'tr'));
         }
-        this.parent.trigger(type, {
-            cells: cells, data: data, cellIndexes: cellIndexes, foreignKeyData: foreignKeyData
-        });
+        let args: Object = {
+            cells: cells, data: data, cellIndexes: cellIndexes, foreignKeyData: foreignKeyData, cancel: false
+        };
+        this.parent.trigger(type, args);
+        this.isPreventCellSelect = args[cancl];
     }
 
     private updateCellSelection(selectedCell: Element, rowIndex?: number, cellIndex?: number): void {
@@ -914,7 +945,9 @@ export class Selection implements IAction {
                 }
             }
             this.cellDeselect(events.cellDeselecting, rowCell, data, cells, foreignKeyData);
-
+            if (this.isPreventCellSelect === true) {
+                return;
+            }
             for (let i: number = 0, len: number = selectedCells.length; i < len; i++) {
                 selectedCells[i].classList.remove('e-cellselectionbackground');
                 selectedCells[i].removeAttribute('aria-selected');

@@ -2,9 +2,9 @@ import { IGrid, IFilterMUI, EJ2Intance } from '../base/interface';
 import { Column } from '../models/column';
 import { FilterSettings } from '../base/grid';
 import { L10n, } from '@syncfusion/ej2-base';
-import { distinctStringValues, getZIndexCalcualtion } from '../base/util';
+import { getZIndexCalcualtion } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
-import { Query, DataManager } from '@syncfusion/ej2-data';
+import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
 import { Filter } from '../actions/filter';
 import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
@@ -35,6 +35,7 @@ export class BooleanFilterUI implements IFilterMUI {
         getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
     }): void {
         let data: DataManager | Object[];
+        let fields: string = args.column.field;
         this.elem = createElement('input', { className: 'e-flmenu-input', id: 'bool-ui-' + args.column.uid });
         args.target.appendChild(this.elem);
         this.dialogObj = args.dialogObj;
@@ -48,7 +49,9 @@ export class BooleanFilterUI implements IFilterMUI {
             locale: this.parent.locale,
             enableRtl: this.parent.enableRtl,
             open: this.openPopup.bind(this),
-            actionComplete: this.ddActionComplete
+            actionComplete: (e: { result: string[] }) => {
+                e.result  = DataUtil.distinct(e.result, fields, true ) as string[];
+            }
 
         });
         this.dropInstance.appendTo(this.elem);
@@ -64,10 +67,6 @@ export class BooleanFilterUI implements IFilterMUI {
         let drpuiObj: DropDownList = (<EJ2Intance>document.querySelector('#bool-ui-' + column.uid)).ej2_instances[0];
         let filterValue: string | number = drpuiObj.value;
         filterObj.filterByColumn(column.field, filterOptr, filterValue, 'and', false);
-    }
-
-    private ddActionComplete(e: { result: string[] }): void {
-        e.result = distinctStringValues(e.result);
     }
 
     private openPopup(args: { popup: Popup }): void {

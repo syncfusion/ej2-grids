@@ -1,4 +1,4 @@
-﻿@include export-module('grid-theme') {
+@include export-module('grid-theme') {
   /*! Grid theme */
   #{&}.e-grid {
     border-color: $grid-header-border-color;
@@ -393,7 +393,8 @@
     }
   }
 
-  .e-tooltip-wrap.e-griderror {
+  .e-tooltip-wrap.e-griderror,
+  .e-control.e-tooltip-wrap.e-popup.e-griderror {
     background-color: $grid-val-error-bg-color;
     border-color: $grid-val-error-bg-color;
   }

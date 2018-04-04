@@ -36,6 +36,10 @@ export class DialogEdit extends NormalEdit {
         super.endEdit();
     }
 
+    public updateRow(index: number, data?: Object): void {
+        super.updateRow(index, data);
+    }
+
     public deleteRecord(fieldname?: string, data?: Object): void {
         //deleteRecord
         super.deleteRecord(fieldname, data);

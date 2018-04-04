@@ -507,12 +507,12 @@ describe('Batch Editing module', () => {
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
-            expect(gridObj.isEdit).toBeTruthy();
+            expect(gridObj.isEdit).toBeFalsy();
         });
 
         it('f2 key', (done: Function) => {
             // last action check
-            expect(gridObj.element.querySelectorAll('.e-editedbatchcell').length).toBe(1);
+            expect(gridObj.element.querySelectorAll('.e-editedbatchcell').length).toBe(0);
             cell = gridObj.getContent().querySelector('.e-row').childNodes[1] as any;
             let cellEdit = (args?: any): void => {
                 expect(gridObj.isEdit).toBeFalsy();
@@ -728,13 +728,20 @@ describe('Batch Editing module', () => {
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
-            expect(gridObj.isEdit).toBeTruthy();
+            expect(gridObj.isEdit).toBeFalsy();
+        });
+
+        it('edit cell', (done: Function) => {
+            let cellEdit = (args?: any): void => {
+                expect(gridObj.isEdit).toBeFalsy();
+                gridObj.cellEdit = null;
+                done();
+            };
+            gridObj.cellEdit = cellEdit;
+            gridObj.editModule.editCell(1, 'OrderDate');
         });
 
         it('shift tab key', () => {
-            //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
-            gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
@@ -765,13 +772,20 @@ describe('Batch Editing module', () => {
         it('tab key', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
-            expect(gridObj.isEdit).toBeTruthy();
+            expect(gridObj.isEdit).toBeFalsy();
+        });
+
+        it('edit cell', (done: Function) => {
+            let cellEdit = (args?: any): void => {
+                expect(gridObj.isEdit).toBeFalsy();
+                gridObj.cellEdit = null;
+                done();
+            };
+            gridObj.cellEdit = cellEdit;
+            gridObj.editModule.editCell(1, 'OrderDate');
         });
 
         it('shift tab key', () => {
-            //last action check
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'OrderDate');
-            gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
         });
@@ -1425,27 +1439,27 @@ describe('Batch Editing module', () => {
             gridObj.editModule.saveCell();
         });
 
-        it('numeric cell', (done: Function) => {
-            let cellEdit = (args?: any): void => {
-                expect(gridObj.isEdit).toBeFalsy();
-                gridObj.cellEdit = null;
-                done();
-            };
-            gridObj.cellEdit = cellEdit;
-            gridObj.editModule.editCell(0, 'Freight');
-        });
+        // it('numeric cell', (done: Function) => {
+        //     let cellEdit = (args?: any): void => {
+        //         expect(gridObj.isEdit).toBeFalsy();
+        //         gridObj.cellEdit = null;
+        //         done();
+        //     };
+        //     gridObj.cellEdit = cellEdit;
+        //     gridObj.editModule.editCell(0, 'Freight');
+        // });
 
-        it('save', (done: Function) => {
-            expect(gridObj.element.querySelector('.e-editedbatchcell').querySelectorAll('.e-numerictextbox').length).toBe(1);
-            let cellSave = (args?: any): void => {
-                expect(gridObj.isEdit).toBeTruthy();
-                gridObj.cellSave = null;
-                done();
-            };
-            gridObj.cellSave = cellSave;
-            (gridObj.element.querySelector('.e-editedbatchcell').querySelector('input') as any).value = 10;
-            gridObj.editModule.saveCell();
-        });
+        // it('save', (done: Function) => {
+        //     expect(gridObj.element.querySelector('.e-editedbatchcell').querySelectorAll('.e-numerictextbox').length).toBe(1);
+        //     let cellSave = (args?: any): void => {
+        //         expect(gridObj.isEdit).toBeTruthy();
+        //         gridObj.cellSave = null;
+        //         done();
+        //     };
+        //     gridObj.cellSave = cellSave;
+        //     (gridObj.element.querySelector('.e-editedbatchcell').querySelector('input') as any).value = 10;
+        //     gridObj.editModule.saveCell();
+        // });
 
         it('dropdown cell', (done: Function) => {
             let cellEdit = (args?: any): void => {
@@ -2181,12 +2195,12 @@ describe('Batch Editing module', () => {
         it('tab key', () => {
             childGridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             childGridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: childGridObj.element.querySelector('.e-editedbatchcell') } as any);
-            expect(childGridObj.isEdit).toBeTruthy();
+            expect(childGridObj.isEdit).toBeFalsy();
         });
 
         it('f2 key', (done: Function) => {
             // last action check
-            expect(childGridObj.element.querySelectorAll('.e-editedbatchcell').length).toBe(1);
+            expect(childGridObj.element.querySelectorAll('.e-editedbatchcell').length).toBe(0);
             cell = childGridObj.getContent().querySelector('.e-row').childNodes[1] as any;
             let cellEdit = (args?: any): void => {
                 expect(childGridObj.isEdit).toBeFalsy();

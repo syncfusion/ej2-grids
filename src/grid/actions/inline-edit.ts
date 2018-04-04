@@ -33,6 +33,10 @@ export class InlineEdit extends NormalEdit {
         super.endEdit();
     }
 
+    public updateRow(index: number, data?: Object): void {
+        super.updateRow(index, data);
+    }
+
     public deleteRecord(fieldname?: string, data?: Object): void {
         super.deleteRecord(fieldname, data);
     }

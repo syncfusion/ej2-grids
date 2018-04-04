@@ -1,4 +1,4 @@
-import { extend, createElement, EventHandler, remove, Browser } from '@syncfusion/ej2-base';
+import { createElement, EventHandler, remove, Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
 import { parentsUntil } from '../base/util';
 import { IGrid, IFilterArgs, EJ2Intance } from '../base/interface';
@@ -40,31 +40,6 @@ export class ExcelFilter extends CheckBoxFilter {
     private cmenu: HTMLUListElement;
     protected menuObj: ContextMenu;
     private isCMenuOpen: boolean;
-    private localeConstants: Object = {
-        ClearFilter: 'Clear Filter',
-        NumberFilter: 'Number Filters',
-        TextFilter: 'Text Filters',
-        DateFilter: 'Date Filters',
-        MatchCase: 'Match Case',
-        Equal: 'Equal',
-        NotEqual: 'Not Equal',
-        LessThan: 'Less Than',
-        LessThanOrEqual: 'Less Than Or Equal',
-        GreaterThan: 'Greater Than',
-        GreaterThanOrEqual: 'Greater Than Or Equal',
-        Between: 'Between',
-        CustomFilter: 'Custom Filter',
-        StartsWith: 'Starts With',
-        EndsWith: 'Ends With',
-        Contains: 'Contains',
-        OK: 'OK',
-        Cancel: 'Cancel',
-        CustomFilterPlaceHolder: 'Enter the value',
-        CustomFilterDatePlaceHolder: 'Choose a date',
-        AND: 'AND',
-        OR: 'OR',
-        ShowRowsWhere: 'Show rows where:'
-    };
 
     /**
      * Constructor for excel filtering module
@@ -73,9 +48,7 @@ export class ExcelFilter extends CheckBoxFilter {
     constructor(parent?: IGrid, filterSettings?: FilterSettings, serviceLocator?: ServiceLocator, customFltrOperators?: Object) {
         super(parent, filterSettings, serviceLocator);
         this.customFilterOperators = customFltrOperators;
-        extend(this.defaultConstants, this.localeConstants);
         this.isExcel = true;
-        this.initLocale(this.defaultConstants);
     }
 
     private getCMenuDS(type: string, operator?: string): MenuItemModel[] {
@@ -192,7 +165,9 @@ export class ExcelFilter extends CheckBoxFilter {
         }
         if (!isSubMenu) {
             let submenu: Element = this.menu.querySelector('.e-submenu');
-            submenu.classList.remove('e-selected');
+            if (!isNullOrUndefined(submenu)) {
+                submenu.classList.remove('e-selected');
+            }
             this.isCMenuOpen = false;
             this.destroyCMenu();
         }
@@ -303,6 +278,10 @@ export class ExcelFilter extends CheckBoxFilter {
             // target: this.parent.element,
             visible: false,
             enableRtl: this.parent.enableRtl,
+            open: () => {
+                let row: HTMLTableRowElement = this.dlgObj.element.querySelector('table.e-xlfl-table>tr') as HTMLTableRowElement;
+                (row.cells[1].querySelector('input:not([type=hidden])') as HTMLElement).focus();
+            },
             close: this.removeDialog.bind(this),
             created: this.createdDialog.bind(this, target, column),
             buttons: [{

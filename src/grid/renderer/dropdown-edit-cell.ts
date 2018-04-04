@@ -14,21 +14,26 @@ import { parentsUntil } from '../base/util';
  */
 export class DropDownEditCell implements IEditCell {
 
-
     private parent: IGrid;
     private obj: DropDownList;
     private column: Column;
-
     constructor(parent?: IGrid) {
         //constructor
         this.parent = parent;
     }
 
     public create(args: { column: Column, value: string }): Element {
-        //create
+        /* tslint:disable-next-line:no-any */
+        let isComplexField: boolean = args.column.field.split('.').length > 1;
+        /* tslint:disable-next-line:no-any */
+        let splits: string[] = args.column.field.split('.');
         return createElement('input', {
             className: 'e-field', attrs: {
-                id: this.parent.element.id + args.column.field, name: args.column.field, type: 'text', 'e-mappinguid': args.column.uid,
+                /* tslint:disable-next-line:no-any */
+                 id: isComplexField ? this.parent.element.id + splits[0] + splits[1] : this.parent.element.id + args.column.field,
+                 /* tslint:disable-next-line:no-any */
+                name: isComplexField ? splits[0] + splits[1] : args.column.field, type: 'text', 'e-mappinguid': args.column.uid,
+
             }
         });
     }
@@ -36,12 +41,16 @@ export class DropDownEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         this.column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
+        /* tslint:disable-next-line:no-any */
+        let isComplexField: boolean = args.column.field.split('.').length > 1;
+        let splits: string[] = args.column.field.split('.');
         this.obj = new DropDownList(extend(
             {
                 dataSource: this.parent.dataSource instanceof DataManager ?
                     this.parent.dataSource : new DataManager(this.parent.dataSource),
                 query: new Query().select(args.column.field), enabled: isEditable(args.column, args.requestType, args.element),
-                fields: { value: args.column.field }, value: args.rowData[args.column.field],
+                fields: { value: args.column.field },
+                value: isComplexField ? args.rowData[splits[0]][splits[1]] : args.rowData[args.column.field],
                 enableRtl: this.parent.enableRtl, actionComplete: this.ddActionComplete.bind(this),
                 placeholder: isInline ? '' : args.column.headerText, popupHeight: '200px',
                 floatLabelType: isInline ? 'Never' : 'Always', open: this.dropDownOpen.bind(this),
@@ -49,7 +58,8 @@ export class DropDownEditCell implements IEditCell {
             },
             args.column.edit.params));
         this.obj.appendTo(args.element as HTMLElement);
-        args.element.setAttribute('name', args.column.field);
+        /* tslint:disable-next-line:no-any */
+        args.element.setAttribute('name', isComplexField ? splits[0] + splits[1] : args.column.field);
     }
 
     public read(element: Element): string {

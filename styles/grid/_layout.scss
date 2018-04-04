@@ -1,4 +1,4 @@
-﻿@include export-module('grid-layout') {
+@include export-module('grid-layout') {
   /*! Grid layout */
   .e-disableuserselect {
     user-select: none;
@@ -1302,6 +1302,12 @@
       width: 0;
     }
 
+    .e-rowcell .e-checkbox-wrapper,
+    .e-rowcell .e-css.e-checkbox-wrapper {
+      height: $grid-checkbox-wrapper-height;
+      line-height: $grid-checkbox-wrapper-line-height;
+    }
+
     .e-dialog.e-checkboxfilter,
     .e-dialog.e-flmenu {
       min-width: 250px;
@@ -1725,6 +1731,10 @@
 
     .e-edit-dialog .e-dlg-content {
       position:  relative;
+    }
+
+    .e-edit-dialog {
+      min-height: 350px;
     }
 
     // sass-lint:disable-all

@@ -1,9 +1,9 @@
-import { isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { createElement, attributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
-import { ICellRenderer } from '../base/interface';
-import { setStyleAndAttributes } from '../base/util';
+import { ICellRenderer, IGrid } from '../base/interface';
+import { setStyleAndAttributes, appendChildren } from '../base/util';
 import { CellRenderer } from './cell-renderer';
 import { AriaService, IAriaOptions } from '../services/aria-service';
 import { createCheckBox } from '@syncfusion/ej2-buttons';
@@ -65,15 +65,9 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         });
 
         if (column.type !== 'checkbox') {
-
             let value: string = column.headerText;
-
             let headerText: Element = <Element>this.hTxtEle.cloneNode();
-
-            //TODO: Header Template support.
-
             headerText[column.getDomSetter()] = value;
-
             innerDIV.appendChild(headerText);
         } else {
             column.editType = 'booleanedit';
@@ -84,11 +78,8 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         }
 
         this.buildAttributeFromCell(node as HTMLElement, cell);
-
         this.appendHtml(node, innerDIV);
-
         node.appendChild(this.sortEle.cloneNode());
-
         if ((this.parent.allowFiltering && this.parent.filterSettings.type !== 'FilterBar') &&
             (column.allowFiltering && !isNullOrUndefined(column.field)) &&
             !(this.parent.showColumnMenu && column.showColumnMenu)) {
@@ -126,12 +117,13 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
             ariaAttr.grabbed = false;
         }
         node = this.extendPrepareHeader(column, node);
+        let result: Element[];
+        let gridObj: IGrid = this.parent;
+        let colIndex: number = gridObj.getColumnIndexByField(column.field);
         if (!isNullOrUndefined(column.headerTemplate)) {
-            if (column.headerTemplate.indexOf('#') !== -1) {
-                innerDIV.innerHTML = document.querySelector(column.headerTemplate).innerHTML.trim();
-            } else {
-                innerDIV.innerHTML = column.headerTemplate;
-            }
+            result = column.getHeaderTemplate()(extend({ 'index': colIndex }, column), gridObj, 'headerTemplate');
+            node.firstElementChild.innerHTML = '';
+            appendChildren(node.firstElementChild, result);
         }
 
         this.ariaService.setOptions(<HTMLElement>node, ariaAttr);

@@ -1,4 +1,4 @@
-import { L10n, EventHandler, extend } from '@syncfusion/ej2-base';
+import { L10n, EventHandler, extend, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Toolbar as tool, ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { IGrid, NotifyArgs } from '../base/interface';
@@ -80,8 +80,12 @@ export class Toolbar {
      */
     public destroy(): void {
         if (!this.toolbar.isDestroyed) {
+            if (!this.toolbar.element) {
+                this.parent.destroyTemplate(['toolbarTemplate']);
+            } else {
+                this.toolbar.destroy();
+            }
             this.unWireEvent();
-            this.toolbar.destroy();
             this.removeEventListener();
             remove(this.element);
         }
@@ -200,11 +204,13 @@ export class Toolbar {
     private toolbarClickHandler(args: ClickEventArgs): void {
         let gObj: IGrid = this.parent;
         let gID: string = this.gridID;
-        if (!args.item) {
-            gObj.trigger(events.toolbarClick, args);
+        extend(args, { cancel: false });
+        gObj.trigger(events.toolbarClick, args);
+        if (args.cancel) {
             return;
         }
-        switch (args.item.id) {
+
+        switch (!isNullOrUndefined(args.item) && args.item.id) {
             case gID + '_print':
                 gObj.print();
                 break;
@@ -236,8 +242,6 @@ export class Toolbar {
                 y = tarElement.getBoundingClientRect().top + (<HTMLElement>tarElement).offsetTop;
                 gObj.createColumnchooser(x, y, targetEle);
                 break;
-            default:
-                gObj.trigger(events.toolbarClick, args);
         }
     }
 

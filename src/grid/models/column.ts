@@ -213,7 +213,7 @@ export class Column {
      * {% codeBlock src="grid/formatter-api/index.ts" %}{% endcodeBlock %} 
      * @default null   
      */
-    public formatter: { new(): ICellFormatter } | ICellFormatter | Function;
+    public formatter: { new (): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method used to apply custom cell values from external function and display this on each cell rendered.     
@@ -376,11 +376,14 @@ export class Column {
         if (this.template || this.commandsTemplate) {
             this.templateFn = templateCompiler(this.template || this.commandsTemplate);
         }
+        if (this.headerTemplate) {
+            this.headerTemplateFn = templateCompiler(this.headerTemplate);
+        }
         if (this.filter.itemTemplate) {
             this.fltrTemplateFn = templateCompiler(this.filter.itemTemplate);
         }
 
-        if (this.isForeignColumn() && isNullOrUndefined(this.editType)) {
+        if (this.isForeignColumn() && (isNullOrUndefined(this.editType) || this.editType === 'dropdownedit')) {
             this.editType = 'dropdownedit';
             this.edit.params = {
                 dataSource: <DataManager>this.dataSource,
@@ -413,7 +416,7 @@ export class Column {
     private parserFn: Function;
     private templateFn: Function;
     private fltrTemplateFn: Function;
-
+    private headerTemplateFn: Function;
     private sortDirection: string = 'Descending';
 
     /** @hidden */
@@ -470,6 +473,10 @@ export class Column {
     /** @hidden */
     public getColumnTemplate(): Function {
         return this.templateFn;
+    }
+    /** @hidden */
+    public getHeaderTemplate(): Function {
+        return this.headerTemplateFn;
     }
     /** @hidden */
     public getFilterItemTemplate(): Function {
@@ -706,7 +713,7 @@ export interface ColumnModel {
      * 
      * @default null  
      */
-    formatter?: { new(): ICellFormatter } | ICellFormatter | Function;
+    formatter?: { new (): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method used to apply custom cell values from external function and display this on each cell rendered.     

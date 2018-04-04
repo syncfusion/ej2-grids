@@ -130,7 +130,9 @@ export class Sort implements IAction {
         this.removeSortIcons();
         let column: Element = gObj.getColumnHeaderByField(columnName);
         this.updateSortedCols(columnName, isMultiSort);
-        this.updateModel();
+        if (this.contentRefresh) {
+            this.updateModel();
+        }
     }
 
     private updateSortedCols(columnName: string, isMultiSort: boolean): void {
@@ -255,6 +257,7 @@ export class Sort implements IAction {
             }
             this.isMultiSort = false;
             this.contentRefresh = true;
+            this.addSortIcons();
         }
     }
     /**
@@ -381,6 +384,9 @@ export class Sort implements IAction {
         let header: Element;
         let filterElement: Element;
         let cols: SortDescriptorModel[] = this.sortSettings.columns;
+        if (cols.length > 1) {
+            this.isMultiSort = true;
+        }
         let fieldNames: string[] = this.parent.getColumns().map((c: Column) => c.field);
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             if (fieldNames.indexOf(cols[i].field) === -1) { continue; }
@@ -398,6 +404,7 @@ export class Sort implements IAction {
                 classList(filterElement, ['e-descending', 'e-icon-descending'], []);
             }
         }
+        this.isMultiSort = false;
     }
 
     private removeSortIcons(position?: number): void {

@@ -61,7 +61,7 @@ export class RowModelGenerator implements IModelGenerator<Column> {
         this.refreshForeignKeyRow(options);
         let cells: Cell<Column>[] = this.ensureColumns();
         let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);
-        row.cells =  cells.concat(this.generateCells(options));
+        row.cells = cells.concat(this.generateCells(options));
 
         return row;
     }

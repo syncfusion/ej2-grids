@@ -69,7 +69,6 @@ export class DialogEditRender {
             { click: this.btnClick.bind(this), buttonModel: { cssClass: 'e-flat', content: this.l10n.getConstant('CancelButton') } }]
         });
         this.dialogObj.appendTo(this.dialog);
-        this.dialogObj.element.style.maxHeight = '400px';
         changeButtonType(this.dialogObj.element);
     }
 

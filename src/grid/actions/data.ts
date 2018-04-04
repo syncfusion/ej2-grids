@@ -128,7 +128,9 @@ export class Data implements IDataProcessor {
             let sortGrp: SortDescriptorModel[] = [];
             for (let i: number = columns.length - 1; i > -1; i--) {
                 let col: Column = this.getColumnByField(columns[i].field);
-                col.setSortDirection(columns[i].direction);
+                if (col) {
+                    col.setSortDirection(columns[i].direction);
+                }
                 let fn: Function | string = col.sortComparer && !this.isRemote() ? col.sortComparer.bind(col) : columns[i].direction;
                 if (gObj.groupSettings.columns.indexOf(columns[i].field) === -1) {
                     query.sortBy(col.field, fn);
@@ -260,31 +262,41 @@ export class Data implements IDataProcessor {
             let def: Deferred = this.eventPromise(args, query, key);
             return def.promise;
         } else {
+            let crud: Promise<Object>;
             switch (args.requestType) {
                 case 'delete':
                     query = query ? query : this.generateQuery();
-                    this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
+                    crud = this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
                     break;
                 case 'save':
                     query = query ? query : this.generateQuery();
                     args.index = isNullOrUndefined(args.index) ? 0 : args.index;
-                    this.dataManager.insert(args.data, null, query, args.index);
+                    crud = this.dataManager.insert(args.data, null, query, args.index) as Promise<Object>;
                     break;
             }
-            if (this.dataManager.ready) {
-                let deferred: Deferred = new Deferred();
-                let ready: Promise<Object> = this.dataManager.ready;
-                ready.then((e: ReturnType) => {
-                    (<Promise<Object>>this.dataManager.executeQuery(query)).then((result: ReturnType) => {
-                        deferred.resolve(result);
-                    });
-                }).catch((e: ReturnType) => {
-                    deferred.reject(e);
+            if (crud && !Array.isArray(crud)) {
+                return crud.then((result: ReturnType) => {
+                    return this.executeQuery(query);
                 });
-                return deferred.promise;
             } else {
-                return this.dataManager.executeQuery(query);
+                return this.executeQuery(query);
             }
+        }
+    }
+    private executeQuery(query: Query): Promise<Object> {
+        if (this.dataManager.ready) {
+            let deferred: Deferred = new Deferred();
+            let ready: Promise<Object> = this.dataManager.ready;
+            ready.then((e: ReturnType) => {
+                (<Promise<Object>>this.dataManager.executeQuery(query)).then((result: ReturnType) => {
+                    deferred.resolve(result);
+                });
+            }).catch((e: ReturnType) => {
+                deferred.reject(e);
+            });
+            return deferred.promise;
+        } else {
+            return this.dataManager.executeQuery(query);
         }
     }
     private formatGroupColumn(value: number | Date, field: string): string | object {
@@ -406,7 +418,7 @@ export class Data implements IDataProcessor {
         state = this.getStateEventArgument(query);
         let def: Deferred = new Deferred();
         let deff: Deferred = new Deferred();
-        if (args.requestType !== undefined) {
+        if (args.requestType !== undefined && args.requestType !== 'refresh') {
             state.action = <{}>args;
             if (args.requestType === 'save' || args.requestType === 'delete') {
                 let editArgs: DataSourceChangedEventArgs = args;

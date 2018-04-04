@@ -338,13 +338,17 @@ export class Filter implements IAction {
             return;
         }
         if (!isNullOrUndefined(this.column.format)) {
-            let getFlvalue: Date | number | string = (this.column.type === 'date' || this.column.type === 'datetime') ?
-                new Date(filterValue) : parseFloat(filterValue);
-            this.values[this.column.field] = this.setFormatForFlColumn(getFlvalue, this.column);
+            this.applyColumnFormat(filterValue);
         } else {
             this.values[this.column.field] = filterValue; //this line should be above updateModel
         }
         this.updateModel();
+    }
+
+    private applyColumnFormat(filterValue: string | number | Date | boolean): void {
+        let getFlvalue: Date | number | string = (this.column.type === 'date' || this.column.type === 'datetime') ?
+            new Date(filterValue as string) : parseFloat(filterValue as string);
+        this.values[this.column.field] = this.setFormatForFlColumn(getFlvalue, this.column);
     }
 
     private onPropertyChanged(e: NotifyArgs): void {
@@ -360,6 +364,7 @@ export class Filter implements IAction {
                                 this.column.field : undefined,
                             columns: this.filterSettings.columns, requestType: 'filtering', type: events.actionBegin
                         });
+                        this.refreshFilterSettings();
                         this.updateFilterMsg();
                     }
                     break;
@@ -374,6 +379,26 @@ export class Filter implements IAction {
                     this.parent.refreshHeader();
                     break;
 
+            }
+        }
+    }
+
+    private refreshFilterSettings(): void {
+        if (this.filterSettings.type === 'FilterBar') {
+            for (let i: number = 0; i < this.filterSettings.columns.length; i++) {
+                let filterValue: string | number | Date | boolean = this.filterSettings.columns[i].value;
+                filterValue = !isNullOrUndefined(filterValue) && filterValue.toString();
+                if (!isNullOrUndefined(this.column.format)) {
+                    this.applyColumnFormat(filterValue);
+                } else {
+                    let key: string = this.filterSettings.columns[i].field;
+                    this.values[key] = this.filterSettings.columns[i].value;
+                }
+                let selector: string = '[id=\'' + this.filterSettings.columns[i].field + '_filterBarcell\']';
+                let filterElement: HTMLInputElement = (this.element.querySelector(selector) as HTMLInputElement);
+                if (filterElement) {
+                    filterElement.value = this.filterSettings.columns[i].value as string;
+                }
             }
         }
     }
@@ -441,7 +466,7 @@ export class Filter implements IAction {
             hideSearchbox: isNullOrUndefined(col.filter.hideSearchbox) ? false : col.filter.hideSearchbox,
             handler: this.filterHandler.bind(this), localizedStrings: gObj.getLocaleConstants(),
             position: { X: left, Y: top }, column: col, foreignKeyValue: col.foreignKeyValue,
-            actualPredicate: this.actualPredicate
+            actualPredicate: this.actualPredicate, localeObj: this.parent.localeObj
         });
     }
 
@@ -500,7 +525,7 @@ export class Filter implements IAction {
         let gObj: IGrid = this.parent;
         let target: HTMLInputElement = e.target as HTMLInputElement;
         if (target && matches(target, '.e-filterbar input')) {
-            this.column = gObj.getColumnByField(target.id.split('_')[0]);
+            this.column = gObj.getColumnByField(target.id.split('_filterBarcell')[0]);
             if (!this.column) {
                 return;
             }
@@ -602,7 +627,7 @@ export class Filter implements IAction {
         if (!filterElement && this.parent.getFrozenColumns()) {
             filterElement = (this.parent.getHeaderContent().querySelector(selector) as HTMLInputElement);
         }
-        let filterValue: string = JSON.parse(JSON.stringify(filterElement.value));
+        let filterValue: string;
         this.stopTimer();
         if (!isNullOrUndefined(this.column.filterBarTemplate)) {
             let templateRead: Function = this.column.filterBarTemplate.read as Function;
@@ -610,6 +635,8 @@ export class Filter implements IAction {
                 templateRead = getValue(templateRead, window);
             }
             this.value = templateRead.call(this, filterElement);
+        } else {
+            filterValue = JSON.parse(JSON.stringify(filterElement.value));
         }
         if (this.value === '') {
             this.removeFilteredColsByField(this.column.field);
@@ -651,8 +678,8 @@ export class Filter implements IAction {
             case 'date':
             case 'datetime':
                 this.operator = this.filterOperators.equal;
-                this.getOperator(value);
-                if (this.value !== '') {
+                if (this.value !== '' && !(this.value instanceof Date)) {
+                    this.getOperator(value);
                     this.value = this.valueFormatter.fromView(
                         this.value as string, this.column.getParser(), this.column.type);
                     if (isNullOrUndefined(this.value)) {

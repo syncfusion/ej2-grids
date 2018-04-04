@@ -391,14 +391,14 @@ export class Group implements IAction {
         }
     }
 
-    private updateGroupDropArea(): void {
+    private updateGroupDropArea(clear?: boolean): void {
         if (this.groupSettings.showDropArea && !this.groupSettings.columns.length) {
             let dragLabel: string = this.l10n.getConstant('GroupDropArea');
             this.element.innerHTML = dragLabel;
             this.element.classList.remove('e-grouped');
         } else {
-            if (this.element.innerHTML === this.l10n.getConstant('GroupDropArea') && (this.groupSettings.columns.length === 1
-                || !this.isAppliedGroup && !this.isAppliedUnGroup)) {
+            if ((this.element.innerHTML === this.l10n.getConstant('GroupDropArea') && (this.groupSettings.columns.length === 1
+                || !this.isAppliedGroup && !this.isAppliedUnGroup)) || clear ) {
                 this.element.innerHTML = '';
             }
             this.element.classList.add('e-grouped');
@@ -625,8 +625,8 @@ export class Group implements IAction {
         if (!isNullOrUndefined(this.getGHeaderCell(field))) {
             remove(this.getGHeaderCell(field));
             this.updateGroupDropArea();
-            this.isAppliedUnGroup = false;
         }
+        this.isAppliedUnGroup = false;
     }
 
     private onPropertyChanged(e: NotifyArgs): void {
@@ -640,7 +640,7 @@ export class Group implements IAction {
                     if (this.contentRefresh) {
                         if (!this.isAppliedUnGroup) {
                             if (!this.isAppliedGroup) {
-                                this.updateGroupDropArea();
+                                this.updateGroupDropArea(true);
                                 for (let i: number = 0; i < this.groupSettings.columns.length; i++) {
                                     this.colName = this.groupSettings.columns[i];
                                     let col: Column = this.parent.getColumnByField(this.colName);
@@ -651,9 +651,17 @@ export class Group implements IAction {
                                     }
                                 }
                             }
-                            args = { columnName: this.colName, requestType: 'grouping', type: events.actionBegin };
+                            args = { columnName: this.colName, requestType: e.properties[prop].length ? 'grouping' : 'ungrouping',
+                                    type: events.actionBegin };
                         } else {
                             args = { requestType: 'ungrouping', type: events.actionBegin };
+                        }
+                        if (!this.groupSettings.showGroupedColumn) {
+                            e.oldProperties[prop].forEach((column: string) => {
+                                if (e.properties[prop].indexOf(column) === -1) {
+                                    this.parent.getColumnByField(column).visible = true;
+                                }
+                            });
                         }
                         this.parent.notify(events.modelChanged, args);
                     }

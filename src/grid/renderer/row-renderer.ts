@@ -1,4 +1,4 @@
-import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend, getValue } from '@syncfusion/ej2-base';
 import { createElement, attributes as addAttributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Row } from '../models/row';
@@ -72,9 +72,13 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         let rowArgs: RowDataBoundEventArgs = { data: row.data };
         let cellArgs: QueryCellInfoEventArgs = { data: row.data };
         let attrCopy: Object = extend({}, attributes, {});
-
+        let chekBoxEnable: Column = this.parent.getColumns().filter((col: Column) => col.type === 'checkbox' && col.field)[0];
+        let value: boolean = false;
+        if (chekBoxEnable) {
+            value = getValue(chekBoxEnable.field, rowArgs.data);
+        }
         if (row.isDataRow) {
-            row.isSelected = this.parent.getSelectedRowIndexes().indexOf(row.index) > -1;
+            row.isSelected = this.parent.getSelectedRowIndexes().indexOf(row.index) > -1 || value;
         }
         if (row.isDataRow && this.parent.isCheckBoxSelection
             && this.parent.checkAllRows === 'Check' && this.parent.enableVirtualization) {

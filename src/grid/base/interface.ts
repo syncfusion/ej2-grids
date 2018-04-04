@@ -337,6 +337,8 @@ export interface IGrid extends Component<HTMLElement> {
 
     isPersistSelection?: boolean;
 
+    localeObj?: L10n;
+
     //public methods
     getHeaderContent?(): Element;
     setGridHeaderContent?(value: Element): void;
@@ -427,6 +429,7 @@ export interface IGrid extends Component<HTMLElement> {
     setCellValue(key: string | number, field: string, value: string | number | boolean | Date): void;
     setRowData(key: string | number, rowData?: Object): void;
     getState?(): Object;
+    destroyTemplate?(templateName: string[]): void;
 }
 
 /** @hidden */
@@ -592,6 +595,7 @@ export interface NotifyArgs {
     rows?: Row<Column>[];
     isFrozen?: boolean;
     args?: NotifyArgs;
+    oldProperties?: string[];
 }
 
 /**
@@ -762,6 +766,8 @@ export interface RowDeselectEventArgs {
     row?: Element;
     /** Define the foreignKey row data associated with this column */
     foreignKeyData?: Object;
+    /** Defines the cancel option value. */
+    cancel?: boolean;
 }
 
 export interface RowSelectEventArgs extends RowDeselectEventArgs {
@@ -810,6 +816,8 @@ export interface CellDeselectEventArgs {
     cellIndexes?: ISelectedCell[];
     /** Defines the currently selected/deselected cells. */
     cells?: Element[];
+    /** Defines the cancel option value. */
+    cancel?: boolean;
 }
 
 export interface CellSelectEventArgs extends CellDeselectEventArgs {
@@ -1556,6 +1564,7 @@ export interface IFilterArgs {
     filteredColumns?: Object[];
     sortedColumns?: string[];
     localizedStrings?: Object;
+    localeObj?: L10n;
     position?: { X: number, Y: number };
     formatFn?: Function;
     parserFn?: Function;

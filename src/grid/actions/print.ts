@@ -83,6 +83,7 @@ export class Print {
         let printGrid: IGrid = new Grid(printGridModel);
         printGrid.appendTo(element as HTMLElement);
         printGrid[this.printing] = true;
+        printGrid.trigger = gObj.trigger;
     }
 
     private contentReady(): void {
