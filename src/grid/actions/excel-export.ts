@@ -116,8 +116,7 @@ export class ExcelExport {
         if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.dataSource) &&
             exportProperties.dataSource instanceof DataManager) {
             /* tslint:disable-next-line:no-any */
-            let promise: Promise<any>;
-            return promise = new Promise((resolve: Function, reject: Function) => {
+            return new Promise((resolve: Function, reject: Function) => {
                 /* tslint:disable-next-line:max-line-length */
                 /* tslint:disable-next-line:no-any */
                 let dataManager: any = (exportProperties.dataSource as DataManager).executeQuery(new Query());
@@ -130,17 +129,13 @@ export class ExcelExport {
 
         } else {
             /* tslint:disable-next-line:no-any */
-            let promise: Promise<any>;
             let allPromise: Promise<Object>[] = [];
             allPromise.push(this.data.getData({}, ExportHelper.getQuery(gObj, this.data)));
             allPromise.push(this.helper.getColumnData(<Grid>gObj));
-            let bool: boolean = true;
             return Promise.all(allPromise).then((e: ReturnType[]) => {
-                if (bool) {
-                    this.init(gObj);
-                    this.processInnerRecords(gObj, exportProperties, isMultipleExport, workbook, e[0]);
-                    bool = false;
-                }
+                this.init(gObj);
+                this.processInnerRecords(gObj, exportProperties, isMultipleExport, workbook, e[0]);
+                return this.book;
             }).catch((e: Error) => {
                 this.parent.trigger(events.actionFailure, e);
             });
@@ -271,7 +266,7 @@ export class ExcelExport {
 
         if (!isMultipleExport) {
             if (this.isCsvExport) {
-                let book: Workbook = new Workbook(this.book, 'csv');
+                let book: Workbook = new Workbook(this.book, 'csv', gObj.locale);
                 if (!this.isBlob) {
                     book.save('Export.csv');
                 } else {
@@ -279,7 +274,7 @@ export class ExcelExport {
                 }
 
             } else {
-                let book: Workbook = new Workbook(this.book, 'xlsx');
+                let book: Workbook = new Workbook(this.book, 'xlsx', gObj.locale);
                 if (!this.isBlob) {
                     book.save('Export.xlsx');
                 } else {
@@ -308,8 +303,8 @@ export class ExcelExport {
                 style: undefined,
                 isForeignKey: col.isForeignColumn(),
             };
-
-            cell.value = item.field + ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
+            cell.value = this.parent.getColumnByField(item.field).headerText +
+            ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
             if (item.count > 1) {
                 cell.value += item.count + ' items';
             } else {

@@ -497,6 +497,7 @@ export class HeaderRender implements IRenderer {
         this.appendContent(table);
         this.parent.notify(events.colGroupRefresh, {});
         this.widthService.setWidthToColumns();
+        this.parent.updateDefaultCursor();
         if (!frzCols) {
             this.initializeHeaderDrag();
         }

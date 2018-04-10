@@ -4,7 +4,7 @@ import { DataManager, Query, DataUtil } from '@syncfusion/ej2-data';
 import { ICellFormatter, IFilterUI, IEditCell, CommandModel, IFilter } from '../base/interface';
 import { TextAlign, ClipMode } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
-import { ValueAccessor } from '../base/type';
+import { ValueAccessor, SortComparer } from '../base/type';
 import { getUid, templateCompiler, getForeignData } from '../base/util';
 
 /**
@@ -223,7 +223,7 @@ export class Column {
      * @default null    
      */
 
-    public valueAccessor: ValueAccessor;
+    public valueAccessor: ValueAccessor | string;
 
     /**
      * The `filterBarTemplate` is used to add a custom component instead of default input component for filter bar.   
@@ -392,8 +392,11 @@ export class Column {
         }
 
         if (this.sortComparer) {
-            let a: Function = this.sortComparer;
+            let a: Function = this.sortComparer as Function;
             this.sortComparer = function comparer(x: number | string, y: number | string): number {
+                if (typeof a === 'string') {
+                    a = getValue(a, window);
+                }
                 if (this.sortDirection === 'Descending') {
                     let z: number | string = x;
                     x = y;
@@ -444,7 +447,7 @@ export class Column {
      * [`Array.sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) sort comparer.
      * {% codeBlock src="grid/sort-comparer-api/index.ts" %}{% endcodeBlock %}
      */
-    public sortComparer: (x: number | string, y: number | string) => number;
+    public sortComparer: SortComparer | string;
 
     /**
      * @hidden
@@ -736,7 +739,7 @@ export interface ColumnModel {
      *  
      * @default null    
      */
-    valueAccessor?: ValueAccessor;
+    valueAccessor?: ValueAccessor | string;
 
     /**    
      * The `filterBarTemplate` is used to add a custom component instead of default input component for filter bar.   
@@ -903,7 +906,7 @@ export interface ColumnModel {
     /**
      * It defines the custom sort comparer function.
      */
-    sortComparer?: (x: number | string, y: number | string) => number;
+    sortComparer?: SortComparer | string;
 
     /**
      * @hidden

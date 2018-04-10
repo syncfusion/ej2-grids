@@ -29,7 +29,6 @@ describe('Print module', () => {
         };
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
             gridObj = createGrid({
                 dataSource: data,
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
@@ -38,7 +37,7 @@ describe('Print module', () => {
                 allowFiltering: true,
                 allowGrouping: true,
                 allowPaging: true
-            }, dataBound);
+            }, done);
         });
         it('basic feature testing', (done: Function) => {
             let printComplete = (args?: { element: Element }): void => {
@@ -78,7 +77,6 @@ describe('Print module', () => {
         };
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
             gridObj = createGrid({
                 dataSource: data,
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
@@ -91,7 +89,7 @@ describe('Print module', () => {
                 toolbar: ['Add'],
                 height: 200,
                 printMode: 'CurrentPage'
-            }, dataBound);
+            }, done);
         });
         
         it('current page testing and group column', (done: Function) => {
@@ -127,7 +125,6 @@ describe('Print module', () => {
         };
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
             gridObj = createGrid({
                 dataSource: [],
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
@@ -136,7 +133,7 @@ describe('Print module', () => {
                 allowFiltering: true,
                 allowGrouping: true,
                 allowPaging: true
-            }, dataBound);
+            }, done);
         });
         it('cancel print', (done: Function) => {
             let beforePrint = (args?: { element: Element, cancel?: boolean }): void => {
@@ -179,7 +176,6 @@ describe('Print module', () => {
         };
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
             gridObj = createGrid({
                 dataSource: data,
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
@@ -188,7 +184,7 @@ describe('Print module', () => {
                 allowFiltering: true,
                 allowGrouping: true,
                 allowPaging: true
-            }, dataBound);
+            }, done);
         });
         it('group in before print', (done: Function) => {
             let beforePrint = (args?: { element: Element, cancel?: boolean }): void => {

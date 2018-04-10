@@ -91,10 +91,12 @@ export class Page implements IAction {
             for (let i: number = 0; i < links.length; i++) {
                 if (this.parent.getContentTable()) {
                     (<Element>links[i]).setAttribute('aria-owns', this.parent.getContentTable().id);
-                    let numericContainerDiv: Element = createElement('div');
-                    numericContainerDiv.appendChild(links[i]);
-                    frag.appendChild(numericContainerDiv);
+                } else {
+                        (<Element>links[i]).setAttribute('aria-owns', this.parent.element.getAttribute('id') + '_content_table');
                 }
+                let numericContainerDiv: Element = createElement('div');
+                numericContainerDiv.appendChild(links[i]);
+                frag.appendChild(numericContainerDiv);
             }
             numericContainerNew.appendChild(frag);
             pagerContainer.replaceChild(numericContainerNew, numericContainer);

@@ -8,15 +8,13 @@ import { RowDataBoundEventArgs } from '../../../src/grid/base/interface';
 import { Column } from '../../../src/grid/models/column';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 describe('Render module', () => {
     describe('Grid render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -26,10 +24,8 @@ describe('Render module', () => {
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                         { headerText: 'OrderDate', field: 'OrderDate', format: 'long', type: 'datetime' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Row count testing', () => {
@@ -50,23 +46,19 @@ describe('Render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
 
     describe('Grid render without columns testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, allowPaging: false, dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    dataSource: data, allowPaging: false
+                }, done);
         });
 
         it('Column count testing', () => {
@@ -84,7 +76,7 @@ describe('Render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
@@ -92,20 +84,16 @@ describe('Render module', () => {
 
     describe('Column type testing with empty data source', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: [], allowPaging: false, dataBound: dataBound,
+                    dataSource: [], allowPaging: false,
                     columns: [
                         { field: 'Column1', type: 'string' },
                         { field: 'Column2' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('Column type testing', () => {
@@ -114,21 +102,17 @@ describe('Render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('Row height checking', () => {
     let gridObj: Grid;
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
 
     beforeAll((done: Function) => {
-        let dataBound: EmitType<Object> = () => { done(); };
-        document.body.appendChild(elem);
-        gridObj = new Grid(
+        gridObj = createGrid(
             {
                 dataSource: data,
                 allowPaging: false,
-                dataBound: dataBound,
                 columns: [
                     { headerText: 'OrderID', field: 'OrderID' },
                     { headerText: 'CustomerID', field: 'CustomerID' },
@@ -143,8 +127,7 @@ describe('Render module', () => {
                         args.rowHeight = 80;
                     }
                 }
-            });
-        gridObj.appendTo('#Grid');
+            }, done);
     });
 
     it('Row height API checking and rowDataBound checking', () => {
@@ -161,7 +144,7 @@ describe('Render module', () => {
         expect((gridObj.element.classList.contains('e-grid-min-height'))).toBeFalsy();
     });
     afterAll(() => {
-        remove(elem);
+        destroy(gridObj);
     });
 });
 });

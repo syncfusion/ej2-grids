@@ -8,18 +8,16 @@ import { Column } from '../../../src/grid/models/column';
 import { ICellFormatter } from '../../../src/grid/base/interface';
 import { RowRenderer } from '../../../src/grid/renderer/row-renderer';
 import { Row } from '../../../src/grid/models/row';
+import { createGrid, destroy } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 
 describe('Custom Atrributes and html encode module', () => {
 
     describe('Column attributes', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid({
+            gridObj = createGrid({
                 columns: [
                     {
                         field: 'data.a', headerText: '<i>A</i>', headerTextAlign: 'Center',
@@ -40,9 +38,8 @@ describe('Custom Atrributes and html encode module', () => {
                 ],
                 dataSource: [{ data: { a: '<i>VINET</i>' }, b: '<i>TOMSP</i>', c: true, d: new Date() },
                 { data: { a: 2 }, b: 2, c: false, d: new Date() }],
-                allowPaging: false, dataBound: dataBound
-            });
-            gridObj.appendTo('#Grid');
+                allowPaging: false
+            }, done);
         });
 
         it('ClassName testing', () => {
@@ -62,7 +59,7 @@ describe('Custom Atrributes and html encode module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
@@ -77,10 +74,8 @@ describe('Custom Atrributes and html encode module', () => {
     describe('Custom Formatter - implements ICellFormatter', () => {
         let rows: HTMLTableRowElement;
         let grid: Grid;
-        let element: Element = createElement('div', { id: 'Grid' });
         beforeAll((done: EmitType<Object>) => {
-            document.body.appendChild(element);
-            grid = new Grid(
+            grid = createGrid(
                 {
                     columns: [
                         { field: 'data.a' },
@@ -88,27 +83,23 @@ describe('Custom Atrributes and html encode module', () => {
                     ],
                     dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
                     { data: { a: 2 }, b: 6, c: false, d: new Date() }],
-                    allowPaging: false, dataBound: done
-                }
-            );
-            grid.appendTo('#Grid');
+                    allowPaging: false
+                }, done);
         });
         it('Check custom Formatter return value', () => {
             rows = ((grid.getContentTable() as any).tBodies[0]).rows[0] as HTMLTableRowElement;
             expect(rows.cells[1].innerHTML).toBe('5.00');
         });
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
     });
 
     describe('Custom Formatter -  as Object implements ICellFormatter', () => {
         let rows: HTMLTableRowElement;
         let grid: Grid;
-        let element: Element = createElement('div', { id: 'Grid' });
         beforeAll((done: EmitType<Object>) => {
-            document.body.appendChild(element);
-            grid = new Grid(
+            grid = createGrid(
                 {
                     columns: [
                         { field: 'data.a' },
@@ -116,17 +107,15 @@ describe('Custom Atrributes and html encode module', () => {
                     ],
                     dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
                     { data: { a: 2 }, b: 6, c: false, d: new Date() }],
-                    allowPaging: false, dataBound: done
-                }
-            );
-            grid.appendTo('#Grid');
+                    allowPaging: false
+                }, done);
         });
         it('Check custom Formatter return value', () => {
             rows = ((grid.getContentTable() as any).tBodies[0]).rows[0] as HTMLTableRowElement;
             expect(rows.cells[1].innerHTML).toBe('5.00');
         });
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
     });
 
@@ -140,10 +129,8 @@ describe('Custom Atrributes and html encode module', () => {
 
         let rows: HTMLTableRowElement;
         let grid: Grid;
-        let element: Element = createElement('div', { id: 'Grid' });
         beforeAll((done: EmitType<Object>) => {
-            document.body.appendChild(element);
-            grid = new Grid({
+            grid = createGrid({
                 columns: [
                     { field: 'data.a' },
                     { field: 'b', formatter: customFn.fn },
@@ -151,9 +138,8 @@ describe('Custom Atrributes and html encode module', () => {
                 ],
                 dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
                 { data: { a: 2 }, b: 6, c: false, d: null }],
-                allowPaging: false, dataBound: done
-            });
-            grid.appendTo('#Grid');
+                allowPaging: false
+            }, done);
         });
 
         it('Check custom Formatter return value', () => {
@@ -171,7 +157,7 @@ describe('Custom Atrributes and html encode module', () => {
         });
 
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
     });
 

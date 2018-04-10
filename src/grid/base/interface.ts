@@ -29,6 +29,7 @@ import {
 } from './enum';
 import { FlMenuOptrUI } from '../renderer/filter-menu-operator';
 import { Dialog } from '@syncfusion/ej2-popups';
+import { CheckBoxFilter } from '../actions/checkbox-filter';
 
 /**
  * Specifies grid interfaces.
@@ -389,6 +390,7 @@ export interface IGrid extends Component<HTMLElement> {
     hideColumns?(keys: string | string[], hideBy?: string): void;
     showSpinner?(): void;
     hideSpinner?(): void;
+    updateDefaultCursor?(): void;
     getVisibleColumns?(): Column[];
     refreshHeader?(): void;
     getDataRows?(): Element[];
@@ -497,27 +499,27 @@ export interface ITemplateRender {
  * @hidden
  */
 export interface IEditCell {
-    create?: Element | Function;
-    read?: Object | Function;
-    write?: void | Function;
+    create?: Element | Function | string;
+    read?: Object | Function | string;
+    write?: void | Function | string;
     params?: DatePickerModel | NumericTextBoxModel | DropDownListModel;
-    destroy?: Function;
+    destroy?: Function | string;
 }
 /**
  * @hidden
  */
 export interface IFilterUI {
-    create?: Element | Function;
-    read?: Object | Function;
-    write?: void | Function;
+    create?: Element | Function | string;
+    read?: Object | Function | string;
+    write?: void | Function | string;
 }
 /**
  * @hidden
  */
 export interface IFilterMUI {
-    create?: void | Function;
-    read?: Object | Function;
-    write?: void | Function;
+    create?: void | Function | string;
+    read?: Object | Function | string;
+    write?: void | Function | string;
 }
 
 /**
@@ -892,6 +894,28 @@ export interface ExcelQueryCellInfoEventArgs {
     style?: ExcelStyle;
     /** Defines the number of columns to be spanned */
     colSpan?: number;
+}
+
+export interface FilterSearchBeginEventArgs {
+    /** Defines the current action. */
+    requestType?: string;
+    /** Defines the filter model. */
+    filterModel?: CheckBoxFilter;
+    /** Defines the field name of current column */
+    columnName?: string;
+    /** Defines the current Column objects */
+    column?: Column;
+    /** Defines the operator for filter request */
+    operator?: string;
+    /** Defines the matchcase for filter request */
+    matchCase?: boolean;
+    /** Defines the ignoreAccent for filter request */
+    ignoreAccent?: boolean;
+    /** Defines the custom query in before execute */
+    query: Query;
+    /** Defines take number of data  */
+    filterChoiceCount: number;
+
 }
 
 export interface MultipleExport {

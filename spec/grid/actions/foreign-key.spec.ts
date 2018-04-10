@@ -317,7 +317,7 @@ describe('Foreign Key =>', () => {
             done();
         };
         gridObj.columns[2] = {
-            field: 'EmployeeID', width: 150, foreignKeyValue: 'BirthDate', dataSource: new DataManager(employeeSelectData), format: 'yMd', edit: {
+            field: 'EmployeeID', width: 150, foreignKeyValue: 'BirthDate', dataSource: new DataManager(employeeSelectData), format: 'yMd', type: 'date', edit: {
                 create: create,
                 read: () => {
                     return datePickerObj.value;

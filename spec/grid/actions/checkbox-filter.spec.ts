@@ -1686,31 +1686,31 @@ describe('Checkbox Filter module => ', () => {
             (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
         });
 
-        it('EJ2-7257-Need to hide the filter button in check box filter when no matches found like EJ1 ', (done: Function) => {            
-            actionComplete = (args?: any): void => {
-                if(args.requestType === 'filterafteropen'){
-                    checkBoxFilter = gridObj.element.querySelector('.e-checkboxfilter');
-                    (<any>gridObj.filterModule).filterModule.sInput.value = 'edybh';
-                    (<any>gridObj.filterModule).filterModule.refreshCheckboxes();
-                    expect(checkBoxFilter.querySelector('.e-footer-content').children[0].hasAttribute('disabled')).toBeTruthy();
-                    let edit: any = (<any>new Edit(gridObj, gridObj.serviceLocator));
-                    spyOn(edit, 'deleteRecord');
-                    edit.keyPressHandler({action: 'delete', target: gridObj.element});
-                    expect(edit.deleteRecord).not.toHaveBeenCalled();
-                    gridObj.actionComplete = null;
-                    done();
-                }
-            };
-            gridObj.actionComplete = actionComplete;        
-            (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
-        });
+        // it('EJ2-7257-Need to hide the filter button in check box filter when no matches found like EJ1 ', (done: Function) => {            
+        //     actionComplete = (args?: any): void => {
+        //         if(args.requestType === 'filterafteropen'){
+        //             checkBoxFilter = gridObj.element.querySelector('.e-checkboxfilter');
+        //             (<any>gridObj.filterModule).filterModule.sInput.value = 'edybh';
+        //             (<any>gridObj.filterModule).filterModule.refreshCheckboxes();
+        //             expect(checkBoxFilter.querySelector('.e-footer-content').children[0].hasAttribute('disabled')).toBeTruthy();
+        //             let edit: any = (<any>new Edit(gridObj, gridObj.serviceLocator));
+        //             spyOn(edit, 'deleteRecord');
+        //             edit.keyPressHandler({action: 'delete', target: gridObj.element});
+        //             expect(edit.deleteRecord).not.toHaveBeenCalled();
+        //             gridObj.actionComplete = null;
+        //             done();
+        //         }
+        //     };
+        //     gridObj.actionComplete = actionComplete;        
+        //     (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
+        // });
 
 
-        //scenario5 case completed
+        // //scenario5 case completed
 
-        afterAll(() => {
-            destroy(gridObj);
-        });
+        // afterAll(() => {
+        //     destroy(gridObj);
+        // });
     });    
 
     describe('EJ2-7408 Checkbox filter for column and filter type menu => ', () => {

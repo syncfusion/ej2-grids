@@ -414,11 +414,12 @@ export class Sort implements IAction {
         let fieldNames: string[] = this.parent.getColumns().map((c: Column) => c.field);
         for (let i: number = position ? position : 0,
             len: number = !isNullOrUndefined(position) ? position + 1 : cols.length; i < len; i++) {
-            if (gObj.allowGrouping && gObj.groupSettings.columns.indexOf(cols[i].field) > -1) {
+            header = gObj.getColumnHeaderByField(cols[i].field);
+            if (gObj.allowGrouping && gObj.groupSettings.columns.indexOf(cols[i].field) > -1 &&
+            (isNullOrUndefined(header) || !header.querySelector('.e-sortfilterdiv'))) {
                 continue;
             }
             if (fieldNames.indexOf(cols[i].field) === -1) { continue; }
-            header = gObj.getColumnHeaderByField(cols[i].field);
             this.aria.setSort(<HTMLElement>header, 'none');
             classList(
                 header.querySelector('.e-sortfilterdiv'), [], ['e-descending', 'e-icon-descending', 'e-ascending', 'e-icon-ascending']);

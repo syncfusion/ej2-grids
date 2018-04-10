@@ -10,17 +10,15 @@ import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 import { Group } from '../../../src/grid/actions/group';
 import { HeaderRender } from '../../../src/grid/renderer/header-renderer';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Reorder, Freeze, Group);
 
 describe('Stacked header render module', () => {
     describe('Stacked header render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     allowGrouping: true,
@@ -50,10 +48,8 @@ describe('Stacked header render module', () => {
                             columns: [{ field: 'HiddenCol', textAlign: 'Right', headerText: 'Hidden Column', visible: false }]
                         },
                     ],
-                    allowReordering: true,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    allowReordering: true
+                }, done);
         });
 
         it('header colunt testing', () => {
@@ -86,18 +82,15 @@ describe('Stacked header render module', () => {
 
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
 
     describe('Stacked header render with Freeze', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     frozenColumns: 1,
@@ -127,10 +120,8 @@ describe('Stacked header render module', () => {
                             ],
                         }
                     ],
-                    allowReordering: true,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    allowReordering: true
+                }, done);
         });
 
         it('header count testing', () => {
@@ -154,7 +145,7 @@ describe('Stacked header render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 

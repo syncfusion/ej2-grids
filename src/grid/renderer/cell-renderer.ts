@@ -116,7 +116,7 @@ export class CellRenderer implements ICellRenderer<Column> {
         let column: Column = cell.column;
         let fData: Object;
         if (cell.isForeignKey) {
-            fData = cell.foreignKeyData[0];
+            fData = cell.foreignKeyData[0] || {[column.foreignKeyValue]: column.format ? null : ''};
         }
         //Prepare innerHtml
         let innerHtml: string = <string>this.getGui();
@@ -256,6 +256,6 @@ export class CellRenderer implements ICellRenderer<Column> {
     }
 
     public getValue(field: string, data: Object, column: Column): Object {
-        return column.valueAccessor(field, data, column);
+        return (column.valueAccessor as Function)(field, data, column);
     }
 }

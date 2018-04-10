@@ -127,7 +127,8 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         let data: GroupedData = row.data;
         let col: Column = this.parent.getColumnByField(data.field);
         if (col && col.isForeignColumn && col.isForeignColumn()) {
-            setValue('foreignKey', col.valueAccessor(col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
+            setValue('foreignKey',
+                     (col.valueAccessor as Function)(col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
         }
     }
 

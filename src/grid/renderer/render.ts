@@ -163,11 +163,16 @@ export class Render {
 
     private sendBulkRequest(args?: { changes: Object }): void {
         let promise: Promise<Object> = this.data.saveChanges(args.changes, this.parent.getPrimaryKeyFieldNames()[0]);
+        let query: Query = this.data.generateQuery().requiresCount();
         if (this.data.dataManager.dataSource.offline) {
             this.refreshDataManager({ requestType: 'batchsave' } as NotifyArgs);
             return;
         } else {
-            promise.then((e: ReturnType) => this.dmSuccess(e, args as NotifyArgs))
+            promise.then((e: ReturnType) => {
+                this.data.getData(args as NotifyArgs, query)
+                    .then((e: { result: Object[], count: number }) => this.dmSuccess(e, args as NotifyArgs))
+                    .catch((e: { result: Object[] }) => this.dmFailure(e as { result: Object[] }));
+            })
                 .catch((e: { result: Object[] }) => this.dmFailure(e as { result: Object[] }));
         }
     }
@@ -211,14 +216,22 @@ export class Render {
         }
     }
 
+    private dynamicColumnChange(): void {
+        if (this.parent.getCurrentViewRecords().length) {
+            this.updateColumnType(this.parent.getCurrentViewRecords()[0]);
+        }
+    }
+
     private updateColumnType(record: Object): void {
         let columns: Column[] = this.parent.getColumns() as Column[];
         let value: Date;
         let data: Object = record && (<{ items: Object[] }>record).items ? (<{ items: Object[] }>record).items[0] : record;
         let fmtr: IValueFormatter = this.locator.getService<IValueFormatter>('valueFormatter');
         for (let i: number = 0, len: number = columns.length; i < len; i++) {
-            value = columns[i].isForeignColumn() ? getValue(columns[i].foreignKeyValue || '', columns[i].columnData[0]) :
-                getValue(columns[i].field || '', data);
+            value = getValue(columns[i].field || '', data);
+            if (columns[i].isForeignColumn() && columns[i].columnData ) {
+                value = getValue(columns[i].foreignKeyValue || '', columns[i].columnData[0]);
+            }
             if (!isNullOrUndefined(value)) {
                 this.isColTypeDef = true;
                 if (!columns[i].type) {
@@ -338,6 +351,7 @@ export class Render {
         this.parent.on(events.refreshComplete, this.refreshComplete, this);
         this.parent.on(events.bulkSave, this.sendBulkRequest, this);
         this.parent.on(events.showEmptyGrid, () => { this.emptyGrid = true; }, this);
+        this.parent.on(events.autoCol, this.dynamicColumnChange, this);
     }
 
     /** @hidden */

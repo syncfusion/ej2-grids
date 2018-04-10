@@ -665,6 +665,7 @@ export class ExcelFilter extends CheckBoxFilter {
         let actObj: AutoComplete = new AutoComplete({
             dataSource: dataSource instanceof DataManager ? dataSource : new DataManager(dataSource as object),
             fields: fields,
+            query: this.parent.query.clone(),
             sortOrder: 'Ascending',
             locale: this.parent.locale,
             autofill: true,

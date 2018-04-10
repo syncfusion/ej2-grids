@@ -8,18 +8,16 @@ import { Page } from '../../../src/grid/actions/page';
 import { Freeze } from '../../../src/grid/actions/freeze';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Page, Freeze);
 
 describe('auto wrap testing', () => {
     describe('auto wrap properties', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -31,10 +29,8 @@ describe('auto wrap testing', () => {
                     ],
                     allowTextWrap: true,
                     textWrapSettings: { wrapMode: 'Header' },
-                    dataBound: dataBound,
                     actionComplete: actionComplete,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('class testing for header', () => {
@@ -65,17 +61,14 @@ describe('auto wrap testing', () => {
             expect(gridObj.getContent().classList.contains('e-wrap')).toBeFalsy();
         });
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('auto wrap properties for stacked headercolumns', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [{
@@ -91,10 +84,8 @@ describe('auto wrap testing', () => {
                     ],
                     allowTextWrap: true,
                     textWrapSettings: { wrapMode: 'Header' },
-                    dataBound: dataBound,
                     actionComplete: actionComplete,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('class testing for header in stackedheadercolumns', () => {
@@ -106,17 +97,14 @@ describe('auto wrap testing', () => {
             expect(gridObj.getContent().classList.contains('e-wrap')).toBeFalsy();
         });
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('auto wrap properties for GroupedColumns', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [{
@@ -132,10 +120,8 @@ describe('auto wrap testing', () => {
                     ],
                     allowTextWrap: true,
                     textWrapSettings: { wrapMode: 'Header' },
-                    dataBound: dataBound,
                     actionComplete: actionComplete,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('class testing for header with GroupedColumns', () => {
             gridObj.allowGrouping = true;
@@ -148,17 +134,14 @@ describe('auto wrap testing', () => {
             expect(gridObj.getContent().classList.contains('e-wrap')).toBeFalsy();
         });
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Auto wrap with Freeze', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     frozenColumns: 2,
@@ -175,9 +158,7 @@ describe('auto wrap testing', () => {
                     ],
                     allowTextWrap: true,
                     textWrapSettings: { wrapMode: 'Header' },
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('comparing height', () => {
@@ -213,7 +194,7 @@ describe('auto wrap testing', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 });

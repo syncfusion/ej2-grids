@@ -78,8 +78,7 @@ export class PdfExport {
         this.isBlob = isBlob;
         /* tslint:disable-next-line:max-line-length */
         if (!isNullOrUndefined(pdfExportProperties) && !isNullOrUndefined(pdfExportProperties.dataSource) && pdfExportProperties.dataSource instanceof DataManager) {
-            let promise: Promise<Object>;
-            return promise = new Promise((resolve: Function, reject: Function) => {
+            return new Promise((resolve: Function, reject: Function) => {
                 /* tslint:disable-next-line:no-any *//* tslint:disable-next-line:max-line-length */
                 new DataManager({ url: (pdfExportProperties.dataSource as DataManager).dataSource.url, adaptor: (pdfExportProperties.dataSource as DataManager).adaptor }).executeQuery(new Query()).then((returnType: any) => {
                     this.init(parent);
@@ -95,25 +94,21 @@ export class PdfExport {
                 });
             });
         } else {
-            let promise: Promise<Object>;
             let allPromise: Promise<Object>[] = [];
             allPromise.push(this.data.getData({}, ExportHelper.getQuery(parent, this.data)));
             allPromise.push(this.helper.getColumnData(<Grid>parent));
-            let bool: boolean = true;
             return Promise.all(allPromise).then((e: ReturnType[]) => {
-                if (bool) {
-                    this.init(parent);
-                    if (!isNullOrUndefined(pdfDoc)) {
-                        this.pdfDocument = <PdfDocument>pdfDoc;
-                    } else {
-                        this.pdfDocument = new PdfDocument();
-                    }
-                    this.processExport(parent, e[0], pdfExportProperties, isMultipleExport);
-                    this.isExporting = false;
-                    parent.trigger(events.pdfExportComplete, this.isBlob ? { promise: this.blobPromise } : {});
-                    bool = false;
+                this.init(parent);
+                if (!isNullOrUndefined(pdfDoc)) {
+                    this.pdfDocument = <PdfDocument>pdfDoc;
+                } else {
+                    this.pdfDocument = new PdfDocument();
                 }
-                // tslint:disable-next-line:no-any
+                this.processExport(parent, e[0], pdfExportProperties, isMultipleExport);
+                this.isExporting = false;
+                parent.trigger(events.pdfExportComplete, this.isBlob ? { promise: this.blobPromise } : {});
+                return this.pdfDocument;
+            // tslint:disable-next-line:no-any
             }) as any;
         }
     }

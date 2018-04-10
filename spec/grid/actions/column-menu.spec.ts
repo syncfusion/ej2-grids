@@ -64,7 +64,7 @@ describe('column menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                     ]
-                });
+            });
             gridObj.appendTo('#Grid');
         });
         it('Icon check in header', () => {
@@ -370,12 +370,9 @@ describe('column menu module', () => {
         beforeAll((done: Function) => {
             let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
             Browser.userAgent = desktop;
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
-                    dataBound: dataBound,
                     allowPaging: true,
                     pageSettings: {
                         pageSize: 10
@@ -390,8 +387,7 @@ describe('column menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('isFilterItemAdded', () => {
            let colMenu = gridObj.columnMenuModule as any;
@@ -412,8 +408,7 @@ describe('column menu module', () => {
          });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('custom item', () => {
@@ -425,12 +420,9 @@ describe('column menu module', () => {
             let iphoneUa: string = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2_1 like Mac OS X) AppleWebKit/602.4.6' +
             ' (KHTML, like Gecko) Version/10.0 Mobile/14D27 Safari/602.1';
             Browser.userAgent = iphoneUa;
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
-                    dataBound: dataBound,
                     allowPaging: true,
                     pageSettings: {
                         pageSize: 10
@@ -445,8 +437,7 @@ describe('column menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170, showInColumnChooser: false },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, visible: false, textAlign: 'Right' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('count check', () => {
             let status = true;
@@ -473,8 +464,7 @@ describe('column menu module', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
             let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
             Browser.userAgent = desktop;
         });
@@ -488,9 +478,7 @@ describe('column menu module', () => {
         beforeAll((done: Function) => {
             let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
             Browser.userAgent = desktop;
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: employeeData,
                     allowSorting:true,
@@ -502,9 +490,7 @@ describe('column menu module', () => {
                         { field: 'Name.LastName.startwith.endwith.final', headerText: 'Last Name', width: 120},
                         { field: 'Title', headerText: 'Title', width: 150 }
                        ],
-                       dataBound: dataBound,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('check filter value', (done: Function) => {
             gridObj.filterModule.filterByColumn('Name.LastName.startwith.endwith.final', 'equal', 2);
@@ -516,8 +502,7 @@ describe('column menu module', () => {
             done();
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('EJ2-6801-Column menu set model ', () => {

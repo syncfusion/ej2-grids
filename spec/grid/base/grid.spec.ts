@@ -18,12 +18,9 @@ Grid.Inject(Page);
 describe('Grid base module', () => {
     describe('Grid properties', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -34,10 +31,8 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
                     enableHover: false,
-                    dataBound: dataBound,
                     actionComplete: actionComplete,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('enable RTL testing', () => {
@@ -105,20 +100,17 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
 
     describe('Allow resizing test cases', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let colHeader: Element;
         let content: Element;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -129,10 +121,8 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
                     allowTextWrap: true,
-                    dataBound: dataBound,
                     allowResizing: true
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('handlers added', () => {
@@ -149,19 +139,16 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Allow resizing - columns', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let colHeader: Element;
         let content: Element;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -172,10 +159,8 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
                     allowTextWrap: true,
-                    dataBound: dataBound,
                     allowResizing: true
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('Column resize suppress', () => {
@@ -185,19 +170,16 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Method testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: (e?: Object) => void;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, actionComplete: actionComplete, allowPaging: false,
                     columns: [
@@ -206,10 +188,8 @@ describe('Grid base module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('getRowByIndex testing', () => {
@@ -292,19 +272,16 @@ describe('Grid base module', () => {
 
         afterAll(() => {
             gridObj.getPersistData();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Grid lines testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let header: Element;
         let content: Element;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -314,10 +291,8 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
-                    gridLines: 'Both',
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    gridLines: 'Both'
+                }, done);
         });
 
         it('Grid line both testing', () => {
@@ -351,20 +326,17 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
 
     describe('Grid lines testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let colHeader: Element;
         let content: Element;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -374,10 +346,8 @@ describe('Grid base module', () => {
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
-                    allowTextWrap: true,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    allowTextWrap: true
+                }, done);
         });
 
         it('Text wrap testing', () => {
@@ -397,13 +367,12 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Localization testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
 
         beforeAll((done: Function) => {
             L10n.load({
@@ -413,9 +382,7 @@ describe('Grid base module', () => {
                     }
                 }
             });
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, locale: 'de-DE', allowPaging: false,
                     columns: [
@@ -424,10 +391,8 @@ describe('Grid base module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('renderEmptyRow testing', () => {
@@ -453,18 +418,15 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('media columns testing', () => {
         let gridObj: Grid;
         let targetEle: {};
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -473,10 +435,8 @@ describe('Grid base module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
 
@@ -494,17 +454,14 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Dynamic columns change testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -513,10 +470,8 @@ describe('Grid base module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
 
@@ -570,7 +525,7 @@ describe('Grid base module', () => {
         // });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
@@ -613,11 +568,8 @@ describe('Grid base module', () => {
     describe('row Information', () => {
 
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -626,10 +578,8 @@ describe('Grid base module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
 
@@ -641,7 +591,7 @@ describe('Grid base module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     })

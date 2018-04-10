@@ -100,6 +100,7 @@ export const filterChoiceRequest: string = 'filterchoicerequest';
 export const filterAfterOpen: string = 'filterafteropen';
 /** @hidden */
 export const filterBeforeOpen: string = 'filterbeforeopen';
+export const filterSearchBegin: string = 'filtersearchbegin';
 
 /**
  * Specifies grid internal events

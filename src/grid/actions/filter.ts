@@ -123,8 +123,9 @@ export class Filter implements IAction {
         this.unWireEvents();
         if (this.element) {
             remove(this.element);
-            if (this.parent.getFrozenColumns()) {
-                remove(this.parent.getHeaderContent().querySelector('.e-filterbar'));
+            let filterBarElement: Element = this.parent.getHeaderContent().querySelector('.e-filterbar');
+            if (this.parent.getFrozenColumns() && filterBarElement) {
+                remove(filterBarElement);
             }
         }
     }
@@ -334,13 +335,13 @@ export class Filter implements IAction {
         if (this.filterSettings.type === 'FilterBar' && filterCell.value !== filterValue) {
             filterCell.value = filterValue;
         }
-        if (this.checkAlreadyColFiltered(this.column.field)) {
-            return;
-        }
         if (!isNullOrUndefined(this.column.format)) {
             this.applyColumnFormat(filterValue);
         } else {
             this.values[this.column.field] = filterValue; //this line should be above updateModel
+        }
+        if (this.checkAlreadyColFiltered(this.column.field)) {
+            return;
         }
         this.updateModel();
     }
@@ -386,6 +387,8 @@ export class Filter implements IAction {
     private refreshFilterSettings(): void {
         if (this.filterSettings.type === 'FilterBar') {
             for (let i: number = 0; i < this.filterSettings.columns.length; i++) {
+                this.column = this.parent.getColumnByField(this.filterSettings.columns[i].field) ||
+                getColumnByForeignKeyValue(this.filterSettings.columns[i].field, this.parent.getForeignKeyColumns());
                 let filterValue: string | number | Date | boolean = this.filterSettings.columns[i].value;
                 filterValue = !isNullOrUndefined(filterValue) && filterValue.toString();
                 if (!isNullOrUndefined(this.column.format)) {
@@ -401,6 +404,14 @@ export class Filter implements IAction {
                 }
             }
         }
+    }
+
+    /**
+     * @private
+     */
+    public refreshFilter(): void {
+        this.refreshFilterSettings();
+        this.updateFilterMsg();
     }
 
     /**

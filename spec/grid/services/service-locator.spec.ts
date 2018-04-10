@@ -6,6 +6,7 @@ import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 describe('ServiceLocator module', () => {
     let servFunc: Function = () => {
@@ -13,11 +14,8 @@ describe('ServiceLocator module', () => {
     };
     describe('Register and get service', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -26,10 +24,8 @@ describe('ServiceLocator module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
             gridObj.serviceLocator.register('servFunc', servFunc);
         });
 
@@ -49,7 +45,7 @@ describe('ServiceLocator module', () => {
         });
 
         afterAll(() => {
-           remove(elem);
+           destroy(gridObj);
         });
     });
 

@@ -902,7 +902,7 @@ describe('Inline Editing module', () => {
 
     describe('cell edit template => ', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid55' });
+        let elem: HTMLElement = createElement('div', { id: 'Grid55abc' });
         let preventDefault: Function = new Function();
         let actionBegin: () => void;
         let actionComplete: (args: any) => void;
@@ -968,7 +968,7 @@ describe('Inline Editing module', () => {
                     actionComplete: actionComplete,
                     dataBound: dataBound
                 });
-            gridObj.appendTo('#Grid55');
+            gridObj.appendTo('#Grid55abc');
         });
 
         it('cell template edit check', (done: Function) => {
@@ -999,8 +999,8 @@ describe('Inline Editing module', () => {
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
             elem.remove();
-            if (document.getElementById('Grid55')) {
-                document.getElementById('Grid55').remove();
+            if (document.getElementById('Grid55abc')) {
+                document.getElementById('Grid55abc').remove();
             }
         });
     });

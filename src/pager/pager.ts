@@ -284,6 +284,9 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
                 case 'pageSize':
                 case 'totalRecordsCount':
                 case 'customText':
+                    if (this.checkpagesizes()) {
+                        this.pagerdropdownModule.setDropDownValue('value', this.pageSize);
+                    }
                     this.refresh();
                     break;
                 case 'pageSizes':

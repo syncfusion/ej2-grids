@@ -109,12 +109,9 @@ describe('context menu module', () => {
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
-                    dataBound: dataBound,
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true, showToggleButton: true, showUngroupButton: true },
                     allowResizing: true,
@@ -137,8 +134,7 @@ describe('context menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170 },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, textAlign: 'Right' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('render', () => {
             expect((gridObj.contextMenuModule as any).element).not.toBe(null);
@@ -182,13 +178,12 @@ describe('context menu module', () => {
                     (gridObj.contextMenuModule as any).contextMenuItemClick({ item: itemModel });
                 }
             }
-            if (gridObj.element.querySelector('#GridEditAlert').querySelector('button')) {
-                gridObj.element.querySelector('#GridEditAlert').querySelector('button').click();
+            if (gridObj.element.querySelector('#' + gridObj.element.id + 'EditAlert').querySelector('button')) {
+                gridObj.element.querySelector('#' + gridObj.element.id + 'EditAlert').querySelector('button').click();
             }
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('default items functionality', () => {
@@ -197,12 +192,9 @@ describe('context menu module', () => {
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
-                    dataBound: dataBound,
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true, showToggleButton: true, showUngroupButton: true },
                     allowResizing: true,
@@ -225,8 +217,7 @@ describe('context menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170 },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, textAlign: 'Right' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('do sort in header', (done) => {
             (gridObj.contextMenuModule as any).eventArgs = { target: gridObj.getHeaderTable().querySelector('th') };
@@ -470,8 +461,7 @@ describe('context menu module', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('default items without required module', () => {
@@ -480,12 +470,9 @@ describe('context menu module', () => {
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
-                    dataBound: dataBound,
                     contextMenuItems: ['AutoFitAll', 'AutoFit',
                         'Group', 'Ungroup', 'Edit', 'Delete', 'Save', 'Cancel',
                         'PdfExport', 'ExcelExport', 'CsvExport', 'SortAscending', 'SortDescending',
@@ -498,8 +485,7 @@ describe('context menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170 },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, textAlign: 'Right' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('disabled items', () => {
@@ -538,8 +524,7 @@ describe('context menu module', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('custom items', () => {
@@ -548,12 +533,9 @@ describe('context menu module', () => {
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
-                    dataBound: dataBound,
                     allowPaging: true,
                     pageSettings: {
                         pageSize: 10
@@ -566,8 +548,7 @@ describe('context menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170 },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, textAlign: 'Right' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('header', () => {
@@ -594,8 +575,7 @@ describe('context menu module', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
@@ -604,12 +584,9 @@ describe('context menu module', () => {
         let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
-                    dataBound: dataBound,
                     allowPaging: true,
                     editSettings: { allowDeleting: true, allowEditing: true, allowAdding: true, mode: 'Batch' },
                     pageSettings: {
@@ -625,8 +602,7 @@ describe('context menu module', () => {
                         { field: 'ShipCity', headerText: 'Ship City', width: 170 },
                         { field: 'CustomerID', headerText: 'Customer ID', width: 150, textAlign: 'Right' }
                     ]
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('batch editing', () => {
@@ -646,8 +622,7 @@ describe('context menu module', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('default items', () => {

@@ -22,28 +22,24 @@ import { GridModel } from '../../../src/grid/base/grid-model';
 import { extend } from '@syncfusion/ej2-base';
 import { Aggregate } from '../../../src/grid/actions/aggregate';
 import { AggregateColumn } from '../../../src/grid/models/aggregate';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Sort, Page, Filter, Reorder, Group, Resize, Selection, Aggregate, Freeze);
 
 describe('Resize module', () => {
     describe('Resize functionalities for columns', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowReordering: true,
                     columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
                     { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 }, { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('Resize for particular column when width is specified', () => {
             gridObj.autoFitColumns('OrderID');
@@ -68,27 +64,21 @@ describe('Resize module', () => {
             expect(headers.width).toEqual(150)
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('Resize functionalities for all columns', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
                     { field: 'EmployeeID', headerText: 'EmployeeID' }, { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity' }],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('More than one columns to be Autofit', () => {
             gridObj.autoFitColumns(['OrderID', 'CustomerID', 'EmployeeID']);
@@ -117,19 +107,15 @@ describe('Resize module', () => {
             expect(headers).toBeTruthy();
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('Resize functionalities for Hidden columns', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowReordering: true,
@@ -137,9 +123,7 @@ describe('Resize module', () => {
                     columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
                     { field: 'EmployeeID', headerText: 'EmployeeID', }, { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180, visible: false }],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('Resize for Hidden column', () => {
             gridObj.autoFitColumns('ShipCity');
@@ -153,20 +137,16 @@ describe('Resize module', () => {
             expect(headers).toBeFalsy();
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('allowResizing functionality', () => {
         let gridObj: any;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowResizing: true,
@@ -176,9 +156,7 @@ describe('Resize module', () => {
                     { field: 'EmployeeID', headerText: 'EmployeeID', width: 150, minWidth: 100, maxWidth: 200 },
                     { field: 'Freight', headerText: 'Freight', format: 'C2', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                    dataBound: dataBound,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         // it('autoFit from hander', () => {
         //     let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
@@ -307,8 +285,7 @@ describe('Resize module', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
@@ -317,13 +294,10 @@ describe('Resize module', () => {
         let resizeStop: EmitType<ResizeArgs> = jasmine.createSpy('resizeStartStop');
         let resize: EmitType<ResizeArgs> = jasmine.createSpy('resize');
         let gridObj: any;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let columns: Column[];
         beforeAll((done) => {
             jasmine.Ajax.install();
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowResizing: true,
@@ -332,12 +306,10 @@ describe('Resize module', () => {
                     { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 },
                     { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                    dataBound: dataBound,
                     resizeStart: resizeStartevent,
                     resizeStop: resizeStop,
                     resizing: resize
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         beforeEach((done: Function) => {
             let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
@@ -355,20 +327,16 @@ describe('Resize module', () => {
         });
         afterAll(() => {
             jasmine.Ajax.uninstall();
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('resize start event', () => {
 
         let gridObj: any;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let columns: Column[];
         beforeAll((done) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowResizing: true,
@@ -377,13 +345,11 @@ describe('Resize module', () => {
                     { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 },
                     { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                    dataBound: dataBound,
-                    resizeStart: function (e) {
+                    resizeStart: function (e: any) {
                         e.cancel = true;
                     },
 
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         beforeEach((done: Function) => {
@@ -398,19 +364,15 @@ describe('Resize module', () => {
             //expect(gridObj.resizeModule.helper).toBeNull();
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('resize event', () => {
 
         let gridObj: any;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let columns: Column[];
         beforeAll((done) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowResizing: true,
@@ -419,14 +381,12 @@ describe('Resize module', () => {
                     { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 },
                     { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                    dataBound: dataBound,
                     width: 200,
-                    resizing: function (e) {
+                    resizing: function (e: any) {
                         e.cancel = true;
                     },
 
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         beforeEach((done: Function) => {
             let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
@@ -441,22 +401,18 @@ describe('Resize module', () => {
             //expect(gridObj.resizeModule.helper).toBeNull();
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Resize in mobile layout', () => {
         let gridObj: any;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let columns: Column[];
         beforeAll((done: Function) => {
             let iphoneUa: string = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2_1 like Mac OS X) AppleWebKit/602.4.6' +
                 ' (KHTML, like Gecko) Version/10.0 Mobile/14D27 Safari/602.1';
             Browser.userAgent = iphoneUa;
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowResizing: true,
@@ -465,14 +421,11 @@ describe('Resize module', () => {
                     { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 },
                     { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
             let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
             Browser.userAgent = desktop;
         });
@@ -608,13 +561,10 @@ describe('Resize module', () => {
    describe('Resize module with Freeze pane', () => {
         describe('Resize functionalities for columns', () => {
             let gridObj: Grid;
-            let elem: HTMLElement = createElement('div', { id: 'Grid' });
             let headers: any;
             let columns: Column[];
             beforeAll((done: Function) => {
-                let dataBound: EmitType<Object> = () => { done(); };
-                document.body.appendChild(elem);
-                gridObj = new Grid(
+                gridObj = createGrid(
                     {
                         frozenColumns: 2,
                         frozenRows: 2,
@@ -626,9 +576,7 @@ describe('Resize module', () => {
                         columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
                         { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 }, { field: 'Freight', headerText: 'Freight', width: 200 },
                         { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                        dataBound: dataBound
-                    });
-                gridObj.appendTo('#Grid');
+                    }, done);
             });
             it('Resize for particular column when width is specified', () => {
                 gridObj.autoFitColumns('OrderID');
@@ -646,19 +594,15 @@ describe('Resize module', () => {
                 expect(headers).toBeTruthy();
             });           
             afterAll(() => {
-                gridObj.destroy();
-                remove(elem);
+                destroy(gridObj);
             });
         });
         describe('allowResizing functionality', () => {
             let gridObj: any;
-            let elem: HTMLElement = createElement('div', { id: 'Grid' });
             let headers: any;
             let columns: Column[];
             beforeAll((done: Function) => {
-                let dataBound: EmitType<Object> = () => { done(); };
-                document.body.appendChild(elem);
-                gridObj = new Grid(
+                gridObj = createGrid(
                     {
                         frozenColumns: 2,
                         frozenRows: 2,
@@ -672,9 +616,7 @@ describe('Resize module', () => {
                         { field: 'EmployeeID', headerText: 'EmployeeID', width: 150, minWidth: 100, maxWidth: 200 },
                         { field: 'Freight', headerText: 'Freight', format: 'C2', width: 200 },
                         { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                        dataBound: dataBound,
-                    });
-                gridObj.appendTo('#Grid');
+                    }, done);
             });
             it('autoFit from hander', () => {
                 let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
@@ -741,8 +683,7 @@ describe('Resize module', () => {
             });            
     
             afterAll(() => {
-                gridObj.destroy();
-                remove(elem);
+                destroy(gridObj);
             });
         });
         describe('Events', () => {
@@ -750,13 +691,10 @@ describe('Resize module', () => {
             let resizeStop: EmitType<ResizeArgs> = jasmine.createSpy('resizeStartStop');
             let resize: EmitType<ResizeArgs> = jasmine.createSpy('resize');
             let gridObj: any;
-            let elem: HTMLElement = createElement('div', { id: 'Grid' });
             let columns: Column[];
             beforeAll((done) => {
                 jasmine.Ajax.install();
-                let dataBound: EmitType<Object> = () => { done(); };
-                document.body.appendChild(elem);
-                gridObj = new Grid(
+                gridObj = createGrid(
                     {
                         frozenColumns: 2,
                         frozenRows: 2,
@@ -769,12 +707,10 @@ describe('Resize module', () => {
                         { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 },
                         { field: 'Freight', headerText: 'Freight', width: 200 },
                         { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                        dataBound: dataBound,
                         resizeStart: resizeStartevent,
                         resizeStop: resizeStop,
                         resizing: resize
-                    });
-                gridObj.appendTo('#Grid');
+                    }, done);
             });
             beforeEach((done: Function) => {
                 let handler: HTMLElement = gridObj.getHeaderTable().querySelectorAll('.' + resizeClassList.root)[1];
@@ -792,20 +728,16 @@ describe('Resize module', () => {
             });
             afterAll(() => {
                 jasmine.Ajax.uninstall();
-                gridObj.destroy();
-                remove(elem);
+                destroy(gridObj);
             });
         });
 
         describe('resize start event', () => {
 
             let gridObj: any;
-            let elem: HTMLElement = createElement('div', { id: 'Grid' });
             let columns: Column[];
             beforeAll((done) => {
-                let dataBound: EmitType<Object> = () => { done(); };
-                document.body.appendChild(elem);
-                gridObj = new Grid(
+                gridObj = createGrid(
                     {
                         frozenColumns: 2,
                         frozenRows: 2,
@@ -818,13 +750,11 @@ describe('Resize module', () => {
                         { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 },
                         { field: 'Freight', headerText: 'Freight', width: 200 },
                         { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
-                        dataBound: dataBound,
-                        resizeStart: function (e) {
+                        resizeStart: function (e:any) {
                             e.cancel = true;
                         },
 
-                    });
-                gridObj.appendTo('#Grid');
+                    }, done);
             });
 
             beforeEach((done: Function) => {
@@ -839,21 +769,17 @@ describe('Resize module', () => {
                 //expect(gridObj.resizeModule.helper).toBeNull();
             });
             afterAll(() => {
-                gridObj.destroy();
-                remove(elem);
+                destroy(gridObj);
             });
         });
     });
 
     describe('Resize functionalities for all columns', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let headers: any;
         let columns: Column[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     frozenColumns: 2,
                     frozenRows: 2,
@@ -862,9 +788,7 @@ describe('Resize module', () => {
                     columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
                     { field: 'EmployeeID', headerText: 'EmployeeID' }, { field: 'Freight', headerText: 'Freight', width: 200 },
                     { field: 'ShipCity', headerText: 'ShipCity' }],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('More than one columns to be Autofit', () => {
             gridObj.autoFitColumns(['OrderID', 'CustomerID', 'EmployeeID']);
@@ -893,8 +817,7 @@ describe('Resize module', () => {
             expect(headers).toBeTruthy();
         });
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 

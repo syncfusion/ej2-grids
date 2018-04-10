@@ -15,14 +15,10 @@ Grid.Inject(Page, Toolbar, ColumnChooser, Freeze);
 describe('Column chooser module', () => {
     describe('Column chooser testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
-
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', showInColumnChooser: false }, { field: 'CustomerID' },
@@ -33,10 +29,9 @@ describe('Column chooser module', () => {
                     toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
+
         it('Column chooser testing', (done: Function) => {
             beforeOpenColumnChooser = (args?: { element: Element }): void => {
                 expect(args.element.querySelectorAll('.e-columnchooser-btn').length).toBe(1);
@@ -50,7 +45,7 @@ describe('Column chooser module', () => {
 
             gridObj.element.classList.add('e-device');
             setTimeout(() => {
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_columnchooser')).click();
                 (<any>gridObj).isDestroyed = true;
                 (<any>gridObj).columnChooserModule.addEventListener();
                 (<any>gridObj).columnChooserModule.destroy();
@@ -61,20 +56,16 @@ describe('Column chooser module', () => {
         });
 
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
     });
 
     describe('Column chooser event testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
-
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', showInColumnChooser: false }, { field: 'CustomerID' },
@@ -85,9 +76,7 @@ describe('Column chooser module', () => {
                     toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('Column chooser render testing', (done: Function) => {
             beforeOpenColumnChooser = (args?: any): void => {
@@ -98,29 +87,25 @@ describe('Column chooser module', () => {
 
             gridObj.beforeOpenColumnChooser = beforeOpenColumnChooser;
             setTimeout(() => {
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_columnchooser')).click();
                 (<any>gridObj).columnChooserModule.isDlgOpen = true;
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_columnchooser')).click();
                 (<any>gridObj).columnChooserModule.destroy();
                 (<any>gridObj).destroy();
             }, 500);
         });
 
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
     });
 
     describe('Column chooser Custom testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
-
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', showInColumnChooser: false }, { field: 'CustomerID' },
@@ -130,9 +115,7 @@ describe('Column chooser module', () => {
                     showColumnChooser: true,
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('Column chooser open  testing', (done: Function) => {
             beforeOpenColumnChooser = (args?: any): void => {
@@ -153,20 +136,16 @@ describe('Column chooser module', () => {
         });
 
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
     });
 
     describe('column chooser search', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
-
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', showInColumnChooser: false }, { field: 'CustomerID' },
@@ -177,9 +156,7 @@ describe('Column chooser module', () => {
                     toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('coverage', (done: Function) => {
             setTimeout(() => {
@@ -200,21 +177,18 @@ describe('Column chooser module', () => {
 
         });
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
 
     });
 
     describe('column chooser manual search', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', showInColumnChooser: false }, { field: 'CustomerID' },
@@ -225,9 +199,7 @@ describe('Column chooser module', () => {
                     toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('column chooser manual search', (done: Function) => {
             setTimeout(() => {
@@ -254,21 +226,18 @@ describe('Column chooser module', () => {
 
         });
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
 
     });
 
     describe('column chooser checkstate', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID', visible: false },
@@ -279,9 +248,7 @@ describe('Column chooser module', () => {
                     toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('change checkstate', (done: Function) => {
             setTimeout(() => {
@@ -317,22 +284,18 @@ describe('Column chooser module', () => {
 
         afterAll(() => {
             (<any>gridObj).columnChooserModule.destroy();
-            (<any>gridObj).destroy();
-            elem.remove();
+            destroy(gridObj);
         });
 
     });
 
     describe('column chooser checkstate with Freeze pane', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     frozenColumns: 2,
                     frozenRows: 2,
@@ -345,9 +308,7 @@ describe('Column chooser module', () => {
                     toolbar: ['ColumnChooser'],
                     pageSettings: { pageSize: 5 },
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('change checkstate with Freeze pane', (done: Function) => {
             setTimeout(() => {
@@ -366,20 +327,16 @@ describe('Column chooser module', () => {
 
         });
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
     });
 
     describe('Column chooser rtl testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let beforeOpenColumnChooser: () => void;
         let actionComplete: Function;
-
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', showInColumnChooser: false }, { field: 'CustomerID' },
@@ -391,9 +348,7 @@ describe('Column chooser module', () => {
                     pageSettings: { pageSize: 5 },
                     enableRtl: true,
                     beforeOpenColumnChooser: beforeOpenColumnChooser,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('rtl', (done: Function) => {
             let x: number = 100;
@@ -402,7 +357,7 @@ describe('Column chooser module', () => {
             let e: Object;
             gridObj.element.classList.add('e-bigger');
             setTimeout(() => {
-                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_columnchooser')).click();
+                (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_columnchooser')).click();
                 (<any>gridObj).columnChooserModule.openColumnChooser(x, y);
                 (<any>gridObj).columnChooserModule.openColumnChooser();
                 let sel: HTMLElement = (<any>gridObj).element.querySelector('.e-columnchooser-btn');
@@ -432,7 +387,7 @@ describe('Column chooser module', () => {
         });
 
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
     });
     describe('Colum chooser enable throw set model => ', () => {

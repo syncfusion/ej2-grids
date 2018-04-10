@@ -9,23 +9,19 @@ import { Page } from '../../../src/grid/actions/page';
 import { Sort } from '../../../src/grid/actions/sort';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Page, Sort);
 
 describe('Paging module', () => {
     describe('Paging functionalities', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: (e: PageEventArgs) => void;
         let actionComplete: (e: PageEventArgs) => void;
         let preventDefault: Function = new Function();
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => {
-                setTimeout(() => { done(); }, 100);
-            };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
@@ -37,9 +33,7 @@ describe('Paging module', () => {
                     },
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('page size testing', () => {
             expect(gridObj.element.querySelectorAll('.e-row').length).toBe(2);
@@ -150,29 +144,24 @@ describe('Paging module', () => {
         //set model and default properties model check
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Disabled paging', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            document.body.appendChild(elem);
-            let dataBound: EmitType<Object> = () => { done(); };
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     allowPaging: false,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     pageSettings: {
                         pageSize: 2, currentPage: 2, pageCount: 4,
                         totalRecordsCount: 10, enableQueryString: true
                     },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('class testing', () => {
             expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(0);
@@ -217,26 +206,21 @@ describe('Paging module', () => {
         //set model and default properties model check
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
     describe('paging without pageSettings', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     allowPaging: true,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     allowSorting: true,
                     height: 300,
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('class testing', () => {
             expect(gridObj.element.querySelectorAll('.e-pager').length).toBe(1);
@@ -252,32 +236,27 @@ describe('Paging module', () => {
         //set model and default properties model check
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('dropDownEvent test', () => {
         let gridObj: Grid;
         let dropDownChanged: () => void;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     allowPaging: true,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     allowSorting: true,
                     height: 300,
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
-                      pageSettings: {
+                    pageSettings: {
                         currentPage: 2, pageCount: 4,
                         totalRecordsCount: 10, enableQueryString: true, pageSizes: [10, 20, 30, 40]
                     },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('dropDownChanged event testing', () => {
             expect(gridObj.pageSettings.pageSize).toEqual(10);
@@ -290,46 +269,40 @@ describe('Paging module', () => {
                 done();
             };
             gridObj.dataBound = dropDownChanged;
-            (<any> gridObj.pagerModule).pagerObj.element.querySelector('.e-dropdownlist').ej2_instances[0].value = 30;
+            (<any>gridObj.pagerModule).pagerObj.element.querySelector('.e-dropdownlist').ej2_instances[0].value = 30;
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('pagerTemplate test', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     allowPaging: true,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     allowSorting: true,
-                    pagerTemplate:'<span class ="e-pagenomsg">${currentPage} of ${totalPages} pages</span>',
+                    pagerTemplate: '<span class ="e-pagenomsg">${currentPage} of ${totalPages} pages</span>',
                     height: 300,
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
         it('check pagesettings template property', () => {
             expect(gridObj.pageSettings.template.length).toBeGreaterThan(0);
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            remove(document.getElementsByClassName('e-pagertemplate')[0]);
+            destroy(gridObj);
         });
     });
 
     describe('Paging & Scrolling - PageDown case', () => {
         let grid: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: Function;
         let actionComplete: Function;
         let preventDefault: Function = new Function();
@@ -343,11 +316,7 @@ describe('Paging module', () => {
 
         describe('pageDown case', () => {
             beforeAll((done: Function) => {
-                let dataBound: EmitType<Object> = () => {
-                    done();
-                };
-                document.body.appendChild(elem);
-                grid = new Grid(
+                grid = createGrid(
                     {
                         dataSource: data,
                         columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
@@ -357,34 +326,29 @@ describe('Paging module', () => {
                             pageSize: 12
                         },
                         height: 300,
-                        dataBound: () => { setTimeout(() => done(), 100); }
-                    });
-                grid.appendTo('#Grid');
+                    }, done);
                 content = (<HTMLElement>grid.getContent().firstChild);
             });
 
             it('pageDown check - no page trigger', () => {
                 content.focus();
                 raiseEvt(34, grid);
-               // expect(grid.pageSettings.currentPage).toBe(1);
+                // expect(grid.pageSettings.currentPage).toBe(1);
             });
 
             it('pageDown check - page trigger', () => {
                 content.scrollTop = (content.scrollHeight - content.clientHeight) + 1;
                 raiseEvt(34);
-              //  expect(grid.pageSettings.currentPage).toBe(2);
+                //  expect(grid.pageSettings.currentPage).toBe(2);
             });
 
             afterAll(() => {
-                grid.destroy();
-                remove(elem);
+                destroy(grid);
             });
         });
         describe('pageUp case', () => {
             beforeAll((done: Function) => {
-                elem = createElement('div', { id: 'Grid' });
-                document.body.appendChild(elem);
-                grid = new Grid(
+                grid = createGrid(
                     {
                         dataSource: data,
                         columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
@@ -394,9 +358,7 @@ describe('Paging module', () => {
                             pageSize: 12
                         },
                         height: 300,
-                        dataBound: () => { setTimeout(() => done(), 100); }
-                    });
-                grid.appendTo(elem);
+                    }, done);
                 content = (<HTMLElement>grid.getContent().firstChild);
             });
 
@@ -405,18 +367,51 @@ describe('Paging module', () => {
                 grid.goToPage(2);
                 content.scrollTop = 10;
                 raiseEvt(33, grid);
-              //  expect(grid.pageSettings.currentPage).toBe(2);
+                //  expect(grid.pageSettings.currentPage).toBe(2);
             });
 
             it('pageUp check - page trigger', () => {
                 content.scrollTop = 0;
                 raiseEvt(33, grid);
-              //  expect(grid.pageSettings.currentPage).toBe(1);
+                //  expect(grid.pageSettings.currentPage).toBe(1);
             });
 
             afterAll((done) => {
-                grid.destroy();
-                remove(elem);
+                destroy(grid);
+            });
+        });
+
+        describe('EJ2-9569 Pagesize dropdown value is not refreshed while dynamically change the pagesize test', () => {
+            let gridObj: Grid;
+            let actionComplete: () => void;
+            beforeAll((done: Function) => {
+                gridObj = createGrid(
+                    {
+                        allowPaging: true,
+                        dataSource: data,
+                        allowSorting: true,
+                        height: 300,
+                        actionComplete: actionComplete,
+                        columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                        { field: 'ShipCity' }],
+                        pageSettings: {
+                            currentPage: 2, pageCount: 4,
+                            totalRecordsCount: 10, enableQueryString: true, pageSizes: [10, 20, 30, 40]
+                        },
+                    }, done);
+            });
+            it('EJ2-9569 Pagesize dropdown value is not refreshed while dynamically change the pagesize test', (done: Function) => {
+
+                actionComplete = (args?: Object): void => {
+                    expect((<any>gridObj.pagerModule).pagerObj.pagerdropdownModule.dropDownListObject.value).toEqual(20);
+                    done();
+                };
+                gridObj.actionComplete = actionComplete;
+                gridObj.pageSettings.pageSize = 20;
+            });
+
+            afterAll(() => {
+                destroy(gridObj);
             });
         });
     });

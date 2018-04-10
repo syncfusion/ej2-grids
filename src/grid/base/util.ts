@@ -134,7 +134,8 @@ export function prepareColumns(columns: Column[] | string[] | ColumnModel[], aut
 
         column.foreignKeyField = column.foreignKeyField || column.field;
 
-        column.valueAccessor = column.valueAccessor || valueAccessor;
+        column.valueAccessor = (typeof column.valueAccessor === 'string' ? getValue(<string>column.valueAccessor, window)
+            : column.valueAccessor) || valueAccessor;
 
         column.width = autoWidth && isNullOrUndefined(column.width) ? 200 : column.width;
 
@@ -288,7 +289,11 @@ export function parents(elem: Element, selector: string, isID?: boolean): Elemen
 /** @hidden */
 export function calculateAggregate(type: AggregateType | string, data: Object, column?: AggregateColumnModel, context?: Object): Object {
     if (type === 'Custom') {
-        return column.customAggregate ? column.customAggregate.call(context, data, column) : '';
+        let temp: Function = column.customAggregate as Function;
+        if (typeof temp === 'string') {
+            temp = getValue(temp, window);
+        }
+        return temp ? temp.call(context, data, column) : '';
     }
     return DataUtil.aggregates[type.toLowerCase()](data, column.field);
 }
@@ -505,7 +510,8 @@ export function refreshForeignData(row: IRow<Column>, columns: Column[], data: O
  */
 export function getForeignData(column: Column, data?: Object, lValue?: string | number, foreignKeyData?: Object[]): Object[] {
     let fField: string = column.foreignKeyField;
-    let key: string | Date = <string | Date>(lValue || valueAccessor(column.field, data, column)) || '';
+    let key: string | Date = <string | Date>(lValue || valueAccessor(column.field, data, column));
+    key = isNullOrUndefined(key) ? '' : key;
     let query: Query = new Query();
     let fdata: Object[] = foreignKeyData || (column.dataSource instanceof DataManager) && column.dataSource.dataSource.offline ?
         (<DataManager>column.dataSource).dataSource.json : column.columnData;

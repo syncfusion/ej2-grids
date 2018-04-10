@@ -28,7 +28,6 @@ Grid.Inject(Selection, Page, Sort, Group, Edit, Toolbar);
 describe('Grid checkbox selection functionality', () => {
     describe('grid checkbox selection functionality with persist selection', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let preventDefault: Function = new Function();
@@ -36,11 +35,9 @@ describe('Grid checkbox selection functionality', () => {
         let args: any;
         let chkAll: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { type: 'checkbox', width: 50 },
                         { headerText: 'OrderID', isPrimaryKey: true, field: 'OrderID' },
@@ -54,8 +51,7 @@ describe('Grid checkbox selection functionality', () => {
                     allowPaging: true,
                     allowSorting: true,
                     selectionSettings: { persistSelection: true }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('dataBound', (done: Function) => {
@@ -174,22 +170,20 @@ describe('Grid checkbox selection functionality', () => {
             expect(chkAll.classList.contains('e-uncheck')).toBeTruthy();
         });
 
-        it('checkbox selection with reordering', () => {            
-            gridObj.selectRows([1,2]);
+        it('checkbox selection with reordering', () => {
+            gridObj.selectRows([1, 2]);
             expect(gridObj.getSelectedRecords().length).toBe(2);
             (gridObj.selectionModule as any).columnPositionChanged();
-            expect(gridObj.getSelectedRecords().length).toBe(2);           
+            expect(gridObj.getSelectedRecords().length).toBe(2);
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('grid without checkbox selection functionality with persist selection', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let preventDefault: Function = new Function();
@@ -197,11 +191,9 @@ describe('Grid checkbox selection functionality', () => {
         let args: any;
         let chkAll: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', isPrimaryKey: true, field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -214,8 +206,7 @@ describe('Grid checkbox selection functionality', () => {
                     allowPaging: true,
                     allowSorting: true,
                     selectionSettings: { persistSelection: true, type: 'Multiple' }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('dataBound', (done: Function) => {
@@ -261,15 +252,13 @@ describe('Grid checkbox selection functionality', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
 
     describe('grid checkbox selection functionality without persist selection', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let preventDefault: Function = new Function();
@@ -277,11 +266,9 @@ describe('Grid checkbox selection functionality', () => {
         let args: any;
         let chkAll: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { type: 'checkbox', width: 50 },
                         { headerText: 'OrderID', isPrimaryKey: true, field: 'OrderID' },
@@ -295,8 +282,7 @@ describe('Grid checkbox selection functionality', () => {
                     allowPaging: true,
                     allowSorting: true,
                     selectionSettings: { persistSelection: false }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('dataBound', (done: Function) => {
@@ -409,24 +395,20 @@ describe('Grid checkbox selection functionality', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
 
     describe('grid checkbox selection functionaly with datasource field', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let chkAll: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: employeeSelectData, dataBound: dataBound,
+                    dataSource: employeeSelectData,
                     columns: [
                         { type: 'checkbox', field: 'IsAutoSelect' },
                         { field: 'EmployeeID', isPrimaryKey: true, headerText: 'Employee ID', textAlign: 'Right', width: 135, },
@@ -438,8 +420,7 @@ describe('Grid checkbox selection functionality', () => {
                     pageSettings: { pageSize: 5 },
                     allowPaging: true,
                     selectionSettings: { persistSelection: true }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('dataBound', (done: Function) => {
@@ -501,23 +482,19 @@ describe('Grid checkbox selection functionality', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('grid checkbox selection functionaly with datasource field and persist false', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let chkAll: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: employeeSelectData, dataBound: dataBound,
+                    dataSource: employeeSelectData,
                     columns: [
                         { type: 'checkbox', field: 'IsAutoSelect' },
                         { field: 'EmployeeID', isPrimaryKey: true, headerText: 'Employee ID', textAlign: 'Right', width: 135, },
@@ -529,8 +506,7 @@ describe('Grid checkbox selection functionality', () => {
                     pageSettings: { pageSize: 5 },
                     allowPaging: true,
                     selectionSettings: { persistSelection: false }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('dataBound', (done: Function) => {
@@ -550,8 +526,7 @@ describe('Grid checkbox selection functionality', () => {
         });
 
         afterAll(() => {
-            gridObj.destroy();
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
@@ -576,50 +551,50 @@ describe('Grid checkbox selection functionality', () => {
                 }, done);
         });
 
-        it('checkBoxSelection method testing with row selection', () => {                       
-            let obj : {status: boolean, rowIndexes?:  number[], colIndexes?: number[]}=(gridObj.clipboardModule as any).checkBoxSelection();
-expect(obj.status).toBeFalsy();
+        it('checkBoxSelection method testing with row selection', () => {
+            let obj: { status: boolean, rowIndexes?: number[], colIndexes?: number[] } = (gridObj.clipboardModule as any).checkBoxSelection();
+            expect(obj.status).toBeFalsy();
         });
 
-        it('checkBoxSelection method testing for false', () => {              
+        it('checkBoxSelection method testing for false', () => {
             gridObj.selectionSettings.mode = 'Cell';
             gridObj.dataBind();
-            gridObj.selectionModule.addCellsToSelection([{rowIndex:1,cellIndex:1}, {rowIndex:0,cellIndex:0}])
-            let obj : {status: boolean, rowIndexes?:  number[]}=(gridObj.clipboardModule as any).checkBoxSelection();
-expect(obj.status).toBeFalsy();
-expect(obj.rowIndexes).toBeUndefined();
-        });
-    
-        it('checkBoxSelection method testing for true', () => {                          
-            gridObj.selectionModule.addCellsToSelection([{rowIndex:0,cellIndex:1}, {rowIndex:1,cellIndex:0}])
-            let obj : {status: boolean, rowIndexes?:  number[],  colIndexes?: number[]}=(gridObj.clipboardModule as any).checkBoxSelection();
-expect(obj.status).toBeTruthy();
-expect(JSON.stringify(obj.rowIndexes)).toBe(JSON.stringify([0,1]));
-expect(JSON.stringify(obj.colIndexes)).toBe(JSON.stringify([0,1]));
+            gridObj.selectionModule.addCellsToSelection([{ rowIndex: 1, cellIndex: 1 }, { rowIndex: 0, cellIndex: 0 }])
+            let obj: { status: boolean, rowIndexes?: number[] } = (gridObj.clipboardModule as any).checkBoxSelection();
+            expect(obj.status).toBeFalsy();
+            expect(obj.rowIndexes).toBeUndefined();
         });
 
-        it('checkBoxSelection method testing for deselection', () => {                          
-            gridObj.selectionModule.addCellsToSelection([{rowIndex:0,cellIndex:0}, {rowIndex:0,cellIndex:1}])
-            gridObj.selectionModule.addCellsToSelection([{rowIndex:2,cellIndex:0}, {rowIndex:2,cellIndex:1}])
-            let obj : {status: boolean, rowIndexes?:  number[]}=(gridObj.clipboardModule as any).checkBoxSelection();
-expect(obj.status).toBeTruthy();
-expect(JSON.stringify(obj.rowIndexes)).toBe(JSON.stringify([1,2]));
+        it('checkBoxSelection method testing for true', () => {
+            gridObj.selectionModule.addCellsToSelection([{ rowIndex: 0, cellIndex: 1 }, { rowIndex: 1, cellIndex: 0 }])
+            let obj: { status: boolean, rowIndexes?: number[], colIndexes?: number[] } = (gridObj.clipboardModule as any).checkBoxSelection();
+            expect(obj.status).toBeTruthy();
+            expect(JSON.stringify(obj.rowIndexes)).toBe(JSON.stringify([0, 1]));
+            expect(JSON.stringify(obj.colIndexes)).toBe(JSON.stringify([0, 1]));
         });
 
-            it('Check clipboard data', () => {       
-        gridObj.copy(false);
-        expect((document.querySelector('.e-clipboard') as HTMLInputElement).value
-            === "2	Andrew\n3	Janet").toBeTruthy();
-    });
+        it('checkBoxSelection method testing for deselection', () => {
+        gridObj.selectionModule.addCellsToSelection([{ rowIndex: 0, cellIndex: 0 }, { rowIndex: 0, cellIndex: 1 }])
+        gridObj.selectionModule.addCellsToSelection([{ rowIndex: 2, cellIndex: 0 }, { rowIndex: 2, cellIndex: 1 }])
+        let obj: { status: boolean, rowIndexes?: number[] } = (gridObj.clipboardModule as any).checkBoxSelection();
+        expect(obj.status).toBeTruthy();
+        expect(JSON.stringify(obj.rowIndexes)).toBe(JSON.stringify([1,2]));
+        });
 
-    it('Check clipboard data with header', () => {       
-        gridObj.copy(true);
-        expect((document.querySelector('.e-clipboard') as HTMLInputElement).value
-            === "Employee ID	Name\n2	Andrew\n3	Janet").toBeTruthy();
-    });
-    
+        it('Check clipboard data', () => {
+            gridObj.copy(false);
+            expect((document.querySelector('.e-clipboard') as HTMLInputElement).value
+                === "2	Andrew\n3	Janet").toBeTruthy();
+        });
+
+        it('Check clipboard data with header', () => {
+            gridObj.copy(true);
+            expect((document.querySelector('.e-clipboard') as HTMLInputElement).value
+                === "Employee ID	Name\n2	Andrew\n3	Janet").toBeTruthy();
+        });
+
         afterAll(() => {
-           destroy(gridObj);
+            destroy(gridObj);
         });
 
     });

@@ -15,17 +15,8 @@ describe('header renderer module', () => {
 
     describe('grid header element testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement;
-        if (document.body.querySelectorAll('#Grid').length) {
-            elem = (document.body.querySelectorAll('#Grid')[0] as HTMLElement);
-            remove(elem);
-        } else {
-            elem = createElement('div', { id: 'Grid' });
-        }
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     query: new Query().take(5), allowPaging: false,
@@ -38,10 +29,8 @@ describe('header renderer module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Header div testing', () => {
@@ -64,20 +53,17 @@ describe('header renderer module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
     describe('Header template element render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
             let template: Element = createElement('div', { id: 'template' });
             template.innerHTML = '<span>$ShipCity$</span>';
             document.body.appendChild(template);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     allowGrouping: true,
@@ -87,10 +73,8 @@ describe('header renderer module', () => {
                         { field: 'EmployeeID' },
                         { field: 'CustomerID', headerText: 'Customer ID' },
 
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('header testing', () => {
@@ -103,7 +87,7 @@ describe('header renderer module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 describe('EJ2-6660-Header template', () => {

@@ -78,16 +78,18 @@ export class ForeignKey extends Data {
         let predicates: Predicate[] = [];
         let predicate: Predicate;
         let query: Query = new Query();
+        let field: string = fromData ? column.foreignKeyField : column.field;
         if (gObj.allowPaging || gObj.enableVirtualization || fromData) {
             e = <{ records?: Object[] }>new DataManager(((gObj.allowGrouping && gObj.groupSettings.columns.length) ?
-                e.records : e) as JSON[]).executeLocal(new Query().select(column.field));
-            let filteredValue: Object[] = DataUtil.distinct(<Object[]>e, column.field, false);
+                e.records : e) as JSON[]).executeLocal(new Query().select(field));
+            let filteredValue: Object[] = DataUtil.distinct(<Object[]>e, field, false);
+            field = fromData ? column.field : column.foreignKeyField;
             filteredValue.forEach((obj: Object) => {
-                if ((<Date>obj).getDay) {
+                if (obj && (<Date>obj).getDay) {
                     predicates.push(getDatePredicate
-                        ({ field: column.field, operator: 'equal', value: <string>obj, matchCase: false }));
+                        ({ field: field, operator: 'equal', value: <string>obj, matchCase: false }));
                 } else {
-                    predicates.push(new Predicate(column.field, 'equal', <string>obj, false));
+                    predicates.push(new Predicate(field, 'equal', <string>obj, false));
                 }
             });
         }

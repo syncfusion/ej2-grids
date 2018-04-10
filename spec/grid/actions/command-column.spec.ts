@@ -13,6 +13,7 @@ import { Edit } from '../../../src/grid/actions/edit';
 import { Reorder } from '../../../src/grid/actions/reorder';
 import { Filter } from '../../../src/grid/actions/filter';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Group, Sort, Filter, Reorder, CommandColumn, Edit);
 
@@ -22,9 +23,8 @@ describe('Command Column ', () => {
         let rows: HTMLTableRowElement;
         let grid: Grid;
         let element: Element = createElement('div', { id: 'Grid' });
-        beforeAll((done: EmitType<Object>) => {
-            document.body.appendChild(element);
-            grid = new Grid(
+        beforeAll((done: Function) => {
+            grid = createGrid(
                 {
                     columns: [
                         {
@@ -37,10 +37,8 @@ describe('Command Column ', () => {
                     ],
                     dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
                     { data: { a: 2 }, b: 6, c: false, d: new Date() }],
-                    allowPaging: false, dataBound: done
-                }
-            );
-            grid.appendTo('#Grid');
+                    allowPaging: false
+                }, done);
         });
 
         it('Command Column initial render checking', () => {
@@ -85,7 +83,7 @@ describe('Command Column ', () => {
         });
 
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
 
     });
@@ -96,10 +94,8 @@ describe('Command Column ', () => {
         let element: Element = createElement('div', { id: 'Grid' });
         let actionBegin: (e?: Object) => void;
         let actionComplete: (e?: Object) => void;
-        beforeAll((done: EmitType<Object>) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(element);
-            grid = new Grid(
+        beforeAll((done: Function) => {
+            grid = createGrid(
                 {
                     dataSource: data,
                     allowGrouping: true,
@@ -116,12 +112,8 @@ describe('Command Column ', () => {
                     }],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound
-                }
-            );
-            grid.appendTo('#Grid');
+                }, done);
         });
-
         it('Initial checking', () => {
             row = <HTMLTableRowElement>grid.getRows()[3];
             expect(row.querySelector('.e-unboundcelldiv').children.length).toBe(4);
@@ -142,7 +134,7 @@ describe('Command Column ', () => {
         });
 
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
     });
     describe('Command column with Editing enable', () => {
@@ -151,10 +143,8 @@ describe('Command Column ', () => {
         let element: Element = createElement('div', { id: 'Grid' });
         let actionBegin: (e?: Object) => void;
         let actionComplete: (e?: Object) => void;
-        beforeAll((done: EmitType<Object>) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(element);
-            grid = new Grid(
+        beforeAll((done: Function) => {
+            grid = createGrid(
                 {
                     dataSource: data,
                     editSettings: { allowAdding: true, allowDeleting: true, allowEditing: true },
@@ -169,10 +159,7 @@ describe('Command Column ', () => {
                     }],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound
-                }
-            );
-            grid.appendTo('#Grid');
+                }, done);
         });
 
         it('Editing feature with command edit', (done: Function) => {
@@ -217,7 +204,7 @@ describe('Command Column ', () => {
         });
 
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
     });
     describe('Command column with deleting', () => {
@@ -226,10 +213,8 @@ describe('Command Column ', () => {
         let element: Element = createElement('div', { id: 'Grid' });
         let actionBegin: (e?: Object) => void;
         let actionComplete: (e?: Object) => void;
-        beforeAll((done: EmitType<Object>) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(element);
-            grid = new Grid(
+        beforeAll((done: Function) => {
+            grid = createGrid(
                 {
                     columns: [
                         { field: 'b' },
@@ -246,10 +231,7 @@ describe('Command Column ', () => {
                     editSettings: { allowAdding: true, allowDeleting: true, allowEditing: true },
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound
-                }
-            );
-            grid.appendTo('#Grid');
+                }, done);
         });
 
         it('Editing feature with delete command', (done: Function) => {
@@ -263,7 +245,7 @@ describe('Command Column ', () => {
         });
 
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
     });
     describe('Command column with feature combinations', () => {
@@ -272,10 +254,8 @@ describe('Command Column ', () => {
         let element: Element = createElement('div', { id: 'Grid' });
         let actionBegin: (e?: Object) => void;
         let actionComplete: (e?: Object) => void;
-        beforeAll((done: EmitType<Object>) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(element);
-            grid = new Grid(
+        beforeAll((done: Function) => {
+            grid = createGrid(
                 {
                     dataSource: data,
                     allowReordering: true,
@@ -291,10 +271,7 @@ describe('Command Column ', () => {
                     }],
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound
-                }
-            );
-            grid.appendTo('#Grid');
+                }, done);
         });
 
         it('Reordering the command column', (done: Function) => {
@@ -325,7 +302,7 @@ describe('Command Column ', () => {
         });
 
         afterAll((done) => {
-            remove(element);
+            destroy(grid);
             setTimeout(function () {
                 done();
             }, 1000);
@@ -335,13 +312,10 @@ describe('Command Column ', () => {
     describe('EJ2-7743 ShowConfirmDialog is not showing in Command Column => ', () => {
         let row: HTMLTableRowElement;
         let grid: Grid;
-        let element: Element = createElement('div', { id: 'Grid105' });
         let actionBegin: (e?: Object) => void;
         let actionComplete: (e?: Object) => void;
-        beforeAll((done: EmitType<Object>) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(element);
-            grid = new Grid(
+        beforeAll((done: Function) => {
+            grid = createGrid(
                 {
                     columns: [
                         { field: 'b' },
@@ -358,10 +332,7 @@ describe('Command Column ', () => {
                     editSettings: { showDeleteConfirmDialog: true, allowAdding: true, allowDeleting: true, allowEditing: true },
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound
-                }
-            );
-            grid.appendTo('#Grid105');
+                }, done);
         });
 
         it('Editing feature with delete command', () => {
@@ -381,7 +352,7 @@ describe('Command Column ', () => {
         });
 
         afterAll(() => {
-            remove(element);
+            destroy(grid);
         });
     });
 

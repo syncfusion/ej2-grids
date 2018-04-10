@@ -104,7 +104,7 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
      * @default null
      */
     @Property()
-    public customAggregate: CustomSummaryType;
+    public customAggregate: CustomSummaryType | string;
     /**
      * @hidden
      */

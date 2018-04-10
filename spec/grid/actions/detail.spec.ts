@@ -17,7 +17,7 @@ import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { createGrid, destroy, getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 
 
-Grid.Inject(Sort, Page, Filter, DetailRow, Group, Selection);
+Grid.Inject(Sort, Page, Filter, DetailRow, Group, Selection, Edit);
 
 describe('Detail template module', () => {
 
@@ -51,13 +51,10 @@ describe('Detail template module', () => {
 
     describe('Render with invalid id testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: Function;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: filterData,
                     allowPaging: true,
@@ -73,10 +70,8 @@ describe('Detail template module', () => {
                         { field: 'CustomerID', headerText: 'Customer ID', width: 125 },
                         { field: 'Freight', width: 120, format: 'C', textAlign: 'Right' },
                         { field: 'ShipCity', headerText: 'Ship City', width: 150 }
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Detail row render testing', () => {
@@ -99,22 +94,19 @@ describe('Detail template module', () => {
         });
 
         afterAll(() => {
-            elem.remove();
+            destroy(gridObj);
         });
     });
 
     describe('Render testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let template: HTMLElement = createElement('script', { id: 'detailtemplate' });
         template.appendChild(createElement('div', { id: 'detailgrid' }));
         document.body.appendChild(template);
         let actionComplete: () => void;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: filterData,
                     allowPaging: true,
@@ -134,9 +126,7 @@ describe('Detail template module', () => {
                         { field: 'Freight', width: 120, format: 'C', textAlign: 'Right' },
                         { field: 'ShipCity', headerText: 'Ship City', width: 150 }
                     ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('Detail row render testing', () => {
@@ -312,19 +302,16 @@ describe('Detail template module', () => {
 
         afterAll(() => {
             remove(document.getElementById('detailtemplate'));
-            elem.remove();
+            destroy(gridObj);
         });
     });
 
     describe('Hierarchy Render testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionComplete: () => void;
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: employeeData,
                     allowPaging: true,
@@ -379,9 +366,7 @@ describe('Detail template module', () => {
                             ],
                         },
                     },
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('Hierarchy row render testing', () => {
@@ -569,7 +554,7 @@ describe('Detail template module', () => {
 
         afterAll(() => {
             (gridObj.detailRowModule as any).destroy();
-            elem.remove();
+            destroy(gridObj);
         });
     });
 

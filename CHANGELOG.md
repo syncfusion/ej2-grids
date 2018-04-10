@@ -2,14 +2,26 @@
 
 ## [Unreleased]
 
-## 16.1.32 (2018-04-04)
+## 16.1.34 (2018-04-10)
 
 ### Grid
 
 #### Bug Fixes
 
-- Script error thrown while opening checkbox filter with empty data source.
-- Dynamically enabled aggregation is now added properly.
+- Pager Dropdown values is not updated while dynamically changing the Page size issue is resolved.
+- Provide locale column format support for excel-export.
+- Setting filter Properties through `setProperties` method is resolved.
+- Changing frozen columns from null throws script error is resolved.
+- Excel exporting group caption shows field name instead of header text issue is resolved.
+- String values not accepted for methods from window in custom filter menu template is resolved.
+
+## 16.1.33 (2018-04-04)
+
+### Grid
+
+#### Bug Fixes
+
+- Updating column object for dynamically bounded columns.
 
 ## 16.1.32 (2018-03-29)
 

@@ -7,16 +7,14 @@ import { Query } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 describe('Content renderer module', () => {
 
     describe('grid content element testing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     query: new Query().take(5), allowPaging: false, enableAltRow: false,
@@ -26,10 +24,8 @@ describe('Content renderer module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Content div testing', () => {
@@ -51,7 +47,7 @@ describe('Content renderer module', () => {
             (<any>gridObj.contentModule).colGroupRefresh();
         });
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });

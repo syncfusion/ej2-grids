@@ -10,15 +10,13 @@ import { IRenderer } from '../../../src/grid/base/interface';
 import { RendererFactory } from '../../../src/grid/services/renderer-factory';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 describe('RendererFactory module', () => {
     describe('Register and get service', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [
@@ -27,10 +25,8 @@ describe('RendererFactory module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Check fallback', () => {
@@ -70,7 +66,7 @@ describe('RendererFactory module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 

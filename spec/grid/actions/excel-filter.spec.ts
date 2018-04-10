@@ -37,7 +37,6 @@ let getString: Function = (obj: any) => {
 describe('Excel Filter functionalities', () => {
     let l10n: L10n;
     let gridObj: Grid;
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
     let actionBegin: () => void;
     let actionComplete: () => void;
     let filterElement: HTMLInputElement;
@@ -65,9 +64,7 @@ describe('Excel Filter functionalities', () => {
         ]
     };
     beforeAll((done: Function) => {
-        let dataBound: EmitType<Object> = () => { done(); };
-        document.body.appendChild(elem);
-        gridObj = new Grid(
+        gridObj = createGrid(
             {
                 dataSource: filterData,
                 allowFiltering: true,
@@ -98,9 +95,7 @@ describe('Excel Filter functionalities', () => {
                 ],
                 actionBegin: actionBegin,
                 actionComplete: actionComplete,
-                dataBound: dataBound
-            });
-        gridObj.appendTo('#Grid');
+                }, done);
     });
 
     it('pre-filter-settings', (done: Function) => {

@@ -6,15 +6,13 @@ import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 describe('Template render module', () => {
     describe('column template render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -22,10 +20,8 @@ describe('Template render module', () => {
                         { template: '<div>${EmployeeID}</div><div>${index}</div>', headerText: 'Template column' },
                         { field: 'CustomerID', headerText: 'Customer ID' },
 
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('template render testing', () => {
@@ -42,21 +38,18 @@ describe('Template render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
 
     describe('column template element render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
             let template: Element = createElement('div', { id: 'template' });
             template.innerHTML = '<div>${EmployeeID}</div>';
             document.body.appendChild(template);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -64,10 +57,8 @@ describe('Template render module', () => {
                         { template: '#template', headerText: 'Template column' },
                         { field: 'CustomerID', headerText: 'Customer ID' },
 
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('cell value testing', () => {
@@ -76,7 +67,7 @@ describe('Template render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
@@ -84,11 +75,8 @@ describe('Template render module', () => {
 
     describe('row template render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     rowTemplate: '<tr><td>${OrderID}</td><td>${EmployeeID}</td></tr>',
@@ -96,10 +84,8 @@ describe('Template render module', () => {
                         { field: 'EmployeeID', headerText: 'Employee ID' },
                         { field: 'CustomerID', headerText: 'Customer ID' },
 
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('row render testing', () => {
@@ -111,7 +97,7 @@ describe('Template render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
@@ -119,20 +105,15 @@ describe('Template render module', () => {
     //for coverage
     describe('row template render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     rowTemplate: '<div>${OrderID}</div>',
                     columns: [
                         { field: 'EmployeeID', headerText: 'Employee ID' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('row render testing', () => {
@@ -141,20 +122,17 @@ describe('Template render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
     describe('caption template render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let template: Element = createElement('div', { id: 'captiontemplate' });
         template.innerHTML = '<div>${EmployeeID}</div>';
         document.body.appendChild(template);
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     allowGrouping: true,
@@ -163,10 +141,8 @@ describe('Template render module', () => {
                         { field: 'EmployeeID', headerText: 'Employee ID' },
                         { field: 'CustomerID', headerText: 'Customer ID' },
 
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('check caption template', () => {
@@ -175,17 +151,14 @@ describe('Template render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
     describe('caption template render', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     allowGrouping: true,
@@ -194,10 +167,8 @@ describe('Template render module', () => {
                         { field: 'EmployeeID', headerText: 'Employee ID' },
                         { field: 'CustomerID', headerText: 'Customer ID' },
 
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('check caption template', () => {
@@ -206,7 +177,7 @@ describe('Template render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });

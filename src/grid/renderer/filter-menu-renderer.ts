@@ -146,11 +146,16 @@ export class FilterMenuRenderer {
             let temp: Function = column.filter.ui.create as Function;
             if (typeof temp === 'string') {
                 temp = getValue(temp, window);
+                temp({
+                    column: column, target: valueDiv,
+                    getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj
+                });
+            } else {
+                (column.filter.ui.create as Function)({
+                    column: column, target: valueDiv,
+                    getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj
+                });
             }
-            (column.filter.ui.create as Function)({
-                column: column, target: valueDiv,
-                getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj
-            });
         } else {
             instanceofFilterUI.create({
                 column: column, target: valueDiv,
@@ -176,8 +181,10 @@ export class FilterMenuRenderer {
             let temp: Function = col.filter.ui.write as Function;
             if (typeof temp === 'string') {
                 temp = getValue(temp, window);
+                temp({ column: col, target: target, parent: this.parent, filteredValue: flValue });
+            } else {
+                (col.filter.ui.write as Function)({ column: col, target: target, parent: this.parent, filteredValue: flValue });
             }
-            (col.filter.ui.write as Function)({ column: col, target: target, parent: this.parent, filteredValue: flValue });
         } else {
             instanceofFilterUI.write({ column: col, target: target, parent: this.parent, filteredValue: flValue });
         }
@@ -195,8 +202,10 @@ export class FilterMenuRenderer {
             let temp: Function = col.filter.ui.read as Function;
             if (typeof temp === 'string') {
                 temp = getValue(temp, window);
+                flValue = temp({ element: targ, column: col, operator: flOptrValue, fltrObj: this.filterObj });
+            } else {
+                flValue = (col.filter.ui.read as Function)({ element: targ, column: col, operator: flOptrValue, fltrObj: this.filterObj });
             }
-            flValue = (col.filter.ui.read as Function)({ element: targ, column: col, operator: flOptrValue, fltrObj: this.filterObj });
         } else {
             instanceofFilterUI.read(targ, col, flOptrValue, this.filterObj);
 

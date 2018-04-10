@@ -15,6 +15,7 @@ import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { Selection } from '../../../src/grid/actions/selection';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Filter, Page, Selection, Group, Edit, Sort, Resize, Reorder, Toolbar);
 
@@ -27,9 +28,7 @@ describe('ClipMode module', () => {
         let td: any;
         let all: any;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowPaging: false,
@@ -43,9 +42,7 @@ describe('ClipMode module', () => {
                         { headerText: 'ShipCity', field: 'ShipCity' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                     ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('Class testing', () => {
@@ -68,61 +65,15 @@ describe('ClipMode module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
-        });
-    });
-
-    describe('clipmode with Editing', () => {
-        let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
-        let actionBegin: () => void;
-        let actionComplete: () => void;
-        beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
-                {
-                    dataSource: data,
-                    allowPaging: false,
-                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true },
-                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
-                    columns: [
-                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true },
-                        { field: 'CustomerID', type: 'string' },
-                        { field: 'EmployeeID', type: 'number' },
-                        { field: 'ShipAddress'},
-                        { field: 'ShipCity' },
-                        { field: 'ShipName',headerText:'Ship Name of the Order griven Ship Name of the Order griven', clipMode:'EllipsisWithTooltip' },
-                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
-                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
-                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' }
-                    ],
-                    actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
-        });
-
-        it('Class testing for Editing', () => {
-            expect(gridObj.element.querySelector('.e-ellipsistooltip').classList.contains('e-tooltip')).toBeTruthy();
-            gridObj.selectRow(1);
-            gridObj.startEdit();
-            expect(gridObj.element.querySelector('.e-ellipsistooltip').classList.contains('e-tooltip')).toBeTruthy();
-        });
-        afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('clipmode with Resizing', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let row: any;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data, allowPaging: false,
                     columns: [
@@ -134,9 +85,7 @@ describe('ClipMode module', () => {
                         { headerText: 'ShipCity', field: 'ShipCity' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                     ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('Class testing', () => {
@@ -151,7 +100,7 @@ describe('ClipMode module', () => {
             });
         });
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 });

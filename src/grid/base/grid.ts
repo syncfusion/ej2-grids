@@ -622,6 +622,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private defaultLocale: Object;
     private keyConfigs: { [key: string]: string };
     private keyPress: boolean;
+    private toolTipObj: Tooltip;
 
     //Module Declarations
     /**
@@ -2089,7 +2090,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     break;
                 case 'pageSettings':
                     this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
-                    if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)) {
+                    if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)
+                         || newProp.pageSettings.currentPage !== oldProp.pageSettings.currentPage) {
                         requireRefresh = true;
                     }
                     break;
@@ -2278,7 +2280,20 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         }
     }
 
-    private updateDefaultCursor(): void {
+    /**
+     * @private
+     */
+    public setProperties(prop: Object, muteOnChange?: boolean): void {
+        super.setProperties(prop, muteOnChange);
+        if (this.filterModule && muteOnChange) {
+            this.filterModule.refreshFilter();
+        }
+    }
+
+    /**
+     * @hidden   
+     */
+    public updateDefaultCursor(): void {
         let headerRows: Element[] = [].slice.call(this.element.querySelectorAll('.e-columnheader'));
         for (let row of headerRows) {
             if (this.allowSorting || this.allowGrouping || this.allowReordering) {
@@ -2891,7 +2906,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public refresh(): void {
         this.headerModule.refreshUI();
         this.updateStackedFilter();
-        this.updateDefaultCursor();
         this.renderModule.refresh();
     }
 
@@ -3354,6 +3368,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.widthService.setWidthToColumns();
         this.updateGridLines();
         this.applyTextWrap();
+        this.createTooltip(); //for clip mode ellipsis
     }
 
     private dataReady(): void {
@@ -3453,7 +3468,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {void}
      * @hidden
      */
-    public refreshTooltip(): void {
+    public createTooltip(): void {
+        this.toolTipObj = new Tooltip({ opensOn: 'custom', content: '' }, this.element);
+    }
+
+    private getTooltipStatus(element: HTMLElement): boolean {
         let width: number;
         let headerTable: Element = this.getHeaderTable();
         let contentTable: Element = this.getContentTable();
@@ -3461,26 +3480,55 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         let contentDivTag: string = 'e-gridcontent';
         let htable: HTMLDivElement = this.createTable(headerTable, headerDivTag, 'header');
         let ctable: HTMLDivElement = this.createTable(headerTable, headerDivTag, 'content');
-        let all: NodeListOf<Element> = this.element.querySelectorAll('.e-ellipsistooltip');
-        let allele: HTMLElement[] = [];
-        for (let i: number = 0; i < all.length; i++) {
-            allele[i] = all[i] as HTMLElement;
+        let td: HTMLElement = element;
+        let table: HTMLDivElement = headerTable.contains(element) ? htable : ctable;
+        let ele: string = headerTable.contains(element) ? 'th' : 'tr';
+        table.querySelector(ele).className = element.className;
+        table.querySelector(ele).innerHTML = element.innerHTML;
+        width = table.querySelector(ele).getBoundingClientRect().width;
+        if (width > element.getBoundingClientRect().width) {
+            return true;
         }
-        allele.forEach((element: HTMLElement) => {
-            let td: HTMLElement = element;
-            let table: HTMLDivElement = headerTable.contains(element) ? htable : ctable;
-            let ele: string = headerTable.contains(element) ? 'th' : 'tr';
-            table.querySelector(ele).className = element.className;
-            table.querySelector(ele).innerHTML = element.innerHTML;
-            width = table.querySelector(ele).getBoundingClientRect().width;
-            if (width > element.getBoundingClientRect().width && !element.classList.contains('e-tooltip')) {
-                let tooltip: Tooltip = new Tooltip({ content: element.innerHTML }, element);
-            } else if (width < element.getBoundingClientRect().width && element.classList.contains('e-tooltip')) {
-                (<EJ2Intance>element).ej2_instances[0].destroy();
+        return false;
+    }
+
+    private mouseMoveHandler(e: MouseEvent): void {
+        if (this.isEllipsisTooltip()) {
+            let element: HTMLElement = parentsUntil((e.target as Element), 'e-ellipsistooltip') as HTMLElement;
+            if (element) {
+                if (element.getAttribute('aria-describedby')) {
+                    return;
+                }
+                if (this.getTooltipStatus(element)) {
+                    if (element.getElementsByClassName('e-headertext').length) {
+                        this.toolTipObj.content = element.getElementsByClassName('e-headertext')[0].innerHTML;
+                    } else {
+                        this.toolTipObj.content = element.innerHTML;
+                    }
+                    this.toolTipObj.open(element);
+                } else {
+                    this.toolTipObj.close();
+                }
+            } else {
+                this.toolTipObj.close();
             }
-        });
-        document.body.removeChild(htable);
-        document.body.removeChild(ctable);
+        }
+    }
+
+    private isEllipsisTooltip(): boolean {
+        let cols: Column[] = this.getColumns();
+        for (let i: number = 0; i < cols.length; i++) {
+            if (cols[i].clipMode === 'EllipsisWithTooltip') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private scrollHandler(): void {
+        if (this.isEllipsisTooltip()) {
+            this.toolTipObj.close();
+        }
     }
     /**
      * To create table for ellipsiswithtooltip 
@@ -3525,6 +3573,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 keyConfigs: this.keyConfigs,
                 eventName: 'keydown'
             });
+        EventHandler.add(this.getContent().firstElementChild, 'scroll', this.scrollHandler, this);
+        EventHandler.add(this.element, 'mousemove', this.mouseMoveHandler, this);
     }
 
     /**
@@ -3535,6 +3585,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         EventHandler.remove(this.element, 'click', this.mouseClickHandler);
         EventHandler.remove(this.element, 'touchend', this.mouseClickHandler);
         EventHandler.remove(this.element, 'focusout', this.focusOutHandler);
+        EventHandler.remove(this.getContent().firstElementChild, 'scroll', this.scrollHandler);
+        EventHandler.remove(this.element, 'mousemove', this.mouseMoveHandler);
     }
     /**
      * @hidden
@@ -3543,8 +3595,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.isDestroyed) { return; }
         this.on(events.dataReady, this.dataReady, this);
         this.on(events.contentReady, this.recalcIndentWidth, this);
-        [events.updateData, events.modelChanged, events.contentReady, events.columnWidthChanged].forEach((event: string) =>
-            this.on(event, this.refreshTooltip, this));
         this.on(events.headerRefreshed, this.recalcIndentWidth, this);
         this.dataBoundFunction = this.refreshMediaCol.bind(this);
         this.addEventListener(events.dataBound, this.dataBoundFunction);
@@ -3556,8 +3606,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.isDestroyed) { return; }
         this.off(events.dataReady, this.dataReady);
         this.off(events.contentReady, this.recalcIndentWidth);
-        [events.updateData, events.modelChanged, events.contentReady, events.columnWidthChanged].forEach((event: string) =>
-            this.off(event, this.refreshTooltip));
         this.off(events.headerRefreshed, this.recalcIndentWidth);
         this.removeEventListener(events.dataBound, this.dataBoundFunction);
     }
@@ -3619,7 +3667,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (filterClear) {
             filterClear.classList.add('e-hide');
         }
-        if (!e.relatedTarget && !this.keyPress && this.editSettings.mode === 'Batch' && this.isEdit) {
+        if ((!e.relatedTarget || !parentsUntil(e.relatedTarget as Element, 'e-grid'))
+            && !this.keyPress && this.editSettings.mode === 'Batch' && this.isEdit) {
             this.editModule.saveCell();
         }
         this.keyPress = false;

@@ -12,6 +12,7 @@ import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { data } from '../base/datasource.spec';
 import { ToolbarItem } from '../../../src/grid/base/enum';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Page, Group, Selection, Toolbar);
 
@@ -25,16 +26,13 @@ function getEventObject(eventType: string, eventName: string): Object {
 
 describe('Toolbar functionalities', () => {
     let gridObj: Grid;
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
     let actionBegin: (e?: Object) => void;
     let actionComplete: (e?: Object) => void;
     let keyup: any = getEventObject('KeyboardEvent', 'keyup');
     keyup.keyCode = 13;
 
     beforeAll((done: Function) => {
-        let dataBound: EmitType<Object> = () => { done(); };
-        document.body.appendChild(elem);
-        gridObj = new Grid(
+        gridObj = createGrid(
             {
                 dataSource: data,
                 allowGrouping: true,
@@ -44,9 +42,7 @@ describe('Toolbar functionalities', () => {
                 toolbar: ['Print', 'Edit', { text: 'hello', id: 'hello' }, 'expand', ToolbarItem.Add] as any,
                 actionBegin: actionBegin,
                 actionComplete: actionComplete,
-                dataBound: dataBound
-            });
-        gridObj.appendTo('#Grid');
+            }, done);
     });
     it('initial checck', () => {
         expect(gridObj.toolbarModule.getToolbar().firstElementChild.childElementCount).toBe(5);
@@ -137,7 +133,7 @@ describe('Toolbar functionalities', () => {
         gridObj.beforePrint = (args: { element: Element }) => {
             expect((args.element.querySelector('.e-toolbar') as HTMLElement)).toBe(null);
         };
-        (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#Grid_print')).click();
+        (<HTMLElement>gridObj.toolbarModule.getToolbar().querySelector('#' + gridObj.element.id + '_print')).click();
         //forcoverage
         (<any>gridObj.toolbarModule).toolbarClickHandler({ target: (<any>gridObj.toolbarModule).element });
         (gridObj.toolbarModule as any).keyUpHandler({ keyCode: 12 });
@@ -169,20 +165,17 @@ describe('Toolbar functionalities', () => {
     });
 
     afterAll(() => {
-        remove(elem);
+        destroy(gridObj);
     });
 
     describe('Toolbar functionalities', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: (e?: Object) => void;
         let actionComplete: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
             let templete: string = '<div><div style="padding: 12px" title="search" ><input id="txt" type="search" style="padding: 0 5px"placeholder="search"></input><span id="searchbutton" class="e-search e-icons"></span></div></div>';
             document.body.appendChild(createElement('div', { innerHTML: templete, id: 'search' }));
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     allowGrouping: true,
@@ -192,9 +185,7 @@ describe('Toolbar functionalities', () => {
                     toolbarTemplate: '#search',
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('add toolbar template', () => {
@@ -202,7 +193,7 @@ describe('Toolbar functionalities', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });

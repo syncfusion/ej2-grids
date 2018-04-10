@@ -7,6 +7,7 @@ import { Grid } from '../../../src/grid/base/grid';
 import { Column } from '../../../src/grid/models/column';
 import { ICellFormatter } from '../../../src/grid/base/interface';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 class ExtHtmlEscapeService implements ICellFormatter {
 
@@ -21,7 +22,7 @@ class ExtHtmlEscapeService implements ICellFormatter {
     };
 
     public getValue(column: Column, data: Object): string {
-        let value: string = <string>column.valueAccessor(column.field, data, column);
+        let value: string = ((column.valueAccessor as Function)(column.field, data, column)) as string;
 
         if (value === null || value === undefined) {
             return value;
@@ -41,12 +42,9 @@ describe('Html escaper module', () => {
 
     describe('Default and extended', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid({
+            gridObj = createGrid({
                 columns: [
                     {
                         field: 'data.a', headerText: '<i>A</i>', headerTextAlign: 'Center',
@@ -60,9 +58,8 @@ describe('Html escaper module', () => {
                     { field: 'b', headerText: 'Cc', disableHtmlEncode: false, formatter: ExtHtmlEscapeService }
                 ],
                 dataSource: [{ data: { a: '<i>VINET</i>' }, b: '<i>TOMSP</i>', c: true, d: new Date() },
-                { data: { a: 2 }, b: null, c: false, d: new Date() }], allowPaging: false, dataBound: dataBound
-            });
-            gridObj.appendTo('#Grid');
+                { data: { a: 2 }, b: null, c: false, d: new Date() }], allowPaging: false
+            }, done);
         });
 
         it('content testing', () => {
@@ -70,7 +67,7 @@ describe('Html escaper module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });

@@ -54,23 +54,19 @@ function getEventObject(eventType: string, eventName: string, target?: Element, 
 describe('Selection Shortcuts testing', () => {
     let gridObj: Grid;
     let preventDefault: Function = new Function();
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
     let selectionModule: Selection;
     let rows: Element[];
     beforeAll((done: Function) => {
-        let dataBound: EmitType<Object> = () => { done(); };
-        document.body.appendChild(elem);
-        gridObj = new Grid(
+        gridObj = createGrid(
             {
-                dataSource: data, dataBound: dataBound,
+                dataSource: data,
                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                 { field: 'ShipCity' }],
                 allowPaging: true,
                 pageSettings: { pageSize: 8, pageCount: 4, currentPage: 1 },
                 allowSelection: true,
                 selectionSettings: { type: 'Multiple', mode: 'Both' },
-            });
-        gridObj.appendTo('#Grid');
+            }, done);
     });
 
     it('shiftDown intial cell, row shortcut testing', (done: Function) => {
@@ -302,34 +298,30 @@ describe('Selection Shortcuts testing', () => {
     });
 
     afterAll(() => {
-        remove(elem);
+        destroy(gridObj);
     });
 });
 
 describe('Selection Shortcuts testing with Freeze pane', () => {
     let gridObj: any;
     let preventDefault: Function = new Function();
-    let elem: HTMLElement = createElement('div', { id: 'Grid' });
     let selectionModule: Selection;
     let rows: Element[];
     let mRows: Element[];
     let fColLen: number;
     beforeAll((done: Function) => {
-        let dataBound: EmitType<Object> = () => { done(); };
-        document.body.appendChild(elem);
-        gridObj = new Grid(
+        gridObj = createGrid(
             {
                 frozenColumns: 2,
                 frozenRows: 2,
-                dataSource: data, dataBound: dataBound,
+                dataSource: data,
                 columns: [{ field: 'OrderID', width: 100 }, { field: 'CustomerID', width: 100 }, { field: 'EmployeeID', width: 100  }, { field: 'Freight' },
                 { field: 'ShipCity' }],
                 allowPaging: true,
                 pageSettings: { pageSize: 8, pageCount: 4, currentPage: 1 },
                 allowSelection: true,
                 selectionSettings: { type: 'Multiple', mode: 'Both' },
-            });
-        gridObj.appendTo('#Grid');
+            }, done);
     });
 
     it('shiftDown intial cell, row shortcut testing', (done: Function) => {
@@ -565,22 +557,19 @@ describe('Selection Shortcuts testing with Freeze pane', () => {
         gridObj.keyboardModule.keyAction(args);
     });
     afterAll(() => {
-        remove(elem);
+        destroy(gridObj);
     });
 });
 
 describe('Grid Selection module', () => {
     describe('grid single seletion functionalities', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -590,8 +579,7 @@ describe('Grid Selection module', () => {
                     ],
                     allowSelection: true,
                     selectionSettings: { type: 'Single', mode: 'Both' },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('single row - selectRow testing', () => {
@@ -705,23 +693,20 @@ describe('Grid Selection module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('grid single selection functionalities with Freeze pane', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     frozenColumns: 2,
                     frozenRows: 2,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -731,8 +716,7 @@ describe('Grid Selection module', () => {
                     ],
                     allowSelection: true,
                     selectionSettings: { type: 'Single', mode: 'Both' },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('single row - selectRow testing', () => {
@@ -791,7 +775,7 @@ describe('Grid Selection module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 });
@@ -800,7 +784,6 @@ describe('Grid Selection module', () => {
 describe('Grid Selection module', () => {
     describe('grid row multiple seletion functionalities', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let shiftEvt: MouseEvent = document.createEvent('MouseEvent');
@@ -824,11 +807,9 @@ describe('Grid Selection module', () => {
         let rowSelecting: (e?: Object) => void;
         let rowSelected: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -840,8 +821,7 @@ describe('Grid Selection module', () => {
                     selectionSettings: { type: 'Multiple', mode: 'Row' },
                     rowSelecting: rowSelecting,
                     rowSelected: rowSelected,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('multi row - selectRow testing', () => {
@@ -962,13 +942,12 @@ describe('Grid Selection module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('grid row multiple selection functionalities with Freeze pane', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let shiftEvt: MouseEvent = document.createEvent('MouseEvent');
@@ -992,13 +971,11 @@ describe('Grid Selection module', () => {
         let rowSelecting: (e?: Object) => void;
         let rowSelected: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     frozenColumns: 2,
                     frozenRows: 2,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1010,8 +987,7 @@ describe('Grid Selection module', () => {
                     selectionSettings: { type: 'Multiple', mode: 'Row' },
                     rowSelecting: rowSelecting,
                     rowSelected: rowSelected,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('multi row - selectRow testing', () => {
@@ -1132,7 +1108,7 @@ describe('Grid Selection module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 });
@@ -1140,7 +1116,6 @@ describe('Grid Selection module', () => {
 describe('Grid Selection module', () => {
     describe('grid cell multiple seletion functionalities', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let cells: NodeListOf<Element>;
@@ -1165,11 +1140,9 @@ describe('Grid Selection module', () => {
         let cellSelecting: (e?: Object) => void;
         let cellSelected: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1181,8 +1154,7 @@ describe('Grid Selection module', () => {
                     selectionSettings: { type: 'Multiple', mode: 'Cell' },
                     cellSelecting: cellSelecting,
                     cellSelected: cellSelected,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('multi cell - selectCellsByRange testing', () => {
@@ -1338,14 +1310,13 @@ describe('Grid Selection module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
 
     });
 
     describe('grid cell multiple seletion functionalities with Freeze pane', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let mRows: Element[];
@@ -1372,13 +1343,11 @@ describe('Grid Selection module', () => {
         let cellSelecting: (e?: Object) => void;
         let cellSelected: (e?: Object) => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     frozenColumns: 2,
                     frozenRows: 2,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1390,8 +1359,7 @@ describe('Grid Selection module', () => {
                     selectionSettings: { type: 'Multiple', mode: 'Cell' },
                     cellSelecting: cellSelecting,
                     cellSelected: cellSelected,
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('single cell testing', () => {
@@ -1485,7 +1453,7 @@ describe('Grid Selection module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 });
@@ -1495,16 +1463,13 @@ describe('Grid Selection module', () => {
 describe('Grid Selection module', () => {
     describe('clear selection cases', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let cell: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1514,8 +1479,7 @@ describe('Grid Selection module', () => {
                     ],
                     allowSelection: true,
                     selectionSettings: { type: 'Multiple', mode: 'Both' },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('select cell and clear row selection testing', () => {
@@ -1619,25 +1583,22 @@ describe('Grid Selection module', () => {
 
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('clear selection cases with Freeze pane', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let mRows: Element[];
         let cell: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     frozenColumns: 2,
                     frozenRows: 2,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1647,8 +1608,7 @@ describe('Grid Selection module', () => {
                     ],
                     allowSelection: true,
                     selectionSettings: { type: 'Multiple', mode: 'Both' },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('select cell and clear row selection testing', () => {
@@ -1739,22 +1699,19 @@ describe('Grid Selection module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Model changes', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let cell: HTMLElement;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1764,8 +1721,7 @@ describe('Grid Selection module', () => {
                     ],
                     allowSelection: false,
                     selectionSettings: { type: 'Multiple', mode: 'Both' },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('enable selection testing', () => {
@@ -1841,7 +1797,7 @@ describe('Grid Selection module', () => {
 
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 });
@@ -1850,7 +1806,6 @@ describe('Grid Selection module', () => {
 describe('Grid Touch Selection', () => {
     describe('touch selection', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let cell: HTMLElement;
@@ -1860,11 +1815,9 @@ describe('Grid Touch Selection', () => {
             'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.92 Safari/537.36';
         beforeAll((done: Function) => {
             Browser.userAgent = androidPhoneUa;
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1874,8 +1827,7 @@ describe('Grid Touch Selection', () => {
                     ],
                     allowSelection: true,
                     selectionSettings: { type: 'Multiple', mode: 'Both' },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('gridPopUp display testing', () => {
@@ -1911,7 +1863,7 @@ describe('Grid Touch Selection', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
             let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
             Browser.userAgent = desktop;
 
@@ -1920,7 +1872,6 @@ describe('Grid Touch Selection', () => {
 
     describe('touch selection with Freeze pane', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let selectionModule: Selection;
         let rows: Element[];
         let mRows: Element[];
@@ -1931,13 +1882,11 @@ describe('Grid Touch Selection', () => {
             'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.92 Safari/537.36';
         beforeAll((done: Function) => {
             Browser.userAgent = androidPhoneUa;
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     frozenColumns: 2,
                     frozenRows: 2,
-                    dataSource: data, dataBound: dataBound,
+                    dataSource: data,
                     columns: [
                         { headerText: 'OrderID', field: 'OrderID' },
                         { headerText: 'CustomerID', field: 'CustomerID' },
@@ -1947,8 +1896,7 @@ describe('Grid Touch Selection', () => {
                     ],
                     allowSelection: true,
                     selectionSettings: { type: 'Multiple', mode: 'Both' },
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('gridPopUp display testing', () => {
@@ -1985,7 +1933,7 @@ describe('Grid Touch Selection', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
             let desktop: string = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
             Browser.userAgent = desktop;
         });
@@ -1994,7 +1942,6 @@ describe('Grid Touch Selection', () => {
     // select row/cell and navigate with grouped columns
     describe('select Row/cell after grouping', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let actionComplete: () => void;
         let columns: any;
@@ -2028,9 +1975,7 @@ describe('Grid Touch Selection', () => {
             0 /*left*/, null
         );
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', headerText: 'Order ID' },
@@ -2044,10 +1989,8 @@ describe('Grid Touch Selection', () => {
                     allowSorting: true,
                     allowPaging: true,
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('initial check', () => {
@@ -2365,14 +2308,13 @@ describe('Grid Touch Selection', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     // navigate selected cells with hidden columns
     describe('select Row/cell in show/hide', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let actionComplete: () => void;
         let columns: any;
@@ -2406,9 +2348,7 @@ describe('Grid Touch Selection', () => {
         );
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', headerText: 'Order ID', visible: false },
@@ -2420,10 +2360,8 @@ describe('Grid Touch Selection', () => {
                     allowPaging: true,
                     selectionSettings: { mode: 'Cell', type: 'Multiple' },
                     actionBegin: actionBegin,
-                    actionComplete: actionComplete,
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    actionComplete: actionComplete
+                }, done);
         });
 
         it('initial check', () => {
@@ -2535,13 +2473,12 @@ describe('Grid Touch Selection', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
     // navigate selected cells with hidden columns
     describe('cell span selection', () => {
         let gridObj: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid' });
         let actionBegin: () => void;
         let actionComplete: () => void;
         let columns: any;
@@ -2574,9 +2511,7 @@ describe('Grid Touch Selection', () => {
             0 /*left*/, null
         );
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     columns: [{ field: 'OrderID', headerText: 'Order ID' },
@@ -2589,7 +2524,6 @@ describe('Grid Touch Selection', () => {
                     selectionSettings: { mode: 'Cell', type: 'Multiple' },
                     actionBegin: actionBegin,
                     actionComplete: actionComplete,
-                    dataBound: dataBound,
                     queryCellInfo: function (args: QueryCellInfoEventArgs) {
                         if (args.column.field === 'OrderID' && args.data['OrderID'] === 10248) {
                             args.colSpan = 2;
@@ -2598,8 +2532,7 @@ describe('Grid Touch Selection', () => {
                             args.colSpan = 2;
                         }
                     }
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('select after spanned cell', (done: Function) => {
@@ -2691,7 +2624,7 @@ describe('Grid Touch Selection', () => {
         });
 
         afterAll((done) => {
-            remove(elem);
+            destroy(gridObj);
             setTimeout(function () {
                 done();
             }, 1000);

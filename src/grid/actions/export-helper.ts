@@ -93,6 +93,9 @@ export class ExportHelper {
         return (input.indexOf('%') !== -1) ? (this.parent.element.getBoundingClientRect().width * value / 100) : value;
     }
     private generateActualColumns(column: any, actualColumns: Column[]): void {/* tslint:enable:no-any */
+        if (column.commands) {
+            return;
+        }
         if (!column.columns) {
             if (column.visible || this.hideColumnInclude) {
                 actualColumns.push(column);
@@ -122,7 +125,9 @@ export class ExportHelper {
     private processHeaderCells(rows: Row<Column>[]): Row<Column>[] {
         let columns: Column[] = this.parent.enableColumnVirtualization ? this.parent.getColumns() : this.parent.columns as Column[];
         for (let i: number = 0; i < columns.length; i++) {
-            rows = this.appendGridCells(columns[i], rows, 0, i === 0, false, i === (columns.length - 1));
+            if (!columns[i].commands) {
+                rows = this.appendGridCells(columns[i], rows, 0, i === 0, false, i === (columns.length - 1));
+            }
         }
         return rows;
     }

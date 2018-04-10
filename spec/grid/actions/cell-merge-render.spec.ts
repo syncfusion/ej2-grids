@@ -22,12 +22,9 @@ describe('Cell Merge', () => {
 
     describe('methods', () => {
         let gridObject: Grid;
-        let elem: HTMLElement = createElement('div', { id: 'Grid1' });
 
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObject = new Grid({
+            gridObject = createGrid({
                 dataSource: data,
                 allowReordering: false,
                 columns: [
@@ -37,7 +34,6 @@ describe('Cell Merge', () => {
                     { field: 'Freight', headerText: 'Freight',width:200  },
                     { field: 'ShipCity', headerText: 'ShipCity',visible: false, width:180  },
                     { field: 'ShipName', headerText: 'Ship Name',  width:180  }],
-                dataBound: dataBound,
                 queryCellInfo: function(args:any) {
                     if(args.data.EmployeeID == 5 && args.column.field == 'EmployeeID'){
                         args.colSpan = 2;
@@ -49,8 +45,7 @@ describe('Cell Merge', () => {
                         args.colSpan = 2;
                     }
                 }
-            });
-            gridObject.appendTo('#Grid1');
+            }, done);
         });
 
         it('-- render --', () => {
@@ -82,8 +77,7 @@ describe('Cell Merge', () => {
         });
 
         afterAll(() => {
-            if(gridObject) gridObject.destroy();
-            remove(elem);
+            destroy(gridObject);
         });
 
     });

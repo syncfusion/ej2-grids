@@ -6,17 +6,15 @@ import { createElement, remove, EmitType } from '@syncfusion/ej2-base';
 import { data } from '../base/datasource.spec';
 import { Freeze } from '../../../src/grid/actions/freeze';
 import { Aggregate } from '../../../src/grid/actions/aggregate';
+import { createGrid, destroy } from '../base/specutil.spec';
 
 Grid.Inject(Freeze, Aggregate);
 
 describe('Freeze render module', () => {
     describe('Freeze Row and Column', () => {
         let gridObj: any;
-        let elem: Element = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     frozenColumns: 2,
@@ -28,10 +26,8 @@ describe('Freeze render module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Frozen Header testing', () => {
@@ -96,7 +92,6 @@ describe('Freeze render module', () => {
         afterAll(() => {
             gridObj['freezeModule'].destroy();
             destroy(gridObj);
-            remove(elem);
         });
     });
 
@@ -109,12 +104,9 @@ describe('Freeze render module', () => {
 
     describe('Freeze Row', () => {
         let gridObj: Grid;
-        let elem: Element = createElement('div', { id: 'Grid' });
         let dBound: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     frozenRows: 2,
@@ -125,10 +117,8 @@ describe('Freeze render module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Frozen Header testing', () => {
@@ -155,17 +145,13 @@ describe('Freeze render module', () => {
         afterAll(() => {
             gridObj['freezeModule'].destroy();
             destroy(gridObj);
-            remove(elem);
         });
     });
 
     describe('Freeze Column', () => {
         let gridObj: Grid;
-        let elem: Element = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     frozenColumns: 2,
@@ -176,10 +162,8 @@ describe('Freeze render module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('Frozen Content testing', () => {
@@ -194,17 +178,13 @@ describe('Freeze render module', () => {
         afterAll(() => {
             gridObj['freezeModule'].destroy();
             destroy(gridObj);
-            remove(elem);
         });
     });
 
     describe('Without Freeze', () => {
         let gridObj: Grid;
-        let elem: Element = createElement('div', { id: 'Grid' });
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     frozenColumns: 0,
@@ -216,10 +196,8 @@ describe('Freeze render module', () => {
                         { headerText: 'EmployeeID', field: 'EmployeeID' },
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
-                    ],
-                    dataBound: dataBound
-                });
-            gridObj.appendTo('#Grid');
+                    ]
+                }, done);
         });
 
         it('header content rendering', () => {
@@ -227,18 +205,15 @@ describe('Freeze render module', () => {
         });
 
         afterAll(() => {
-            remove(elem);
+            destroy(gridObj);
         });
     });
 
     describe('Freeze Column', () => {
         let gridObj: Grid;
-        let elem: Element = createElement('div', { id: 'Grid' });
         let dBound: () => void;
         beforeAll((done: Function) => {
-            let dataBound: EmitType<Object> = () => { done(); };
-            document.body.appendChild(elem);
-            gridObj = new Grid(
+            gridObj = createGrid(
                 {
                     dataSource: data,
                     height: 400,
@@ -249,7 +224,6 @@ describe('Freeze render module', () => {
                         { headerText: 'ShipCountry', field: 'ShipCountry' },
                         { headerText: 'ShipCity', field: 'ShipCity' },
                     ],
-                    dataBound: dataBound,
                     aggregates: [{
                         columns: [{
                             type: 'Count',
@@ -257,8 +231,7 @@ describe('Freeze render module', () => {
                             footerTemplate: 'Count: ${count}'
                         }]
                     }],
-                });
-            gridObj.appendTo('#Grid');
+                }, done);
         });
 
         it('Frozen Content testing', () => {
@@ -288,7 +261,6 @@ describe('Freeze render module', () => {
         afterAll(() => {
             gridObj['freezeModule'].destroy();
             destroy(gridObj);
-            remove(elem);
         });
     });
 

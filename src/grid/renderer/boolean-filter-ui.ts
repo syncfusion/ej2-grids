@@ -34,16 +34,17 @@ export class BooleanFilterUI implements IFilterMUI {
         column: Column, target: HTMLElement,
         getOptrInstance: FlMenuOptrUI, localizeText: L10n, dialogObj: Dialog
     }): void {
-        let data: DataManager | Object[];
-        let fields: string = args.column.field;
+        let isForeignColumn: boolean = args.column.isForeignColumn();
+        let dataSource: Object = isForeignColumn ? args.column.dataSource : this.parent.dataSource;
+        let fields: string = isForeignColumn ? args.column.foreignKeyValue : args.column.field;
         this.elem = createElement('input', { className: 'e-flmenu-input', id: 'bool-ui-' + args.column.uid });
         args.target.appendChild(this.elem);
         this.dialogObj = args.dialogObj;
         this.dropInstance = new DropDownList({
-            dataSource: this.parent.dataSource instanceof DataManager ?
-                this.parent.dataSource : new DataManager(this.parent.dataSource),
-            query: new Query().select(args.column.field),
-            fields: { text: args.column.field, value: args.column.field },
+            dataSource: dataSource instanceof DataManager ?
+            dataSource : new DataManager(dataSource),
+            query: new Query().select(fields),
+            fields: { text: fields, value: fields },
             placeholder: args.localizeText.getConstant('SelectValue'),
             cssClass: 'e-popup-flmenu',
             locale: this.parent.locale,
