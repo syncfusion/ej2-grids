@@ -182,7 +182,7 @@ export class CheckBoxFilter {
             }) as HTMLInputElement;
             this.sIcon = createElement('span', {
                 className: 'e-searchclear e-search-icon e-icons e-input-group-icon', attrs: {
-                    type: 'text', placeholder: this.getLocalizedLabel('Search')
+                    type: 'text', title: this.getLocalizedLabel('Search')
                 }
             });
             this.searchBox = createElement('span', { className: 'e-searchbox e-fields' });
@@ -229,11 +229,12 @@ export class CheckBoxFilter {
                 { effect: 'None' },
             buttons: [{
                 click: this.btnClick.bind(this),
-                buttonModel: { content: this.getLocalizedLabel(this.isExcel ? 'OK' : 'Filter'), cssClass: 'e-primary', isPrimary: true }
+                buttonModel: { content: this.getLocalizedLabel(this.isExcel ? 'OKButton' : 'FilterButton'),
+                cssClass: 'e-primary', isPrimary: true }
             },
             {
                 click: this.btnClick.bind(this),
-                buttonModel: { cssClass: 'e-flat', content: this.getLocalizedLabel(this.isExcel ? 'Cancel' : 'Clear') }
+                buttonModel: { cssClass: 'e-flat', content: this.getLocalizedLabel(this.isExcel ? 'CancelButton' : 'ClearButton') }
             }],
             created: this.dialogCreated.bind(this),
             open: this.dialogOpen.bind(this)
@@ -290,9 +291,9 @@ export class CheckBoxFilter {
                 (<HTMLInputElement>e.target).value ? this.options.handler(args) : this.closeDialog();
             } else {
                 let text: string = (e.target as HTMLElement).firstChild.textContent.toLowerCase();
-                if (this.getLocalizedLabel(this.isExcel ? 'OK' : 'Filter').toLowerCase() === text) {
+                if (this.getLocalizedLabel(this.isExcel ? 'OKButton' : 'FilterButton').toLowerCase() === text) {
                     this.fltrBtnHandler();
-                } else if (this.getLocalizedLabel('Clear').toLowerCase() === text) {
+                } else if (this.getLocalizedLabel('ClearButton').toLowerCase() === text) {
                     this.clearFilter();
                 }
             }

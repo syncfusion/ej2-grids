@@ -649,7 +649,7 @@ export class Filter implements IAction {
         } else {
             filterValue = JSON.parse(JSON.stringify(filterElement.value));
         }
-        if (this.value === '') {
+        if (isNullOrUndefined(this.value) || this.value === '') {
             this.removeFilteredColsByField(this.column.field);
             return;
         }

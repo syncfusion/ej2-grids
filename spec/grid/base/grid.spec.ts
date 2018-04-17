@@ -663,5 +663,44 @@ describe('Grid base module', () => {
     //     });
     // });
 
+    describe('page size greater than total records grid get refresh =>', () => {
+        let gridObj: Grid;
+        let actionComplete: (e?: Object) => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data, 
+                    allowPaging: true,
+                    actionComplete: actionComplete,
+                    pageSettings: { pageSizes:true,pageSize: 5 },
+                    columns: [{ field: 'OrderID', type: 'number', isPrimaryKey: true },
+                    { field: 'CustomerID', type: 'string' },
+                    { field: 'Freight', format: 'C2', type: 'number', allowFiltering: false },
+                    ],
+                },
+                done);
+        });
+
+        it('setting current page', function (done) {
+            actionComplete = (args: Object): void => {
+              done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.pageSettings = { currentPage: 2 };            
+            gridObj.dataBind();
+        });
+        it('Setting pagesize', function (done) {
+            actionComplete = (args: Object): void => {     
+            expect(gridObj.currentViewData.length).toEqual(15);                
+            done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.pageSettings.pageSize = 20;            
+        });
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
 });
 

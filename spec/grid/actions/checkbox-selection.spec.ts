@@ -59,7 +59,7 @@ describe('Grid checkbox selection functionality', () => {
                 () => {
                     done();
                 },
-                500);
+                2500);
         });
 
 
@@ -214,7 +214,7 @@ describe('Grid checkbox selection functionality', () => {
                 () => {
                     done();
                 },
-                500);
+                2500);
         });
 
         it('selection method test', () => {
@@ -290,7 +290,7 @@ describe('Grid checkbox selection functionality', () => {
                 () => {
                     done();
                 },
-                500);
+                2500);
         });
 
 
@@ -428,7 +428,7 @@ describe('Grid checkbox selection functionality', () => {
                 () => {
                     done();
                 },
-                500);
+                2500);
         });
 
         it('initial selection check', () => {
@@ -514,7 +514,7 @@ describe('Grid checkbox selection functionality', () => {
                 () => {
                     done();
                 },
-                500);
+                2500);
         });
 
         it('initial selection check', () => {

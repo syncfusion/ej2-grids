@@ -60,8 +60,9 @@ export class BooleanFilterUI implements IFilterMUI {
 
     public write(args: { column: Column, target: Element, parent: IGrid, filteredValue: number | string | Date | boolean }): void {
         let drpuiObj: DropDownList = (<EJ2Intance>document.querySelector('#bool-ui-' + args.column.uid)).ej2_instances[0];
-        drpuiObj.text = !isNullOrUndefined(args.filteredValue) ? args.filteredValue as string : '';
-
+        if (!isNullOrUndefined(args.filteredValue) ) {
+            drpuiObj.text = args.filteredValue as string;
+        }
     }
 
     public read(element: Element, column: Column, filterOptr: string, filterObj: Filter): void {

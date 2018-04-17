@@ -269,7 +269,7 @@ export class ExcelFilter extends CheckBoxFilter {
         this.dlgDiv = createElement('div', { className: 'e-xlflmenu', id: column + '-xlfldlg' });
         this.parent.element.appendChild(this.dlgDiv);
         this.dlgObj = new Dialog({
-            header: 'Custom Filter',
+            header: this.getLocalizedLabel('CustomFilter'),
             isModal: true,
             overlayClick: this.removeDialog.bind(this),
             showCloseIcon: true,
@@ -287,12 +287,12 @@ export class ExcelFilter extends CheckBoxFilter {
             buttons: [{
                 click: this.filterBtnClick.bind(this, column),
                 buttonModel: {
-                    content: this.getLocalizedLabel('OK'), isPrimary: true, cssClass: 'e-xlfl-okbtn'
+                    content: this.getLocalizedLabel('OKButton'), isPrimary: true, cssClass: 'e-xlfl-okbtn'
                 }
             },
             {
                 click: this.removeDialog.bind(this),
-                buttonModel: { content: this.getLocalizedLabel('Cancel'), cssClass: 'e-xlfl-cancelbtn' }
+                buttonModel: { content: this.getLocalizedLabel('CancelButton'), cssClass: 'e-xlfl-cancelbtn' }
             }],
             content: mainDiv,
             width: 430,
@@ -620,7 +620,8 @@ export class ExcelFilter extends CheckBoxFilter {
             false;
 
         // Initialize Match Case check box.
-        let checkbox: CheckBox = new CheckBox({ label: 'Match Case', enableRtl: this.parent.enableRtl, checked: flValue });
+        let checkbox: CheckBox = new CheckBox({ label: this.getLocalizedLabel('MatchCase'),
+        enableRtl: this.parent.enableRtl, checked: flValue });
 
         // Render initialized CheckBox.
         checkbox.appendTo(matchCaseInput);

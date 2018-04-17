@@ -73,7 +73,7 @@ export class DialogEditRender {
     }
 
     private btnClick(e: MouseEvent): void {
-        if (this.l10n.getConstant('CancelButton').toLowerCase() === (e.target as HTMLInputElement).innerText.toLowerCase()) {
+        if (this.l10n.getConstant('CancelButton').toLowerCase() === (e.target as HTMLInputElement).innerText.trim().toLowerCase()) {
             this.dialogClose();
         } else {
             this.parent.endEdit();

@@ -570,7 +570,11 @@ export function getDatePredicate(filterObject: PredicateModel): Predicate {
         let predicates: Predicate = new Predicate(prevObj.field, prevObj.operator, prevObj.value, false);
         datePredicate = predicates;
     }
-    filterObject.ejpredicate = datePredicate;
+    if ((<{ setProperties: Function }>filterObject).setProperties) {
+        (<{ setProperties: Function }>filterObject).setProperties({ ejpredicate: datePredicate }, true);
+    } else {
+        filterObject.ejpredicate = datePredicate;
+    }
     return datePredicate;
 }
 

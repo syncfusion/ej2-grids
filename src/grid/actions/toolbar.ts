@@ -47,19 +47,19 @@ export class Toolbar {
                 text: this.l10n.getConstant(localeName), tooltipText: this.l10n.getConstant(localeName)
             };
         }
-        (this.predefinedItems as { Search: Object }).Search = {
+        (this.predefinedItems as { Search: ItemModel }).Search = {
             id: this.gridID + '_search',
             template: '<div class="e-input-group e-search" role="search">\
             <input id="' + this.gridID + '_searchbar" class="e-input" name="input" type="search" \
             placeholder= \"' + this.l10n.getConstant('Search') + '\"/>\
             <span id="' + this.gridID + '_searchbutton" class="e-input-group-icon e-search-icon e-icons" \
-            tabindex="-1" title="Search In" aria-label= "search"></span> \
+            tabindex="-1" title="' + this.l10n.getConstant('Search') + '" aria-label= "search"></span> \
             </div>',
-            tooltipText: this.l10n.getConstant('Search'), align: 'right', cssClass: 'e-search-wrapper'
+            tooltipText: this.l10n.getConstant('Search'), align: 'Right', cssClass: 'e-search-wrapper'
         };
-        (this.predefinedItems as { ColumnChooser: Object }).ColumnChooser = {
+        (this.predefinedItems as { ColumnChooser: ItemModel }).ColumnChooser = {
             id: this.gridID + '_' + 'columnchooser', cssClass: 'e-cc e-ccdiv e-cc-toolbar', suffixIcon: 'e-' + 'columnchooser-btn',
-            text: 'Columns', tooltipText: 'columns', align: 'right',
+            text: this.l10n.getConstant('Columnchooser'), tooltipText: this.l10n.getConstant('Columnchooser'), align: 'Right',
         };
         this.createToolbar();
     }

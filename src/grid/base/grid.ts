@@ -1891,9 +1891,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             EditRecord: 'Edit Record',
             DeleteRecord: 'Delete Record',
             FilterMenu: 'Filter',
-            OK: 'OK',
-            Filter: 'Filter',
-            Clear: 'Clear',
             SelectAll: 'Select All',
             Blanks: 'Blanks',
             FilterTrue: 'True',
@@ -2091,9 +2088,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'pageSettings':
                     this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
                     if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)
-                         || newProp.pageSettings.currentPage !== oldProp.pageSettings.currentPage) {
-                        requireRefresh = true;
-                    }
+                        || ((newProp.pageSettings.currentPage !== oldProp.pageSettings.currentPage)
+                          && !this.enableColumnVirtualization && !this.enableVirtualization
+                           && this.pageSettings.totalRecordsCount <= this.pageSettings.pageSize)) {  requireRefresh = true;  }
                     break;
                 case 'currencyCode':
                 case 'locale':
