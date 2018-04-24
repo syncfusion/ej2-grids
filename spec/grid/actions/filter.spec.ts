@@ -1128,5 +1128,4 @@ describe('Filtering module => ', () => {
         });
     });
 
-
 });

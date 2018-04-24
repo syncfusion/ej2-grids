@@ -2,15 +2,30 @@
 
 ## [Unreleased]
 
+## 16.1.37 (2018-04-24)
+
+### Grid
+
+#### Bug Fixes
+
+- Script error thrown while deleting all records with aggregates and `Urladaptor` is resolved.
+- `FilterBar` message is not updated while setting filter settings in `setProperties` method is resolved.
+- Excel Filter dialog not updated while programmatically filter the column is resolved.
+- With virtual scrolling grid refreshes constantly issue is resolved.
+
 ## 16.1.35 (2018-04-17)
 
 ### Grid
+
 #### Bug Fixes
+
 - Maximum call stack issue while filtering date column with `disablePageWiseAggregates` is resolved.
 - Provided locale support for custom filter labels and column chooser.
 - Between operator provides incorrect result in Excel filter issue fixed.
 - Content rendering delayed while using virtual scrolling with grouping when scrolling horizontally is resolved.
+
 #### Breaking Changes
+
 - The Locale properties such as `OK`, `Filter`, `Clear` are removed instead use `OKButton`, `FilterButton`, `ClearButton`.
 
 ## 16.1.34 (2018-04-10)

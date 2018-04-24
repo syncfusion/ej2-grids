@@ -343,6 +343,16 @@ export class Filter implements IAction {
         if (this.checkAlreadyColFiltered(this.column.field)) {
             return;
         }
+        this.actualPredicate[this.fieldName] = [{
+            field: this.fieldName,
+            predicate: predicate,
+            matchCase: matchCase,
+            ignoreAccent: ignoreAccent,
+            operator: this.operator,
+            value: this.value,
+            type: this.column.type
+        }];
+        this.addFilteredClass();
         this.updateModel();
     }
 
@@ -378,6 +388,7 @@ export class Filter implements IAction {
                     break;
                 case 'type':
                     this.parent.refreshHeader();
+                    this.refreshFilterSettings();
                     break;
 
             }
@@ -397,13 +408,31 @@ export class Filter implements IAction {
                     let key: string = this.filterSettings.columns[i].field;
                     this.values[key] = this.filterSettings.columns[i].value;
                 }
-                let selector: string = '[id=\'' + this.filterSettings.columns[i].field + '_filterBarcell\']';
-                let filterElement: HTMLInputElement = (this.element.querySelector(selector) as HTMLInputElement);
+                let filterElement: HTMLInputElement = this.getFilterBarElement(this.filterSettings.columns[i].field);
                 if (filterElement) {
                     filterElement.value = this.filterSettings.columns[i].value as string;
                 }
             }
+            if (this.filterSettings.columns.length === 0) {
+                let col: Column[] = this.parent.getColumns();
+                for (let i: number = 0; i < col.length; i++) {
+                    let filterElement: HTMLInputElement = this.getFilterBarElement(col[i].field);
+                    if (filterElement && filterElement.value !== '') {
+                        filterElement.value = '';
+                        delete this.values[col[i].field];
+                    }
+                }
+            }
         }
+    }
+
+    private getFilterBarElement(col: string): HTMLInputElement {
+        let selector: string = '[id=\'' + col + '_filterBarcell\']';
+        let filterElement: HTMLInputElement;
+        if (selector && !isNullOrUndefined(this.element)) {
+            filterElement = (this.element.querySelector(selector) as HTMLInputElement);
+        }
+        return filterElement;
     }
 
     /**
@@ -504,6 +533,7 @@ export class Filter implements IAction {
                 if (this.filterSettings.type === 'FilterBar' && !isClearFilterBar) {
                     let selector: string = '[id=\'' + cols[i].field + '_filterBarcell\']';
                     fCell = this.parent.getHeaderContent().querySelector(selector) as HTMLInputElement;
+                    fCell.value = '';
                     delete this.values[field];
                 }
                 cols.splice(i, 1);
@@ -514,6 +544,12 @@ export class Filter implements IAction {
                     fltrElement.querySelector(iconClass).classList.remove('e-filtered');
                 }
                 this.isRemove = true;
+                if (this.actualPredicate[field]) {
+                    delete this.actualPredicate[field];
+                }
+                if (this.values[field]) {
+                    delete this.values[field];
+                }
                 this.parent.notify(events.modelChanged, {
                     requestType: 'filtering', type: events.actionBegin
                 });
@@ -851,6 +887,9 @@ export class Filter implements IAction {
                 this.filterSettings.columns.splice(index, 1);
             }
         }
+        if (this.values[args.field]) {
+            delete this.values[args.field];
+        }
         let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
         filterIconElement = this.parent.getColumnHeaderByField(args.field).querySelector(iconClass);
         if (args.action === 'filtering') {
@@ -867,5 +906,12 @@ export class Filter implements IAction {
         this.parent.dataBind();
     }
 
+    private addFilteredClass(): void {
+        let filterIconElement: Element;
+        filterIconElement = this.parent.getColumnHeaderByField(this.fieldName).querySelector('.e-icon-filter');
+        if (filterIconElement) {
+            filterIconElement.classList.add('e-filtered');
+        }
+    }
 
 }

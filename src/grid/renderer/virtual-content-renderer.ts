@@ -1,4 +1,4 @@
-import { createElement, closest } from '@syncfusion/ej2-base';
+import { createElement, closest, formatUnit } from '@syncfusion/ej2-base';
 import { Browser } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { DataManager } from '@syncfusion/ej2-data';
@@ -50,7 +50,8 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         super.renderTable();
         this.virtualEle.table = <HTMLElement>this.getTable();
         this.virtualEle.content = this.content = <HTMLElement>this.getPanel().firstChild;
-        this.virtualEle.renderWrapper(); this.virtualEle.renderPlaceHolder();
+        this.virtualEle.renderWrapper(<number>this.parent.height);
+        this.virtualEle.renderPlaceHolder();
         this.virtualEle.wrapper.style.position = 'absolute';
         let debounceEvent: boolean = (this.parent.dataSource instanceof DataManager && !this.parent.dataSource.dataSource.offline);
         let opt: InterSection = {
@@ -205,7 +206,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         return page;
     }
 
-    private getTranslateY(sTop: number, cHeight: number, info?: VirtualInfo): number {
+    private getTranslateY(sTop: number, cHeight: number, info?: VirtualInfo, isOnenter?: boolean): number {
         if (info === undefined) {
             info = { page: this.getPageFromTop(sTop, {}) };
             info.blockIndexes = this.vgenerator.getBlockIndexes(info.page);
@@ -213,7 +214,17 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         let block: number = (info.blockIndexes[0] || 1) - 1;
         let translate: number = this.getOffset(block);
         let endTranslate: number = this.getOffset(info.blockIndexes[info.blockIndexes.length - 1]);
-        return translate > sTop ? this.getOffset(block - 1) : endTranslate < (sTop + cHeight) ? this.getOffset(block + 1) : translate;
+        if (isOnenter) {
+            info = this.prevInfo;
+        }
+        let result: number = translate > sTop ?
+        this.getOffset(block - 1) : endTranslate < (sTop + cHeight) ? this.getOffset(block + 1) : translate;
+        let blockHeight: number =  this.offsets[info.blockIndexes[info.blockIndexes.length - 1]] -
+                 this.tmpOffsets[info.blockIndexes[0]];
+        if (result + blockHeight >  this.offsets[this.getTotalBlocks()]) {
+            result -= (result + blockHeight) - this.offsets[this.getTotalBlocks()];
+        }
+        return result;
     }
 
     public getOffset(block: number): number {
@@ -225,7 +236,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
             let xAxis: boolean = current.axis === 'X'; let top: number = this.prevInfo.offsets ? this.prevInfo.offsets.top : null;
             let height: number = this.content.getBoundingClientRect().height;
             let x: number = this.getColumnOffset(xAxis ? this.vgenerator.getColumnIndexes()[0] - 1 : this.prevInfo.columnIndexes[0] - 1);
-            let y: number = this.getTranslateY(e.top, height, xAxis && top === e.top ? this.prevInfo : undefined);
+            let y: number = this.getTranslateY(e.top, height, xAxis && top === e.top ? this.prevInfo : undefined, true);
             this.virtualEle.adjustTable(x, Math.min(y, this.offsets[this.maxBlock]));
             if (this.parent.enableColumnVirtualization) {
                 this.header.virtualEle.adjustTable(x, 0);
@@ -371,8 +382,8 @@ export class VirtualElementHandler {
     public content: HTMLElement;
     public table: HTMLElement;
 
-    public renderWrapper(): void {
-        this.wrapper = createElement('div', { className: 'e-virtualtable' });
+    public renderWrapper(height?: number): void {
+        this.wrapper = createElement('div', { className: 'e-virtualtable', styles: `min-height:${formatUnit(height)}` });
         this.wrapper.appendChild(this.table);
         this.content.appendChild(this.wrapper);
     }
