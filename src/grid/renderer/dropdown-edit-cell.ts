@@ -24,14 +24,14 @@ export class DropDownEditCell implements IEditCell {
 
     public create(args: { column: Column, value: string }): Element {
         /* tslint:disable-next-line:no-any */
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
         /* tslint:disable-next-line:no-any */
-        let splits: string[] = args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
         return createElement('input', {
             className: 'e-field', attrs: {
                 /* tslint:disable-next-line:no-any */
-                 id: isComplexField ? this.parent.element.id + splits[0] + splits[1] : this.parent.element.id + args.column.field,
-                 /* tslint:disable-next-line:no-any */
+                id: isComplexField ? this.parent.element.id + splits[0] + splits[1] : this.parent.element.id + args.column.field,
+                /* tslint:disable-next-line:no-any */
                 name: isComplexField ? splits[0] + splits[1] : args.column.field, type: 'text', 'e-mappinguid': args.column.uid,
 
             }
@@ -42,8 +42,8 @@ export class DropDownEditCell implements IEditCell {
         this.column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         /* tslint:disable-next-line:no-any */
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
-        let splits: string[] = args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
         this.obj = new DropDownList(extend(
             {
                 dataSource: this.parent.dataSource instanceof DataManager ?

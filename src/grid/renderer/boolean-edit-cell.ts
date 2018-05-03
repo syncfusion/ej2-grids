@@ -27,8 +27,8 @@ export class BooleanEditCell implements IEditCell {
         if (col.type === 'checkbox') {
             classNames = 'e-field e-boolcell e-edit-checkselect';
         }
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
-        let splits: string[] = args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
         return createElement('input', {
             className: classNames, attrs: {
                 type: 'checkbox', value: args.value, 'e-mappinguid': col.uid,
@@ -45,8 +45,8 @@ export class BooleanEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string, row: Element }): void {
         let selectChkBox: Element;
         let chkState: boolean;
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
-        let splits: string[] = args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
         if (!isNullOrUndefined(args.row)) {
             selectChkBox = args.row.querySelector('.e-edit-checkselect') as Element;
         }

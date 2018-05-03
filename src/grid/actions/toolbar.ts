@@ -157,7 +157,7 @@ export class Toolbar {
 
     private getItems(): ItemModel[] {
         let items: ItemModel[] = [];
-        let toolbarItems: string | string[] | ItemModel[] | ToolbarItem[] = this.parent.toolbar || [];
+        let toolbarItems: (ToolbarItems | string | ItemModel | ToolbarItem)[] = this.parent.toolbar || [];
         if (typeof (this.parent.toolbar) === 'string') {
             return [];
         }

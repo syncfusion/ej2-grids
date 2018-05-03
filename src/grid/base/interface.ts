@@ -286,7 +286,7 @@ export interface IGrid extends Component<HTMLElement> {
      * Specifies the toolbar for Grid.
      * @default null
      */
-    toolbar?: ToolbarItems[] | string[] | ItemModel[] | ToolbarItem[];
+    toolbar?: (ToolbarItems | string | ItemModel | ToolbarItem)[];
 
     /**
      * Specifies the context menu items for Grid.

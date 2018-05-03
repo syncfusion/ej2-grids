@@ -159,8 +159,8 @@ export class EditRender {
                 input = div.firstChild as Element;
             }
             let isInput: number = input.tagName !== 'input' && input.querySelectorAll('input').length;
-            let isComplexField: boolean = col.field.split('.').length > 1;
-            let splits: string[] = col.field.split('.');
+            let isComplexField: boolean = !isNullOrUndefined(col.field) && col.field.split('.').length > 1;
+            let splits: string[] = !isNullOrUndefined(col.field) && col.field.split('.');
             attributes(isInput ? input.querySelector('input') : input, {
                 name: isComplexField ? splits[0] + splits[1] : col.field, 'e-mappinguid': col.uid,
                 id: isComplexField ? gObj.element.id + splits[0] + splits[1] : gObj.element.id + col.field

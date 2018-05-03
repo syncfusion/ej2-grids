@@ -1,5 +1,5 @@
 import { extend } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base';
+import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { IEditCell, IGrid, EJ2Intance } from '../base/interface';
 import { DatePicker } from '@syncfusion/ej2-calendars';
@@ -17,8 +17,8 @@ export class DatePickerEditCell implements IEditCell {
     }
     public create(args: { column: Column, value: string, type: string }): Element {
         /* tslint:disable-next-line:no-any */
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
-        let splits: string[] = args.column.field.split('.');
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
         return createElement('input', {
             className: 'e-field', attrs: {
                 id: isComplexField ? this.parent.element.id + splits[0] + splits[1] : this.parent.element.id + args.column.field,
@@ -33,8 +33,8 @@ export class DatePickerEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, type: string }): void {
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         /* tslint:disable-next-line:no-any */
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
-        let splits: string[] = args.column.field.split('.');
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
         this.obj = new DatePicker(
             extend(
                 {

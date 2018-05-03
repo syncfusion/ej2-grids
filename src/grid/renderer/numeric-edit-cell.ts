@@ -1,6 +1,6 @@
 
 import { extend } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base';
+import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, EJ2Intance, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
@@ -20,8 +20,8 @@ export class NumericEditCell implements IEditCell {
     }
     public create(args: { column: Column, value: string }): Element {
         /* tslint:disable-next-line:no-any */
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
-        let splits: string[] = args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
         return createElement('input', {
             className: 'e-field', attrs: {
                 /* tslint:disable-next-line:no-any */
@@ -39,8 +39,8 @@ export class NumericEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
-        let isComplexField: boolean = args.column.field.split('.').length > 1;
-        let splits: string[] = args.column.field.split('.');
+        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
+        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
         this.obj = new NumericTextBox(extend(
             {
                 value: isComplexField ? parseFloat(args.rowData[splits[0]][splits[1]]) : parseFloat(args.rowData[col.field]),

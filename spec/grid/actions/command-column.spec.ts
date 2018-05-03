@@ -1,7 +1,7 @@
 /**
  * Command Column spec
  */
-import { EmitType } from '@syncfusion/ej2-base';
+import { EmitType, L10n } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Column } from '../../../src/grid/models/column';
@@ -349,6 +349,43 @@ describe('Command Column ', () => {
             let dlg: any = grid.element.querySelector('#' + grid.element.id + 'EditConfirm');
             expect(dlg).not.toBeUndefined();
             grid.element.querySelector('#' + grid.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
+        });
+
+        afterAll(() => {
+            destroy(grid);
+        });
+    });
+    describe('Support for command column localization', () => {
+        let rows: HTMLTableRowElement;
+        let grid: Grid;
+        beforeAll((done: Function) => {
+            L10n.load({
+                'de-DE': {
+                    'grid': {
+                        'Delete':'language'
+                    }
+                }
+            });
+            grid = createGrid(
+                {
+                    columns: [
+                        {
+                            commands: [{ type: 'Edit', buttonOption: { iconCss: ' e-icons e-edit', cssClass: 'e-flat' } },
+                            { type: 'Delete', buttonOption: { iconCss: 'e-icons e-delete', cssClass: 'e-flat' } },
+                            { type: 'Save', buttonOption: { iconCss: 'e-icons e-update', cssClass: 'e-flat' } },
+                            { type: 'Cancel', buttonOption: { iconCss: 'e-icons e-cancel-icon', cssClass: 'e-flat' } }
+                            ], headerText: 'Command Column'
+                        }
+                    ],
+                    dataSource: [{ data: { a: 1 }, b: 5, c: true, d: new Date() },
+                    { data: { a: 2 }, b: 6, c: false, d: new Date() }], locale: 'de-DE',
+                    allowPaging: false
+                }, done);
+        });
+
+        it('Command Column initial render checking', () => {
+            rows = <HTMLTableRowElement>grid.getRows()[0];
+            expect(rows.querySelector('.e-unboundcelldiv').children[1].getAttribute('title')).toBe('language');
         });
 
         afterAll(() => {

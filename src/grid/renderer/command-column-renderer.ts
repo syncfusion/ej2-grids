@@ -58,7 +58,7 @@ export class CommandColumnRenderer extends CellRenderer implements ICellRenderer
         let button: HTMLButtonElement = <HTMLButtonElement>this.buttonElement.cloneNode();
         attributes(button, {
             'id': this.parent.element.id + (buttonOption.type || '') + '_' + index, 'type': 'button',
-            title: buttonOption.buttonOption.content || buttonOption.type
+            title: buttonOption.buttonOption.content || this.localizer.getConstant(buttonOption.type) || buttonOption.type
         });
         button.onclick = buttonOption.buttonOption.click;
         let buttonObj: Button = new Button(buttonOption.buttonOption, button);

@@ -3483,6 +3483,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         table.querySelector(ele).className = element.className;
         table.querySelector(ele).innerHTML = element.innerHTML;
         width = table.querySelector(ele).getBoundingClientRect().width;
+        document.body.removeChild(htable);
+        document.body.removeChild(ctable);
         if (width > element.getBoundingClientRect().width) {
             return true;
         }

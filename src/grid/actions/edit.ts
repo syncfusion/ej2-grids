@@ -566,6 +566,9 @@ export class Edit implements IAction {
         this.alertDObj.destroy();
         remove(elem);
         this.unwireEvents();
+        if (this.editModule) {
+            this.editModule.destroy();
+        }
     }
 
     private keyPressHandler(e: KeyboardEventArgs): void {

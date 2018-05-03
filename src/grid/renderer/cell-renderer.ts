@@ -17,7 +17,6 @@ export class CellRenderer implements ICellRenderer<Column> {
 
     public element: HTMLElement = createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell', tabindex: '-1' } });
     private rowChkBox: Element = createElement('input', { className: 'e-checkselect', attrs: { 'type': 'checkbox' } });
-
     protected localizer: L10n;
     protected formatter: IValueFormatter;
     protected parent: IGrid;
