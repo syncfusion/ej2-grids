@@ -270,6 +270,7 @@ export function appendChildren(elem: Element, children: Element[]): Element {
             elem.appendChild(children[0]);
         }
     }
+    children = null;
     return elem;
 }
 

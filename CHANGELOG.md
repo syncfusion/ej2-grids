@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## 16.1.39 (2018-05-05)
+
+### Grid
+
+#### Bug Fixes
+
+- Memory leak issue resolved.
+
 ## 16.1.38 (2018-05-03)
 
 ### Grid

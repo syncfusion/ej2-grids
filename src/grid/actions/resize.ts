@@ -200,7 +200,9 @@ export class Resize implements IAction {
         if (this.parent.isDestroyed) {
             return;
         }
-        this.parent.on(events.headerRefreshed, this.render, this);
+        this.parent.on(events.headerRefreshed, this.refreshHeight, this);
+        this.parent.on(events.initialEnd, this.wireEvents, this);
+
     }
     /**
      * @hidden
@@ -209,8 +211,16 @@ export class Resize implements IAction {
         if (this.parent.isDestroyed) {
             return;
         }
-        this.parent.off(events.headerRefreshed, this.render);
+        this.parent.off(events.headerRefreshed, this.refreshHeight);
+        this.parent.off(events.initialEnd, this.wireEvents);
     }
+
+    private refreshHeight(): void {
+        this.getResizeHandlers().forEach((ele: HTMLElement) => {
+            ele.style.height = ele.parentElement.offsetHeight + 'px';
+        });
+    }
+
     /**
      * @hidden
      */
@@ -221,18 +231,13 @@ export class Resize implements IAction {
     }
 
     private wireEvents(): void {
-        this.getResizeHandlers().forEach((ele: HTMLElement) => {
-            ele.style.height = ele.parentElement.offsetHeight + 'px';
-            EventHandler.add(ele, Browser.touchStartEvent, this.resizeStart, this);
-            EventHandler.add(ele, events.dblclick, this.callAutoFit, this);
-        });
+        EventHandler.add(this.parent.getHeaderTable(), Browser.touchStartEvent, this.resizeStart, this);
+        EventHandler.add(this.parent.getHeaderTable(), events.dblclick, this.callAutoFit, this);
     }
 
     private unwireEvents(): void {
-        this.getResizeHandlers().forEach((ele: HTMLElement) => {
-            EventHandler.remove(ele, Browser.touchStartEvent, this.resizeStart);
-            EventHandler.remove(ele, events.dblclick, this.callAutoFit);
-        });
+        EventHandler.remove(this.parent.getHeaderTable(), Browser.touchStartEvent, this.resizeStart);
+        EventHandler.remove(this.parent.getHeaderTable(), events.dblclick, this.callAutoFit);
     }
 
     private getResizeHandlers(): HTMLElement[] {
@@ -248,51 +253,55 @@ export class Resize implements IAction {
     }
 
     private callAutoFit(e: PointerEvent | TouchEvent): void {
-        let col: Column = this.getTargetColumn(e);
-        this.resizeColumn(col.field, this.parent.getNormalizedColumnIndex(col.uid), col.uid);
-        let header: HTMLElement = <HTMLElement>closest(<HTMLElement>e.target, resizeClassList.header);
-        header.classList.add('e-resized');
+        if ((e.target as HTMLElement).classList.contains('e-rhandler')) {
+            let col: Column = this.getTargetColumn(e);
+            this.resizeColumn(col.field, this.parent.getNormalizedColumnIndex(col.uid), col.uid);
+            let header: HTMLElement = <HTMLElement>closest(<HTMLElement>e.target, resizeClassList.header);
+            header.classList.add('e-resized');
+        }
     }
 
     private resizeStart(e: PointerEvent | TouchEvent): void {
-        if (!this.helper) {
-            if (this.getScrollBarWidth() === 0) {
-                for (let col of this.refreshColumnWidth()) {
-                    this.widthService.setColumnWidth(col);
+        if ((e.target as HTMLElement).classList.contains('e-rhandler')) {
+            if (!this.helper) {
+                if (this.getScrollBarWidth() === 0) {
+                    for (let col of this.refreshColumnWidth()) {
+                        this.widthService.setColumnWidth(col);
+                    }
+                    this.widthService.setWidthToTable();
                 }
-                this.widthService.setWidthToTable();
+                this.element = e.target as HTMLElement;
+                this.parentElementWidth = this.parent.element.getBoundingClientRect().width;
+                this.appendHelper();
+                this.column = this.getTargetColumn(e);
+                this.pageX = this.getPointX(e);
+                if (this.parent.enableRtl) {
+                    this.minMove = parseInt(this.column.width.toString(), 10)
+                        - (this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : 0);
+                } else {
+                    this.minMove = (this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : 0)
+                        - parseInt(this.column.width.toString(), 10);
+                }
+                this.minMove += this.pageX;
             }
-            this.element = e.target as HTMLElement;
-            this.parentElementWidth = this.parent.element.getBoundingClientRect().width;
-            this.appendHelper();
-            this.column = this.getTargetColumn(e);
-            this.pageX = this.getPointX(e);
-            if (this.parent.enableRtl) {
-                this.minMove = parseInt(this.column.width.toString(), 10)
-                    - (this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : 0);
+            if (Browser.isDevice && !this.helper.classList.contains(resizeClassList.icon)) {
+                this.helper.classList.add(resizeClassList.icon);
+                EventHandler.add(document, Browser.touchStartEvent, this.removeHelper, this);
+                EventHandler.add(this.helper, Browser.touchStartEvent, this.resizeStart, this);
             } else {
-                this.minMove = (this.column.minWidth ? parseInt(this.column.minWidth.toString(), 10) : 0)
-                    - parseInt(this.column.width.toString(), 10);
+                let args: ResizeArgs = {
+                    e: e,
+                    column: this.column
+                };
+                this.parent.trigger(events.resizeStart, args);
+                if (args.cancel) {
+                    this.cancelResizeAction();
+                    return;
+                }
+                EventHandler.add(document, Browser.touchEndEvent, this.resizeEnd, this);
+                EventHandler.add(this.parent.element, Browser.touchMoveEvent, this.resizing, this);
+                this.updateCursor('add');
             }
-            this.minMove += this.pageX;
-        }
-        if (Browser.isDevice && !this.helper.classList.contains(resizeClassList.icon)) {
-            this.helper.classList.add(resizeClassList.icon);
-            EventHandler.add(document, Browser.touchStartEvent, this.removeHelper, this);
-            EventHandler.add(this.helper, Browser.touchStartEvent, this.resizeStart, this);
-        } else {
-            let args: ResizeArgs = {
-                e: e,
-                column: this.column
-            };
-            this.parent.trigger(events.resizeStart, args);
-            if (args.cancel) {
-                this.cancelResizeAction();
-                return;
-            }
-            EventHandler.add(document, Browser.touchEndEvent, this.resizeEnd, this);
-            EventHandler.add(this.parent.element, Browser.touchMoveEvent, this.resizing, this);
-            this.updateCursor('add');
         }
     }
 
@@ -448,7 +457,7 @@ export class Resize implements IAction {
 
     private getScrollBarWidth(height?: boolean): number {
         let ele: HTMLElement = this.parent.getFrozenColumns() ? this.parent.getContent().querySelector('.e-movablecontent') as HTMLElement
-        : this.parent.getContent().firstChild as HTMLElement;
+            : this.parent.getContent().firstChild as HTMLElement;
         return (ele.scrollHeight > ele.clientHeight && height) ||
             ele.scrollWidth > ele.clientWidth ? getScrollBarWidth() : 0;
     }

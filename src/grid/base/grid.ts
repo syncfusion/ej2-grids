@@ -2089,8 +2089,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
                     if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)
                         || ((newProp.pageSettings.currentPage !== oldProp.pageSettings.currentPage)
-                          && !this.enableColumnVirtualization && !this.enableVirtualization
-                           && this.pageSettings.totalRecordsCount <= this.pageSettings.pageSize)) {  requireRefresh = true;  }
+                            && !this.enableColumnVirtualization && !this.enableVirtualization
+                            && this.pageSettings.totalRecordsCount <= this.pageSettings.pageSize)) { requireRefresh = true; }
                     break;
                 case 'currencyCode':
                 case 'locale':
@@ -2146,8 +2146,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                         requireRefresh = true;
                         checkCursor = true;
                     }
-                    this.notify(events.inBoundModelChanged, { module: 'group', properties: newProp.groupSettings,
-                    oldProperties: oldProp.groupSettings });
+                    this.notify(events.inBoundModelChanged, {
+                        module: 'group', properties: newProp.groupSettings,
+                        oldProperties: oldProp.groupSettings
+                    });
                     break;
                 case 'aggregates':
                     this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
@@ -2156,9 +2158,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.updateColumnObject();
                     requireGridRefresh = true;
                     break;
-                case 'frozenColumns':
-                case 'frozenRows':
-                    this.freezeRefresh(); break;
                 default:
                     this.extendedPropertyChange(prop, newProp);
             }
@@ -2202,12 +2201,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.notify(events.rtlUpdated, {});
                 break;
             case 'enableAltRow':
-                this.renderModule.refresh();
-                break;
+                this.renderModule.refresh(); break;
+            case 'frozenColumns':
+            case 'frozenRows':
+                this.freezeRefresh(); break;
             case 'allowResizing':
                 this.headerModule.refreshUI();
-                this.updateResizeLines();
-                break;
+                this.updateResizeLines(); break;
             case 'rowHeight':
                 if (this.rowHeight) {
                     addClass([this.element], 'e-grid-min-height');
@@ -2218,8 +2218,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.headerModule.refreshUI();
                 break;
             case 'gridLines':
-                this.updateGridLines();
-                break;
+                this.updateGridLines(); break;
             case 'showColumnMenu':
                 this.headerModule.refreshUI();
                 this.notify(events.uiUpdate, { module: 'columnMenu', enable: true });
@@ -2770,15 +2769,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {number}
      */
     public getColumnIndexByField(field: string): number {
-        let index: number = iterateArrayOrObject<number, Column>(
-            <Column[]>this.getColumns(), (item: Column, index: number) => {
-                if (item.field === field) {
-                    return index;
-                }
-                return undefined;
-            })[0];
-
-        return !isNullOrUndefined(index) ? index : -1;
+        let cols: Column[] = this.getColumns();
+        for (let i: number = 0; i < cols.length; i++) {
+            if (cols[i].field === field) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -3707,9 +3704,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         (<Column[]>storedColumn).forEach((col: Column, index: number, arr: Column[]) => {
             let ind: number;
             let localCol: Column = this.getColumnByField(col.field) ||
-            columns.some((element: Column, i: number) => {
-                ind = i; return element.headerText === col.headerText;
-            }) && columns[ind];
+                columns.some((element: Column, i: number) => {
+                    ind = i; return element.headerText === col.headerText;
+                }) && columns[ind];
 
             if (!isNullOrUndefined(localCol)) {
                 if (localCol.columns && localCol.columns.length) {

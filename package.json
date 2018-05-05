@@ -1,6 +1,6 @@
 {
   "name": "@syncfusion/ej2-grids",
-  "version": "16.1.38",
+  "version": "16.1.39",
   "description": "Essential JS 2 Grid Component",
   "author": "Syncfusion Inc.",
   "license": "SEE LICENSE IN license",
@@ -9,7 +9,7 @@
   "es2015": "./dist/es6/ej2-grids.es2015.js",
   "dependencies": {
     "@syncfusion/ej2-base": "~16.1.38",
-    "@syncfusion/ej2-data": "~16.1.37",
+    "@syncfusion/ej2-data": "~16.1.39",
     "@syncfusion/ej2-navigations": "~16.1.38",
     "@syncfusion/ej2-inputs": "~16.1.38",
     "@syncfusion/ej2-calendars": "~16.1.38",

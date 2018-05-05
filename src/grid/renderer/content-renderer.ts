@@ -155,16 +155,18 @@ export class ContentRender implements IRenderer {
         let frag: DocumentFragment = document.createDocumentFragment();
         let hdrfrag: DocumentFragment = document.createDocumentFragment();
         let columns: Column[] = <Column[]>gObj.getColumns();
-        let tr: Element;
-        let hdrTbody: HTMLElement;
+        let tr: Element; let hdrTbody: HTMLElement;
         let frzCols: number = gObj.getFrozenColumns();
         let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         this.rowElements = []; this.rows = [];
-        let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args);
-        let idx: number = modelData[0].cells[0].index;
+        let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args); let idx: number = modelData[0].cells[0].index;
         let fCont: Element = this.getPanel().querySelector('.e-frozencontent');
         let mCont: HTMLElement = this.getPanel().querySelector('.e-movablecontent') as HTMLElement;
         let cont: HTMLElement = this.getPanel().querySelector('.e-content') as HTMLElement;
+        // tslint:disable-next-line:no-any
+        if ((this.parent as any).registeredTemplate && (this.parent as any).registeredTemplate.template) {
+            this.parent.destroyTemplate(['template']);
+        }
         if (this.parent.enableColumnVirtualization) {
             let cellMerge: CellMergeRender<Column> = new CellMergeRender(this.serviceLocator, this.parent);
             cellMerge.updateVirtualCells(modelData);
