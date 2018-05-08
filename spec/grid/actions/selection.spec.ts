@@ -2303,7 +2303,7 @@ describe('Grid Touch Selection', () => {
             (gridObj.selectionModule as any).isMultiCtrlRequest = false;
             (gridObj.selectionModule as any).isMultiShiftRequest = false;
             (gridObj.selectionModule as any).rowCellSelectionHandler(1, 1);
-            (gridObj.selectionModule as any).dataReady({ requrestType: 'virtualscroll' });
+            (gridObj.selectionModule as any).beforeFragAppend({ requrestType: 'virtualscroll' });
             (gridObj.selectionModule as any).clearSelAfterRefresh({ requrestType: 'virtualscroll' });
         });
 

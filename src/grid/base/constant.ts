@@ -289,3 +289,5 @@ export const dataStateChange: string = 'dataStateChange';
 export const dataSourceChanged: string = 'dataSourceChanged';
 /** @hidden */
 export const rtlUpdated: string = 'rtl-updated';
+/** @hidden */
+export const beforeFragAppend: string = 'beforeFragAppend';

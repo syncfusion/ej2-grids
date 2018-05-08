@@ -352,7 +352,7 @@ export class Filter implements IAction {
             value: this.value,
             type: this.column.type
         }];
-        this.addFilteredClass();
+        this.addFilteredClass(this.fieldName);
         this.updateModel();
     }
 
@@ -377,6 +377,7 @@ export class Filter implements IAction {
                         });
                         this.refreshFilterSettings();
                         this.updateFilterMsg();
+                        this.updateFilter();
                     }
                     break;
                 case 'showFilterBarStatus':
@@ -906,9 +907,37 @@ export class Filter implements IAction {
         this.parent.dataBind();
     }
 
-    private addFilteredClass(): void {
+    private updateFilter(): void {
+        let cols: PredicateModel[] = this.filterSettings.columns;
+        for (let i: number = 0; i < cols.length; i++) {
+            this.column = this.parent.getColumnByField(cols[i].field) ||
+            getColumnByForeignKeyValue(cols[i].field, this.parent.getForeignKeyColumns());
+            let fieldName: string = cols[i].field;
+            if (!this.parent.getColumnByField(cols[i].field)) {
+                fieldName = getColumnByForeignKeyValue(cols[i].field, this.parent.getForeignKeyColumns()).field;
+            }
+            /* tslint:disable-next-line:max-line-length */
+            this.refreshFilterIcon(fieldName, cols[i].operator, cols[i].value, cols[i].type, cols[i].predicate, cols[i].matchCase, cols[i].ignoreAccent);
+        }
+    }
+
+    /* tslint:disable-next-line:max-line-length */
+    private refreshFilterIcon(fieldName: string, operator: string, value: string | number | Date | boolean, type?: string, predicate?: string, matchCase?: boolean, ignoreAccent?: boolean): void {
+        this.actualPredicate[fieldName] = [{
+            field: fieldName,
+            predicate: predicate,
+            matchCase: matchCase,
+            ignoreAccent: ignoreAccent,
+            operator: operator,
+            value: value,
+            type: type
+        }];
+        this.addFilteredClass(fieldName);
+    }
+
+    private addFilteredClass(fieldName: string): void {
         let filterIconElement: Element;
-        filterIconElement = this.parent.getColumnHeaderByField(this.fieldName).querySelector('.e-icon-filter');
+        filterIconElement = this.parent.getColumnHeaderByField(fieldName).querySelector('.e-icon-filter');
         if (filterIconElement) {
             filterIconElement.classList.add('e-filtered');
         }

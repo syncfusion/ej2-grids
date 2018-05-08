@@ -404,6 +404,7 @@ export interface IGrid extends Component<HTMLElement> {
     isContextMenuOpen(): Boolean;
     goToPage(pageNo: number): void;
     getFrozenColumns(): number;
+    getVisibleFrozenColumns(): number;
     print(): void;
     /* tslint:disable-next-line:no-any */
     excelExport(exportProperties?: any, isMultipleExport?: boolean, workbook?: any): Promise<any>;
@@ -1406,6 +1407,12 @@ export interface PendingState {
      * Grouping property for Custom data service
      */
     group?: string[];
+    /**
+     *  DataSource changed through set model
+     */
+    isDataChanged?: Boolean;
+    aggregates ?: Object[];
+
 }
 
 /**
@@ -1429,6 +1436,8 @@ export interface DataStateChangeEventArgs {
     sorted?: Sorts[];
     /** Defines the grouped field names */
     group?: string[];
+    /** Defines the aggregates object */
+    aggregates?: Object[];
     /** Defines the search criteria */
     search?: PredicateModel[];
     /** Defines the grid action details performed by paging, grouping, filtering, searching, sorting */

@@ -608,7 +608,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**
      * Gets the currently visible records of the Grid.
      */
-    public currentViewData: Object[];
+    public currentViewData: Object[] = [];
     /** @hidden */
     public parentDetails: ParentDetails;
     /** @hidden */
@@ -1832,7 +1832,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             GroupDisable: 'Grouping is disabled for this column',
             FilterbarTitle: '\'s filter bar cell',
             EmptyDataSourceError:
-                'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
+            'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
             // Toolbar Items
             Add: 'Add',
             Edit: 'Edit',
@@ -2073,13 +2073,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Called internally if any of the property value changed.
      * @hidden
      */
+    /* tslint:disable-next-line:max-line-length */
     public onPropertyChanged(newProp: GridModel, oldProp: GridModel): void {
-        let requireRefresh: boolean = false;
-        let requireGridRefresh: boolean = false;
-        let checkCursor: boolean;
-        let args: Object = { requestType: 'refresh' };
+        let requireRefresh: boolean = false; let requireGridRefresh: boolean = false;
+        let checkCursor: boolean; let args: Object = { requestType: 'refresh' };
         if (this.isDestroyed) { return; }
-        for (let prop of Object.keys(newProp)) {
+        let properties: string[] = Object.keys(newProp);
+        if (properties.indexOf('columns') > -1) {
+            this.updateColumnObject(); requireGridRefresh = true;
+        }
+        for (let prop of properties) {
             switch (prop) {
                 case 'allowPaging':
                     this.notify(events.uiUpdate, { module: 'pager', enable: this.allowPaging });
@@ -2115,15 +2118,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     break;
                 case 'allowReordering':
                     this.headerModule.refreshUI();
-                    checkCursor = true;
-                    break;
+                    checkCursor = true; break;
                 case 'allowRowDragAndDrop':
                     this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
                     break;
                 case 'rowTemplate':
                     this.rowTemplateFn = templateCompiler(this.rowTemplate);
-                    requireRefresh = true;
-                    break;
+                    requireRefresh = true; break;
                 case 'detailTemplate':
                     this.detailTemplateFn = templateCompiler(this.detailTemplate);
                     requireRefresh = true;
@@ -2135,11 +2136,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     checkCursor = true;
                     break;
                 case 'childGrid':
-                    requireRefresh = true;
-                    break;
+                    requireRefresh = true; break;
                 case 'toolbar':
-                    this.notify(events.uiUpdate, { module: 'toolbar' });
-                    break;
+                    this.notify(events.uiUpdate, { module: 'toolbar' }); break;
                 case 'groupSettings':
                     if (!(isNullOrUndefined(newProp.groupSettings.showDropArea))) {
                         this.headerModule.refreshUI();
@@ -2152,11 +2151,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     });
                     break;
                 case 'aggregates':
+                    if (!this.aggregates.length && this.allowGrouping && this.groupSettings.columns.length) {
+                        requireRefresh = true;
+                    }
                     this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
-                    break;
-                case 'columns':
-                    this.updateColumnObject();
-                    requireGridRefresh = true;
                     break;
                 default:
                     this.extendedPropertyChange(prop, newProp);
@@ -2174,6 +2172,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
 
     }
 
+    /* tslint:disable-next-line:max-line-length */
     private extendedPropertyChange(prop: string, newProp: GridModel): void {
         switch (prop) {
             case 'enableRtl':
@@ -2198,8 +2197,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     (<EJ2Intance>this.columnMenuModule.getColumnMenu()).ej2_instances[0].enableRtl = newProp.enableRtl;
                     (<EJ2Intance>this.columnMenuModule.getColumnMenu()).ej2_instances[0].dataBind();
                 }
-                this.notify(events.rtlUpdated, {});
-                break;
+                this.notify(events.rtlUpdated, {}); break;
             case 'enableAltRow':
                 this.renderModule.refresh(); break;
             case 'frozenColumns':
@@ -2221,8 +2219,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.updateGridLines(); break;
             case 'showColumnMenu':
                 this.headerModule.refreshUI();
-                this.notify(events.uiUpdate, { module: 'columnMenu', enable: true });
-                break;
+                this.notify(events.uiUpdate, { module: 'columnMenu', enable: true }); break;
             case 'columnMenuItems':
                 this.notify(events.uiUpdate, { module: 'columnMenu', enable: this.columnMenuItems });
                 break;
@@ -2240,8 +2237,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.notify(events.inBoundModelChanged, { module: 'search', properties: newProp.searchSettings });
                 break;
             case 'sortSettings':
-                this.notify(events.inBoundModelChanged, { module: 'sort' });
-                break;
+                this.notify(events.inBoundModelChanged, { module: 'sort' }); break;
             case 'selectionSettings':
                 this.notify(events.inBoundModelChanged, { module: 'selection', properties: newProp.selectionSettings });
                 break;
@@ -2259,9 +2255,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'dataSource':
                 let pending: PendingState = this.getDataModule().getState();
+                this.getDataModule().setState({ isDataChanged: false });
                 if (pending.isPending) {
                     let gResult: Object = !isNullOrUndefined(this.dataSource) ? (<DataResult>this.dataSource).result : [];
-                    (pending.group || []).forEach((name: string) => { gResult = DataUtil.group(<Object[]>gResult, name); });
+                    (pending.group || []).forEach((name: string) => {
+                        gResult = DataUtil.group(<Object[]>gResult, name, pending.aggregates || []);
+                    });
                     this.dataSource = { result: gResult, count: (<DataResult>this.dataSource).count };
                     pending.resolver(this.dataSource);
                 } else {
@@ -2977,6 +2976,37 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getFrozenColumns(): number {
         return this.frozenColumns + this.getFrozenCount(this.columns as Column[], 0);
+    }
+
+    /** 
+     * @hidden
+     */
+    public getVisibleFrozenColumns(): number {
+        return this.getVisibleFrozenColumnsCount() + this.getVisibleFrozenCount(this.columns as Column[], 0);
+    }
+
+    private getVisibleFrozenColumnsCount(): number {
+        let visibleFrozenColumns: number = 0;
+        let col: Column[] = this.columns as Column[];
+        for (let i: number = 0; i < this.frozenColumns; i++) {
+            if (col[i].visible) {
+                visibleFrozenColumns++;
+            }
+        }
+        return visibleFrozenColumns;
+    }
+
+    private getVisibleFrozenCount(cols: Column[], cnt: number): number {
+        for (let i: number = 0, len: number = cols.length; i < len; i++) {
+            if (cols[i].columns) {
+                cnt = this.getVisibleFrozenCount(cols[i].columns as Column[], cnt);
+            } else {
+                if (cols[i].isFrozen && cols[i].visible) {
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
     }
 
     private getFrozenCount(cols: Column[], cnt: number): number {

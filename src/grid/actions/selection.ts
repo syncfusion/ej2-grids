@@ -175,7 +175,9 @@ export class Selection implements IAction {
             return;
         }
         let isRowSelected: boolean = selectedRow.hasAttribute('aria-selected');
-        isToggle = !isToggle ? isToggle : index === this.prevRowIndex && isRowSelected;
+        isToggle = !isToggle ? isToggle :
+            !this.selectedRowIndexes.length ? false :
+                (this.selectedRowIndexes.length === 1 ? (index === this.selectedRowIndexes[0] ? true : false) : false);
         let args: Object;
         let can: string = 'cancel';
         if (!isToggle) {
@@ -381,13 +383,18 @@ export class Selection implements IAction {
             rowObj.isSelected = chkState;
             if (chkState) {
                 this.selectedRowState[pKey] = chkState;
-                if (this.persistSelectedData.indexOf(rowObj.data) < 0) {
+                if (!this.persistSelectedData.some((data: Object) => data[this.primaryKey] === pKey)) {
                     this.persistSelectedData.push(rowObj.data);
                 }
             } else {
                 delete (this.selectedRowState[pKey]);
-                if (this.persistSelectedData.indexOf(rowObj.data) >= 0) {
-                    this.persistSelectedData.splice(this.persistSelectedData.indexOf(rowObj.data), 1);
+                let index: number;
+                let isPresent: boolean = this.persistSelectedData.some((data: Object, i: number) => {
+                    index = i;
+                    return data[this.primaryKey] === pKey;
+                });
+                if (isPresent) {
+                    this.persistSelectedData.splice(index, 1);
                 }
             }
         }
@@ -1091,7 +1098,7 @@ export class Selection implements IAction {
         this.parent.on(events.cellSelectionComplete, this.onActionComplete, this);
         this.parent.on(events.inBoundModelChanged, this.onPropertyChanged, this);
         this.parent.on(events.cellFocused, this.onCellFocused, this);
-        this.parent.on(events.dataReady, this.clearSelAfterRefresh, this);
+        this.parent.on(events.beforeFragAppend, this.clearSelAfterRefresh, this);
         this.parent.on(events.columnPositionChanged, this.columnPositionChanged, this);
         this.parent.on(events.contentReady, this.initialEnd, this);
         this.actionBeginFunction = this.actionBegin.bind(this);
@@ -1112,7 +1119,7 @@ export class Selection implements IAction {
         this.parent.off(events.cellSelectionComplete, this.onActionComplete);
         this.parent.off(events.inBoundModelChanged, this.onPropertyChanged);
         this.parent.off(events.cellFocused, this.onCellFocused);
-        this.parent.off(events.dataReady, this.clearSelAfterRefresh);
+        this.parent.off(events.beforeFragAppend, this.clearSelAfterRefresh);
         this.parent.off(events.columnPositionChanged, this.columnPositionChanged);
         this.parent.removeEventListener(events.actionBegin, this.actionBeginFunction);
         this.parent.removeEventListener(events.actionComplete, this.actionCompleteFunction);
@@ -1139,7 +1146,7 @@ export class Selection implements IAction {
         this.setCheckAllState();
     };
 
-    public dataReady(e: { requestType: string }): void {
+    public beforeFragAppend(e: { requestType: string }): void {
         if (e.requestType !== 'virtualscroll' && !this.parent.isPersistSelection) {
             this.clearSelection();
         }
@@ -1361,7 +1368,7 @@ export class Selection implements IAction {
                 this.persistSelectedData = [];
             } else if (this.parent.checkAllRows === 'Check') {
                 this.setRowSelection(true);
-                this.persistSelectedData = this.getData().slice();
+                this.persistSelectedData = !this.parent.getDataModule().isRemote() ? this.getData().slice() : this.persistSelectedData;
             }
         }
         if (!isNullOrUndefined(editForm)) {
@@ -1818,7 +1825,7 @@ export class Selection implements IAction {
     }
 
     private addEventListener_checkbox(): void {
-        this.parent.on(events.dataReady, this.dataReady, this);
+        this.parent.on(events.beforeFragAppend, this.beforeFragAppend, this);
         this.onDataBoundFunction = this.onDataBound.bind(this);
         this.parent.addEventListener(events.dataBound, this.onDataBoundFunction);
         this.parent.on(events.contentReady, this.checkBoxSelectionChanged, this);
@@ -1828,7 +1835,7 @@ export class Selection implements IAction {
     }
 
     public removeEventListener_checkbox(): void {
-        this.parent.off(events.dataReady, this.dataReady);
+        this.parent.off(events.beforeFragAppend, this.beforeFragAppend);
         this.parent.removeEventListener(events.dataBound, this.onDataBoundFunction);
         this.parent.removeEventListener(events.actionComplete, this.actionCompleteFunc);
         this.parent.off(events.click, this.clickHandler);

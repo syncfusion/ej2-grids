@@ -234,7 +234,8 @@ export class NormalEdit {
             row.refresh(rowObj, this.parent.getColumns() as Column[], true);
             if (frzCols) {
                 let uid: string;
-                if (rowObj.cells.length === frzCols) {
+                let tr: Element = this.parent.element.querySelector('[data-uid=' + rowObj.uid + ']');
+                if ((parentsUntil(tr, 'e-frozencontent')) || (parentsUntil(tr, 'e-frozenheader'))) {
                     uid = this.parent.getMovableRows()[rowObj.index].getAttribute('data-uid');
                 } else {
                     uid = this.parent.getRows()[rowObj.index].getAttribute('data-uid');

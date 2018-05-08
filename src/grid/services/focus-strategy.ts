@@ -453,7 +453,7 @@ export class ContentFocus implements IFocus {
             return info;
         }
         info.elementToFocus = !info.element.classList.contains('e-unboundcell') && !info.element.classList.contains('e-detailcell')
-            && !info.element.classList.contains('e-templatecell') ? this.getFocusable(info.element) : info.element;
+             ? this.getFocusable(info.element) : info.element;
         info.outline = true;
         return info;
     }

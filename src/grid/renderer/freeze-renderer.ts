@@ -189,6 +189,16 @@ export class FreezeRender extends HeaderRender implements IRenderer {
                 mRows[i].style.height = fRowHgt + 'px';
             }
         }
+        if (isWrap) {
+            let movableContentHeight: number = this.parent.element.querySelector('.e-movablecontent').getBoundingClientRect().height ;
+            let frozenContentHeight: number = this.parent.element.querySelector('.e-frozencontent').getBoundingClientRect().height;
+            if (movableContentHeight > frozenContentHeight) {
+                (this.parent.element.querySelector('.e-frozencontent') as HTMLElement).style.height = movableContentHeight + 'px';
+            }
+            if (frozenContentHeight > movableContentHeight) {
+                (this.parent.element.querySelector('.e-movablecontent') as HTMLElement).style.height = frozenContentHeight + 'px';
+            }
+        }
     }
 
     private refreshStackedHdrHgt(): void {

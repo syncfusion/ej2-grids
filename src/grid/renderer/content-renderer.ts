@@ -221,6 +221,7 @@ export class ContentRender implements IRenderer {
         args.isFrozen = this.parent.getFrozenColumns() !== 0 && !args.isFrozen;
         getUpdateUsingRaf<HTMLElement>(
             () => {
+                this.parent.trigger(events.beforeFragAppend,{});
                 remove(this.tbody);
                 this.tbody = createElement('tbody');
                 if (frzCols) {

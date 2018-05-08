@@ -24,7 +24,7 @@ export class Data implements IDataProcessor {
     //Module declarations    
     protected parent: IGrid;
     protected serviceLocator: ServiceLocator;
-    protected dataState: PendingState = { isPending: false, resolver: null, group: [] };
+    protected dataState: PendingState = { isPending: false, resolver: null, group: [], isDataChanged: false };
 
     /**
      * Constructor for data module.
@@ -409,8 +409,10 @@ export class Data implements IDataProcessor {
     public getStateEventArgument(query: Query): PendingState {
         let adaptr: UrlAdaptor = new UrlAdaptor();
         let dm: DataManager = new DataManager({ url: '', adaptor: new UrlAdaptor });
-        let state: { data?: string } = adaptr.processQuery(dm, query);
-        return JSON.parse(state.data);
+        let state: { data?: string, pvtData?: Object[] } = adaptr.processQuery(dm, query);
+        let data: Object = JSON.parse(state.data);
+        let final: Object = Object.assign(data, state.pvtData);
+        return final;
     }
 
     private eventPromise(args: { requestType?: string, foreignKeyData?: string[], data?: Object }, query?: Query, key?: string): Deferred {
@@ -419,7 +421,7 @@ export class Data implements IDataProcessor {
         state = this.getStateEventArgument(query);
         let def: Deferred = new Deferred();
         let deff: Deferred = new Deferred();
-        if (args.requestType !== undefined && args.requestType !== 'refresh') {
+        if (args.requestType !== undefined && this.dataState.isDataChanged !== false) {
             state.action = <{}>args;
             if (args.requestType === 'save' || args.requestType === 'delete') {
                 let editArgs: DataSourceChangedEventArgs = args;
@@ -429,11 +431,11 @@ export class Data implements IDataProcessor {
                 dataArgs.endEdit = deff.resolve;
                 this.parent.trigger(events.dataSourceChanged, editArgs);
                 deff.promise.then((e: ReturnType) => {
-                    this.setState({ isPending: true, resolver: def.resolve, group: state.group });
+                    this.setState({ isPending: true, resolver: def.resolve, group: state.group, aggregates: state.aggregates });
                     this.parent.trigger(events.dataStateChange, state);
                 });
             } else {
-                this.setState({ isPending: true, resolver: def.resolve, group: state.group });
+                this.setState({ isPending: true, resolver: def.resolve, group: state.group, aggregates: state.aggregates });
                 this.parent.trigger(events.dataStateChange, state);
             }
         } else {

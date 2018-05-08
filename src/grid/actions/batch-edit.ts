@@ -169,7 +169,7 @@ export class BatchEdit {
         let gObj: IGrid = this.parent;
         let rows: Row<Column>[] = this.parent.getRowsObject();
         if (gObj.frozenColumns) {
-            rows.push(...this.parent.getMovableRowsObject());
+            rows.push.apply(rows,this.parent.getMovableRowsObject());
         }
         let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let tr: HTMLElement;
@@ -209,6 +209,7 @@ export class BatchEdit {
                         this.removeRowObjectFromUID(rows[i].uid);
                         i--;
                     } else {
+                        refreshForeignData(rows[i], this.parent.getForeignKeyColumns(), rows[i].data);
                         delete rows[i].changes;
                         rows[i].isDirty = false;
                         let ftr: HTMLElement = mTr ? mTr : tr;
@@ -564,19 +565,22 @@ export class BatchEdit {
                 return;
             }
             let row: Element;
+            let rowData: Object;
             let colIdx: number = gObj.getColumnIndexByField(field);
             let frzCols: number = gObj.getFrozenColumns();
             if (frzCols && colIdx >= frzCols) {
                 row = gObj.getMovableDataRows()[index];
+                let mRowData: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getMovableRows()[index].getAttribute('data-uid'));
+                rowData = mRowData.changes ? mRowData.changes : mRowData;
             } else {
                 row = gObj.getDataRows()[index];
+                rowData = extend({}, this.getDataByIndex(index));
             }
             if ((keys[0] === col.field && !row.classList.contains('e-insertedrow')) || col.template || col.columns ||
                 (col.isPrimaryKey && col.isIdentity)) {
                 return;
             }
             let rowObj: Row<Column> = gObj.getRowObjectFromUID(row.getAttribute('data-uid'));
-            let rowData: Object = extend({}, this.getDataByIndex(index));
             let cells: Element[] = [].slice.apply((row as HTMLTableRowElement).cells);
             let isComplexField: boolean = !isNullOrUndefined(col.field) && col.field.split('.').length > 1;
             let splits: string[] = !isNullOrUndefined(col.field) && col.field.split('.');
@@ -717,7 +721,8 @@ export class BatchEdit {
         removeClass([tr], ['e-editedrow', 'e-batchrow']);
         removeClass([args.cell], ['e-editedbatchcell', 'e-boolcell']);
         if (!isNullOrUndefined(args.value) && args.value.toString() ===
-            (!isNullOrUndefined(this.cellDetails.value) ? this.cellDetails.value : '').toString() && !this.isColored) {
+            (!isNullOrUndefined(this.cellDetails.value) ? this.cellDetails.value : '').toString() && !this.isColored
+            || (isNullOrUndefined(args.value) && isNullOrUndefined(this.cellDetails.value))) {
             args.cell.classList.remove('e-updatedtd');
         }
         gObj.notify(events.toolbarRefresh, {});
