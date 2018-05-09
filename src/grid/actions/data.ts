@@ -24,7 +24,7 @@ export class Data implements IDataProcessor {
     //Module declarations    
     protected parent: IGrid;
     protected serviceLocator: ServiceLocator;
-    protected dataState: PendingState = { isPending: false, resolver: null, group: [], isDataChanged: false };
+    protected dataState: PendingState = { isPending: false, resolver: null, group: [] };
 
     /**
      * Constructor for data module.

@@ -231,13 +231,13 @@ export class Resize implements IAction {
     }
 
     private wireEvents(): void {
-        EventHandler.add(this.parent.getHeaderTable(), Browser.touchStartEvent, this.resizeStart, this);
-        EventHandler.add(this.parent.getHeaderTable(), events.dblclick, this.callAutoFit, this);
+        EventHandler.add(this.parent.getHeaderContent(), Browser.touchStartEvent, this.resizeStart, this);
+        EventHandler.add(this.parent.getHeaderContent(), events.dblclick, this.callAutoFit, this);
     }
 
     private unwireEvents(): void {
-        EventHandler.remove(this.parent.getHeaderTable(), Browser.touchStartEvent, this.resizeStart);
-        EventHandler.remove(this.parent.getHeaderTable(), events.dblclick, this.callAutoFit);
+        EventHandler.remove(this.parent.getHeaderContent(), Browser.touchStartEvent, this.resizeStart);
+        EventHandler.remove(this.parent.getHeaderContent(), events.dblclick, this.callAutoFit);
     }
 
     private getResizeHandlers(): HTMLElement[] {

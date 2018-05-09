@@ -169,7 +169,7 @@ export class BatchEdit {
         let gObj: IGrid = this.parent;
         let rows: Row<Column>[] = this.parent.getRowsObject();
         if (gObj.frozenColumns) {
-            rows.push.apply(rows,this.parent.getMovableRowsObject());
+            rows.push.apply(rows, this.parent.getMovableRowsObject());
         }
         let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         let tr: HTMLElement;
@@ -203,7 +203,7 @@ export class BatchEdit {
                         if (tr) {
                             remove(tr);
                         }
-                        if (mTr && (gObj.frozenColumns || gObj.frozenRows )) {
+                        if (mTr && (gObj.frozenColumns || gObj.frozenRows)) {
                             remove(mTr);
                         }
                         this.removeRowObjectFromUID(rows[i].uid);

@@ -79,6 +79,7 @@ export class Selection implements IAction {
     private focus: FocusStrategy;
     private isCancelDeSelect: boolean = false;
     private isPreventCellSelect: boolean = false;
+    private disableUI: boolean = false;
 
     /**
      * Constructor for the Grid selection module
@@ -488,17 +489,23 @@ export class Selection implements IAction {
             if (this.isCancelDeSelect === true) {
                 return;
             }
+
             rows.filter((record: HTMLElement) => record.hasAttribute('aria-selected')).forEach((ele: HTMLElement) => {
-                ele.removeAttribute('aria-selected');
-                this.addRemoveClassesForRow(ele, false, true, 'e-selectionbackground', 'e-active');
+                if (!this.disableUI) {
+                    ele.removeAttribute('aria-selected');
+                    this.addRemoveClassesForRow(ele, false, true, 'e-selectionbackground', 'e-active');
+                }
                 this.updatePersistCollection(ele, false);
                 this.updateCheckBoxes(ele);
             });
+
             for (let i: number = 0, len: number = this.selectedRowIndexes.length; i < len; i++) {
                 let movableRow: Element = this.getSelectedMovableRow(this.selectedRowIndexes[i]);
                 if (movableRow) {
-                    movableRow.removeAttribute('aria-selected');
-                    this.addRemoveClassesForRow(movableRow, false, true, 'e-selectionbackground', 'e-active');
+                    if (!this.disableUI) {
+                        movableRow.removeAttribute('aria-selected');
+                        this.addRemoveClassesForRow(movableRow, false, true, 'e-selectionbackground', 'e-active');
+                    }
                     this.updatePersistCollection(movableRow, false);
                 }
             }
@@ -1825,7 +1832,7 @@ export class Selection implements IAction {
     }
 
     private addEventListener_checkbox(): void {
-        this.parent.on(events.beforeFragAppend, this.beforeFragAppend, this);
+        this.parent.on(events.dataReady, this.dataReady, this);
         this.onDataBoundFunction = this.onDataBound.bind(this);
         this.parent.addEventListener(events.dataBound, this.onDataBoundFunction);
         this.parent.on(events.contentReady, this.checkBoxSelectionChanged, this);
@@ -1835,10 +1842,18 @@ export class Selection implements IAction {
     }
 
     public removeEventListener_checkbox(): void {
-        this.parent.off(events.beforeFragAppend, this.beforeFragAppend);
+        this.parent.off(events.dataReady, this.dataReady);
         this.parent.removeEventListener(events.dataBound, this.onDataBoundFunction);
         this.parent.removeEventListener(events.actionComplete, this.actionCompleteFunc);
         this.parent.off(events.click, this.clickHandler);
+    }
+
+    public dataReady(e: { requestType: string }): void {
+        if (e.requestType !== 'virtualscroll' && !this.parent.isPersistSelection) {
+            this.disableUI = true;
+            this.clearSelection();
+            this.disableUI = false;
+        }
     }
 
     private actionCompleteHandler(e: { requestType: string, action: string, selectedRow: number }): void {

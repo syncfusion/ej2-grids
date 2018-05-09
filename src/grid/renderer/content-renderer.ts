@@ -148,9 +148,7 @@ export class ContentRender implements IRenderer {
      */
     public refreshContentRows(args: NotifyArgs = {}): void {
         let gObj: IGrid = this.parent;
-        if (gObj.currentViewData.length === 0) {
-            return;
-        }
+        if (gObj.currentViewData.length === 0) { return; }
         let dataSource: Object = gObj.currentViewData;
         let frag: DocumentFragment = document.createDocumentFragment();
         let hdrfrag: DocumentFragment = document.createDocumentFragment();
@@ -221,7 +219,7 @@ export class ContentRender implements IRenderer {
         args.isFrozen = this.parent.getFrozenColumns() !== 0 && !args.isFrozen;
         getUpdateUsingRaf<HTMLElement>(
             () => {
-                this.parent.trigger(events.beforeFragAppend,{});
+                this.parent.notify(events.beforeFragAppend, {});
                 remove(this.tbody);
                 this.tbody = createElement('tbody');
                 if (frzCols) {

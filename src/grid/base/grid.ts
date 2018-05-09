@@ -1832,7 +1832,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             GroupDisable: 'Grouping is disabled for this column',
             FilterbarTitle: '\'s filter bar cell',
             EmptyDataSourceError:
-            'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
+                'DataSource must not be empty at initial load since columns are generated from dataSource in AutoGenerate Column Grid',
             // Toolbar Items
             Add: 'Add',
             Edit: 'Edit',
@@ -2255,7 +2255,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 break;
             case 'dataSource':
                 let pending: PendingState = this.getDataModule().getState();
-                this.getDataModule().setState({ isDataChanged: false });
                 if (pending.isPending) {
                     let gResult: Object = !isNullOrUndefined(this.dataSource) ? (<DataResult>this.dataSource).result : [];
                     (pending.group || []).forEach((name: string) => {
@@ -2264,6 +2263,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.dataSource = { result: gResult, count: (<DataResult>this.dataSource).count };
                     pending.resolver(this.dataSource);
                 } else {
+                    this.getDataModule().setState({ isDataChanged: false });
                     this.notify(events.dataSourceModified, {});
                     this.renderModule.refresh();
                 }

@@ -6,7 +6,7 @@ import { ContentRender } from './content-renderer';
 import { ServiceLocator } from '../services/service-locator';
 import { FreezeRowModelGenerator } from '../services/freeze-row-model-generator';
 import * as events from '../base/constant';
-import { renderMovable } from '../base/util';
+import { renderMovable, getScrollBarWidth } from '../base/util';
 
 /**
  * Freeze module is used to render grid content with frozen rows and columns
@@ -190,13 +190,11 @@ export class FreezeRender extends HeaderRender implements IRenderer {
             }
         }
         if (isWrap) {
-            let movableContentHeight: number = this.parent.element.querySelector('.e-movablecontent').getBoundingClientRect().height ;
+            let movableContentHeight: number = this.parent.element.querySelector('.e-movablecontent').getBoundingClientRect().height;
             let frozenContentHeight: number = this.parent.element.querySelector('.e-frozencontent').getBoundingClientRect().height;
             if (movableContentHeight > frozenContentHeight) {
-                (this.parent.element.querySelector('.e-frozencontent') as HTMLElement).style.height = movableContentHeight + 'px';
-            }
-            if (frozenContentHeight > movableContentHeight) {
-                (this.parent.element.querySelector('.e-movablecontent') as HTMLElement).style.height = frozenContentHeight + 'px';
+                (this.parent.element.querySelector('.e-frozencontent') as HTMLElement).style.height = movableContentHeight -
+                getScrollBarWidth() + 'px';
             }
         }
     }
