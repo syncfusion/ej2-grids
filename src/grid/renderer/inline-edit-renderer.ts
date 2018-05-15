@@ -41,8 +41,8 @@ export class InlineEditRender {
                 mTbody = this.parent.getContent().querySelector('.e-movablecontent').querySelector('tbody');
             }
             mTbody.insertBefore(mEle, mTbody.firstChild);
-            args.row.querySelector('.e-normaledit').setAttribute('colspan', this.parent.getFrozenColumns() + '');
-            mEle.setAttribute('colspan', '' + (this.parent.getColumns().length - this.parent.getFrozenColumns()));
+            args.row.querySelector('.e-normaledit').setAttribute('colspan', this.parent.getVisibleFrozenColumns() + '');
+            mEle.setAttribute('colspan', '' + (this.parent.getVisibleColumns().length - this.parent.getVisibleFrozenColumns()));
         }
     }
 
@@ -141,7 +141,7 @@ export class InlineEditRender {
         }
         let td: HTMLTableCellElement = createElement('td', {
             className: 'e-editcell e-normaledit',
-            attrs: { colspan: (gObj.getVisibleColumns().length + gLen + isDetail).toString() }
+            attrs: { colspan: (gObj.getVisibleColumns().length - gObj.getVisibleFrozenColumns() + gLen + isDetail).toString() }
         }) as HTMLTableCellElement;
         let form: HTMLFormElement = createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
         let table: Element = createElement('table', { className: 'e-table e-inline-edit', attrs: { cellspacing: '0.25' } });

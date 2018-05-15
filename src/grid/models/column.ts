@@ -553,8 +553,7 @@ export interface ColumnModel {
 
     /**   
      * Define the alignment of column header which is used to align the text of column header.       
-     * @default Left  
-     * @hidden  
+     * @default undefined  
      */
     headerTextAlign?: TextAlign;
 

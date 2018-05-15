@@ -242,10 +242,10 @@ export class ExportValueFormatter {
     private internationalization: Internationalization;
     private valueFormatter: ValueFormatter;
 
-    public constructor() {
+    public constructor(culture: string) {
 
-        this.valueFormatter = new ValueFormatter();
-        this.internationalization = new Internationalization();
+        this.valueFormatter = new ValueFormatter(culture);
+        this.internationalization = new Internationalization(culture);
     }
 
     /* tslint:disable-next-line:no-any */

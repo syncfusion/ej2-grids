@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## 16.1.42 (2018-05-15)
+
+### Grid
+
+#### Bug Fixes
+
+- Excel Filter dialog not updated while initial rendering and through `setproperties`.
+- Localization not applied in Exporting Grid.
+- Complex data binding not working properly with editing add action.
+
 ## 16.1.41 (2018-05-09)
 
 ### Grid

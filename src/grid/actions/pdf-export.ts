@@ -56,7 +56,7 @@ export class PdfExport {
         return 'PdfExport';
     }
     private init(parent: IGrid): void {
-        this.exportValueFormatter = new ExportValueFormatter();
+        this.exportValueFormatter = new ExportValueFormatter(parent.locale);
         this.pdfDocument = undefined;
         this.hideColumnInclude = false;
         this.currentViewData = false;

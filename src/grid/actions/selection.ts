@@ -1100,6 +1100,7 @@ export class Selection implements IAction {
      */
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.on(events.uiUpdate, this.enableAfterRender, this);
         this.parent.on(events.initialEnd, this.initializeSelection, this);
         this.parent.on(events.rowSelectionComplete, this.onActionComplete, this);
         this.parent.on(events.cellSelectionComplete, this.onActionComplete, this);
@@ -1121,6 +1122,7 @@ export class Selection implements IAction {
      */
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.off(events.uiUpdate, this.enableAfterRender);
         this.parent.off(events.initialEnd, this.initializeSelection);
         this.parent.off(events.rowSelectionComplete, this.onActionComplete);
         this.parent.off(events.cellSelectionComplete, this.onActionComplete);
@@ -1161,6 +1163,16 @@ export class Selection implements IAction {
 
     private getCheckAllBox(): HTMLInputElement {
         return this.parent.getHeaderContent().querySelector('.e-checkselectall') as HTMLInputElement;
+    }
+
+    private enableAfterRender(e: NotifyArgs): void {
+        if (e.module === this.getModuleName() && e.enable) {
+            this.render();
+        }
+    }
+
+    private render(e?: NotifyArgs): void {
+        EventHandler.add(this.parent.getContent(), 'mousedown', this.mouseDownHandler, this);
     }
 
     private onPropertyChanged(e: { module: string, properties: SelectionSettings }): void {

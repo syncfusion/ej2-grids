@@ -2122,6 +2122,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'allowRowDragAndDrop':
                     this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
                     break;
+                case 'allowSelection':
+                    this.notify(events.uiUpdate, { module: 'selection', enable: this.allowSelection });
+                    break;
                 case 'rowTemplate':
                     this.rowTemplateFn = templateCompiler(this.rowTemplate);
                     requireRefresh = true; break;

@@ -84,7 +84,7 @@ export class ExcelExport {
         this.footer = undefined;
         this.expType = 'AppendToSheet';
         this.includeHiddenColumn = false;
-        this.exportValueFormatter = new ExportValueFormatter();
+        this.exportValueFormatter = new ExportValueFormatter(gObj.locale);
     }
 
     /**

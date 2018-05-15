@@ -340,9 +340,6 @@ export class Filter implements IAction {
         } else {
             this.values[this.column.field] = filterValue; //this line should be above updateModel
         }
-        if (this.checkAlreadyColFiltered(this.column.field)) {
-            return;
-        }
         this.actualPredicate[this.fieldName] = [{
             field: this.fieldName,
             predicate: predicate,
@@ -353,6 +350,9 @@ export class Filter implements IAction {
             type: this.column.type
         }];
         this.addFilteredClass(this.fieldName);
+        if (this.checkAlreadyColFiltered(this.column.field)) {
+            return;
+        }
         this.updateModel();
     }
 
