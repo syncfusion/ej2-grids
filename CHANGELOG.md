@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## 16.1.43 (2018-05-18)
+
+### Grid
+
+#### Bug Fixes
+
+- Complex data editing is not shown valid selector when we use frozen feature.
+
 ## 16.1.42 (2018-05-15)
 
 ### Grid

@@ -339,6 +339,10 @@
       padding: $grid-bigger-groupedcell-padding;
     }
 
+    .e-grid .e-frozenheader table tr td.e-rowcell {
+      height: $grid-bigger-rowcell-line-height + $grid-bigger-content-padding + $grid-bigger-content-padding + 1;
+    }
+
 // sass-lint:disable-all
     .e-frozencontent table tr td:first-child:empty,
     .e-movablecontent table tr td:first-child:empty,

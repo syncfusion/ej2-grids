@@ -82,7 +82,7 @@ export class StringFilterUI implements IFilterMUI {
             actuiObj.hidePopup();
             actuiObj.focusOut();
         }
-        let filterValue: string | number = actuiObj.value;
+        let filterValue: string | number | Date | boolean = actuiObj.value;
         if (isNullOrUndefined(filterValue) || filterValue === '') {
             filterValue = null;
         }

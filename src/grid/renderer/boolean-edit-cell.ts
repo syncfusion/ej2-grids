@@ -4,7 +4,7 @@ import { Row } from '../models/row';
 import { Column } from '../models/column';
 import { CheckBox, ChangeEventArgs } from '@syncfusion/ej2-buttons';
 import { extend } from '@syncfusion/ej2-base';
-import { isEditable, addRemoveActiveClasses } from '../base/util';
+import { isEditable, addRemoveActiveClasses, getComplexValue, isComplexField, getComplexFieldID } from '../base/util';
 
 /**
  * `BooleanEditCell` is used to handle boolean cell type editing.
@@ -27,13 +27,13 @@ export class BooleanEditCell implements IEditCell {
         if (col.type === 'checkbox') {
             classNames = 'e-field e-boolcell e-edit-checkselect';
         }
-        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
-        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
+        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
+        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
         return createElement('input', {
             className: classNames, attrs: {
                 type: 'checkbox', value: args.value, 'e-mappinguid': col.uid,
-                id: isComplexField ? this.parent.element.id + splits[0] + splits[1] : this.parent.element.id + col.field,
-                name: isComplexField ? splits[0] + splits[1] : col.field
+                id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + col.field,
+                name: isComplex ? complexFieldName : col.field
             }
         });
     }
@@ -45,17 +45,17 @@ export class BooleanEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string, row: Element }): void {
         let selectChkBox: Element;
         let chkState: boolean;
-        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
-        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
+        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
+        let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
         if (!isNullOrUndefined(args.row)) {
             selectChkBox = args.row.querySelector('.e-edit-checkselect') as Element;
         }
-        if (!isComplexField && args.rowData[args.column.field]) {
+        if (!isComplex && args.rowData[args.column.field]) {
             chkState = JSON.parse(args.rowData[args.column.field].toString().toLowerCase());
         }
-        if (isComplexField && args.rowData[splits[0]][splits[1]]) {
+        if (isComplex && !isAddRow && getComplexValue(args.rowData, args.column.field)) {
 
-            chkState = JSON.parse(args.rowData[splits[0]][splits[1]].toString().toLowerCase());
+            chkState = JSON.parse(getComplexValue(args.rowData, args.column.field).toString().toLowerCase());
         }
         if (!isNullOrUndefined(selectChkBox)) {
             this.editType = this.parent.editSettings.mode;

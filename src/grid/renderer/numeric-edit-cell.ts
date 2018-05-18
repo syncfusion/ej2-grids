@@ -4,7 +4,7 @@ import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, EJ2Intance, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
-import { isEditable } from '../base/util';
+import { isEditable, isComplexField, getComplexFieldID, getComplexValue } from '../base/util';
 
 /**
  * `NumericEditCell` is used to handle numeric cell type editing.
@@ -20,13 +20,13 @@ export class NumericEditCell implements IEditCell {
     }
     public create(args: { column: Column, value: string }): Element {
         /* tslint:disable-next-line:no-any */
-        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
-        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
+        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
+        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
         return createElement('input', {
             className: 'e-field', attrs: {
                 /* tslint:disable-next-line:no-any */
-                id: isComplexField ? this.parent.element.id + splits[0] + splits[1] : this.parent.element.id + args.column.field,
-                name: isComplexField ? splits[0] + splits[1] : args.column.field, 'e-mappinguid': args.column.uid
+                id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + args.column.field,
+                name: isComplex ? complexFieldName : args.column.field, 'e-mappinguid': args.column.uid
             }
         });
     }
@@ -36,14 +36,16 @@ export class NumericEditCell implements IEditCell {
         return (<EJ2Intance>element).ej2_instances[0].value;
     }
 
-    public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
+    public write(args: { rowData: Object, element: Element, column: Column, row: HTMLElement, requestType: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
-        let isComplexField: boolean = !isNullOrUndefined(args.column.field) && args.column.field.split('.').length > 1;
-        let splits: string[] = !isNullOrUndefined(args.column.field) && args.column.field.split('.');
+        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
+        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
+        let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
         this.obj = new NumericTextBox(extend(
             {
-                value: isComplexField ? parseFloat(args.rowData[splits[0]][splits[1]]) : parseFloat(args.rowData[col.field]),
+                value: isComplex && !isAddRow ?
+                    parseFloat(getComplexValue(args.rowData, args.column.field)) : parseFloat(args.rowData[col.field]),
                 enableRtl: this.parent.enableRtl,
                 placeholder: isInline ? '' : args.column.headerText,
                 enabled: isEditable(args.column, args.requestType, args.element),
@@ -51,7 +53,7 @@ export class NumericEditCell implements IEditCell {
             },
             col.edit.params));
         this.obj.appendTo(args.element as HTMLElement);
-        args.element.setAttribute('name', isComplexField ? splits[0] + splits[1] : args.column.field);
+        args.element.setAttribute('name', isComplex ? complexFieldName : args.column.field);
     }
 
     public destroy(): void {

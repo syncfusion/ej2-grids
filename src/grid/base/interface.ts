@@ -1411,7 +1411,7 @@ export interface PendingState {
      *  DataSource changed through set model
      */
     isDataChanged?: Boolean;
-    aggregates ?: Object[];
+    aggregates?: Object[];
 
 }
 

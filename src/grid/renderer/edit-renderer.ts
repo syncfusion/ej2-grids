@@ -12,6 +12,7 @@ import { RowModelGenerator } from '../services/row-model-generator';
 import { IModelGenerator, ICellRenderer } from '../base/interface';
 import { Cell } from '../models/cell';
 import { FocusStrategy } from '../services/focus-strategy';
+import { isComplexField, getComplexFieldID } from '../base/util';
 
 /**
  * Edit render module is used to render grid edit row.
@@ -95,7 +96,7 @@ export class EditRender {
                     });
                 } else {
                     (col.edit.write as Function)({
-                        rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
+                        rowData: args.rowData, element: cell, column: col, requestType: args.requestType, type: args.type, row: args.row,
                         foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
                     });
                 }
@@ -159,11 +160,11 @@ export class EditRender {
                 input = div.firstChild as Element;
             }
             let isInput: number = input.tagName !== 'input' && input.querySelectorAll('input').length;
-            let isComplexField: boolean = !isNullOrUndefined(col.field) && col.field.split('.').length > 1;
-            let splits: string[] = !isNullOrUndefined(col.field) && col.field.split('.');
+            let isComplex: boolean = !isNullOrUndefined(col.field) && isComplexField(col.field);
+            let complexFieldName: string = !isNullOrUndefined(col.field) && getComplexFieldID(col.field);
             attributes(isInput ? input.querySelector('input') : input, {
-                name: isComplexField ? splits[0] + splits[1] : col.field, 'e-mappinguid': col.uid,
-                id: isComplexField ? gObj.element.id + splits[0] + splits[1] : gObj.element.id + col.field
+                name: isComplex ? complexFieldName : col.field, 'e-mappinguid': col.uid,
+                id: isComplex ? gObj.element.id + complexFieldName : gObj.element.id + col.field
             });
             classList(input, ['e-input', 'e-field'], []);
             if (col.textAlign === 'Right') {

@@ -328,6 +328,32 @@ export function getRowHeight(element?: HTMLElement): number {
     rowHeight = Math.ceil(rect.height);
     return rowHeight;
 }
+export function isComplexField(field: string): boolean {
+    return field.split('.').length > 1;
+}
+/** @hidden */
+export function getComplexFieldID(field: string): string {
+
+    let length: number = field.split('.').length;
+    let splits: string[] = field.split('.');
+    let fieldName: string = '';
+    for (let i: number = 0; i < length; i++) {
+        fieldName = fieldName + splits[i];
+    }
+    return fieldName;
+}
+/** @hidden */
+export function getComplexValue(rowData: Object, field: string): any {
+    let length: number = field.split('.').length;
+    let splits: string[] = field.split('.');
+    let complexData: Object = rowData[splits[0]];
+    let complexValue: string | Date | number | boolean | Object = complexData[splits[1]];
+    for (let i: number = 2; i < length; i++) {
+        complexValue = complexValue[splits[i]];
+    }
+    return complexValue;
+}
+
 
 /** @hidden */
 export function isEditable(col: Column, type: string, elem: Element): boolean {

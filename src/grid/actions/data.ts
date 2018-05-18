@@ -161,13 +161,13 @@ export class Data implements IDataProcessor {
                         predicateList = this.fGeneratePredicate(column, predicateList);
                     } else {
                         predicateList.push(new Predicate(
-                            column.field, sSettings.operator, sSettings.key, sSettings.ignoreCase, this.parent.filterSettings.ignoreAccent
+                            column.field, sSettings.operator, sSettings.key, sSettings.ignoreCase, sSettings.ignoreAccent
                         ));
                     }
                 });
                 query.where(Predicate.or(predicateList));
             } else {
-                query.search(sSettings.key, fields, sSettings.operator, sSettings.ignoreCase, this.parent.filterSettings.ignoreAccent);
+                query.search(sSettings.key, fields, sSettings.operator, sSettings.ignoreCase, sSettings.ignoreAccent);
             }
         }
         return query;

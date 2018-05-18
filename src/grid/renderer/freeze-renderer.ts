@@ -175,14 +175,20 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         let wrapMode: string = this.parent.textWrapSettings.wrapMode;
         let tHead: Element = this.parent.getHeaderContent().querySelector('thead');
         let tBody: Element = this.parent.getHeaderContent().querySelector('tbody');
+        let height: number[] = [];
+        let width: number[] = [];
+        for (let i: number = 0, len: number = fRows.length; i < len; i++) { //separate loop for performance issue 
+            height[i] = fRows[i].offsetHeight; //https://pagebuildersandwich.com/increased-plugins-performance-200/
+            width[i] = mRows[i].offsetHeight;
+        }
         for (let i: number = 0, len: number = fRows.length; i < len; i++) {
             if (isModeChg && ((wrapMode === 'Header' && isContReset) || ((wrapMode === 'Content' && tHead.contains(fRows[i]))
                 || (wrapMode === 'Header' && tBody.contains(fRows[i])))) || isStackedHdr) {
                 fRows[i].style.height = null;
                 mRows[i].style.height = null;
             }
-            fRowHgt = fRows[i].offsetHeight;
-            mRowHgt = mRows[i].offsetHeight;
+            fRowHgt = height[i];
+            mRowHgt = width[i];
             if (fRows[i].childElementCount && ((isWrap && fRowHgt < mRowHgt) || (!isWrap && fRowHgt > mRowHgt))) {
                 fRows[i].style.height = mRowHgt + 'px';
             } else if (mRows[i].childElementCount && ((isWrap && fRowHgt > mRowHgt) || (!isWrap && fRowHgt < mRowHgt))) {

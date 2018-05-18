@@ -5,7 +5,7 @@ import { isNullOrUndefined, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { IGrid, BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from '../base/interface';
 import { BatchAddArgs, CellEditArgs, CellSaveArgs, CellFocusArgs } from '../base/interface';
 import { CellType } from '../base/enum';
-import { parentsUntil, inArray, refreshForeignData } from '../base/util';
+import { parentsUntil, inArray, refreshForeignData, getComplexValue, isComplexField } from '../base/util';
 import * as events from '../base/constant';
 import { EditRender } from '../renderer/edit-renderer';
 import { RowRenderer } from '../renderer/row-renderer';
@@ -98,8 +98,11 @@ export class BatchEdit {
         let target: Element = parentsUntil(e.target as Element, 'e-rowcell');
         let tr: Element = parentsUntil(e.target as Element, 'e-row');
         if (target && tr && !isNaN(parseInt(target.getAttribute('aria-colindex'), 10))) {
-            this.editCell(parseInt(tr.getAttribute('aria-rowindex'), 10), (this.parent.getColumns()
-            [parseInt(target.getAttribute('aria-colindex'), 10)] as Column).field);
+            this.editCell(
+                parseInt(tr.getAttribute('aria-rowindex'), 10),
+                (this.parent.getColumns()[parseInt(target.getAttribute('aria-colindex'), 10)] as Column).field,
+                this.isAddRow(parseInt(tr.getAttribute('aria-rowindex'), 10))
+            );
         }
     }
 
@@ -162,7 +165,7 @@ export class BatchEdit {
     private editCellFromIndex(rowIdx: number, cellIdx: number): void {
         this.cellDetails.rowIndex = rowIdx;
         this.cellDetails.cellIndex = cellIdx;
-        this.editCell(rowIdx, (this.parent.getColumns() as Column[])[cellIdx].field);
+        this.editCell(rowIdx, (this.parent.getColumns() as Column[])[cellIdx].field, this.isAddRow(rowIdx));
     }
 
     public closeEdit(): void {
@@ -535,7 +538,15 @@ export class BatchEdit {
         let data: Object = {};
         let dValues: Object = { 'number': 0, 'string': null, 'boolean': false, 'date': null, 'datetime': null };
         for (let col of gObj.getColumns() as Column[]) {
-            data[col.field] = col.defaultValue ? col.defaultValue : dValues[col.type];
+            if (!isNullOrUndefined(col.field) && !isComplexField(col.field)) {
+                data[col.field] = col.defaultValue ? col.defaultValue : dValues[col.type];
+            }
+            if (!isNullOrUndefined(col.field) && isComplexField(col.field)) {
+                let splits: string[] = col.field.split('.');
+                data[splits[0]] = !isNullOrUndefined(data[splits[0]]) ? data[splits[0]] : {};
+                col.defaultValue ? data[splits[0]][splits[1]] = col.defaultValue : data[splits[0]][splits[1]] = dValues[col.type];
+
+            }
         }
         return data;
     }
@@ -571,7 +582,7 @@ export class BatchEdit {
             if (frzCols && colIdx >= frzCols) {
                 row = gObj.getMovableDataRows()[index];
                 let mRowData: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getMovableRows()[index].getAttribute('data-uid'));
-                rowData = mRowData.changes ? mRowData.changes : mRowData;
+                rowData = mRowData.changes ? mRowData.changes : mRowData.data;
             } else {
                 row = gObj.getDataRows()[index];
                 rowData = extend({}, this.getDataByIndex(index));
@@ -582,14 +593,13 @@ export class BatchEdit {
             }
             let rowObj: Row<Column> = gObj.getRowObjectFromUID(row.getAttribute('data-uid'));
             let cells: Element[] = [].slice.apply((row as HTMLTableRowElement).cells);
-            let isComplexField: boolean = !isNullOrUndefined(col.field) && col.field.split('.').length > 1;
-            let splits: string[] = !isNullOrUndefined(col.field) && col.field.split('.');
+            let isComplex: boolean = !isNullOrUndefined(col.field) && isComplexField(col.field);
             let args: CellEditArgs = {
                 cell: cells[this.getColIndex(cells, this.getCellIdx(col.uid))], row: row,
                 columnName: col.field, columnObject: col, isForeignKey: !isNullOrUndefined(col.foreignKeyValue),
                 primaryKey: keys, rowData: rowData,
                 validationRules: extend({}, col.validationRules ? col.validationRules : {}),
-                value: isComplexField ? rowData[splits[0]][splits[1]] : rowData[col.field],
+                value: isComplex && !isAdd ? getComplexValue(rowData, col.field) : rowData[col.field],
                 type: !isAdd ? 'edit' : 'add', cancel: false,
                 foreignKeyData: rowObj && rowObj.foreignKeyData
             };
@@ -632,12 +642,11 @@ export class BatchEdit {
     }
 
     private setChanges(rowObj: Row<Column>, field: string, value: string | number | boolean | Date): void {
-        let isComplexField: boolean = !isNullOrUndefined(field) && field.split('.').length > 1;
-        let splits: string[] = !isNullOrUndefined(field) && field.split('.');
+        let isComplex: boolean = !isNullOrUndefined(field) && isComplexField(field);
         if (!rowObj.changes) {
             rowObj.changes = extend({}, rowObj.data);
         }
-        isComplexField ? rowObj.changes[splits[0]][splits[1]] = value : rowObj.changes[field] = value;
+        isComplex ? rowObj.changes[field.split('.')[0]][field.split('.')[1]] = value : rowObj.changes[field] = value;
         if (rowObj.data[field] !== value) {
             rowObj.isDirty = true;
         }
@@ -661,10 +670,16 @@ export class BatchEdit {
     private refreshTD(td: Element, column: Column, rowObj: Row<Column>, value: string | number | boolean | Date): void {
         let cell: CellRenderer = new CellRenderer(this.parent, this.serviceLocator);
         this.setChanges(rowObj, column.field, value);
+        let rowcell: Cell<Column>[];
         let frzCols: number = this.parent.getFrozenColumns();
         refreshForeignData(rowObj, this.parent.getForeignKeyColumns(), rowObj.changes);
+        if (frzCols && this.getCellIdx(column.uid) >= frzCols && this.parent.getColumns().length === rowObj.cells.length) {
+            rowcell = rowObj.cells.slice(frzCols, rowObj.cells.length);
+        } else {
+            rowcell = rowObj.cells;
+        }
         cell.refreshTD(
-            td, rowObj.cells[this.getCellIdx(column.uid) - (this.getCellIdx(column.uid) >= frzCols ? frzCols : 0)] as Cell<Column>,
+            td, rowcell[this.getCellIdx(column.uid) - (this.getCellIdx(column.uid) >= frzCols ? frzCols : 0)] as Cell<Column>,
             rowObj.changes);
         td.classList.add('e-updatedtd');
         this.parent.notify(events.toolbarRefresh, {});
@@ -695,12 +710,11 @@ export class BatchEdit {
         let tr: Element = parentsUntil(this.form, 'e-row');
         let column: Column = this.cellDetails.column;
         let editedData: Object = gObj.editModule.getCurrentEditedData(this.form, {});
-        let isComplexField: boolean = !isNullOrUndefined(column.field) && column.field.split('.').length > 1;
-        let splits: string[] = !isNullOrUndefined(column.field) && column.field.split('.');
+        let isComplex: boolean = !isNullOrUndefined(column.field) && isComplexField(column.field);
         editedData = extend(this.cellDetails.rowData, editedData);
         let args: CellSaveArgs = {
             columnName: column.field,
-            value: isComplexField ? editedData[splits[0]][splits[1]] : editedData[column.field],
+            value: isComplex ? getComplexValue(editedData, column.field) : editedData[column.field],
             rowData: this.cellDetails.rowData,
             previousValue: this.cellDetails.value,
             columnObject: column,
@@ -722,7 +736,8 @@ export class BatchEdit {
         removeClass([args.cell], ['e-editedbatchcell', 'e-boolcell']);
         if (!isNullOrUndefined(args.value) && args.value.toString() ===
             (!isNullOrUndefined(this.cellDetails.value) ? this.cellDetails.value : '').toString() && !this.isColored
-            || (isNullOrUndefined(args.value) && isNullOrUndefined(this.cellDetails.value))) {
+            || (isNullOrUndefined(args.value) && isNullOrUndefined(this.cellDetails.value) &&
+                !args.cell.parentElement.classList.contains('e-insertedrow'))) {
             args.cell.classList.remove('e-updatedtd');
         }
         gObj.notify(events.toolbarRefresh, {});

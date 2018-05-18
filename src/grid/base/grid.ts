@@ -409,6 +409,15 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
      */
     @Property(true)
     public ignoreCase: boolean;
+
+    /**
+     * If ignoreAccent set to true, then filter ignores the diacritic characters or accents while filtering.
+     * 
+     * > Check the [`Diacritics`](./filtering.html/#diacritics) filtering.
+     * @default false
+     */
+    @Property(false)
+    public ignoreAccent: boolean;
 }
 
 /**   
