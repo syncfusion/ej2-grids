@@ -339,7 +339,7 @@
       padding: $grid-bigger-groupedcell-padding;
     }
 
-    .e-grid .e-frozenheader table tr td.e-rowcell {
+    .e-frozenheader table tr td.e-rowcell {
       height: $grid-bigger-rowcell-line-height + $grid-bigger-content-padding + $grid-bigger-content-padding + 1;
     }
 
@@ -845,6 +845,10 @@
       vertical-align: middle;
       white-space: nowrap;
       width: auto;
+    }
+    
+    .e-frozenheader table tr td.e-rowcell {
+      height: $grid-rowcell-line-height + $grid-content-padding + $grid-content-padding + 1;
     }
 
     .e-frozencontent table tr td:first-child:empty,

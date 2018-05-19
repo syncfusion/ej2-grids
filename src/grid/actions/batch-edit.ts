@@ -582,7 +582,7 @@ export class BatchEdit {
             if (frzCols && colIdx >= frzCols) {
                 row = gObj.getMovableDataRows()[index];
                 let mRowData: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getMovableRows()[index].getAttribute('data-uid'));
-                rowData = mRowData.changes ? mRowData.changes : mRowData.data;
+                rowData = mRowData.changes ? extend(mRowData.data, mRowData.changes) : extend({}, this.getDataByIndex(index));
             } else {
                 row = gObj.getDataRows()[index];
                 rowData = extend({}, this.getDataByIndex(index));

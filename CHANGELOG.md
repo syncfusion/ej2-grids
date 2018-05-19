@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## 16.1.44 (2018-05-18)
+
+### Grid
+
+#### Bug Fixes
+
+- edited data is not remove when we click the cancel button with frozen column feature enable.
+
 ## 16.1.43 (2018-05-18)
 
 ### Grid
