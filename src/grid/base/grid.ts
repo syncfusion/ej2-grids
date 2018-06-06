@@ -1678,6 +1678,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public requiredModules(): ModuleDeclaration[] {
         let modules: ModuleDeclaration[] = [];
+        if (this.isDestroyed) {
+            return modules;
+        }
         if (this.allowFiltering) {
             modules.push({
                 member: 'filter',
@@ -1758,6 +1761,19 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.serviceLocator]
             });
         }
+        this.extendRequiredModules(modules);
+        return modules;
+    }
+
+    public extendRequiredModules(modules: ModuleDeclaration[]): void {
+
+        if (this.contextMenuItems) {
+            modules.push({
+                member: 'contextMenu',
+                args: [this, this.serviceLocator]
+            });
+        }
+
         if (this.getFrozenColumns() || this.frozenRows) {
             modules.push({ member: 'freeze', args: [this, this.serviceLocator] });
         }
@@ -1770,18 +1786,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
             modules.push({
                 member: 'edit',
-                args: [this, this.serviceLocator]
-            });
-        }
-        this.extendRequiredModules(modules);
-        return modules;
-    }
-
-    public extendRequiredModules(modules: ModuleDeclaration[]): void {
-
-        if (this.contextMenuItems) {
-            modules.push({
-                member: 'contextMenu',
                 args: [this, this.serviceLocator]
             });
         }
@@ -2060,6 +2064,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         this.notify(events.destroy, {});
         this.destroyDependentModules();
         super.destroy();
+        this.toolTipObj.destroy();
+        let modules: string[] = ['renderModule', 'headerModule', 'contentModule', 'valueFormatterService',
+            'serviceLocator', 'ariaService', 'keyboardModule', 'widthService', 'searchModule', 'showHider',
+            'scrollModule', 'printModule', 'clipboardModule', 'focusModule'];
+        for (let i: number = 0; i < modules.length; i++) {
+            if (this[modules[i]]) {
+                this[modules[i]] = null;
+            }
+        }
         this.element.innerHTML = '';
         classList(this.element, [], ['e-rtl', 'e-gridhover', 'e-responsive', 'e-default', 'e-device', 'e-grid-min-height']);
     }

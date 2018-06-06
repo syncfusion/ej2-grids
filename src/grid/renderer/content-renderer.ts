@@ -243,6 +243,7 @@ export class ContentRender implements IRenderer {
                 if (frzCols && idx === 0) {
                     this.refreshContentRows(extend({}, args));
                 }
+                frag = null;
             },
             this.rafCallback(extend({}, args)));
     }

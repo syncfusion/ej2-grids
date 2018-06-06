@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## 16.1.47 (2018-06-06)
+
+### Grid
+
+#### Bug Fixes
+
+- Memory leak issue with angular routing fixed.
+- Sort icon misalignment with auto wrap feature.
+
 ## 16.1.44 (2018-05-18)
 
 ### Grid

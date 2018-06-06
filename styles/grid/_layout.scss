@@ -283,6 +283,26 @@
       margin: $grid-bigger-fltricon-sortdiv-margin;
     }
 
+    .e-gridheader .e-columnheader.e-wrap .e-sortfilterdiv,
+    .e-wrap .e-sortfilterdiv {
+      margin: $grid-bigger-wrap-sortdiv-margin;
+    }
+
+    .e-gridheader .e-columnheader.e-wrap .e-rightalign .e-sortfilterdiv
+    .e-wrap .e-rightalign .e-sortfilterdiv {
+      margin: $grid-bigger-wrap-rightalign-sortdiv-margin;
+    }
+
+    .e-gridheader .e-columnheader.e-wrap .e-fltr-icon .e-sortfilterdiv
+    .e-wrap .e-fltr-icon .e-sortfilterdiv {
+      margin: $grid-bigger-wrap-fltricon-sortdiv-margin;
+    }
+
+    .e-gridheader .e-columnheader.e-wrap .e-rightalign.e-fltr-icon .e-sortfilterdiv,
+    .e-wrap .e-rightalign.e-fltr-icon .e-sortfilterdiv {
+      margin: $grid-bigger-wrap-rightalign-fltricon-sortdiv-margin;
+    }
+
     .e-gridheader .e-rightalign .e-sortfilterdiv {
       margin: $grid-bigger-sortdiv-rightalign-margin;
     }
@@ -2455,6 +2475,21 @@
     & .e-columnheader.e-wrap .e-sortfilterdiv,
     &.e-wrap .e-columnheader .e-sortfilterdiv {
       margin: $grid-header-wrap-sortfilter-div-margin;
+    }
+
+    & .e-columnheader.e-wrap .e-rightalign .e-sortfilterdiv,
+    &.e-wrap .e-columnheader .e-rightalign .e-sortfilterdiv {
+      margin: $grid-header-wrap-rightalign-sortfilter-div-margin;
+    }
+
+    & .e-columnheader.e-wrap .e-fltr-icon .e-sortfilterdiv,
+    &.e-wrap .e-columnheader .e-fltr-icon .e-sortfilterdiv {
+      margin: $grid-header-wrap-filtericon-sortfilter-div-margin;
+    }
+
+    & .e-columnheader.e-wrap .e-fltr-icon.e-rightalign .e-sortfilterdiv,
+    &.e-wrap .e-columnheader .e-fltr-icon.e-rightalign .e-sortfilterdiv {
+      margin: $grid-header-wrap-filtericon-rightalign-sortfilter-div-margin;
     }
 
     & .e-columnheader.e-wrap .e-icon-group::before,
