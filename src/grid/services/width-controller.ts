@@ -70,7 +70,9 @@ export class ColumnWidthService {
         }
         let edit: HTMLTableElement = <HTMLTableElement>content.querySelector('.e-table.e-inline-edit');
         if (edit) {
-            (<HTMLTableColElement>edit.querySelector('colgroup').children[index]).style.width = fWidth;
+            if (<HTMLTableColElement>edit.querySelector('colgroup').children[index]) {
+                (<HTMLTableColElement>edit.querySelector('colgroup').children[index]).style.width = fWidth;
+            }
         }
     }
 
@@ -135,7 +137,7 @@ export class ColumnWidthService {
         let movableWidth: string = formatUnit(this.getTableWidth(columns));
         if (this.parent.getHeaderContent().querySelector('.e-movableheader').firstElementChild) {
             (this.parent.getHeaderContent().querySelector('.e-movableheader').firstElementChild as HTMLTableElement).style.width
-            = movableWidth;
+                = movableWidth;
         }
         (this.parent.getContent().querySelector('.e-movablecontent').firstElementChild as HTMLTableElement).style.width =
             movableWidth;

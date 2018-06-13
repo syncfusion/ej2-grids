@@ -171,7 +171,7 @@ export class BatchEdit {
     public closeEdit(): void {
         let gObj: IGrid = this.parent;
         let rows: Row<Column>[] = this.parent.getRowsObject();
-        if (gObj.frozenColumns) {
+        if (gObj.frozenColumns && rows.length < this.parent.currentViewData.length * 2) {
             rows.push.apply(rows, this.parent.getMovableRowsObject());
         }
         let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
@@ -304,13 +304,6 @@ export class BatchEdit {
     private mergeBatchChanges(row: Row<Column>, mRow: Row<Column>, frzCols: number): void {
         if (row.isDirty) {
             if (mRow.isDirty) {
-                let i: number = 0;
-                Object.keys(mRow.changes).forEach((key: string) => {
-                    if (i < frzCols) {
-                        delete mRow.changes[key];
-                    }
-                    i++;
-                });
                 extend(row.changes, mRow.changes);
             }
         } else if (mRow.isDirty) {
@@ -582,7 +575,7 @@ export class BatchEdit {
             if (frzCols && colIdx >= frzCols) {
                 row = gObj.getMovableDataRows()[index];
                 let mRowData: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getMovableRows()[index].getAttribute('data-uid'));
-                rowData = mRowData.changes ? extend(mRowData.data, mRowData.changes) : extend({}, this.getDataByIndex(index));
+                rowData = mRowData.changes ? extend({}, mRowData.changes) : extend({}, this.getDataByIndex(index));
             } else {
                 row = gObj.getDataRows()[index];
                 rowData = extend({}, this.getDataByIndex(index));
@@ -646,7 +639,12 @@ export class BatchEdit {
         if (!rowObj.changes) {
             rowObj.changes = extend({}, rowObj.data);
         }
-        isComplex ? rowObj.changes[field.split('.')[0]][field.split('.')[1]] = value : rowObj.changes[field] = value;
+        if (isComplex) {
+            rowObj.changes[field.split('.')[0]] = extend({}, rowObj.data[field.split('.')[0]]);
+            rowObj.changes[field.split('.')[0]][field.split('.')[1]] = value;
+        } else {
+            rowObj.changes[field] = value;
+        }
         if (rowObj.data[field] !== value) {
             rowObj.isDirty = true;
         }
@@ -711,7 +709,17 @@ export class BatchEdit {
         let column: Column = this.cellDetails.column;
         let editedData: Object = gObj.editModule.getCurrentEditedData(this.form, {});
         let isComplex: boolean = !isNullOrUndefined(column.field) && isComplexField(column.field);
-        editedData = extend(this.cellDetails.rowData, editedData);
+        let cloneEditedData: Object = extend({}, editedData);
+        editedData = extend({}, editedData, this.cellDetails.rowData);
+        if (isComplex) {
+            let splits: string[] = column.field.split('.');
+            let cloneComplexData: Object = extend({}, this.cellDetails.rowData[splits[0]]);
+            editedData[splits[0]] = extend({}, editedData[splits[0]], this.cellDetails.rowData[splits[0]]);
+            this.cellDetails.rowData[splits[0]][splits[1]] = cloneComplexData[splits[1]];
+            editedData[splits[0]][splits[1]] = cloneEditedData[splits[0]][splits[1]];
+        } else {
+            editedData[column.field] = cloneEditedData[column.field];
+        }
         let args: CellSaveArgs = {
             columnName: column.field,
             value: isComplex ? getComplexValue(editedData, column.field) : editedData[column.field],

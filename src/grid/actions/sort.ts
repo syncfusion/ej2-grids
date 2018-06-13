@@ -167,8 +167,16 @@ export class Sort implements IAction {
             } : { requestType: 'sorting', type: events.actionBegin };
             this.parent.notify(events.modelChanged, args);
         }
+        this.refreshSortSettings();
         this.removeSortIcons();
         this.addSortIcons();
+    }
+
+    private refreshSortSettings(): void {
+        this.sortedColumns = [];
+        this.sortSettings.columns.forEach((e : Column) => {
+            this.sortedColumns.push(e.field);
+        });
     }
 
     /**  
