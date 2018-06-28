@@ -1,7 +1,7 @@
 import { Droppable, DropEventArgs } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { createElement, setStyleAttribute, remove } from '@syncfusion/ej2-base';
-import { getUpdateUsingRaf } from '../base/util';
+import { getUpdateUsingRaf, appendChildren } from '../base/util';
 import * as events from '../base/constant';
 import { IRenderer, IGrid, NotifyArgs, IModelGenerator } from '../base/interface';
 import { Column } from '../models/column';
@@ -29,6 +29,7 @@ export class ContentRender implements IRenderer {
     private movableRows: Row<Column>[] = [];
     private rowElements: Element[];
     private freezeRowElements: Element[];
+    private index: number;
     public colgroup: Element;
     private isLoaded: boolean = true;
     private tbody: HTMLElement;
@@ -57,7 +58,9 @@ export class ContentRender implements IRenderer {
                 let action: string = (arg.requestType || '').toLowerCase() + '-complete';
                 this.parent.notify(action, arg);
             }
-            this.parent.hideSpinner();
+            if (this.isLoaded) {
+                this.parent.hideSpinner();
+            }
         };
     }
     //Module declarations
@@ -146,21 +149,23 @@ export class ContentRender implements IRenderer {
      * Refresh the content of the Grid. 
      * @return {void}  
      */
+    // tslint:disable-next-line:max-func-body-length
     public refreshContentRows(args: NotifyArgs = {}): void {
         let gObj: IGrid = this.parent;
         if (gObj.currentViewData.length === 0) { return; }
-        let dataSource: Object = gObj.currentViewData;
-        let frag: DocumentFragment = document.createDocumentFragment();
-        let hdrfrag: DocumentFragment = document.createDocumentFragment();
-        let columns: Column[] = <Column[]>gObj.getColumns();
-        let tr: Element; let hdrTbody: HTMLElement;
-        let frzCols: number = gObj.getFrozenColumns();
+        let dataSource: Object = gObj.currentViewData; let frag: DocumentFragment = document.createDocumentFragment();
+        let hdrfrag: DocumentFragment = document.createDocumentFragment(); let columns: Column[] = <Column[]>gObj.getColumns();
+        let tr: Element; let hdrTbody: HTMLElement; let frzCols: number = gObj.getFrozenColumns();
         let row: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, null, this.parent);
         this.rowElements = []; this.rows = [];
-        let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args); let idx: number = modelData[0].cells[0].index;
         let fCont: Element = this.getPanel().querySelector('.e-frozencontent');
         let mCont: HTMLElement = this.getPanel().querySelector('.e-movablecontent') as HTMLElement;
         let cont: HTMLElement = this.getPanel().querySelector('.e-content') as HTMLElement;
+        let modelData: Row<Column>[] = this.generator.generateRows(dataSource, args);
+        if (isNullOrUndefined(modelData[0].cells[0])) {
+            mCont.querySelector('tbody').innerHTML = '';
+        }
+        let idx: number = modelData[0].cells[0].index;
         // tslint:disable-next-line:no-any
         if ((this.parent as any).registeredTemplate && (this.parent as any).registeredTemplate.template) {
             this.parent.destroyTemplate(['template']);
@@ -177,20 +182,36 @@ export class ContentRender implements IRenderer {
         for (let i: number = 0, len: number = modelData.length; i < len; i++) {
             if (!gObj.rowTemplate) {
                 tr = row.render(modelData[i], columns);
+                if (gObj.frozenRows && i < gObj.frozenRows) {
+                    hdrfrag.appendChild(tr);
+                } else {
+                    frag.appendChild(tr);
+                }
             } else {
                 let elements: NodeList = gObj.getRowTemplate()(extend({ index: i }, dataSource[i]), gObj, 'rowTemplate');
-                for (let j: number = 0; j < elements.length; j++) {
-                    let isTR: boolean = elements[j].nodeName.toLowerCase() === 'tr';
-                    if (isTR || ((elements[j] as Element).querySelectorAll && (elements[j] as Element).querySelectorAll('tr').length)) {
-                        tr = isTR ? elements[j] as Element : (elements[j] as Element).querySelector('tr');
+                if ((elements[0] as Element).tagName === 'TBODY') {
+                    for (let j: number = 0; j < elements.length; j++) {
+                        let isTR: boolean = elements[j].nodeName.toLowerCase() === 'tr';
+                        if (isTR || ((elements[j] as Element).querySelectorAll && (elements[j] as Element).querySelectorAll('tr').length)) {
+                            tr = isTR ? elements[j] as Element : (elements[j] as Element).querySelector('tr');
+                        }
+                    }
+                    if (gObj.frozenRows && i < gObj.frozenRows) {
+                        hdrfrag.appendChild(tr);
+                    } else {
+
+                        frag.appendChild(tr);
+                    }
+                } else {
+                    if (gObj.frozenRows && i < gObj.frozenRows) {
+                        tr = appendChildren(hdrfrag, elements);
+                    } else {
+                        // frag.appendChild(tr);
+                        tr = appendChildren(frag, elements);
                     }
                 }
             }
-            if (gObj.frozenRows && i < gObj.frozenRows) {
-                hdrfrag.appendChild(tr);
-            } else {
-                frag.appendChild(tr);
-            }
+
             this.rows.push(modelData[i]);
             if (modelData[i].isDataRow) {
                 //detailrowvisible 
@@ -217,14 +238,17 @@ export class ContentRender implements IRenderer {
         }
         args.rows = this.rows.slice(0);
         args.isFrozen = this.parent.getFrozenColumns() !== 0 && !args.isFrozen;
+        this.index = idx;
         getUpdateUsingRaf<HTMLElement>(
             () => {
                 this.parent.notify(events.beforeFragAppend, {});
-                remove(this.tbody);
-                this.tbody = createElement('tbody');
+                if (!this.parent.enableVirtualization) {
+                    remove(this.tbody);
+                    this.tbody = createElement('tbody');
+                }
                 if (frzCols) {
                     this.tbody.appendChild(frag);
-                    if (idx === 0) {
+                    if (this.index === 0) {
                         this.isLoaded = false;
                         fCont.querySelector('table').appendChild(this.tbody);
                     } else {
@@ -247,7 +271,6 @@ export class ContentRender implements IRenderer {
             },
             this.rafCallback(extend({}, args)));
     }
-
     public appendContent(tbody: Element, frag: DocumentFragment, args: NotifyArgs): void {
         tbody.appendChild(frag);
         this.getTable().appendChild(tbody);

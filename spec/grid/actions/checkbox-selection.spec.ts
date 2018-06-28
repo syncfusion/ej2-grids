@@ -373,6 +373,7 @@ describe('Grid checkbox selection functionality', () => {
 
 
         it('check selection persistance', () => {
+            rows = gridObj.getRows();
             expect(rows[1].firstElementChild.classList.contains('e-selectionbackground')).toBeFalsy();
             expect(rows[2].firstElementChild.classList.contains('e-selectionbackground')).toBeFalsy();
             expect(selectionModule.selectedRecords.length).toBe(0);

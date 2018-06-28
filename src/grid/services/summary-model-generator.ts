@@ -49,7 +49,7 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
         if (this.parent.allowGrouping) {
             this.parent.groupSettings.columns.forEach((value: string) => columns.push(new Column({})));
         }
-        if (this.parent.detailTemplate) {
+        if (this.parent.detailTemplate || !isNullOrUndefined(this.parent.childGrid)) {
             columns.push(new Column({}));
         }
         columns.push(...<Column[]>this.parent.getColumns());
@@ -70,13 +70,15 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
         Row<AggregateColumnModel> {
         let tmp: Cell<AggregateColumnModel>[] = [];
         let indents: string[] = this.getIndentByLevel(raw);
-        let indentLength: number = this.parent.groupSettings.columns.length + (this.parent.detailTemplate ? 1 : 0);
+        let isDetailGridAlone: boolean = !isNullOrUndefined(this.parent.childGrid);
+        let indentLength: number = this.parent.groupSettings.columns.length + (this.parent.detailTemplate ||
+            !isNullOrUndefined(this.parent.childGrid) ? 1 : 0);
 
         this.getColumns(start, end).forEach((value: Column, index: number) => tmp.push(
             this.getGeneratedCell(
                 value,
                 summaryRow,
-                index >= indentLength ? this.getCellType() : CellType.Indent, indents[index])
+                index >= indentLength ? this.getCellType() : CellType.Indent, indents[index], isDetailGridAlone)
         ));
 
         let row: Row<AggregateColumnModel> = new Row<AggregateColumnModel>({ data: data, attributes: { class: 'e-summaryrow' } });
@@ -85,7 +87,8 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
         return row;
     }
 
-    public getGeneratedCell(column: Column, summaryRow: AggregateRowModel, cellType?: CellType, indent?: string)
+    public getGeneratedCell(
+        column: Column, summaryRow: AggregateRowModel, cellType?: CellType, indent?: string, isDetailGridAlone?: boolean)
         : Cell<AggregateColumnModel> {
         //Get the summary column by display
         let sColumn: AggregateColumnModel = summaryRow.columns.filter(
@@ -95,6 +98,10 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
 
         if (indent) {
             attrs.class = indent;
+        }
+
+        if (isNullOrUndefined(indent) && isDetailGridAlone) {
+            attrs.class = 'e-detailindentcelltop';
         }
 
         let opt: { [o: string]: Object } = {
@@ -142,7 +149,8 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
             let key: string = column.field + ' - ' + type.toLowerCase(); let disp: string = column.columnName;
             let val: Object = type !== 'Custom' && group.aggregates && key in group.aggregates ? group.aggregates[key] :
                 calculateAggregate(type, group.aggregates ? group : <Object[]>data, column, this.parent);
-            single[disp] = single[disp] || {}; single[disp][key] = val; single[disp][type] = !isNullOrUndefined(val) ? formatFn(val) : ' ';
+            single[disp] = single[disp] || {}; single[disp][key] = val;
+            single[disp][type] = !isNullOrUndefined(val) ? formatFn(val) : ' ';
             if (group.field) { (<Group>single[disp]).field = group.field; (<Group>single[disp]).key = group.key; }
         });
         helper.format = column.getFormatter();

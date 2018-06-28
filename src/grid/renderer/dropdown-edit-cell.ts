@@ -14,36 +14,38 @@ import { parentsUntil } from '../base/util';
  */
 export class DropDownEditCell implements IEditCell {
 
+
     private parent: IGrid;
     private obj: DropDownList;
     private column: Column;
+
     constructor(parent?: IGrid) {
         //constructor
         this.parent = parent;
     }
 
     public create(args: { column: Column, value: string }): Element {
+        //create
         /* tslint:disable-next-line:no-any */
-        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
+        let complexFieldName: string = getComplexFieldID(args.column.field);
         /* tslint:disable-next-line:no-any */
-        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
+        let isComplex: boolean = isComplexField(args.column.field);
         return createElement('input', {
             className: 'e-field', attrs: {
                 /* tslint:disable-next-line:no-any */
                 id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + args.column.field,
                 /* tslint:disable-next-line:no-any */
                 name: isComplex ? complexFieldName : args.column.field, type: 'text', 'e-mappinguid': args.column.uid,
-
             }
         });
     }
 
     public write(args: { rowData: Object, element: Element, column: Column, row: HTMLElement, requestType: string }): void {
         this.column = args.column;
-        let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         /* tslint:disable-next-line:no-any */
-        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
-        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
+        let complexFieldName: string = getComplexFieldID(args.column.field);
+        let isComplex: boolean = isComplexField(args.column.field);
+        let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
         this.obj = new DropDownList(extend(
             {
@@ -62,6 +64,7 @@ export class DropDownEditCell implements IEditCell {
         this.obj.appendTo(args.element as HTMLElement);
         /* tslint:disable-next-line:no-any */
         args.element.setAttribute('name', isComplex ? complexFieldName : args.column.field);
+
     }
 
     public read(element: Element): string {

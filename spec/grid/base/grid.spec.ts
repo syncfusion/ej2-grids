@@ -529,7 +529,7 @@ describe('Grid base module', () => {
         });
     });
 
-    // describe('Datamodule testing', () => {
+    // describe('Data module testing', () => {
     //     let gridObj: Grid;
     //     let elem: HTMLElement = createElement('div', { id: 'Grid' });
     //     beforeAll((done: Function) => {
@@ -563,7 +563,6 @@ describe('Grid base module', () => {
     //         remove(elem);
     //     });
     // });
-
 
     describe('row Information', () => {
 
@@ -663,7 +662,7 @@ describe('Grid base module', () => {
     //     });
     // });
 
-    describe('page size greater than total records grid get refresh =>', () => {
+     describe('page size greater than total records grid get refresh =>', () => {
         let gridObj: Grid;
         let actionComplete: (e?: Object) => void;
         beforeAll((done: Function) => {
@@ -701,6 +700,7 @@ describe('Grid base module', () => {
             destroy(gridObj);
         });
     });
+
 
 });
 

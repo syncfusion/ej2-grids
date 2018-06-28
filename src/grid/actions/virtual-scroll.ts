@@ -1,5 +1,4 @@
 import { IGrid, IAction } from '../base/interface';
-import { getRowHeight } from '../base/util';
 import { initialLoad } from '../base/constant';
 import { RenderType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
@@ -33,7 +32,7 @@ export class VirtualScroll implements IAction {
     }
 
     public ensurePageSize(): void {
-        let rowHeight: number = getRowHeight(this.parent.element);
+        let rowHeight: number = this.parent.getRowHeight();
         this.blockSize = ~~(<number>this.parent.height / rowHeight);
         let height: number =  this.blockSize * 2;
         let size: number = this.parent.pageSettings.pageSize;

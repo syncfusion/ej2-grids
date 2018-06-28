@@ -3,7 +3,7 @@ import { remove, classList, createElement } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { isNullOrUndefined, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { IGrid, BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from '../base/interface';
-import { BatchAddArgs, CellEditArgs, CellSaveArgs, CellFocusArgs } from '../base/interface';
+import { BatchAddArgs, CellEditArgs, CellSaveArgs, CellFocusArgs, BatchCancelArgs } from '../base/interface';
 import { CellType } from '../base/enum';
 import { parentsUntil, inArray, refreshForeignData, getComplexValue, isComplexField } from '../base/util';
 import * as events from '../base/constant';
@@ -97,7 +97,8 @@ export class BatchEdit {
     protected dblClickHandler(e: MouseEvent): void {
         let target: Element = parentsUntil(e.target as Element, 'e-rowcell');
         let tr: Element = parentsUntil(e.target as Element, 'e-row');
-        if (target && tr && !isNaN(parseInt(target.getAttribute('aria-colindex'), 10))) {
+        if (target && tr && !isNaN(parseInt(target.getAttribute('aria-colindex'), 10))
+            && !target.parentElement.classList.contains('e-editedrow')) {
             this.editCell(
                 parseInt(tr.getAttribute('aria-rowindex'), 10),
                 (this.parent.getColumns()[parseInt(target.getAttribute('aria-colindex'), 10)] as Column).field,
@@ -226,11 +227,19 @@ export class BatchEdit {
             !gObj.getContentTable().querySelector('tr.e-row')) {
             gObj.getContentTable().querySelector('tr.e-emptyrow').classList.remove('e-hide');
         }
-        gObj.notify(events.batchCancel, { rows: this.parent.getRowsObject() });
+        let args: BatchCancelArgs = {
+            requestType: 'batchCancel', rows: this.parent.getRowsObject()
+        };
+        gObj.notify(events.batchCancel, {
+            rows: this.parent.getRowsObject().length ? this.parent.getRowsObject() :
+                [new Row<Column>({ isDataRow: true, cells: [new Cell<Column>({ isDataCell: true, visible: true })] })]
+        });
         gObj.selectRow(this.cellDetails.rowIndex);
         this.refreshRowIdx();
         gObj.notify(events.toolbarRefresh, {});
         this.parent.notify(events.tooltipDestroy, {});
+        args = { requestType: 'batchCancel', rows: this.parent.getRowsObject() };
+        gObj.trigger(events.batchCancel, args);
     }
 
     public deleteRecord(fieldname?: string, data?: Object): void {
@@ -304,10 +313,18 @@ export class BatchEdit {
     private mergeBatchChanges(row: Row<Column>, mRow: Row<Column>, frzCols: number): void {
         if (row.isDirty) {
             if (mRow.isDirty) {
+                let i: number = 0;
+                Object.keys(row.changes).forEach((key: string) => {
+                    if (i < frzCols) {
+                        delete mRow.changes[key];
+                    }
+                    i++;
+                });
+
                 extend(row.changes, mRow.changes);
             }
         } else if (mRow.isDirty) {
-            extend(row, mRow);
+            extend(row.changes, mRow.changes);
         }
     }
 
@@ -471,6 +488,9 @@ export class BatchEdit {
             }
             mTbody.insertBefore(mTr, mTbody.firstChild);
             addClass(mTr.querySelectorAll('.e-rowcell'), ['e-updatedtd']);
+            if (this.parent.height === 'auto') {
+                this.parent.notify(events.frozenHeight, {});
+            }
         }
         if (gObj.frozenRows) {
             tbody = gObj.getHeaderContent().querySelector('tbody');
@@ -570,11 +590,12 @@ export class BatchEdit {
             }
             let row: Element;
             let rowData: Object;
+            let mRowData: Row<Column>;
             let colIdx: number = gObj.getColumnIndexByField(field);
             let frzCols: number = gObj.getFrozenColumns();
             if (frzCols && colIdx >= frzCols) {
                 row = gObj.getMovableDataRows()[index];
-                let mRowData: Row<Column> = this.parent.getRowObjectFromUID(this.parent.getMovableRows()[index].getAttribute('data-uid'));
+                mRowData = this.parent.getRowObjectFromUID(this.parent.getMovableDataRows()[index].getAttribute('data-uid'));
                 rowData = mRowData.changes ? extend({}, mRowData.changes) : extend({}, this.getDataByIndex(index));
             } else {
                 row = gObj.getDataRows()[index];
@@ -667,8 +688,8 @@ export class BatchEdit {
 
     private refreshTD(td: Element, column: Column, rowObj: Row<Column>, value: string | number | boolean | Date): void {
         let cell: CellRenderer = new CellRenderer(this.parent, this.serviceLocator);
-        this.setChanges(rowObj, column.field, value);
         let rowcell: Cell<Column>[];
+        this.setChanges(rowObj, column.field, value);
         let frzCols: number = this.parent.getFrozenColumns();
         refreshForeignData(rowObj, this.parent.getForeignKeyColumns(), rowObj.changes);
         if (frzCols && this.getCellIdx(column.uid) >= frzCols && this.parent.getColumns().length === rowObj.cells.length) {
@@ -748,6 +769,7 @@ export class BatchEdit {
                 !args.cell.parentElement.classList.contains('e-insertedrow'))) {
             args.cell.classList.remove('e-updatedtd');
         }
+        gObj.trigger(events.cellSaved, args);
         gObj.notify(events.toolbarRefresh, {});
         this.isColored = false;
     }

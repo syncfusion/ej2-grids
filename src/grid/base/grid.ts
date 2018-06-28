@@ -7,12 +7,14 @@ import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';
 import { ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { createSpinner, hideSpinner, showSpinner, Tooltip } from '@syncfusion/ej2-popups';
 import { GridModel } from './grid-model';
-import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler, refreshForeignData } from './util';
+import { iterateArrayOrObject, prepareColumns, parentsUntil, wrap, templateCompiler, refreshForeignData, getRowHeight } from './util';
 import * as events from '../base/constant';
 import { IRenderer, IValueFormatter, IFilterOperator, IIndex, RowDataBoundEventArgs, QueryCellInfoEventArgs } from './interface';
 import { CellDeselectEventArgs, CellSelectEventArgs, CellSelectingEventArgs, ParentDetails, ContextMenuItemModel } from './interface';
 import { PdfQueryCellInfoEventArgs, ExcelQueryCellInfoEventArgs, ExcelExportProperties, PdfExportProperties } from './interface';
-import { ColumnMenuOpenEventArgs, RecordDoubleClickEventArgs, DataResult, PendingState } from './interface';
+import { PdfHeaderQueryCellInfoEventArgs, ExcelHeaderQueryCellInfoEventArgs } from './interface';
+import { ColumnMenuOpenEventArgs, BatchCancelArgs, RecordDoubleClickEventArgs, DataResult, PendingState } from './interface';
+import { HeaderCellInfoEventArgs } from './interface';
 import { FailureEventArgs, FilterEventArgs, ColumnDragEventArgs, GroupEventArgs, PrintEventArgs, ICustomOptr } from './interface';
 import { RowDeselectEventArgs, RowSelectEventArgs, RowSelectingEventArgs, PageEventArgs, RowDragEventArgs } from './interface';
 import { BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs, ResizeArgs, ColumnMenuItemModel } from './interface';
@@ -418,6 +420,7 @@ export class SearchSettings extends ChildProperty<SearchSettings> {
      */
     @Property(false)
     public ignoreAccent: boolean;
+
 }
 
 /**   
@@ -584,6 +587,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     // Internal variables  
     private gridPager: Element;
     private isInitial: boolean;
+    public isPreventScrollEvent: boolean = false;
     private columnModel: Column[];
     private rowTemplateFn: Function;
     private detailTemplateFn: Function;
@@ -632,6 +636,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private keyConfigs: { [key: string]: string };
     private keyPress: boolean;
     private toolTipObj: Tooltip;
+    private stackedColumn: Column;
+    /** @hidden */
+    public prevPageMoving: boolean = false;
 
     //Module Declarations
     /**
@@ -1149,7 +1156,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @default null
      */
     @Property()
-    public toolbar: ToolbarItems[] | string[] | ItemModel[] | ToolbarItem[];
+    public toolbar: (ToolbarItems | string | ItemModel | ToolbarItem)[];
 
     /**    
      * `contextMenuItems` defines both built-in and custom context menu items.
@@ -1260,6 +1267,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Event()
     public queryCellInfo: EmitType<QueryCellInfoEventArgs>;
+
+    /** 
+     * Triggered for stacked header.
+     * @event 
+     */
+    @Event()
+    public headerCellInfo: EmitType<HeaderCellInfoEventArgs>;
 
     /* tslint:disable */
     /** 
@@ -1397,12 +1411,27 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public pdfQueryCellInfo: EmitType<PdfQueryCellInfoEventArgs>;
 
     /** 
+     * Triggers before exporting each header cell to PDF document. You can also customize the PDF cells.
+     * @event 
+     */
+    @Event()
+    public pdfHeaderQueryCellInfo: EmitType<PdfHeaderQueryCellInfoEventArgs>;
+
+    /** 
      * Triggers before exporting each cell to Excel file.
      * You can also customize the Excel cells.
      * @event
      */
     @Event()
     public excelQueryCellInfo: EmitType<ExcelQueryCellInfoEventArgs>;
+
+    /** 
+     * Triggers before exporting each header cell to Excel file.
+     * You can also customize the Excel cells.
+     * @event
+     */
+    @Event()
+    public excelHeaderQueryCellInfo: EmitType<ExcelHeaderQueryCellInfoEventArgs>;
 
     /**
      * Triggers before Grid data is exported to Excel file.
@@ -1490,6 +1519,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public batchDelete: EmitType<BatchDeleteArgs>;
 
     /** 
+     * Triggers when cancel the batch edit changes batch mode.
+     * @event
+     */
+    @Event()
+    public batchCancel: EmitType<BatchCancelArgs>;
+
+    /** 
      * Triggers before records are added in batch mode.
      * @event
      */
@@ -1530,6 +1566,13 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Event()
     public cellSave: EmitType<CellSaveArgs>;
+
+    /** 
+     * Triggers when cell is saved.
+     * @event
+     */
+    @Event()
+    public cellSaved: EmitType<CellSaveArgs>;
 
     /** 
      * Triggers when column resize starts.
@@ -1678,9 +1721,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public requiredModules(): ModuleDeclaration[] {
         let modules: ModuleDeclaration[] = [];
-        if (this.isDestroyed) {
-            return modules;
-        }
+        if (this.isDestroyed) { return modules; }
         if (this.allowFiltering) {
             modules.push({
                 member: 'filter',
@@ -1761,19 +1802,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 args: [this, this.serviceLocator]
             });
         }
-        this.extendRequiredModules(modules);
-        return modules;
-    }
-
-    public extendRequiredModules(modules: ModuleDeclaration[]): void {
-
-        if (this.contextMenuItems) {
-            modules.push({
-                member: 'contextMenu',
-                args: [this, this.serviceLocator]
-            });
-        }
-
         if (this.getFrozenColumns() || this.frozenRows) {
             modules.push({ member: 'freeze', args: [this, this.serviceLocator] });
         }
@@ -1786,6 +1814,18 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if (this.editSettings.allowAdding || this.editSettings.allowDeleting || this.editSettings.allowEditing) {
             modules.push({
                 member: 'edit',
+                args: [this, this.serviceLocator]
+            });
+        }
+        this.extendRequiredModules(modules);
+        return modules;
+    }
+
+    public extendRequiredModules(modules: ModuleDeclaration[]): void {
+
+        if (this.contextMenuItems) {
+            modules.push({
+                member: 'contextMenu',
                 args: [this, this.serviceLocator]
             });
         }
@@ -2043,6 +2083,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
     private refreshMediaCol(): void {
         this.isInitialLoad = true;
+        if (this.aggregates.length && this.element.scrollHeight > this.height) {
+            let footerContent: Element = this.element.querySelector('.e-gridfooter');
+            addClass([footerContent], ['e-footerpadding']);
+        }
     }
 
     /**
@@ -2095,6 +2139,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * Called internally if any of the property value changed.
      * @hidden
      */
+
     /* tslint:disable-next-line:max-line-length */
     public onPropertyChanged(newProp: GridModel, oldProp: GridModel): void {
         let requireRefresh: boolean = false; let requireGridRefresh: boolean = false;
@@ -2108,8 +2153,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             switch (prop) {
                 case 'allowPaging':
                     this.notify(events.uiUpdate, { module: 'pager', enable: this.allowPaging });
-                    requireRefresh = true;
-                    break;
+                    requireRefresh = true; break;
                 case 'pageSettings':
                     this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
                     if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)
@@ -2119,28 +2163,26 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     break;
                 case 'currencyCode':
                 case 'locale':
-                    super.refresh();
-                    break;
+                    super.refresh(); break;
                 case 'allowSorting':
                     this.notify(events.uiUpdate, { module: 'sort', enable: this.allowSorting });
                     requireRefresh = true;
-                    checkCursor = true;
-                    break;
+                    checkCursor = true; break;
                 case 'allowFiltering':
                     this.updateStackedFilter();
                     this.notify(events.uiUpdate, { module: 'filter', enable: this.allowFiltering });
                     requireRefresh = true;
                     if (this.filterSettings.type !== 'FilterBar') {
                         this.refreshHeader();
-                    }
-                    break;
+                    } break;
                 case 'height':
                 case 'width':
                     this.notify(events.uiUpdate, { module: 'scroll', properties: { width: newProp.width, height: newProp.height } });
                     break;
                 case 'allowReordering':
                     this.headerModule.refreshUI();
-                    checkCursor = true; break;
+                    checkCursor = true;
+                    break;
                 case 'allowRowDragAndDrop':
                     this.notify(events.uiUpdate, { module: 'rowDragAndDrop', enable: this.allowRowDragAndDrop });
                     break;
@@ -2152,14 +2194,12 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     requireRefresh = true; break;
                 case 'detailTemplate':
                     this.detailTemplateFn = templateCompiler(this.detailTemplate);
-                    requireRefresh = true;
-                    break;
+                    requireRefresh = true; break;
                 case 'allowGrouping':
                     this.notify(events.uiUpdate, { module: 'group', enable: this.allowGrouping });
                     this.headerModule.refreshUI();
                     requireRefresh = true;
-                    checkCursor = true;
-                    break;
+                    checkCursor = true; break;
                 case 'childGrid':
                     requireRefresh = true; break;
                 case 'toolbar':
@@ -2173,28 +2213,29 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.notify(events.inBoundModelChanged, {
                         module: 'group', properties: newProp.groupSettings,
                         oldProperties: oldProp.groupSettings
-                    });
-                    break;
+                    }); break;
                 case 'aggregates':
                     if (!this.aggregates.length && this.allowGrouping && this.groupSettings.columns.length) {
                         requireRefresh = true;
                     }
-                    this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp });
-                    break;
+                    this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp }); break;
+                case 'frozenColumns':
+                case 'frozenRows':
+                    this.freezeRefresh(); break;
                 default:
                     this.extendedPropertyChange(prop, newProp);
             }
         }
-        if (checkCursor) {
-            this.updateDefaultCursor();
-        }
+        if (checkCursor) { this.updateDefaultCursor(); }
         if (requireGridRefresh) {
             this.refresh();
+            if (this.frozenColumns || this.frozenRows) {
+                this.freezeRefresh();
+            }
         } else if (requireRefresh) {
             this.notify(events.modelChanged, args);
             requireRefresh = false;
         }
-
     }
 
     /* tslint:disable-next-line:max-line-length */
@@ -2225,9 +2266,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.notify(events.rtlUpdated, {}); break;
             case 'enableAltRow':
                 this.renderModule.refresh(); break;
-            case 'frozenColumns':
-            case 'frozenRows':
-                this.freezeRefresh(); break;
             case 'allowResizing':
                 this.headerModule.refreshUI();
                 this.updateResizeLines(); break;
@@ -2246,8 +2284,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.headerModule.refreshUI();
                 this.notify(events.uiUpdate, { module: 'columnMenu', enable: true }); break;
             case 'columnMenuItems':
-                this.notify(events.uiUpdate, { module: 'columnMenu', enable: this.columnMenuItems });
-                break;
+                this.notify(events.uiUpdate, { module: 'columnMenu', enable: this.columnMenuItems }); break;
             case 'contextMenuItems':
                 this.notify(events.uiUpdate, { module: 'contextMenu', enable: this.contextMenuItems });
                 break;
@@ -2262,7 +2299,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 this.notify(events.inBoundModelChanged, { module: 'search', properties: newProp.searchSettings });
                 break;
             case 'sortSettings':
-                this.notify(events.inBoundModelChanged, { module: 'sort' }); break;
+                this.notify(events.inBoundModelChanged, { module: 'sort' });
+                break;
             case 'selectionSettings':
                 this.notify(events.inBoundModelChanged, { module: 'selection', properties: newProp.selectionSettings });
                 break;
@@ -2285,7 +2323,10 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     (pending.group || []).forEach((name: string) => {
                         gResult = DataUtil.group(<Object[]>gResult, name, pending.aggregates || []);
                     });
-                    this.dataSource = { result: gResult, count: (<DataResult>this.dataSource).count };
+                    this.dataSource = {
+                        result: gResult, count: (<DataResult>this.dataSource).count,
+                        aggregates: (<DataResult>this.dataSource).aggregates
+                    };
                     pending.resolver(this.dataSource);
                 } else {
                     this.getDataModule().setState({ isDataChanged: false });
@@ -2316,7 +2357,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public updateDefaultCursor(): void {
         let headerRows: Element[] = [].slice.call(this.element.querySelectorAll('.e-columnheader'));
         for (let row of headerRows) {
-            if (this.allowSorting || this.allowGrouping || this.allowReordering) {
+            if (this.allowSorting || (this.allowGrouping && this.groupSettings.showDropArea) || this.allowReordering) {
                 row.classList.remove('e-defaultcursor');
             } else {
                 row.classList.add('e-defaultcursor');
@@ -2361,6 +2402,22 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             this.columnModel.slice(inview[0], inview[vLen - 1] + 1);
         return columns;
 
+    }
+
+    /**
+     * @private
+     */
+    public getStackedHeaderColumnByHeaderText(stackedHeader: string, col: Column[]): Column {
+        for (let i: number = 0; i < col.length; i++) {
+            let individualColumn: Column = col[i];
+            if (individualColumn.field === stackedHeader || individualColumn.headerText === stackedHeader) {
+                this.stackedColumn = individualColumn;
+                break;
+            } else if (individualColumn.columns) {
+                this.getStackedHeaderColumnByHeaderText(stackedHeader, <Column[]>individualColumn.columns);
+            }
+        }
+        return this.stackedColumn;
     }
 
     /**
@@ -2640,20 +2697,30 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         let fieldIdx: number;
         let col: Column;
         let tr: Element;
+        let mTr: Element;
         let pkName: string = this.getPrimaryKeyFieldNames()[0];
         let cell: CellRenderer = new CellRenderer(this, this.serviceLocator);
         let selectedRow: Object = {};
+        let movableSelectedRow: Object = {};
+        let selectedMovableRow: Object = {};
         let rowObjects: Object = this.contentModule.getRows();
+        let movableRowObjects: Object = this.contentModule.getMovableRows();
         fieldIdx = this.getColumnIndexByField(field);
         col = this.getColumnByField(field);
         selectedRow = (<Row<{}>[]>rowObjects).filter((r: Row<{}>) =>
             getValue(pkName, r.data) === key)[0];
+        movableSelectedRow = (<Row<{}>[]>movableRowObjects).filter((r: Row<{}>) =>
+            getValue(pkName, r.data) === key)[0];
         tr = !isNullOrUndefined(selectedRow) ? this.element.querySelector('[data-uid=' + selectedRow[rowuID] + ']') : null;
+        mTr = !isNullOrUndefined(movableSelectedRow) ? this.element.querySelector('[data-uid=' + movableSelectedRow[rowuID] + ']') : null;
         if (!isNullOrUndefined(tr)) {
             setValue(field, value, selectedRow[rowData]);
-            let td: Element = tr.childNodes[fieldIdx] as Element;
+            let td: Element = !isNullOrUndefined(tr.childNodes[fieldIdx] as Element) ?
+                tr.childNodes[fieldIdx] as Element : mTr.childNodes[fieldIdx - this.frozenColumns] as Element;
             if (!isNullOrUndefined(td)) {
-                cell.refreshTD(td, selectedRow[cells][fieldIdx] as Cell<Column>, selectedRow[rowData]);
+                let sRow: Cell<Column> = selectedRow[cells][fieldIdx];
+                let mRow: Cell<Column> = movableSelectedRow[cells][fieldIdx - this.frozenColumns];
+                cell.refreshTD(td, !isNullOrUndefined(sRow) ? sRow : mRow, selectedRow[rowData]);
                 this.trigger(events.queryCellInfo, {
                     cell: td, column: col, data: selectedRow[rowData]
                 });
@@ -2771,6 +2838,19 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getColumnHeaderByUid(uid: string): Element {
         return this.getHeaderContent().querySelector('[e-mappinguid=' + uid + ']').parentElement;
+    }
+
+    /**
+     * @hidden
+     */
+
+    public getColumnByIndex(index: number): Column {
+        let column: Column;
+        this.getColumns().some((col: Column, i: number) => {
+            column = col;
+            return i === index;
+        });
+        return column;
     }
 
     /**
@@ -2910,11 +2990,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     public getPrimaryKeyFieldNames(): string[] {
         let keys: string[] = [];
-        for (let key: number = 0, col: Column[] | string[] | ColumnModel[] = this.columns, cLen: number = col.length; key < cLen; key++) {
-            if ((col[key] as Column).isPrimaryKey) {
-                keys.push((col[key] as Column).field);
+        (<Column[]>this.columnModel).forEach((column: Column) => {
+            if (column.isPrimaryKey) {
+                keys.push(column.field);
             }
-        }
+        });
         return keys;
     }
 
@@ -3552,9 +3632,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 }
                 if (this.getTooltipStatus(element)) {
                     if (element.getElementsByClassName('e-headertext').length) {
-                        this.toolTipObj.content = element.getElementsByClassName('e-headertext')[0].innerHTML;
+                        this.toolTipObj.content = (element.getElementsByClassName('e-headertext')[0] as HTMLElement).innerText;
                     } else {
-                        this.toolTipObj.content = element.innerHTML;
+                        this.toolTipObj.content = element.innerText;
                     }
                     this.toolTipObj.open(element);
                 } else {
@@ -3667,9 +3747,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     public getCurrentViewRecords(): Object[] {
-        return (this.allowGrouping && this.groupSettings.columns.length) ?
+        return (this.allowGrouping && this.groupSettings.columns.length && this.currentViewData.length) ?
             (this.currentViewData as Object[] & { records: Object[] }).records : this.currentViewData;
-
     }
 
     private mouseClickHandler(e: MouseEvent & TouchEvent): void {
@@ -3719,7 +3798,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
             filterClear.classList.add('e-hide');
         }
         if ((!e.relatedTarget || !parentsUntil(e.relatedTarget as Element, 'e-grid'))
-            && !this.keyPress && this.editSettings.mode === 'Batch' && this.isEdit) {
+            && !this.keyPress && this.editSettings.mode === 'Batch' && this.isEdit && !Browser.isDevice) {
             this.editModule.saveCell();
         }
         this.keyPress = false;
@@ -3833,9 +3912,17 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     /**
+     * @hidden
+     */
+    public getRowHeight(): number {
+        return this.rowHeight ? this.rowHeight : getRowHeight(this.element);
+    }
+
+    /**
      * Refreshes the Grid column changes.
      */
     public refreshColumns(): void {
+        this.isPreventScrollEvent = true;
         this.updateColumnObject();
         this.refresh();
     }
@@ -3924,6 +4011,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public destroyTemplate(propertyNames?: string[]): void {
         this.clearTemplate(propertyNames);
     }
+
 }
 
 Grid.Inject(Selection);

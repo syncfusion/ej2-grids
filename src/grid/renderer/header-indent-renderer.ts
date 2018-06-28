@@ -19,7 +19,7 @@ export class HeaderIndentCellRenderer extends CellRenderer implements ICellRende
      */
     public render(cell: Cell<Column>, data: Object): Element {
         let node: Element = this.element.cloneNode() as Element;
-        node.appendChild(createElement('div', { className: 'e-headercelldiv e-emptycell', innerHTML: '&nbsp;' }));
+        node.appendChild(createElement('div', { className: 'e-headercelldiv e-emptycell', innerHTML: '' }));
         return node;
     }
 

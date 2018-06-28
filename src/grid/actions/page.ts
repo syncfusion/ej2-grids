@@ -92,7 +92,7 @@ export class Page implements IAction {
                 if (this.parent.getContentTable()) {
                     (<Element>links[i]).setAttribute('aria-owns', this.parent.getContentTable().id);
                 } else {
-                        (<Element>links[i]).setAttribute('aria-owns', this.parent.element.getAttribute('id') + '_content_table');
+                    (<Element>links[i]).setAttribute('aria-owns', this.parent.element.getAttribute('id') + '_content_table');
                 }
                 let numericContainerDiv: Element = createElement('div');
                 numericContainerDiv.appendChild(links[i]);
@@ -169,7 +169,7 @@ export class Page implements IAction {
 
     private clickHandler(e: { currentPage: number, cancel: boolean }): void {
         let gObj: IGrid = this.parent;
-        if (this.isForceCancel || isActionPrevent(gObj)) {
+        if (this.isForceCancel || isActionPrevent(gObj) && !gObj.prevPageMoving) {
             if (!this.isForceCancel) {
                 gObj.notify(events.preventBatch, { instance: this, handler: this.goToPage, arg1: e.currentPage });
                 this.isForceCancel = true;
@@ -181,6 +181,7 @@ export class Page implements IAction {
             e.cancel = true;
             return;
         }
+        gObj.prevPageMoving = false;
         let prevPage: number = this.pageSettings.currentPage;
         this.pageSettings.currentPage = e.currentPage;
         this.parent.notify(events.modelChanged, {

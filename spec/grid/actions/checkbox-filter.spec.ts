@@ -4,9 +4,11 @@
 import { createElement } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { PredicateModel } from '../../../src/grid/base/grid-model';
+import { BatchEdit } from '../../../src/grid/actions/batch-edit';
 import { Filter } from '../../../src/grid/actions/filter';
 import { Group } from '../../../src/grid/actions/group';
 import { Page } from '../../../src/grid/actions/page';
+import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { Freeze } from '../../../src/grid/actions/freeze';
 import { CellType } from '../../../src/grid/base/enum';
 import { ValueFormatter } from '../../../src/grid/services/value-formatter';
@@ -17,7 +19,7 @@ import { createGrid, destroy, getKeyUpObj, getClickObj, getKeyActionObj } from '
 import '../../../node_modules/es6-promise/dist/es6-promise';
 import { Edit } from '../../../src/grid/actions/edit';
 
-Grid.Inject(Filter, Page, Selection, Group, Freeze);
+Grid.Inject(Filter, Page,Toolbar, Selection, Group, Freeze, Edit);
 
 describe('Checkbox Filter module => ', () => {
 
@@ -1686,32 +1688,33 @@ describe('Checkbox Filter module => ', () => {
             (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
         });
 
-        // it('EJ2-7257-Need to hide the filter button in check box filter when no matches found like EJ1 ', (done: Function) => {            
-        //     actionComplete = (args?: any): void => {
-        //         if(args.requestType === 'filterafteropen'){
-        //             checkBoxFilter = gridObj.element.querySelector('.e-checkboxfilter');
-        //             (<any>gridObj.filterModule).filterModule.sInput.value = 'edybh';
-        //             (<any>gridObj.filterModule).filterModule.refreshCheckboxes();
-        //             expect(checkBoxFilter.querySelector('.e-footer-content').children[0].hasAttribute('disabled')).toBeTruthy();
-        //             let edit: any = (<any>new Edit(gridObj, gridObj.serviceLocator));
-        //             spyOn(edit, 'deleteRecord');
-        //             edit.keyPressHandler({action: 'delete', target: gridObj.element});
-        //             expect(edit.deleteRecord).not.toHaveBeenCalled();
-        //             gridObj.actionComplete = null;
-        //             done();
-        //         }
-        //     };
-        //     gridObj.actionComplete = actionComplete;        
-        //     (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
-        // });
+        // time - delayed issue
+    //     it('EJ2-7257-Need to hide the filter button in check box filter when no matches found like EJ1 ', (done: Function) => {            
+    //         actionComplete = (args?: any): void => {
+    //             if(args.requestType === 'filterafteropen'){
+    //                 checkBoxFilter = gridObj.element.querySelector('.e-checkboxfilter');
+    //                 (<any>gridObj.filterModule).filterModule.sInput.value = 'edybh';
+    //                 (<any>gridObj.filterModule).filterModule.refreshCheckboxes();
+    //                 expect(checkBoxFilter.querySelector('.e-footer-content').children[0].hasAttribute('disabled')).toBeTruthy();
+    //                 let edit: any = (<any>new Edit(gridObj, gridObj.serviceLocator));
+    //                 spyOn(edit, 'deleteRecord');
+    //                 edit.keyPressHandler({action: 'delete', target: gridObj.element});
+    //                 expect(edit.deleteRecord).not.toHaveBeenCalled();
+    //                 gridObj.actionComplete = null;
+    //                 done();
+    //             }
+    //         };
+    //         gridObj.actionComplete = actionComplete;        
+    //         (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
+    //     });
 
 
-        // //scenario5 case completed
+    //     //scenario5 case completed
 
-        // afterAll(() => {
-        //     destroy(gridObj);
-        // });
-    });    
+        afterAll(() => {
+            destroy(gridObj);
+        });
+     });    
 
     describe('EJ2-7408 Checkbox filter for column and filter type menu => ', () => {
         let gridObj: Grid;
@@ -1758,6 +1761,79 @@ describe('Checkbox Filter module => ', () => {
             (checkBoxFilter.querySelectorAll('.e-checkbox-wrapper')[2] as any).click(); 
            checkBoxFilter.querySelectorAll('button')[0].click();
         });  
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });  
+
+    describe('EJ2-13031 Batch confirm for checkbox filter => ', () => {
+        let gridObj: Grid;
+        let actionBegin: () => void;
+        let checkBoxFilter: Element;
+        let preventDefault: Function = new Function();
+        let actionComplete: () => void;
+        let cellEdit: () => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                    allowPaging: true,
+                    filterSettings: { type: 'CheckBox' },
+                    columns: [{ field: 'OrderID', type: 'number', visible: true },
+                    { field: 'CustomerID', type: 'string', filter: { type: 'CheckBox' } },
+                    { field: 'Freight', format: 'C2', type: 'number' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                    cellEdit: cellEdit
+                }, done);
+        });
+        
+        it('edit cell', () => {
+            gridObj.editModule.editCell(1, 'CustomerID');
+        });
+
+        it('shift tab key', () => {
+            gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
+            gridObj.editModule.saveCell();
+        });
+
+        it('CustomerID dialog open testing', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'filterafteropen') {
+                    checkBoxFilter = gridObj.element.querySelector('.e-checkboxfilter');
+                    gridObj.actionComplete = null;
+                    done();
+                }
+            };
+            gridObj.actionComplete = actionComplete;
+            (gridObj.filterModule as any).filterIconClickHandler(getClickObj(gridObj.getColumnHeaderByField('CustomerID').querySelector('.e-filtermenudiv')));
+        });
+
+        it('Filter CustomerID testing', () => {
+            (checkBoxFilter.querySelectorAll('.e-checkbox-wrapper')[0] as any).click();
+            (checkBoxFilter.querySelectorAll('.e-checkbox-wrapper')[1] as any).click();
+            checkBoxFilter.querySelectorAll('button')[0].click();
+        });
+        it('Check confirm dialog', () => {
+            expect(gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').classList.contains('e-dialog')).toBeTruthy();
+        });
+        it('check data are filtered', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'filtering') {
+                    expect(gridObj.currentViewData[0]['CustomerID']).toBe('ANATR');
+                    gridObj.actionComplete = null;
+                    done();
+                }
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.element.querySelector('#' + gridObj.element.id + 'EditConfirm').querySelectorAll('button')[0].click();
+        });
+
 
         afterAll(() => {
             destroy(gridObj);

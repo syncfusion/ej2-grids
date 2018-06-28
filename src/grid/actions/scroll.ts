@@ -2,7 +2,7 @@ import { Browser, EventHandler } from '@syncfusion/ej2-base';
 import { remove, addClass, removeClass } from '@syncfusion/ej2-base';
 import { formatUnit, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
-import { getScrollBarWidth } from '../base/util';
+import { getScrollBarWidth, getUpdateUsingRaf } from '../base/util';
 import { scroll, contentReady, uiUpdate, onEmpty } from '../base/constant';
 import { ColumnWidthService } from '../services/width-controller';
 import { Grid } from '../base/grid';
@@ -133,7 +133,7 @@ export class Scroll implements IAction {
         let element: HTMLElement = scrollTarget;
         let isHeader: boolean = element.classList.contains('e-headercontent');
         return (e: Event) => {
-            if (this.content.querySelector('tbody') === null) {
+            if (this.content.querySelector('tbody') === null || this.parent.isPreventScrollEvent) {
                 return;
             }
 
@@ -177,7 +177,7 @@ export class Scroll implements IAction {
             if (this.content.querySelector('tbody') === null) {
                 return;
             }
-            let top: number = element.scrollTop + e.deltaMode === 1 ? e.deltaY * 30 : e.deltaY;
+            let top: number = element.scrollTop + (e.deltaMode === 1 ? e.deltaY * 30 : e.deltaY);
             if (this.previousValues.top === top) {
                 return;
             }
@@ -279,19 +279,44 @@ export class Scroll implements IAction {
             this.oneTimeReady = false;
         }
         let table: Element = this.parent.getContentTable();
-        if (table.scrollHeight < this.parent.getContent().clientHeight) {
-            addClass(table.querySelectorAll('tr:last-child td'), 'e-lastrowcell');
-            if (this.parent.getFrozenColumns()) {
-                addClass(this.parent.getContent().querySelector('.e-movablecontent').querySelectorAll('tr:last-child td'), 'e-lastrowcell');
-            }
-        }
-        if (!this.parent.enableVirtualization) {
-            this.content.scrollLeft = this.header.scrollLeft;
-            this.content.scrollTop = this.previousValues.top;
-        }
-        if (!this.parent.enableColumnVirtualization) {
-            this.content.scrollLeft = this.header.scrollLeft;
-        }
+        let sLeft: number;
+        let sHeight: number;
+        let clientHeight: number;
+        getUpdateUsingRaf(
+            () => {
+                sLeft = this.header.scrollLeft;
+                sHeight = table.scrollHeight;
+                clientHeight = this.parent.getContent().clientHeight;
+            },
+            () => {
+                if (!this.parent.enableVirtualization) {
+                    if (sHeight < clientHeight) {
+                        addClass(table.querySelectorAll('tr:last-child td'), 'e-lastrowcell');
+                        if (this.parent.getFrozenColumns()) {
+                            addClass(
+                                this.parent.getContent().querySelector('.e-movablecontent').querySelectorAll('tr:last-child td'),
+                                'e-lastrowcell'
+                            );
+                        }
+                    }
+                    if ((this.parent.frozenRows > 0 || this.parent.frozenColumns > 0) && this.header.querySelector('.e-movableheader')) {
+                        this.header.querySelector('.e-movableheader').scrollLeft = this.previousValues.left;
+                    } else {
+                        this.header.scrollLeft = this.previousValues.left;
+                    }
+                    this.content.scrollLeft = this.previousValues.left;
+                    this.content.scrollTop = this.previousValues.top;
+                }
+                if (!this.parent.enableColumnVirtualization) {
+                    this.content.scrollLeft = sLeft;
+                }
+                if (this.parent.frozenColumns) {
+                    (this.header.querySelector('.e-movableheader') as HTMLElement).scrollLeft =
+                    (this.content.querySelector('.e-movablecontent') as HTMLElement).scrollLeft;
+                }
+            },
+        );
+        this.parent.isPreventScrollEvent = false;
     }
 
     /** 

@@ -54,7 +54,7 @@ export class DialogEditRender {
         let position: PositionDataModel = this.parent.element.getBoundingClientRect().height < 400 ?
             { X: 'center', Y: 'top' } : { X: 'center', Y: 'center' };
         this.dialogObj = new Dialog({
-            header: this.isEdit ? this.l10n.getConstant('EditFormTitle') + '  ' + args.primaryKeyValue[0] :
+            header: this.isEdit ? this.l10n.getConstant('EditFormTitle') + args.primaryKeyValue[0] :
                 this.l10n.getConstant('AddFormTitle'), isModal: true, visible: true, cssClass: 'e-edit-dialog',
             content: this.getEditElement(elements) as HTMLElement,
             showCloseIcon: true,

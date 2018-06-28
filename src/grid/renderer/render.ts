@@ -1,7 +1,7 @@
 import { L10n, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, getValue, extend, DateFormatOptions } from '@syncfusion/ej2-base';
-import { DataManager, Group, Query, Deferred, Predicate } from '@syncfusion/ej2-data';
+import { DataManager, Group, Query, Deferred, Predicate, DataUtil } from '@syncfusion/ej2-data';
 import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
 import { ValueFormatter } from '../services/value-formatter';
 import { RenderType, CellType } from '../base/enum';
@@ -12,7 +12,7 @@ import { Row } from '../models/row';
 import { Cell } from '../models/cell';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
-import { prepareColumns, calculateAggregate, setFormatter, getDatePredicate } from '../base/util';
+import { prepareColumns, setFormatter, getDatePredicate } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -263,6 +263,7 @@ export class Render {
         this.parent.notify(events.tooltipDestroy, {});
         gObj.currentViewData = <Object[]>e.result;
         if (!len && e.count && gObj.allowPaging) {
+            gObj.prevPageMoving = true;
             gObj.pageSettings.totalRecordsCount = e.count;
             gObj.pageSettings.currentPage = Math.ceil(e.count / gObj.pageSettings.pageSize);
             gObj.dataBind();
@@ -405,8 +406,14 @@ export class Render {
                 row.columns.forEach((column: AggregateColumnModel) => {
                     let types: string[] = column.type instanceof Array ? column.type : [column.type];
                     types.forEach((type: string) => {
-                        let key: string = column.field + ' - ' + type;
-                        element.aggregates[key] = calculateAggregate(type, itemGroup.level ? uGroupItem.records : uGroup.items, column);
+                        let key: string = column.field + ' - ' + type.toLowerCase();
+                        let data: Object[] = itemGroup.level ? uGroupItem.records : uGroup.items;
+                        let context: Object = this.parent;
+                        if (type === 'Custom') {
+                            element.aggregates[key] = column.customAggregate ? column.customAggregate.call(context, data, column) : '';
+                        } else {
+                            element.aggregates[key] = DataUtil.aggregates[type.toLowerCase()](data, column.field);
+                        }
                     });
                 }));
         });

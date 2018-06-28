@@ -1,20 +1,20 @@
 /* tslint:disable-next-line:max-line-length */
 import { EventHandler, L10n, isNullOrUndefined, extend, classList, addClass, removeClass, Browser, getValue, setValue } from '@syncfusion/ej2-base';
-import { parentsUntil, getUid, appendChildren, getDatePredicate } from '../base/util';
+import { parentsUntil, getUid, isActionPrevent, appendChildren, getDatePredicate } from '../base/util';
 import { remove, createElement, debounce } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
-import { DataUtil, Query, DataManager, Predicate } from '@syncfusion/ej2-data';
+import { DataUtil, Query, DataManager, Predicate, UrlAdaptor, Deferred } from '@syncfusion/ej2-data';
 import { createCheckBox } from '@syncfusion/ej2-buttons';
 import { ReturnType } from '../base/type';
 import { FilterSettings } from '../base/grid';
-import { IGrid, IFilterArgs, EJ2Intance, FilterSearchBeginEventArgs } from '../base/interface';
+import { IGrid, IFilterArgs, FilterSearchBeginEventArgs, DataStateChangeEventArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { ServiceLocator } from '../services/service-locator';
 import { PredicateModel } from '../base/grid-model';
 import { ValueFormatter } from '../services/value-formatter';
 import { getForeignData } from '../base/util';
 import { Column } from '../models/column';
-import { Dialog } from '@syncfusion/ej2-popups';
+import { Dialog, DialogModel } from '@syncfusion/ej2-popups';
 import { Input } from '@syncfusion/ej2-inputs';
 import { createSpinner, hideSpinner, showSpinner } from '@syncfusion/ej2-popups';
 import { getFilterMenuPostion, toogleCheckbox, createCboxWithWrap, removeAddCboxClasses, getColumnByForeignKeyValue } from '../base/util';
@@ -48,14 +48,12 @@ export class CheckBoxFilter {
     private cBoxFalse: Element = createCheckBox(false, { checked: false, label: ' ' });
     private itemsCnt: number;
     private result: Object;
-
     //Module declarations
     protected parent: IGrid;
     protected serviceLocator: ServiceLocator;
     protected localeObj: L10n;
     protected valueFormatter: ValueFormatter;
     private searchHandler: Function;
-
     /**
      * Constructor for checkbox filtering module
      * @hidden
@@ -229,8 +227,10 @@ export class CheckBoxFilter {
                 { effect: 'None' },
             buttons: [{
                 click: this.btnClick.bind(this),
-                buttonModel: { content: this.getLocalizedLabel(this.isExcel ? 'OKButton' : 'FilterButton'),
-                cssClass: 'e-primary', isPrimary: true }
+                buttonModel: {
+                    content: this.getLocalizedLabel(this.isExcel ? 'OKButton' : 'FilterButton'),
+                    cssClass: 'e-primary', isPrimary: true
+                }
             },
             {
                 click: this.btnClick.bind(this),
@@ -274,6 +274,10 @@ export class CheckBoxFilter {
     }
 
     protected clearFilter(): void {
+        if (isActionPrevent(this.parent)) {
+            this.parent.notify(events.preventBatch, { instance: this, handler: this.clearFilter });
+            return;
+        }
         this.options.handler({ action: 'clear-filter', field: this.options.field });
     }
 
@@ -334,6 +338,13 @@ export class CheckBoxFilter {
                     fObj.operator = isNotEqual ? 'notequal' : 'equal';
                 }
                 coll.push(fObj);
+                if (isActionPrevent(this.parent)) {
+                    this.parent.notify(events.preventBatch, {
+                        instance: this, handler: this.fltrBtnHandler, arg1: fObj.field, arg2: fObj.predicate, arg3: fObj.operator,
+                        arg4: fObj.matchCase, arg5: fObj.ignoreAccent, arg6: fObj.value
+                    });
+                    return;
+                }
             }
             this.initiateFilter(coll);
         } else {
@@ -379,6 +390,8 @@ export class CheckBoxFilter {
                 this.getLocalizedLabel('FilterFalse').toLowerCase().indexOf((parsed as string).toLowerCase()) !== -1) {
                 parsed = 'false';
             }
+            parsed = parsed === 'true';
+            operator = 'equal';
         }
         let args: FilterSearchBeginEventArgs = {
             requestType: events.filterSearchBegin,
@@ -404,7 +417,11 @@ export class CheckBoxFilter {
         }
         args.filterChoiceCount = !isNullOrUndefined(args.filterChoiceCount) ? args.filterChoiceCount : 1000;
         query.take(args.filterChoiceCount);
-        this.processSearch(query);
+        if (this.parent.dataSource && 'result' in this.parent.dataSource) {
+            this.filterEvent(args, query);
+        } else {
+            this.processSearch(query);
+        }
     }
 
     private getPredicateFromCols(columns: Object[]): Predicate {
@@ -440,8 +457,37 @@ export class CheckBoxFilter {
         this.parent.trigger(events.actionBegin, args);
         args.filterChoiceCount = !isNullOrUndefined(args.filterChoiceCount) ? args.filterChoiceCount : 1000;
         query.take(args.filterChoiceCount);
-        this.processDataOperation(query);
+        if (this.parent.dataSource && 'result' in this.parent.dataSource) {
+            this.filterEvent(args, query);
+        } else {
+            this.processDataOperation(query);
+        }
     }
+
+    private filterEvent(args: Object, query: Query): void {
+        let def: Deferred = this.eventPromise(args, query);
+        def.promise.then((e: ReturnType[]) => {
+            this.dataSuccess(e);
+        });
+    }
+
+    private eventPromise(args: Object, query: Query): Deferred {
+        let state: DataStateChangeEventArgs;
+        state = this.getStateEventArgument(query);
+        let def: Deferred = new Deferred();
+        state.dataSource = def.resolve;
+        state.action = args;
+        this.parent.trigger(events.dataStateChange, state);
+        return def;
+    };
+
+    public getStateEventArgument(query: Query): Object {
+        let adaptr: UrlAdaptor = new UrlAdaptor();
+        let dm: DataManager = new DataManager({ url: '', adaptor: new UrlAdaptor });
+        let state: { data?: string } = adaptr.processQuery(dm, query);
+        let data: Object = JSON.parse(state.data);
+        return data;
+    };
 
     private processDataOperation(query: Query): void {
 
@@ -464,7 +510,6 @@ export class CheckBoxFilter {
             });
         });
     }
-
     private dataSuccess(e: Object[]): void {
         this.fullData = e;
         let query: Query = new Query();
@@ -489,7 +534,7 @@ export class CheckBoxFilter {
         this.filteredData = res.records || [];
 
         this.processDataSource(null, true, this.filteredData);
-        (<HTMLElement>this.dialogObj.element.querySelector('.e-searchinput')).focus();
+        this.sInput.focus();
         let args: Object = {
             requestType: events.filterAfterOpen,
             filterModel: this, columnName: this.options.field, columnType: this.options.type
@@ -497,8 +542,12 @@ export class CheckBoxFilter {
         this.parent.trigger(events.actionComplete, args);
     }
 
-    private processDataSource(query?: Query, isInitial?: boolean , dataSource?: Object[]): void {
+    private processDataSource(query?: Query, isInitial?: boolean, dataSource?: Object[]): void {
         showSpinner(this.spinner);
+        // query = query ? query : this.options.query.clone();
+        // query.requiresCount();
+        // let result: Object = new DataManager(dataSource as JSON[]).executeLocal(query);
+        // let res: { result: Object[] } = result as { result: Object[] };
         this.updateResult();
         this.createFilterItems(dataSource, isInitial);
     }
@@ -572,7 +621,7 @@ export class CheckBoxFilter {
         let className: string[] = [];
         let elem: Element = this.cBox.querySelector('.e-selectall');
         let selected: number = this.cBox.querySelectorAll('.e-check:not(.e-selectall)').length;
-        let btn: Button = (this.dlg.querySelector('.e-footer-content').querySelector('.e-btn') as EJ2Intance).ej2_instances[0] as Button;
+        let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
         btn.disabled = false;
         if (cnt === selected) {
             className = ['e-check'];
@@ -590,7 +639,7 @@ export class CheckBoxFilter {
 
     private createFilterItems(data: Object[], isInitial?: boolean): void {
         let cBoxes: Element = createElement('div');
-        let btn: Button = (this.dlg.querySelector('.e-footer-content').querySelector('.e-btn') as EJ2Intance).ej2_instances[0] as Button;
+        let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
         this.itemsCnt = data.length;
         if (data.length) {
             let selectAll: Element =
@@ -653,7 +702,7 @@ export class CheckBoxFilter {
                     obj[ejValue] = value;
                     lookup[value] = true;
                     value = isForeignKey ? getValue(column.foreignKeyValue, getForeignData(column, {}, value, foreignKeyData)[0]) : value;
-                    setValue(field, isNullOrUndefined(value) ? null : value,  obj);
+                    setValue(field, isNullOrUndefined(value) ? null : value, obj);
                     result.push(obj);
                 }
             }

@@ -46,7 +46,8 @@ export class Edit implements IAction {
     private actionCompleteFunction: Function;
     private preventObj: {
         instance: Object,
-        handler: Function, arg1?: Object, arg2?: Object, arg3?: Object, arg4?: Object, arg5?: Object, arg6?: Object, arg7?: Object
+        handler: Function, arg1?: Object, arg2?: Object, arg3?: Object, arg4?: Object, arg5?: Object, arg6?: Object, arg7?: Object,
+         arg8?: Object
     };
 
     /**
@@ -220,7 +221,7 @@ export class Edit implements IAction {
             return;
         }
         if (!data) {
-            if (isNullOrUndefined(gObj.selectedRowIndex) || gObj.selectedRowIndex === -1) {
+            if (!gObj.getSelectedRecords().length) {
                 this.showDialog('DeleteOperationAlert', this.alertDObj);
                 return;
             }
@@ -230,6 +231,7 @@ export class Edit implements IAction {
             return;
         }
         this.editModule.deleteRecord(fieldname, data);
+
     }
 
     /**
@@ -494,13 +496,11 @@ export class Edit implements IAction {
             let value: number | string | Date | boolean;
             if (col && col.field) {
                 let temp: Function = col.edit.read as Function;
+                if (typeof temp === 'string') {
+                    temp = getValue(temp, window);
+                }
                 if (col.type !== 'checkbox') {
-                    if (typeof temp === 'string') {
-                        temp = getValue(temp, window);
-                        value = gObj.editModule.getValueFromType(col, (temp)(inputs[i]));
-                    } else {
-                        value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
-                    }
+                    value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
                 } else {
                     value = inputs[i].checked;
                 }
@@ -528,14 +528,8 @@ export class Edit implements IAction {
     public destroyWidgets(cols?: Column[]): void {
         cols = cols ? cols : this.parent.getColumns() as Column[];
         for (let col of cols) {
-            let temp: Function = col.edit.destroy as Function;
             if (col.edit.destroy) {
-                if (typeof temp === 'string') {
-                    temp = getValue(temp, window);
-                    temp();
-                } else {
-                    (col.edit.destroy as Function)();
-                }
+                col.edit.destroy();
             }
         }
     }
@@ -577,7 +571,8 @@ export class Edit implements IAction {
                 this.addRecord();
                 break;
             case 'delete':
-                if ((e.target as HTMLElement).tagName !== 'INPUT' && !document.querySelector('.e-popup-open')) {
+                if (((e.target as HTMLElement).tagName !== 'INPUT' || (e.target as HTMLElement).classList.contains('e-checkselect'))
+                    && !document.querySelector('.e-popup-open')) {
                     this.deleteRecord();
                 }
                 break;
@@ -611,7 +606,7 @@ export class Edit implements IAction {
     private executeAction(): void {
         this.preventObj.handler.call(
             this.preventObj.instance, this.preventObj.arg1, this.preventObj.arg2, this.preventObj.arg3, this.preventObj.arg4,
-            this.preventObj.arg5, this.preventObj.arg6, this.preventObj.arg7);
+            this.preventObj.arg5, this.preventObj.arg6, this.preventObj.arg7, this.preventObj.arg8);
     }
 
     /**

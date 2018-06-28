@@ -1,6 +1,6 @@
 import {
     IGrid, ExcelExportProperties, ExcelHeader, ExcelFooter, ExcelRow,
-    ExcelCell, Theme, ThemeStyle, ExcelQueryCellInfoEventArgs
+    ExcelCell, Theme, ThemeStyle, ExcelQueryCellInfoEventArgs, ExcelHeaderQueryCellInfoEventArgs
 } from '../base/interface';
 import * as events from '../base/constant';
 import { Workbook } from '@syncfusion/ej2-excel-export';
@@ -209,11 +209,11 @@ export class ExcelExport {
         this.processHeaderContent(gObj, headerRow, exportProperties, groupIndent);
         /* tslint:disable-next-line:max-line-length */
         if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.dataSource) && !(exportProperties.dataSource instanceof DataManager)) {
-            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties.dataSource as Object[]);
+            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties, exportProperties.dataSource as Object[]);
         } else if (!isNullOrUndefined(exportProperties) && exportProperties.exportType === 'CurrentPage') {
-            this.processRecordContent(gObj, r, headerRow, isMultipleExport, gObj.getCurrentViewRecords());
+            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties, gObj.getCurrentViewRecords());
         } else {
-            this.processRecordContent(gObj, r, headerRow, isMultipleExport);
+            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties);
         }
         this.isExporting = false;
         gObj.trigger(events.excelExportComplete, this.isBlob ? { promise: this.blobPromise } : {});
@@ -221,7 +221,7 @@ export class ExcelExport {
     }
     /* tslint:disable-next-line:max-line-length */
     /* tslint:disable-next-line:no-any */
-    private processRecordContent(gObj: IGrid, returnType: ReturnType, headerRow: any, isMultipleExport: boolean, currentViewRecords?: Object[]): void {
+    private processRecordContent(gObj: IGrid, returnType: ReturnType, headerRow: any, isMultipleExport: boolean, exportProperties: ExcelExportProperties, currentViewRecords?: Object[]): void {
         /* tslint:disable-next-line:no-any */
         let column: any[] = gObj.columns;
 
@@ -268,7 +268,11 @@ export class ExcelExport {
             if (this.isCsvExport) {
                 let book: Workbook = new Workbook(this.book, 'csv', gObj.locale);
                 if (!this.isBlob) {
-                    book.save('Export.csv');
+                    if (!isNullOrUndefined(exportProperties) && exportProperties.fileName) {
+                        book.save(exportProperties.fileName);
+                    } else {
+                        book.save('Export.csv');
+                    }
                 } else {
                     this.blobPromise = book.saveAsBlob('text/csv');
                 }
@@ -276,7 +280,11 @@ export class ExcelExport {
             } else {
                 let book: Workbook = new Workbook(this.book, 'xlsx', gObj.locale);
                 if (!this.isBlob) {
-                    book.save('Export.xlsx');
+                    if (!isNullOrUndefined(exportProperties) && exportProperties.fileName) {
+                        book.save(exportProperties.fileName);
+                    } else {
+                        book.save('Export.xlsx');
+                    }
                 } else {
                     this.blobPromise = book.saveAsBlob('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
                 }
@@ -303,6 +311,7 @@ export class ExcelExport {
                 style: undefined,
                 isForeignKey: col.isForeignColumn(),
             };
+
             cell.value = this.parent.getColumnByField(item.field).headerText +
             ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
             if (item.count > 1) {
@@ -616,10 +625,16 @@ export class ExcelExport {
                 if (!isNullOrUndefined(gridCell.column.headerTextAlign)) {
                     style.hAlign = gridCell.column.headerTextAlign;
                 }
+                /* tslint:disable-next-line:no-any */
+                let excelHeaderCellArgs: any = { cell: cell, gridCell: gridCell, setStyle: style };
+                gObj.trigger(events.excelHeaderQueryCellInfo, extend(
+                    excelHeaderCellArgs,
+                    <ExcelHeaderQueryCellInfoEventArgs>{
+                        cell: cell, setStyle: style
+                    }));
                 cell.style = style;
                 cells.push(cell);
                 currentCellIndex++;
-
             }
             this.rows.push({ index: this.rowLength++, cells: cells });
         }

@@ -1,5 +1,5 @@
 import { extend } from '@syncfusion/ej2-base';
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { IEditCell, IGrid, EJ2Intance } from '../base/interface';
 import { DatePicker } from '@syncfusion/ej2-calendars';
@@ -32,14 +32,16 @@ export class DatePickerEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, type: string, row: HTMLElement, requestType: string }): void {
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         /* tslint:disable-next-line:no-any */
-        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
+        let isComplex: boolean = isComplexField(args.column.field);
         let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
+        let value: Date = isComplex && !isAddRow ?
+            getComplexValue(args.rowData, args.column.field) : args.rowData[args.column.field];
+        value = value ? new Date(value) : null;
         this.obj = new DatePicker(
             extend(
                 {
                     floatLabelType: isInline ? 'Never' : 'Always',
-                    value: isComplex && !isAddRow ?
-                        new Date(getComplexValue(args.rowData, args.column.field)) : new Date(args.rowData[args.column.field]),
+                    value: value,
                     placeholder: isInline ?
                         '' : args.column.headerText, enableRtl: this.parent.enableRtl,
                     enabled: isEditable(args.column, args.type, args.element),

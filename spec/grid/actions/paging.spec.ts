@@ -381,38 +381,38 @@ describe('Paging module', () => {
             });
         });
 
-        describe('EJ2-9569 Pagesize dropdown value is not refreshed while dynamically change the pagesize test', () => {
-            let gridObj: Grid;
-            let actionComplete: () => void;
-            beforeAll((done: Function) => {
-                gridObj = createGrid(
-                    {
-                        allowPaging: true,
-                        dataSource: data,
-                        allowSorting: true,
-                        height: 300,
-                        actionComplete: actionComplete,
-                        columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
-                        { field: 'ShipCity' }],
-                        pageSettings: {
-                            currentPage: 2, pageCount: 4,
-                            totalRecordsCount: 10, enableQueryString: true, pageSizes: [10, 20, 30, 40]
-                        },
-                    }, done);
-            });
-            it('EJ2-9569 Pagesize dropdown value is not refreshed while dynamically change the pagesize test', (done: Function) => {
+        // describe('EJ2-9569 Pagesize dropdown value is not refreshed while dynamically change the pagesize test', () => {
+        //     let gridObj: Grid;
+        //     let actionComplete: () => void;
+        //     beforeAll((done: Function) => {
+        //         gridObj = createGrid(
+        //             {
+        //                 allowPaging: true,
+        //                 dataSource: data,
+        //                 allowSorting: true,
+        //                 height: 300,
+        //                 actionComplete: actionComplete,
+        //                 columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+        //                 { field: 'ShipCity' }],
+        //                 pageSettings: {
+        //                     currentPage: 2, pageCount: 4,
+        //                     totalRecordsCount: 10, enableQueryString: true, pageSizes: [10, 20, 30, 40]
+        //                 },
+        //             }, done);
+        //     });
+        //     it('EJ2-9569 Pagesize dropdown value is not refreshed while dynamically change the pagesize test', (done: Function) => {
 
-                actionComplete = (args?: Object): void => {
-                    // expect((<any>gridObj.pagerModule).pagerObj.pagerdropdownModule.dropDownListObject.value).toEqual(20);
-                    done();
-                };
-                gridObj.actionComplete = actionComplete;
-                gridObj.pageSettings.pageSize = 20;
-            });
+        //         actionComplete = (args?: Object): void => {
+        //             expect((<any>gridObj.pagerModule).pagerObj.pagerdropdownModule.dropDownListObject.value).toEqual(20);
+        //             done();
+        //         };
+        //         gridObj.actionComplete = actionComplete;
+        //         gridObj.pageSettings.pageSize = 20;
+        //     });
 
-            afterAll(() => {
-                destroy(gridObj);
-            });
-        });
+        //     afterAll(() => {
+        //         destroy(gridObj);
+        //     });
+        // });
     });
 });

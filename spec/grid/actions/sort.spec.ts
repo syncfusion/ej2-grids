@@ -265,9 +265,9 @@ describe('Sorting module => ', () => {
             cols = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
             expect(cols[0].querySelectorAll('.e-ascending').length).toBe(1);
             expect(cols[1].querySelectorAll('.e-ascending').length).toBe(1);
-            expect(sortSettings.columns[0].field).toBe('OrderID');
+            expect(sortSettings.columns[0].field).toBe('CustomerID');
             expect(sortSettings.columns[0].direction).toBe('Ascending');
-            expect(sortSettings.columns[1].field).toBe('CustomerID');
+            expect(sortSettings.columns[1].field).toBe('OrderID');
             expect(sortSettings.columns[1].direction).toBe('Ascending');
             expect(cols[0].querySelectorAll('.e-sortnumber').length).toBe(1);
             expect(cols[1].querySelectorAll('.e-sortnumber').length).toBe(1);

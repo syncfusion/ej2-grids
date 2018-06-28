@@ -121,7 +121,9 @@
     }
 
     .e-summaryrow .e-summarycell,
-    .e-summaryrow .e-templatecell {
+    .e-summaryrow .e-templatecell,
+    .e-summarycontent .e-indentcell,
+    .e-indentcell.e-detailindentcelltop {
       background-color: $grid-summary-row-bg-color;
       border-color: $grid-header-border-color;
       color: $grid-header-color;
@@ -164,6 +166,7 @@
     &.e-gridhover tr[role='row']:hover .e-detailrowexpand {
       &:not(.e-cellselectionbackground):not(.e-active):not(.e-updatedtd):not(.e-indentcell) {
         background-color: $grid-hover-bg-color;
+        color: $grid-hover-content-font-color;
       }
     }
 

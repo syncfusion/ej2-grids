@@ -44,6 +44,10 @@ export class ColumnWidthService {
     }
 
     private setWidth(width: string | number, index: number): void {
+        if (typeof (width) === 'string' && width.indexOf('%') !== -1) {
+            let elementWidth : number = this.parent.element.offsetWidth;
+            width = parseInt(width, 10) / 100 * (elementWidth);
+        }
         let header: Element = this.parent.getHeaderTable();
         let content: Element = this.parent.getContentTable();
         let fWidth: string = formatUnit(width);
@@ -137,7 +141,7 @@ export class ColumnWidthService {
         let movableWidth: string = formatUnit(this.getTableWidth(columns));
         if (this.parent.getHeaderContent().querySelector('.e-movableheader').firstElementChild) {
             (this.parent.getHeaderContent().querySelector('.e-movableheader').firstElementChild as HTMLTableElement).style.width
-                = movableWidth;
+            = movableWidth;
         }
         (this.parent.getContent().querySelector('.e-movablecontent').firstElementChild as HTMLTableElement).style.width =
             movableWidth;
@@ -149,6 +153,9 @@ export class ColumnWidthService {
             this.setWidthToFrozenTable();
             this.setWidthToMovableTable();
         } else {
+            if (this.parent.detailTemplate || this.parent.childGrid) {
+                this.setColumnWidth(new Column({ width: '30px' }));
+            }
             (this.parent.getHeaderTable() as HTMLTableElement).style.width = tWidth;
             (this.parent.getContentTable() as HTMLTableElement).style.width = tWidth;
         }

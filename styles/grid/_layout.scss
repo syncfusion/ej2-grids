@@ -360,7 +360,7 @@
     }
 
     .e-frozenheader table tr td.e-rowcell {
-      height: $grid-bigger-rowcell-line-height + $grid-bigger-content-padding + $grid-bigger-content-padding + 1;
+      height: $grid-bigger-rowcell-line-height + $grid-bigger-content-padding + $grid-bigger-content-padding -6;
     }
 
 // sass-lint:disable-all
@@ -866,9 +866,9 @@
       white-space: nowrap;
       width: auto;
     }
-    
+
     .e-frozenheader table tr td.e-rowcell {
-      height: $grid-rowcell-line-height + $grid-content-padding + $grid-content-padding + 1;
+      height: $grid-rowcell-line-height + $grid-content-padding + $grid-content-padding;
     }
 
     .e-frozencontent table tr td:first-child:empty,
@@ -929,6 +929,10 @@
       & .e-indentcell {
         border-width: 0;
       }
+
+      & .e-detailindentcelltop {
+          border-width: 1px 0 0;
+      }
     }
 
     &.e-device .e-rowcell,
@@ -955,7 +959,7 @@
    }
 
     &.e-default .e-rowcell.e-lastrowcell {
-      border-bottom-width: 0;
+      border-bottom-width: $border-size;
     }
 
     &.e-bothlines .e-rowcell.e-lastrowcell {
@@ -1036,6 +1040,10 @@
       & th.e-filterbarcell:first-child {
         border-left-width: 0;
       }
+    }
+
+    &.e-default .e-gridheader th.e-firstcell.e-movablefirst{
+      border-left-width: 0;
     }
 
     .e-hide {
@@ -1430,6 +1438,14 @@
       padding: 4px;
     }
 
+    .e-lastsummarycell {
+      border-right: 1px solid;
+    }
+
+    .e-footerpadding {
+      padding-right: 14px; //need to consider from javascript
+    }
+
     .e-gridpopup span {
       border: 1px solid transparent;
       cursor: pointer;
@@ -1702,7 +1718,8 @@
       border-style: $grid-border-type;
       border-width: 0 $grid-border-size 0 0;
 
-      &.e-indentcelltop {
+      &.e-indentcelltop,
+      &.e-detailindentcelltop {
         border-width: $grid-border-size 0 0;
       }
     }
@@ -2454,6 +2471,10 @@
       margin-bottom: $grid-wrap-margin-bottom;
       margin-top: $grid-wrap-margin-top;
       }
+
+    &.e-wrap .e-columnheader .e-filtermenudiv {
+      line-height: $grid-wrap-line-height;
+    }
 
     & .e-columnheader.e-wrap .e-headercelldiv,
     & .e-columnheader.e-wrap .e-stackedheadercelldiv,

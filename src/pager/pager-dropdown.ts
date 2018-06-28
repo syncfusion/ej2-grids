@@ -68,9 +68,9 @@ export class PagerDropDown {
         this.pagerModule.trigger('dropDownChanged', { pageSize: this.dropDownListObject.value });
     }
 
-    public setDropDownValue(prop: string, value: string | number): void {
-        if (prop === 'value') {
-            this.dropDownListObject.value = value;
+    public setDropDownValue(prop: string, value: string | number | Object | boolean): void {
+        if (this.dropDownListObject) {
+            this.dropDownListObject[prop] = value;
         }
     }
 

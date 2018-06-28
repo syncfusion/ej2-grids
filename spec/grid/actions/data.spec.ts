@@ -6,7 +6,7 @@ import { EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager, ODataV4Adaptor } from '@syncfusion/ej2-data';
 import { Grid } from '../../../src/grid/base/grid';
 import { extend } from '../../../src/grid/base/util';
-import { Page, Sort, Group, Edit, Toolbar } from '../../../src/grid/actions';
+import { Page, Sort, Group, Edit, Toolbar, Selection } from '../../../src/grid/actions';
 import { Data } from '../../../src/grid/actions/data';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
@@ -445,6 +445,40 @@ describe('Data module', () => {
             destroy(gridObj);
         });
 
+    });
+    describe('Multi Delete in a single request =>', () => {
+        let gridObj: Grid;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            let options: Object = {
+                dataSource: data,
+                selectionSettings: { type: 'Multiple' },
+                pageSettings: { pageSize: 6 },
+                toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Normal' },
+                columns: [
+                    { field: 'OrderID', headerText: 'Order ID', textAlign: 'Right', width: 100, isPrimaryKey: true },
+                    { field: 'CustomerID', headerText: 'Customer ID', width: 120 },
+                    { field: 'Freight', headerText: 'Freight', textAlign: 'Right', width: 120, format: 'C2' },
+                    { field: 'ShipCountry', headerText: 'Ship Country', width: 150 }
+                ],
+                actionComplete: actionComplete,
+            };
+            gridObj = createGrid(options, done);
+        });
+        it(' Multi Select and delete => ', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                expect(args.requestType).toBe('delete');
+                expect(args.data.length).toBe(2);
+                done();
+            }
+            gridObj.actionComplete = actionComplete;
+            gridObj.selectRows([2, 4]);
+            gridObj.deleteRecord();
+        });
+        afterAll((done) => {
+            destroy(gridObj);
+        });
     });
 
 });

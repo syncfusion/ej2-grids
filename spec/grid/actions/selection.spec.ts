@@ -12,7 +12,7 @@ import { data } from '../base/datasource.spec';
 import { Group } from '../../../src/grid/actions/group';
 import { Sort } from '../../../src/grid/actions/sort';
 import { Edit } from '../../../src/grid/actions/edit';
-import { FocusStrategy } from '../../../src/grid/services/focus-strategy';
+import { FocusStrategy } from '../../../src/grid/services/focus-strategy'; 
 import { CheckBox } from '@syncfusion/ej2-buttons';
 import { employeeSelectData } from '../base/datasource.spec';
 import { Toolbar } from '../../../src/grid/actions/toolbar';

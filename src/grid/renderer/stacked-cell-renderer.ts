@@ -4,6 +4,7 @@ import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
 import { CellRenderer } from './cell-renderer';
+import { headerCellInfo } from '../base/constant';
 
 /**
  * StackedHeaderCellRenderer class which responsible for building stacked header cell content.
@@ -42,7 +43,7 @@ export class StackedHeaderCellRenderer extends CellRenderer implements ICellRend
         node.setAttribute('colspan', cell.colSpan.toString());
         node.setAttribute('aria-colspan', cell.colSpan.toString());
         node.setAttribute('aria-rowspan', '1');
-
+        this.parent.trigger(headerCellInfo, {cell, node});
         return node;
     }
 

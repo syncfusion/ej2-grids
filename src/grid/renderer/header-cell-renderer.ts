@@ -7,6 +7,7 @@ import { setStyleAndAttributes, appendChildren } from '../base/util';
 import { CellRenderer } from './cell-renderer';
 import { AriaService, IAriaOptions } from '../services/aria-service';
 import { createCheckBox } from '@syncfusion/ej2-buttons';
+import { headerCellInfo } from '../base/constant';
 /**
  * HeaderCellRenderer class which responsible for building header cell content. 
  * @hidden
@@ -124,6 +125,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
             result = column.getHeaderTemplate()(extend({ 'index': colIndex }, column), gridObj, 'headerTemplate');
             node.firstElementChild.innerHTML = '';
             appendChildren(node.firstElementChild, result);
+
         }
 
         this.ariaService.setOptions(<HTMLElement>node, ariaAttr);
@@ -145,6 +147,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         }
         node.setAttribute('aria-rowspan', (!isNullOrUndefined(cell.rowSpan) ? cell.rowSpan : 1).toString());
         node.setAttribute('aria-colspan', '1');
+        this.parent.trigger(headerCellInfo, {cell, node});
         return node;
     }
 

@@ -24,6 +24,7 @@ export class FocusStrategy {
     private focusByClick: boolean = false;
     private passiveHandler: EventListener;
     private prevIndexes: IIndex = {};
+    private focusedColumnUid: string;
     constructor(parent: IGrid) {
         this.parent = parent;
         this.addEventListener();
@@ -178,6 +179,7 @@ export class FocusStrategy {
         });
         let [rowIndex, cellIndex]: number[] = this.getContent().matrix.current;
         this.prevIndexes = { rowIndex, cellIndex };
+        this.focusedColumnUid = this.parent.getColumnByIndex(cellIndex).uid;
         this.focusByClick = false;
     }
 
@@ -202,6 +204,20 @@ export class FocusStrategy {
             cFocus.generateRows(updateRow, { matrix, handlerInstance: (e.args && e.args.isFrozen) ? this.fHeader : this.header });
             if (!Browser.isDevice && !this.focusByClick && e && e.args && e.args.requestType === 'paging') {
                 this.skipFocus = false; this.parent.element.focus();
+            }
+            if ( e && e.args && e.args.requestType === 'virtualscroll') {
+                if (this.currentInfo.uid) {
+                    let index: number;
+                    let bool: boolean = e.rows.some((row: Row<Column>, i: number) => {
+                        index = i;
+                        return row.uid === this.currentInfo.uid;
+                    });
+                    if (bool) {
+                        this.content.matrix.current[0] = index;
+                        this.content.matrix.current[1] = this.parent.getColumnIndexByUid(this.focusedColumnUid) || 0;
+                        this.focus();
+                    }
+                }
             }
         };
     }
@@ -448,13 +464,14 @@ export class ContentFocus implements IFocus {
     public getFocusInfo(): FocusInfo {
         let info: FocusInfo = {}; let [rowIndex = 0, cellIndex = 0]: number[] = this.matrix.current;
         this.matrix.current = [rowIndex, cellIndex];
-        info.element = this.getTable().rows[rowIndex].cells[cellIndex];
+        info.element = !isNullOrUndefined(this.getTable().rows[rowIndex]) ? this.getTable().rows[rowIndex].cells[cellIndex] : null;
         if (!info.element) {
             return info;
         }
         info.elementToFocus = !info.element.classList.contains('e-unboundcell') && !info.element.classList.contains('e-detailcell')
              ? this.getFocusable(info.element) : info.element;
         info.outline = true;
+        info.uid = info.element.parentElement.getAttribute('data-uid');
         return info;
     }
 
@@ -598,22 +615,22 @@ export class HeaderFocus extends ContentFocus implements IFocus {
         let enterFrozen: boolean = this.parent.frozenRows !== 0 && action === 'enter';
         return {
             swap: ((action === 'downArrow' || enterFrozen) && current[0] === this.matrix.matrix.length - 1) ||
-            frozenSwap,
+                frozenSwap,
             toHeader: frozenSwap,
             toFrozen: frozenSwap
         };
     }
 
     public getNextCurrent(previous: number[] = [], swap?: SwapInfo, active?: IFocus, action?: string): number[] {
-        let current: number[] = [];
+        let current1: number[] = [];
         if (action === 'upArrow' || action === 'shiftEnter') {
-            current[0] = this.matrix.matrix.length;
-            current[1] = previous[1];
+            current1[0] = this.matrix.matrix.length;
+            current1[1] = previous[1];
         } else if (action === 'rightArrow' || action === 'tab') {
-            current[0] = previous[0];
-            current[1] = -1;
+            current1[0] = previous[0];
+            current1[1] = -1;
         }
-        return current;
+        return current1;
     }
 
     public generateRows(rows?: Row<Column>[]): void {
@@ -651,22 +668,22 @@ export class FixedContentFocus extends ContentFocus {
         let enterFrozen: boolean = this.parent.frozenRows !== 0 && action === 'shiftEnter';
         return {
             swap: (action === 'upArrow' || enterFrozen) && current[0] === 0
-            || ((action === 'tab' || action === 'rightArrow') && current[1] === this.matrix.columns),
+                || ((action === 'tab' || action === 'rightArrow') && current[1] === this.matrix.columns),
             toHeader: (action === 'upArrow' || enterFrozen) && current[0] === 0,
             toFrozen: (action === 'upArrow' || enterFrozen) && current[0] === 0
         };
     }
 
     public getNextCurrent(previous: number[] = [], swap?: SwapInfo, active?: IFocus, action?: string): number[] {
-        let current: number[] = [];
+        let current2: number[] = [];
         if (action === 'leftArrow' || action === 'shiftTab') {
-            current[0] = previous[0];
-            current[1] = active.matrix.columns + 1;
+            current2[0] = previous[0];
+            current2[1] = active.matrix.columns + 1;
         } else if (action === 'downArrow' || action === 'enter') {
-            current[0] = -1;
-            current[1] = previous[1];
+            current2[0] = -1;
+            current2[1] = previous[1];
         }
-        return current;
+        return current2;
     }
 }
 
@@ -675,7 +692,7 @@ export class FixedHeaderFocus extends HeaderFocus {
         let enterFrozen: boolean = this.parent.frozenRows !== 0 && action === 'enter';
         return {
             swap: (action === 'downArrow' || enterFrozen) && current[0] === this.matrix.matrix.length - 1
-            || ((action === 'rightArrow' || action === 'tab') && current[1] === this.matrix.columns),
+                || ((action === 'rightArrow' || action === 'tab') && current[1] === this.matrix.columns),
             toHeader: (action === 'rightArrow' || action === 'tab') && current[1] === this.matrix.columns,
             toFrozen: (action === 'downArrow' || enterFrozen) && current[0] === this.matrix.matrix.length - 1
         };
@@ -685,15 +702,15 @@ export class FixedHeaderFocus extends HeaderFocus {
     }
 
     public getNextCurrent(previous: number[] = [], swap?: SwapInfo, active?: IFocus, action?: string): number[] {
-        let current: number[] = [];
+        let current3: number[] = [];
         if (action === 'leftArrow' || action === 'shiftTab') {
-            current[0] = previous[0];
-            current[1] = active.matrix.columns + 1;
+            current3[0] = previous[0];
+            current3[1] = active.matrix.columns + 1;
         } else if (action === 'upArrow' || action === 'shiftEnter') {
-            current[0] = this.matrix.matrix.length;
-            current[1] = previous[1];
+            current3[0] = this.matrix.matrix.length;
+            current3[1] = previous[1];
         }
-        return current;
+        return current3;
     }
 }
 

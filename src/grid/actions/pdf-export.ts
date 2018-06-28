@@ -180,7 +180,11 @@ export class PdfExport {
         if (!isMultipleExport) {
             // save the PDF
             if (!this.isBlob) {
-                this.pdfDocument.save('Export.pdf');
+                if (!isNullOrUndefined(pdfExportProperties) && pdfExportProperties.fileName) {
+                    this.pdfDocument.save(pdfExportProperties.fileName);
+                } else {
+                    this.pdfDocument.save('Export.pdf');
+                }
             } else {
                 this.blobPromise = this.pdfDocument.save();
             }
@@ -252,9 +256,9 @@ export class PdfExport {
             let sRows: Row<AggregateColumnModel>[];
             let captionSummaryModel: CaptionSummaryModelGenerator = new CaptionSummaryModelGenerator(gObj);
             if (!isNullOrUndefined(dataSourceItems.items.records)) {
-                sRows = captionSummaryModel.generateRows(dataSourceItems.items.records, <SummaryData>returnType.aggregates);
+                sRows = captionSummaryModel.generateRows(dataSourceItems.items.records, dataSourceItems);
             } else {
-                sRows = captionSummaryModel.generateRows(dataSourceItems.items, <SummaryData>returnType.aggregates);
+                sRows = captionSummaryModel.generateRows(dataSourceItems.items, dataSourceItems);
             }
             if (!isNullOrUndefined(sRows) && sRows.length === 0) {
                 row.cells.getCell(groupIndex + 1).columnSpan = pdfGrid.columns.count - (groupIndex + 1);
@@ -264,13 +268,13 @@ export class PdfExport {
                 /* tslint:disable-next-line:max-line-length */
                 this.processGroupedRecords(pdfGrid, dataSourceItems.items, gridColumns, gObj, border, (groupIndex + 1), font, brush, backgroundBrush, returnType);
                 let groupSummaryModel: GroupSummaryModelGenerator = new GroupSummaryModelGenerator(gObj);
-                sRows = groupSummaryModel.generateRows(dataSourceItems.items.records, <SummaryData>returnType.aggregates);
+                sRows = groupSummaryModel.generateRows(dataSourceItems.items.records, dataSourceItems);
                 this.processAggregates(sRows, pdfGrid, border, font, brush, backgroundBrush, false);
             } else {
                 this.processAggregates(sRows, pdfGrid, border, font, brush, backgroundBrush, true, row, groupIndex);
                 this.processRecord(border, gridColumns, gObj, dataSourceItems.items, pdfGrid, (groupIndex + 1));
                 let groupSummaryModel: GroupSummaryModelGenerator = new GroupSummaryModelGenerator(gObj);
-                sRows = groupSummaryModel.generateRows(dataSourceItems.items, <SummaryData>returnType.aggregates);
+                sRows = groupSummaryModel.generateRows(dataSourceItems.items, dataSourceItems);
                 this.processAggregates(sRows, pdfGrid, border, font, brush, backgroundBrush, false);
             }
         }
@@ -278,6 +282,7 @@ export class PdfExport {
     /* tslint:disable-next-line:max-line-length */
     private processGridHeaders(childLevels: number, pdfGrid: PdfGrid, rows: Row<Column>[], gridColumns: Column[], border: PdfBorders, headerFont: PdfFont, headerBrush: PdfSolidBrush): PdfGrid {
         let columnCount: number = gridColumns.length;
+        let gObj: IGrid = this.parent;
         if (this.isGrouping) {
             columnCount += (childLevels + 1);
         }
@@ -309,6 +314,14 @@ export class PdfExport {
                 }
                 for (let j: number = 0; j < rows[i].cells.length; j++) {
                     let cell: PdfGridCell = gridHeader.cells.getCell(cellIndex);
+                    /* tslint:disable-next-line:no-any */
+                    let args: any = {
+                        cell: cell,
+                        gridCell: rows[i].cells[j],
+                        style: cell.style
+                    };
+                    /* tslint:enable:no-any */
+                    gObj.trigger(events.pdfHeaderQueryCellInfo, args);
                     if (cell.value !== null) {
                         cell.value = rows[i].cells[j].column.headerText;
                         if (!isNullOrUndefined(rows[i].cells[j].column.headerTextAlign)) {
@@ -805,6 +818,10 @@ export class PdfExport {
             }
             border.all = pen;
             cell.style.borders = border;
+        }
+        if (!isNullOrUndefined(args.style.paragraphIndent)) {
+            cell.style.stringFormat = new PdfStringFormat();
+            cell.style.stringFormat.paragraphIndent = args.style.paragraphIndent;
         }
     }
     /**

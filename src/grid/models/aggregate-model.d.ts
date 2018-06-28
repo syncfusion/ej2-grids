@@ -18,7 +18,7 @@ export interface AggregateColumnModel {
      * * falsecount
      * * custom
      * > Specify the `type` value as `custom` to use custom aggregation.
-     * 
+     * @aspType string
      * @default null
      */
     type?: AggregateType | AggregateType[] | string;
@@ -41,6 +41,7 @@ export interface AggregateColumnModel {
      * Gets the format from the user, which can be standard or custom
      * [`number`](../base/intl.html#number-formatter-and-parser)
      * and [`date`](../base/intl.html#date-formatter-and-parser) formats.
+     * @aspType string
      * @default null    
      */
     format?: string | NumberFormatOptions | DateFormatOptions;
@@ -86,7 +87,7 @@ export interface AggregateColumnModel {
      * 
      * @default null
      */
-    customAggregate?: CustomSummaryType | string;
+    customAggregate?: CustomSummaryType;
 
 }
 

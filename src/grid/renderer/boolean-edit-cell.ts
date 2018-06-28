@@ -4,7 +4,7 @@ import { Row } from '../models/row';
 import { Column } from '../models/column';
 import { CheckBox, ChangeEventArgs } from '@syncfusion/ej2-buttons';
 import { extend } from '@syncfusion/ej2-base';
-import { isEditable, addRemoveActiveClasses, getComplexValue, isComplexField, getComplexFieldID } from '../base/util';
+import { isEditable, getComplexValue, addRemoveActiveClasses, isComplexField, getComplexFieldID } from '../base/util';
 
 /**
  * `BooleanEditCell` is used to handle boolean cell type editing.
@@ -46,7 +46,7 @@ export class BooleanEditCell implements IEditCell {
         let selectChkBox: Element;
         let chkState: boolean;
         let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
-        let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
+        let isAddRow : boolean =  args.requestType === 'add' || args.row.classList.contains('e-addedrow');
         if (!isNullOrUndefined(args.row)) {
             selectChkBox = args.row.querySelector('.e-edit-checkselect') as Element;
         }

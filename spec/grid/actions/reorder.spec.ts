@@ -420,4 +420,58 @@ describe('Reorder module', () => {
             destroy(gridObj);
         });
     });
+
+    describe('Reorder functionalities-column level', () => {
+        let gridObj: Grid;
+        let dataBound: Function;
+        let actionComplete: (e?: Object) => void;
+        let headers: any;
+        let flag: boolean = false;
+        let columns: Column[];
+        window['browserDetails'].isIE = false;
+
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    allowSorting: true,
+                    allowReordering: true,
+                    columns: [{ field: 'OrderID', allowReordering:false }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }],
+                    allowFiltering: true,
+                    actionComplete: actionComplete
+                }, done);
+        });
+
+        it('Dynamic allowReordering set', () => {
+            gridObj.allowReordering = true;
+            gridObj.dataBind();
+            expect(gridObj.getHeaderTable().querySelector('.e-draggable')).not.toBe(null);
+        });
+
+        it('Reorder Column method testing - 1', () => {
+            gridObj.reorderColumns('OrderID', 'CustomerID');
+            columns = gridObj.getColumns() as Column[];
+            headers = gridObj.getHeaderContent().querySelectorAll('.e-headercell');
+            expect(headers[0].querySelector('.e-headercelldiv').textContent).toBe('OrderID');
+            expect(headers[1].querySelector('.e-headercelldiv').textContent).toBe('CustomerID');
+            expect(columns[0].field).toBe('OrderID');
+            expect(columns[1].field).toBe('CustomerID');
+        });
+        
+        it('Reorder Column simulate testing', () => {      
+            (gridObj.reorderModule as any).dragStart({ target: gridObj.getColumnHeaderByField('OrderID').children[0],column:gridObj.getColumnByField("OrderID"), event: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('OrderID').children[0] } });
+            (gridObj.reorderModule as any).dragStart({ target: gridObj.getColumnHeaderByField('OrderID'), column:gridObj.getColumnByField("OrderID"),event: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('OrderID').children[0] } });
+                   
+            (gridObj.reorderModule as any).moveColumns = (destIndex: number, column: Column): void => { 
+                flag =  true;
+            };
+            (gridObj.reorderModule as any).headerDrop({ target: gridObj.getColumnHeaderByField('OrderID'), event: { clientX: 10, clientY: 10, target: gridObj.getColumnHeaderByField('OrderID').children[0] } });
+            expect(flag).toBe(false);     
+        });
+        
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
 });

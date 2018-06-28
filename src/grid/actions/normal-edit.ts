@@ -1,4 +1,4 @@
-import { extend } from '@syncfusion/ej2-base';
+import { extend, getValue } from '@syncfusion/ej2-base';
 import { remove, classList, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, NotifyArgs, EditEventArgs, AddEventArgs, SaveEventArgs } from '../base/interface';
 import { parentsUntil, refreshForeignData } from '../base/util';
@@ -72,11 +72,11 @@ export class NormalEdit {
                 }));
                 break;
             case 'delete':
-                this.parent.selectRow(this.editRowIndex);
                 this.parent.trigger(events.actionComplete, extend(e, {
                     requestType: 'delete',
                     type: events.actionComplete
                 }));
+                this.parent.selectRow(this.editRowIndex);
                 break;
         }
     }
@@ -307,9 +307,24 @@ export class NormalEdit {
 
     protected deleteRecord(fieldname?: string, data?: Object): void {
         this.editRowIndex = this.parent.selectedRowIndex;
+        if (data) {
+            data = (data instanceof Array) ? data : [data];
+            let gObj: IGrid = this.parent;
+            let index: number = 0;
+            let dataLen: number = Object.keys(data).length;
+            fieldname = fieldname || this.parent.getPrimaryKeyFieldNames()[0];
+            for (let i: number = 0; i < dataLen; i++) {
+                let tmpRecord: Object;
+                let contained: boolean = gObj.currentViewData.some((record: Object) => {
+                    tmpRecord = record;
+                    return data[i] === getValue(fieldname, record) || data[i] === record;
+                });
+                data[i] = contained ? tmpRecord : { [fieldname]: data[i] };
+            }
+        }
         this.parent.notify(events.modelChanged, {
             requestType: 'delete', type: events.actionBegin, foreignKeyData: {}, //foreign key support
-            data: data ? [data] : this.parent.getSelectedRecords(), tr: this.parent.getSelectedRows(), cancel: false
+            data: data ? data : this.parent.getSelectedRecords(), tr: this.parent.getSelectedRows(), cancel: false
         });
     }
 

@@ -90,10 +90,19 @@ export class Reorder implements IAction {
 
     private headerDrop(e: { target: Element }): void {
         let gObj: IGrid = this.parent;
-        if (!closestElement(e.target, 'th')) {
+        let dropElement: Element = this.element.querySelector('.e-headercelldiv') || this.element.querySelector('.e-stackedheadercelldiv');
+        let uId: string = dropElement.getAttribute('e-mappinguid');
+        let column: Column = gObj.getColumnByUid(uId);
+        if (!closestElement(e.target, 'th') || (!isNullOrUndefined(column) && column.allowReordering === false)) {
             return;
         }
         let destElem: Element = closestElement(e.target as Element, '.e-headercell');
+        let destElemDiv : Element = destElem.querySelector('.e-headercelldiv') || destElem.querySelector('.e-stackedheadercelldiv');
+        let destElemUid: string = destElemDiv.getAttribute('e-mappinguid');
+        let destColumn: Column = gObj.getColumnByUid(destElemUid);
+        if (isNullOrUndefined(destColumn) || destColumn.allowReordering === false) {
+            return;
+        }
         if (destElem && !(!this.chkDropPosition(this.element, destElem) || !this.chkDropAllCols(this.element, destElem))) {
             if (this.parent.enableColumnVirtualization) {
                 let columns: Column[] = this.parent.columns as Column[];
@@ -194,6 +203,11 @@ export class Reorder implements IAction {
      * @return {void} 
      */
     public reorderColumns(fromFName: string, toFName: string): void {
+        let fColumn: Column = this.parent.getColumnByField(fromFName);
+        let toColumn: Column = this.parent.getColumnByField(toFName);
+        if ((!isNullOrUndefined(fColumn) && !fColumn.allowReordering) || (!isNullOrUndefined(toColumn) && !toColumn.allowReordering)) {
+            return;
+        }
         let column: Column = this.parent.getColumnByField(toFName);
         let parent: Column = this.getColParent(column, this.parent.columns as Column[]);
         let columns: Column[] = parent ? parent.columns as Column[] : this.parent.columns as Column[];
@@ -248,6 +262,9 @@ export class Reorder implements IAction {
     private drag(e: { target: Element, column: Column, event: MouseEvent }): void {
         let gObj: IGrid = this.parent;
         let target: Element = e.target as Element;
+        if (e.column.allowReordering === false) {
+            return;
+        }
         let closest: Element = closestElement(target, '.e-headercell:not(.e-stackedHeaderCell)');
         let cloneElement: HTMLElement = gObj.element.querySelector('.e-cloneproperties') as HTMLElement;
         let isLeft: boolean = this.x > getPosition(e.event).x + gObj.getContent().firstElementChild.scrollLeft;
@@ -316,6 +333,9 @@ export class Reorder implements IAction {
         let target: Element = e.target as Element;
         this.element = target.classList.contains('e-headercell') ? target as HTMLElement :
             parentsUntil(target, 'e-headercell') as HTMLElement;
+        if (e.column.allowReordering === false) {
+             return;
+        }
         this.x = getPosition(e.event).x + gObj.getContent().firstElementChild.scrollLeft;
         gObj.trigger(events.columnDragStart, {
             target: target as Element, draggableType: 'headercell', column: e.column

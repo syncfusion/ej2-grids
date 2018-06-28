@@ -83,6 +83,11 @@ require.config({
             name: '@syncfusion/ej2-pdf-export',
             location: 'node_modules/@syncfusion/ej2-pdf-export',
             main: 'index.js'
+        },
+        {
+            name: '@syncfusion/ej2-splitbuttons',
+            location: 'node_modules/@syncfusion/ej2-splitbuttons',
+            main: 'index.js'
         }
         // Include dependent packages
     ],

@@ -4,7 +4,7 @@ import { DataManager, Query, DataUtil } from '@syncfusion/ej2-data';
 import { ICellFormatter, IFilterUI, IEditCell, CommandModel, IFilter } from '../base/interface';
 import { TextAlign, ClipMode } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
-import { ValueAccessor, SortComparer } from '../base/type';
+import { ValueAccessor } from '../base/type';
 import { getUid, templateCompiler, getForeignData } from '../base/util';
 
 /**
@@ -74,7 +74,7 @@ export class Column {
 
     /**   
      * Define the alignment of column header which is used to align the text of column header.       
-     * @default Left       
+     * @default null
      */
     public headerTextAlign: TextAlign;
 
@@ -97,7 +97,8 @@ export class Column {
      * Gets the format from the user which can be standard or custom 
      * [`number`](../base/intl.html#number-formatter-and-parser) 
      * and [`date`](../base/intl.html#date-formatter-and-parser) formats.  
-     * @default null    
+     * @default null  
+     * @aspType string  
      */
 
     public format: string | NumberFormatOptions | DateFormatOptions;
@@ -161,6 +162,14 @@ export class Column {
 
     public allowGrouping: boolean = true;
 
+
+    /**    
+     * If `allowReordering` set to false, then it disables reorder of a particular column. 
+     * By default all columns can be reorder.   
+     * @default true   
+     */
+    public allowReordering: boolean = true;
+
     /**         
      * If `showColumnMenu` set to false, then it disable the column menu of a particular column.  
      * By default column menu will show for all columns
@@ -213,7 +222,7 @@ export class Column {
      * {% codeBlock src="grid/formatter-api/index.ts" %}{% endcodeBlock %} 
      * @default null   
      */
-    public formatter: { new (): ICellFormatter } | ICellFormatter | Function;
+    public formatter: { new(): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method used to apply custom cell values from external function and display this on each cell rendered.     
@@ -223,7 +232,7 @@ export class Column {
      * @default null    
      */
 
-    public valueAccessor: ValueAccessor | string;
+    public valueAccessor: ValueAccessor;
 
     /**
      * The `filterBarTemplate` is used to add a custom component instead of default input component for filter bar.   
@@ -392,11 +401,8 @@ export class Column {
         }
 
         if (this.sortComparer) {
-            let a: Function = this.sortComparer as Function;
+            let a: Function = this.sortComparer;
             this.sortComparer = function comparer(x: number | string, y: number | string): number {
-                if (typeof a === 'string') {
-                    a = getValue(a, window);
-                }
                 if (this.sortDirection === 'Descending') {
                     let z: number | string = x;
                     x = y;
@@ -447,7 +453,7 @@ export class Column {
      * [`Array.sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) sort comparer.
      * {% codeBlock src="grid/sort-comparer-api/index.ts" %}{% endcodeBlock %}
      */
-    public sortComparer: SortComparer | string;
+    public sortComparer: (x: number | string, y: number | string) => number;
 
     /**
      * @hidden
@@ -552,8 +558,9 @@ export interface ColumnModel {
     clipMode?: ClipMode;
 
     /**   
-     * Define the alignment of column header which is used to align the text of column header.       
-     * @default undefined  
+     * Define the alignment of column header which is used to align the text of column header.
+     * @aspdefaultvalueignore
+     * @default null
      */
     headerTextAlign?: TextAlign;
 
@@ -574,7 +581,8 @@ export interface ColumnModel {
      * Gets the format from the user which can be standard or custom 
      * [`number`](../base/intl.html#number-formatter-and-parser) 
      * and [`date`](../base/intl.html#date-formatter-and-parser) formats.  
-     * @default null    
+     * @default null 
+     * @aspType string   
      */
     format?: string | NumberFormatOptions | DateFormatOptions;
 
@@ -638,6 +646,13 @@ export interface ColumnModel {
      * @default true   
      */
     allowGrouping?: boolean;
+
+    /**    
+     * If `allowReordering` set to false, then it disables reorder of a particular column. 
+     * By default all columns can be reorder. 
+     * @default true   
+     */
+    allowReordering?: boolean;
 
     /**    
      * If `enableGroupByFormat` set to true, then it groups the particular column by formatted values. 
@@ -715,7 +730,7 @@ export interface ColumnModel {
      * 
      * @default null  
      */
-    formatter?: { new (): ICellFormatter } | ICellFormatter | Function;
+    formatter?: { new(): ICellFormatter } | ICellFormatter | Function;
 
     /**    
      * Defines the method used to apply custom cell values from external function and display this on each cell rendered.     
@@ -738,7 +753,7 @@ export interface ColumnModel {
      *  
      * @default null    
      */
-    valueAccessor?: ValueAccessor | string;
+    valueAccessor?: ValueAccessor;
 
     /**    
      * The `filterBarTemplate` is used to add a custom component instead of default input component for filter bar.   
@@ -905,7 +920,7 @@ export interface ColumnModel {
     /**
      * It defines the custom sort comparer function.
      */
-    sortComparer?: SortComparer | string;
+    sortComparer?: (x: number | string, y: number | string) => number;
 
     /**
      * @hidden

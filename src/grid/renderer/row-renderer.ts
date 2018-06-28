@@ -1,4 +1,4 @@
-import { isNullOrUndefined, extend, getValue } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend, getValue, addClass } from '@syncfusion/ej2-base';
 import { createElement, attributes as addAttributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Row } from '../models/row';
@@ -127,11 +127,24 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         }
         if (rowArgs.rowHeight) {
             (tr as HTMLElement).style.height = rowArgs.rowHeight + 'px';
-        } else if (this.parent.rowHeight) {
+        } else if (this.parent.rowHeight && tr.querySelector('.e-headercell')) {
             (tr as HTMLElement).style.height = this.parent.rowHeight + 'px';
         }
         if (row.cssClass) {
             tr.classList.add(row.cssClass);
+        }
+        if (this.parent.element.scrollHeight > this.parent.height && this.parent.aggregates.length) {
+           for (let i: number = 0; i < this.parent.aggregates.length; i++) {
+                let property: string = 'properties';
+                let column: string = 'columns';
+                if (this.parent.aggregates[i][property][column][0].footerTemplate) {
+                    let summarycell: NodeList = tr.querySelectorAll('.e-summarycell');
+                    if (summarycell.length) {
+                        let lastSummaryCell: Element = (summarycell[summarycell.length - 1]) as Element;
+                        addClass([lastSummaryCell], ['e-lastsummarycell']);
+                    }
+                }
+            }
         }
         return tr;
     }

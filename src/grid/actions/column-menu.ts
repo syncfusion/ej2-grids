@@ -214,6 +214,8 @@ export class ColumnMenu implements IAction {
             colChooser && this.isChooserItem(colChooser)) {
             args.cancel = true;
         } else if (args.event && (closest(args.event.target as Element, '.' + this.POP)
+            || (args.event.currentTarget && (args.event.currentTarget as Document).activeElement &&
+            parentsUntil((args.event.currentTarget as Document).activeElement as Element, 'e-filter-popup'))
             || parentsUntil(args.event.target as Element, 'e-popup') ||
             (parentsUntil(args.event.target as Element, 'e-popup-wrapper')))) {
             args.cancel = true;

@@ -1,9 +1,7 @@
-import { createElement, closest, formatUnit } from '@syncfusion/ej2-base';
-import { Browser } from '@syncfusion/ej2-base';
+import { remove, createElement, closest, formatUnit } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { DataManager } from '@syncfusion/ej2-data';
 import { IGrid, IRenderer, NotifyArgs, VirtualInfo, IModelGenerator, InterSection } from '../base/interface';
-import { getRowHeight } from '../base/util';
 import { Column } from '../models/column';
 import { Row } from '../models/row';
 import { dataReady, modelChanged, refreshVirtualBlock, contentReady } from '../base/constant';
@@ -26,6 +24,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
     private prevHeight: number = 0;
     private observer: InterSectionObserver;
     private prevInfo: VirtualInfo;
+    private currentInfo: VirtualInfo = {};
     private vgenerator: VirtualRowModelGenerator;
     private header: VirtualHeaderRenderer;
     private locator: ServiceLocator;
@@ -70,7 +69,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         if (this.preventEvent || this.parent.isDestroyed) { this.preventEvent = false; return; }
         this.isFocused = this.content === closest(document.activeElement, '.e-content') || this.content === document.activeElement;
         let info: SentinelType = scrollArgs.sentinel;
-        let viewInfo: VirtualInfo = this.getInfoFromView(scrollArgs.direction, info, scrollArgs.offset);
+        let viewInfo: VirtualInfo = this.currentInfo = this.getInfoFromView(scrollArgs.direction, info, scrollArgs.offset);
         if (this.prevInfo && ((info.axis === 'Y' && this.prevInfo.blockIndexes.toString() === viewInfo.blockIndexes.toString())
             || (info.axis === 'X' && this.prevInfo.columnIndexes.toString() === viewInfo.columnIndexes.toString()))) {
             return;
@@ -133,7 +132,10 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
     }
 
     public appendContent(target: HTMLElement, newChild: DocumentFragment, e: NotifyArgs): void {
-        let info: VirtualInfo = e.virtualInfo; this.prevInfo = this.prevInfo || e.virtualInfo;
+        // currentInfo value will be used if there are multiple dom updates happened due to mousewheel
+        let info: VirtualInfo = e.virtualInfo.sentinelInfo && e.virtualInfo.sentinelInfo.axis === 'Y' && this.currentInfo.page &&
+            this.currentInfo.page !== e.virtualInfo.page ? this.currentInfo : e.virtualInfo;
+        this.prevInfo = this.prevInfo || e.virtualInfo;
         let cBlock: number = (info.columnIndexes[0]) - 1; let cOffset: number = this.getColumnOffset(cBlock);
         let width: string; let blocks: number[] = info.blockIndexes;
         if (this.parent.groupSettings.columns.length) {
@@ -152,8 +154,10 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
             width = this.getColumnOffset(cIndex[cIndex.length - 1]) - this.getColumnOffset(cIndex[0] - 1) + '';
             this.header.virtualEle.setWrapperWidth(width);
         }
-        this.virtualEle.setWrapperWidth(width, this.parent.enableColumnVirtualization || <boolean>Browser.isIE);
+        this.virtualEle.setWrapperWidth(width, this.parent.enableColumnVirtualization);
 
+        remove(target);
+        target = createElement('tbody');
         target.appendChild(newChild);
         this.getTable().appendChild(target);
 
@@ -178,7 +182,10 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
             this.maxPage = Math.ceil(e.count / this.parent.pageSettings.pageSize);
         }
         this.vgenerator.checkAndResetCache( e.requestType);
-        this.refreshOffsets();
+        if (['refresh', 'filtering', 'searching', 'grouping', 'ungrouping', 'reorder',  undefined]
+        .some((value: string) => { return e.requestType === value; })) {
+            this.refreshOffsets();
+        }
         this.setVirtualHeight();
         this.resetScrollPosition(e.requestType);
     }
@@ -228,7 +235,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
     }
 
     public getOffset(block: number): number {
-        return Math.min(this.offsets[block] | 0, this.offsets[this.maxBlock]);
+        return Math.min(this.offsets[block] | 0, this.offsets[this.maxBlock] | 0);
     }
 
     private onEntered(): Function {
@@ -260,16 +267,12 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
     }
 
     public getBlockHeight(): number {
-        return this.getBlockSize() * this.getRowHeight();
+        return this.getBlockSize() * this.parent.getRowHeight();
     }
 
     public isEndBlock(index: number): boolean {
         let totalBlocks: number = this.getTotalBlocks();
         return index >= totalBlocks || index === totalBlocks - 1;
-    }
-
-    private getRowHeight(): number {
-        return this.parent.rowHeight ? this.parent.rowHeight : getRowHeight();
     }
 
     public getTotalBlocks(): number {
@@ -320,7 +323,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
             .forEach((block: number) => {
                 let tmp: number = (this.vgenerator.cache[block] || []).length; let rem: number = this.count % bSize;
                 let size: number = block in this.vgenerator.cache ?
-                    tmp * this.getRowHeight() : rem && block === total ? rem * this.getRowHeight() : this.getBlockHeight();
+                    tmp * this.parent.getRowHeight() : rem && block === total ? rem * this.parent.getRowHeight() : this.getBlockHeight();
                 // let size: number = this.parent.groupSettings.columns.length && block in this.vgenerator.cache ?
                 // tmp * getRowHeight() : this.getBlockHeight();
                 this.offsets[block] = (this.offsets[block - 1] | 0) + size;

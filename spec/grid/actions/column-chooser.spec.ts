@@ -4,9 +4,11 @@
 import { EmitType, createElement } from '@syncfusion/ej2-base';
 import { Grid } from '../../../src/grid/base/grid';
 import { Page } from '../../../src/grid/actions/page';
+import { Button } from '@syncfusion/ej2-buttons';
 import { Toolbar } from '../../../src/grid/actions/toolbar';
 import { data } from '../base/datasource.spec';
 import { Freeze } from '../../../src/grid/actions/freeze';
+import { EJ2Intance } from '../../../src/grid/base/interface';
 import { ColumnChooser } from '../../../src/grid/actions/column-chooser';
 import { createGrid, destroy } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
@@ -81,7 +83,7 @@ describe('Column chooser module', () => {
         it('Column chooser render testing', (done: Function) => {
             beforeOpenColumnChooser = (args?: any): void => {
                 expect(args.requestType).toBe('beforeOpenColumnChooser');
-                expect(args.columns.length).toBe(5);
+                expect(args.columns.length).toBe(4);
                 done();
             };
 
@@ -120,7 +122,7 @@ describe('Column chooser module', () => {
         it('Column chooser open  testing', (done: Function) => {
             beforeOpenColumnChooser = (args?: any): void => {
                 expect(args.requestType).toBe('beforeOpenColumnChooser');
-                expect(args.columns.length).toBe(5);
+                expect(args.columns.length).toBe(4);
                 done();
             };
 
@@ -434,6 +436,47 @@ describe('Column chooser module', () => {
             gridObj.columnChooserModule.openColumnChooser();
         });
 
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+    describe('Column Chooser ok button disabled =>', function () {
+        let gridObj: Grid;
+        let actionComplete: () => void;
+        let columns: any;
+        beforeAll((done: Function) => {
+            gridObj = createGrid({
+                dataSource: data,
+                allowPaging: true,
+                showColumnChooser: true,
+                toolbar: ['ColumnChooser'],
+                actionComplete: actionComplete,
+                pageSettings: { pageSizes: true, pageSize: 5 },
+                columns: [{ field: 'OrderID', type: 'number', isPrimaryKey: true },
+                    { field: 'CustomerID', type: 'string' },
+                    { field: 'Freight', format: 'C2', type: 'number', allowFiltering: false },
+                ],
+            }, done);
+        });
+
+        it('button disabled', (done: Function) => {           
+            setTimeout(() => {
+                gridObj.columnChooserModule.openColumnChooser();
+                let cheEle: any = gridObj.element.querySelectorAll('.e-cc-chbox')[0];
+                let cheEle1: any = gridObj.element.querySelectorAll('.e-cc-chbox')[1];
+                let cheEle2: any = gridObj.element.querySelectorAll('.e-cc-chbox')[2];
+                cheEle.click();
+                cheEle1.click();
+                cheEle2.click();
+                done();
+            }, 500);
+        });
+
+        it('check button disabled case', () => {
+            let btn: Button = (gridObj.element.querySelector('.e-footer-content').querySelector('.e-btn') as EJ2Intance).ej2_instances[0] as Button;
+            expect(btn.disabled).toBe(true);
+            (<any>gridObj).columnChooserModule.destroy();          
+        });
         afterAll(() => {
             destroy(gridObj);
         });

@@ -711,7 +711,9 @@ export class Group implements IAction {
      * @hidden
      */
     public destroy(): void {
-        this.clearGrouping();
+        if (!this.parent.isDestroyed) {
+            this.clearGrouping();
+        }
         this.removeEventListener();
         this.refreshToggleBtn(true);
         remove(this.element);

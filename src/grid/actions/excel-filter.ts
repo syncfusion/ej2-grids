@@ -1,7 +1,8 @@
 import { createElement, EventHandler, remove, Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
-import { parentsUntil } from '../base/util';
+import { parentsUntil, isActionPrevent } from '../base/util';
 import { IGrid, IFilterArgs, EJ2Intance } from '../base/interface';
+import * as events from '../base/constant';
 import { ContextMenu, MenuItemModel, ContextMenuModel, MenuEventArgs, BeforeOpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
 import { ServiceLocator } from '../services/service-locator';
 import { CheckBoxFilter } from '../actions/checkbox-filter';
@@ -13,7 +14,7 @@ import { Dialog, Popup } from '@syncfusion/ej2-popups';
 import { DropDownList, AutoComplete } from '@syncfusion/ej2-dropdowns';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
 import { RadioButton, CheckBox } from '@syncfusion/ej2-buttons';
-import { distinctStringValues } from '../base/util';
+import { distinctStringValues, isComplexField, getComplexFieldID } from '../base/util';
 import { Column } from '../models/column';
 import { generateQuery } from '../base/constant';
 import { ReturnType } from '../base/type';
@@ -65,7 +66,7 @@ export class ExcelFilter extends CheckBoxFilter {
                 if (operator) {
                     model.push({
                         text: this.getLocalizedLabel(options[type][i]) + '...',
-                        iconCss: 'e-icons e-icon-check ' + (operator === options[type][i] ? '' : 'e-emptyicon')
+                        iconCss: 'e-icons e-icon-check ' + (operator === options[type][i].toLowerCase() ? '' : 'e-emptyicon')
                     });
                 } else {
                     model.push({
@@ -211,7 +212,7 @@ export class ExcelFilter extends CheckBoxFilter {
         } else {
             if (predicates && predicates.length === 1) {
                 this.optrData = this.customFilterOperators[this.options.type + 'Operator'];
-                selectedMenu = this.getSelectedText(predicates[0].operator);
+                selectedMenu = predicates[0].operator;
             }
         }
         return selectedMenu;
@@ -265,8 +266,12 @@ export class ExcelFilter extends CheckBoxFilter {
     private renderDialogue(e: MenuEventArgs): void {
         let target: HTMLElement = e.element as HTMLElement;
         let column: string = this.options.field;
-        let mainDiv: HTMLElement = createElement('div', { className: 'e-xlfl-maindiv', id: column + '-xlflmenu' });
-        this.dlgDiv = createElement('div', { className: 'e-xlflmenu', id: column + '-xlfldlg' });
+        let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
+        let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
+        let mainDiv: HTMLElement = createElement('div', { className: 'e-xlfl-maindiv',
+        id: isComplex ? complexFieldName + '-xlflmenu' : column + '-xlflmenu' });
+        this.dlgDiv = createElement('div', { className: 'e-xlflmenu',
+        id: isComplex ? complexFieldName + '-xlfldlg' : column + '-xlfldlg' });
         this.parent.element.appendChild(this.dlgDiv);
         this.dlgObj = new Dialog({
             header: this.getLocalizedLabel('CustomFilter'),
@@ -331,17 +336,20 @@ export class ExcelFilter extends CheckBoxFilter {
         this.renderFilterUI(column, dlgConetntEle);
     }
     private filterBtnClick(col: string): void {
-        let fValue: NumericTextBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + col + '-xlfl-frstvalue')).ej2_instances[0];
-        let fOperator: DropDownList = (<EJ2Intance>this.dlgDiv.querySelector('#' + col + '-xlfl-frstoptr')).ej2_instances[0];
-        let sValue: NumericTextBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + col + '-xlfl-secndvalue')).ej2_instances[0];
-        let sOperator: DropDownList = (<EJ2Intance>this.dlgDiv.querySelector('#' + col + '-xlfl-secndoptr')).ej2_instances[0];
+        let isComplex: boolean = !isNullOrUndefined(col) && isComplexField(col);
+        let complexFieldName: string = !isNullOrUndefined(col) && getComplexFieldID(col);
+        let colValue : string = isComplex ? complexFieldName : col;
+        let fValue: NumericTextBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlfl-frstvalue')).ej2_instances[0];
+        let fOperator: DropDownList = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlfl-frstoptr')).ej2_instances[0];
+        let sValue: NumericTextBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlfl-secndvalue')).ej2_instances[0];
+        let sOperator: DropDownList = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlfl-secndoptr')).ej2_instances[0];
         let checkBoxValue: boolean;
         if (this.options.type === 'string') {
-            let checkBox: CheckBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + col + '-xlflmtcase')).ej2_instances[0];
+            let checkBox: CheckBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlflmtcase')).ej2_instances[0];
             checkBoxValue = checkBox.checked;
         }
-        let andRadio: CheckBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + col + 'e-xlfl-frstpredicate')).ej2_instances[0];
-        let orRadio: CheckBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + col + 'e-xlfl-secndpredicate')).ej2_instances[0];
+        let andRadio: CheckBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + 'e-xlfl-frstpredicate')).ej2_instances[0];
+        let orRadio: CheckBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + 'e-xlfl-secndpredicate')).ej2_instances[0];
         let predicate: string = (andRadio.checked ? 'and' : 'or');
         if (sValue.value === null) {
             predicate = 'or';
@@ -379,6 +387,13 @@ export class ExcelFilter extends CheckBoxFilter {
             value: firstValue,
             type: this.options.type
         });
+        if (isActionPrevent(this.parent)) {
+            this.parent.notify(events.preventBatch, {
+                instance: this, handler: this.filterByColumn, arg1: fieldName, arg2: firstOperator, arg3: firstValue, arg4: predicate,
+                arg5: matchCase, arg6: ignoreAccent, arg7: secondOperator, arg8: secondValue
+            });
+            return;
+        }
         mPredicate = new Predicate(field, firstOperator.toLowerCase(), firstValue, !matchCase, ignoreAccent);
         if (secondValue) {
             secondOperator = !isNullOrUndefined(secondOperator) ? secondOperator as string : 'equal';
@@ -436,7 +451,10 @@ export class ExcelFilter extends CheckBoxFilter {
 
         let optrDiv: HTMLElement = createElement('div', { className: 'e-xlfl-optrdiv' });
 
-        let optrInput: HTMLElement = createElement('input', { id: column + elementID });
+        let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
+        let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
+
+        let optrInput: HTMLElement = createElement('input', { id: isComplex ? complexFieldName + elementID : column + elementID });
 
         optrDiv.appendChild(optrInput);
         xlfloptr.appendChild(optrDiv);
@@ -527,11 +545,13 @@ export class ExcelFilter extends CheckBoxFilter {
 
         let radioDiv: HTMLElement = createElement('div', { className: 'e-xlfl-radiodiv', attrs: { 'style': 'display: inline-block' } });
 
+        let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
+        let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
         /* tslint:disable-next-line:max-line-length */
-        let frstpredicate: HTMLInputElement = createElement('input', { id: column + 'e-xlfl-frstpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
+        let frstpredicate: HTMLInputElement = createElement('input', { id: isComplex ? complexFieldName + 'e-xlfl-frstpredicate' : column + 'e-xlfl-frstpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
 
         /* tslint:disable-next-line:max-line-length */
-        let secndpredicate: HTMLInputElement = createElement('input', { id: column + 'e-xlfl-secndpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
+        let secndpredicate: HTMLInputElement = createElement('input', { id: isComplex ? complexFieldName + 'e-xlfl-secndpredicate' : column + 'e-xlfl-secndpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
 
         //appends into div
         radioDiv.appendChild(frstpredicate);
@@ -578,8 +598,11 @@ export class ExcelFilter extends CheckBoxFilter {
         let value: HTMLElement = createElement('td', { className: 'e-xlfl-value' });
         optr.fieldElement.appendChild(value);
 
+        let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
+        let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
+
         let valueDiv: HTMLElement = createElement('div', { className: 'e-xlfl-valuediv' });
-        let valueInput: Element = createElement('input', { id: column + elementId });
+        let valueInput: Element = createElement('input', { id: isComplex ? complexFieldName + elementId : column + elementId });
 
         valueDiv.appendChild(valueInput);
         value.appendChild(valueDiv);
@@ -607,9 +630,12 @@ export class ExcelFilter extends CheckBoxFilter {
         /* tslint:disable-next-line:max-line-length */
         let matchCaseDiv: HTMLElement = createElement('div', { className: 'e-xlfl-matchcasediv', attrs: { 'style': 'display: inline-block' } });
 
+        let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
+        let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
+
         let matchCaseInput: HTMLInputElement = createElement(
             'input',
-            { id: column + elementId, attrs: { 'type': 'checkbox' } }
+            { id: isComplex ? complexFieldName + elementId : column + elementId, attrs: { 'type': 'checkbox' } }
         ) as HTMLInputElement;
 
         matchCaseDiv.appendChild(matchCaseInput);
@@ -671,13 +697,16 @@ export class ExcelFilter extends CheckBoxFilter {
             locale: this.parent.locale,
             autofill: true,
             focus: () => {
-                actObj.filterType = ((<EJ2Intance>this.dlgDiv.querySelector('#' + column +
-                    (inputValue.id === (column + '-xlfl-frstvalue') ?
+                let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
+                let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
+                let columnvalue: string = isComplex ? complexFieldName : column;
+                actObj.filterType = ((<EJ2Intance>this.dlgDiv.querySelector('#' + columnvalue +
+                    (inputValue.id === (columnvalue + '-xlfl-frstvalue') ?
                         '-xlfl-frstoptr' :
                         '-xlfl-secndoptr')
                 )).ej2_instances[0] as DropDownList).value as 'StartsWith' | 'Contains' | 'EndsWith';
                 actObj.ignoreCase = options.type === 'string' ?
-                    !((<EJ2Intance>this.dlgDiv.querySelector('#' + column + '-xlflmtcase')).ej2_instances[0] as CheckBox).checked :
+                    !((<EJ2Intance>this.dlgDiv.querySelector('#' + columnvalue + '-xlflmtcase')).ej2_instances[0] as CheckBox).checked :
                     true;
                 actObj.filterType = !isNullOrUndefined(actObj.filterType) ? actObj.filterType :
                     'equal' as 'StartsWith' | 'Contains' | 'EndsWith';

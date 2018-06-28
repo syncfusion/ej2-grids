@@ -224,11 +224,19 @@ export class ExportHelper {
     }
     /* tslint:disable:no-any */
     private checkDepth(col: any, index: number): number {/* tslint:enable:no-any */
+        let max: number = index;
+        let indices: number[] = [];
         if (col.columns) {
             index++;
             for (let i: number = 0; i < col.columns.length; i++) {
-                index = this.checkDepth(col.columns[i], index);
+                indices[i] = this.checkDepth(col.columns[i], index);
             }
+            for (let j: number = 0; j < indices.length; j++) {
+                if (max < indices[j]) {
+                    max = indices[j];
+                }
+            }
+            index = max;
         }
         return index;
     };
@@ -297,10 +305,10 @@ export class ExportValueFormatter {
                 }
             }
         } else {
-            if (args.column.type === undefined || args.column.type === null) {
-                return '';
-            } else {
+            if ((!isNullOrUndefined(args.column.type) && !isNullOrUndefined(args.value)) || !isNullOrUndefined(args.value)) {
                 return (args.value).toString();
+            } else {
+                return '';
             }
         }
     }

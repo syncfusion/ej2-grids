@@ -1,6 +1,6 @@
 /**
  * Grid batch edit spec document
- */
+ */ 
 import { EmitType } from '@syncfusion/ej2-base';
 import { extend, getValue } from '@syncfusion/ej2-base';
 import { DataManager } from '@syncfusion/ej2-data';
@@ -504,7 +504,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(gridObj.currentViewData.length - 1, 'OrderDate');
         });
 
-        it('tab key', () => {
+        it('tab key --1', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeFalsy();
@@ -612,7 +612,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(0, 'CustomerID');
         });
 
-        it('tab key', () => {
+        it('tab key --2', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
@@ -650,7 +650,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(1, 'Verified');
         });
 
-        it('tab key', () => {
+        it('tab key --3', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
@@ -688,7 +688,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(1, 'ShipCountry');
         });
 
-        it('tab key', () => {
+        it('tab key --4', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeTruthy();
@@ -725,7 +725,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(1, 'OrderDate');
         });
 
-        it('tab key', () => {
+        it('tab key --5', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeFalsy();
@@ -769,7 +769,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(1, 'OrderDate');
         });
 
-        it('tab key', () => {
+        it('tab key --6', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeFalsy();
@@ -813,7 +813,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(1, 'CustomerID');
         });
 
-        it('tab key', () => {
+        it('tab key --7', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.keyboardModule.keyAction({ action: 'shiftTab', preventDefault: preventDefault, target: gridObj.element.querySelector('.e-editedbatchcell') } as any);
             expect(gridObj.isEdit).toBeFalsy();
@@ -856,7 +856,7 @@ describe('Batch Editing module', () => {
             gridObj.editModule.editCell(1, 'CustomerID');
         });
 
-        it('tab key', () => {
+        it('tab key --8', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = '';
             gridObj.keyboardModule.keyAction({ action: 'tab', preventDefault: preventDefault, target: cell } as any);
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
@@ -870,7 +870,7 @@ describe('Batch Editing module', () => {
             expect(gridObj.element.querySelector('.e-editedbatchcell').querySelector('.e-field').id).toBe(gridObj.element.id + 'CustomerID');
         });
 
-        it('tab key', () => {
+        it('tab key --9', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             (gridObj.getContent().querySelectorAll('.e-row')[2].firstElementChild as any).click();
             expect(gridObj.isEdit).toBeFalsy();

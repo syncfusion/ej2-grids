@@ -1,10 +1,11 @@
 import { createElement, remove, classList, addClass, removeClass, isNullOrUndefined, Browser } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
+import { Button } from '@syncfusion/ej2-buttons';
 import { EventHandler, L10n, closest } from '@syncfusion/ej2-base';
 import { CheckBox } from '@syncfusion/ej2-buttons';
 import { ServiceLocator } from '../services/service-locator';
-import { IGrid, IAction, NotifyArgs } from '../base/interface';
+import { IGrid, IAction, NotifyArgs, EJ2Intance } from '../base/interface';
 import * as events from '../base/constant';
 import { ShowHide } from './show-hide';
 import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
@@ -131,12 +132,14 @@ export class ColumnChooser implements IAction {
             } else {
                 if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.visible && !targetElement.classList.contains('e-toolbar-items')) {
                     this.dlgObj.hide();
+                    this.clearActions();
                     this.refreshCheckboxState();
                     // this.unWireEvents();
                     this.isDlgOpen = false;
                 }
             }
         }
+        this.rtlUpdate();
     }
 
     private hideDialog(): void {
@@ -196,6 +199,7 @@ export class ColumnChooser implements IAction {
             this.hideDialog();
             this.addcancelIcon();
         }
+        this.rtlUpdate();
     }
 
 
@@ -252,9 +256,9 @@ export class ColumnChooser implements IAction {
     }
 
     private getColumns(): Column[] {
-        let columns: Column[] = this.parent.getColumns().filter((column: Column) => column.type !== 'checkbox'
-            || column.type === 'checkbox' && column.field !== undefined);
-        return columns;
+         let columns: Column[] = this.parent.getColumns().filter((column: Column) => (column.type !== 'checkbox'
+         && column.showInColumnChooser === true) || (column.type === 'checkbox' && column.field !== undefined));
+         return columns;
     }
 
 
@@ -395,7 +399,6 @@ export class ColumnChooser implements IAction {
             if (!clearSearch) {
                 this.addcancelIcon();
             }
-
         } else {
             let nMatchele: HTMLElement = createElement('span', { className: 'e-cc e-nmatch' });
             nMatchele.innerHTML = this.l10n.getConstant('Matchs');
@@ -437,7 +440,19 @@ export class ColumnChooser implements IAction {
             }
             let columnUid: string = parentsUntil(elem, 'e-ccheck').getAttribute('uid');
             this.checkstatecolumn(checkstate, columnUid);
+            this.refreshCheckboxButton();
         }
+    }
+
+    private refreshCheckboxButton(): void {
+        let searchValue: string =  (<HTMLInputElement>this.dlgObj.element.querySelector('.e-cc.e-input')).value;
+        let selected: number = this.innerDiv.querySelectorAll('.e-check').length;
+        let btn: Button = (this.dlgDiv.querySelector('.e-footer-content').querySelector('.e-btn') as EJ2Intance).ej2_instances[0] as Button;
+        btn.disabled = false;
+        if (selected === 0 && searchValue === '') {
+            btn.disabled = true;
+        }
+        btn.dataBind();
     }
 
     private refreshCheckboxList(gdCol: Column[], searchVal?: string): HTMLElement {

@@ -28,7 +28,7 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
      * * falsecount
      * * custom
      * > Specify the `type` value as `custom` to use custom aggregation.
-     * 
+     * @aspType string
      * @default null
      */
     @Property()
@@ -54,6 +54,7 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
      * Gets the format from the user, which can be standard or custom
      * [`number`](../base/intl.html#number-formatter-and-parser)
      * and [`date`](../base/intl.html#date-formatter-and-parser) formats.
+     * @aspType string
      * @default null    
      */
     @Property()
@@ -104,7 +105,7 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
      * @default null
      */
     @Property()
-    public customAggregate: CustomSummaryType | string;
+    public customAggregate: CustomSummaryType;
     /**
      * @hidden
      */

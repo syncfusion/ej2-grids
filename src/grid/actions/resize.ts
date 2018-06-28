@@ -3,7 +3,7 @@ import { Column } from '../models/column';
 import { IGrid, IAction, ResizeArgs } from '../base/interface';
 import { ColumnWidthService } from '../services/width-controller';
 import * as events from '../base/constant';
-import { getScrollBarWidth } from '../base/util';
+import { getScrollBarWidth, parentsUntil  } from '../base/util';
 import { OffsetPosition } from '@syncfusion/ej2-popups';
 
 export const resizeClassList: ResizeClasses = {
@@ -41,6 +41,7 @@ export class Resize implements IAction {
     private isDblClk: boolean | number = true;
     private minMove: number;
     private parentElementWidth: number;
+    public isFrozenColResized: boolean;
     //Module declarations
     private parent: IGrid;
     private widthService: ColumnWidthService;
@@ -105,6 +106,9 @@ export class Resize implements IAction {
                 indentWidth += (<HTMLElement>indentWidthClone[i]).offsetWidth;
             }
         }
+        if (this.parent.detailTemplate || this.parent.childGrid) {
+            indentWidth += (<HTMLElement>contentTable.querySelector('.e-detailrowcollapse')).offsetWidth;
+        }
         let headerText: Element[] = [headerTextClone];
         let contentText: Element[] = [];
         for (let i: number = 0; i < contentTextClone.length; i++) {
@@ -126,6 +130,9 @@ export class Resize implements IAction {
         }
         let calcTableWidth: number = tWidth + indentWidth;
         if (tWidth > 0 && !gObj.getFrozenColumns()) {
+            if (this.parent.detailTemplate || this.parent.childGrid) {
+                this.widthService.setColumnWidth(new Column({ width: '30px' }));
+            }
             (<HTMLTableElement>headerTable).style.width = formatUnit(calcTableWidth);
             (<HTMLTableElement>contentTable).style.width = formatUnit(calcTableWidth);
         }
@@ -178,6 +185,7 @@ export class Resize implements IAction {
         mySubDiv.className = tag;
         let myTable: HTMLTableElement = createElement('table') as HTMLTableElement;
         myTable.className = table.className;
+        myTable.classList.add('e-resizetable');
         myTable.style.cssText = 'table-layout: auto;width: auto';
         let myTr: HTMLTableRowElement = createElement('tr') as HTMLTableRowElement;
         text.forEach((element: Element) => {
@@ -202,7 +210,6 @@ export class Resize implements IAction {
         }
         this.parent.on(events.headerRefreshed, this.refreshHeight, this);
         this.parent.on(events.initialEnd, this.wireEvents, this);
-
     }
     /**
      * @hidden
@@ -214,13 +221,6 @@ export class Resize implements IAction {
         this.parent.off(events.headerRefreshed, this.refreshHeight);
         this.parent.off(events.initialEnd, this.wireEvents);
     }
-
-    private refreshHeight(): void {
-        this.getResizeHandlers().forEach((ele: HTMLElement) => {
-            ele.style.height = ele.parentElement.offsetHeight + 'px';
-        });
-    }
-
     /**
      * @hidden
      */
@@ -228,6 +228,12 @@ export class Resize implements IAction {
         this.unwireEvents();
         this.wireEvents();
         this.setHandlerHeight();
+    }
+
+    private refreshHeight(): void {
+        this.getResizeHandlers().forEach((ele: HTMLElement) => {
+            ele.style.height = ele.parentElement.offsetHeight + 'px';
+        });
     }
 
     private wireEvents(): void {
@@ -332,7 +338,9 @@ export class Resize implements IAction {
     private resizing(e: PointerEvent | TouchEvent): void {
         if (this.parent.allowTextWrap) {
             if (this.parent.getFrozenColumns()) {
-                this.parent.notify(events.freezeRender, { case: 'textwrap' });
+                if (!this.parent.getHeaderContent().querySelectorAll('.e-stackedheadercell').length) {
+                    this.parent.notify(events.freezeRender, { case: 'textwrap' });
+                }
             }
             this.element.style.height = this.element.parentElement.offsetHeight + 'px';
             this.setHelperHeight();
@@ -379,6 +387,14 @@ export class Resize implements IAction {
         };
         this.parent.trigger(events.resizeStop, args);
         closest(this.element, '.e-headercell').classList.add('e-resized');
+        if (parentsUntil(this.element, 'e-frozenheader')) {
+            this.isFrozenColResized = true;
+        } else {
+            this.isFrozenColResized = false;
+        }
+        if (this.parent.getFrozenColumns()) {
+            this.parent.notify(events.freezeRender, { case: 'textwrap'});
+        }
         this.refresh();
         this.doubleTapEvent(e);
         this.isDblClk = true;

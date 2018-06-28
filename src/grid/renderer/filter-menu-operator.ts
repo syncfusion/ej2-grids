@@ -64,7 +64,7 @@ export class FlMenuOptrUI {
         let selValue: string = '';
         let columns: PredicateModel[] = this.parent.filterSettings.columns;
         for (let column of columns) {
-            if (col.field === column.field) {
+            if (col.field === column.field || (col.isForeignColumn() && col.foreignKeyValue === column.field)) {
                 let selectedField: Object = new DataManager(this.optrData).executeLocal(
                     new Query().where('value', 'equal', column.operator));
                 selValue = !isNullOrUndefined(selectedField[0]) ? selectedField[0].text : '';

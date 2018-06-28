@@ -94,8 +94,7 @@ describe('Toolbar functionalities', () => {
         expect(gridObj.toolbarModule).toBe(undefined);
     });
     it('render all predefined items', () => {
-        gridObj.toolbar = ['Add', 'Edit', 'Delete', 'Update', 'Cancel', 'Print', 'ExcelExport', 'PdfExport', 'WordExport',
-        'Search', 'CsvExport'];
+        gridObj.toolbar = ['Add', 'Edit', 'Delete', 'Update', 'Cancel', 'Print', 'ExcelExport', 'PdfExport', 'WordExport', 'Search', 'CsvExport'];
         gridObj.dataBind();
         expect(gridObj.toolbarModule.getToolbar().querySelectorAll('.e-toolbar-item').length).toBe(11);
         //expect(gridObj.toolbarModule.toolbar.items[9].align).toBe('left');

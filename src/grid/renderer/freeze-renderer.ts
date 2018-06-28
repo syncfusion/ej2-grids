@@ -1,4 +1,4 @@
-import { createElement, remove } from '@syncfusion/ej2-base';
+import { createElement, remove, addClass } from '@syncfusion/ej2-base';
 import { IGrid, IRenderer, IModelGenerator } from '../base/interface';
 import { Column } from '../models/column';
 import { HeaderRender } from './header-renderer';
@@ -84,6 +84,12 @@ export class FreezeRender extends HeaderRender implements IRenderer {
 
     public addEventListener(): void {
         this.parent.on(events.freezeRender, this.refreshFreeze, this);
+        this.parent.on(events.frozenHeight, this.setFrozenHeight, this);
+    }
+
+    public removeEventListener(): void {
+        if (this.parent.isDestroyed) { return; }
+        this.parent.off(events.frozenHeight, this.setFrozenHeight);
     }
 
     public renderTable(): void {
@@ -121,6 +127,26 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         this.getFrozenHeader().appendChild(this.getTable());
         this.getMovableHeader().appendChild(this.createTable());
         this.refreshStackedHdrHgt();
+        this.addMovableFirstCls();
+    }
+
+    private addMovableFirstCls(): void {
+        if (this.parent.getVisibleFrozenColumns()) {
+            let movablefirstcell: NodeListOf<Element> =
+            this.parent.element.querySelector('.e-movableheader').querySelector('thead').querySelectorAll('.e-columnheader');
+            let len: number =
+            this.parent.element.querySelector('.e-movableheader').querySelector('thead').querySelectorAll('.e-columnheader').length;
+            for (let i: number = 0; i < len; i++) {
+                let cells: string = 'cells';
+                let element: Element = movablefirstcell[i][cells][0];
+                if (element) {
+                    addClass([element], ['e-movablefirst']);
+                    if (movablefirstcell[i][cells][0].rowSpan > 1) {
+                        i = i + (movablefirstcell[i][cells][0].rowSpan - 1);
+                    }
+                }
+            }
+        }
     }
 
     private refreshFreeze(obj: { case: string, isModeChg?: boolean }): void {
@@ -155,7 +181,9 @@ export class FreezeRender extends HeaderRender implements IRenderer {
                 fRows = fHdr.querySelector(wrapMode === 'Content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
                 mRows = mHdr.querySelector(wrapMode === 'Content' ? 'tbody' : 'thead').querySelectorAll('tr') as NodeListOf<HTMLElement>;
             }
-            this.setWrapHeight(fRows, mRows, obj.isModeChg, false, this.colDepth > 1);
+            if (!this.parent.getHeaderContent().querySelectorAll('.e-stackedheadercell').length) {
+                this.setWrapHeight(fRows, mRows, obj.isModeChg, false, this.colDepth > 1);
+            }
             this.refreshStackedHdrHgt();
         }
     }
@@ -189,19 +217,30 @@ export class FreezeRender extends HeaderRender implements IRenderer {
             }
             fRowHgt = height[i];
             mRowHgt = width[i];
-            if (fRows[i].childElementCount && ((isWrap && fRowHgt < mRowHgt) || (!isWrap && fRowHgt > mRowHgt))) {
-                fRows[i].style.height = mRowHgt + 'px';
-            } else if (mRows[i].childElementCount && ((isWrap && fRowHgt > mRowHgt) || (!isWrap && fRowHgt < mRowHgt))) {
-                mRows[i].style.height = fRowHgt + 'px';
+            if (fRows[i].childElementCount && ((isWrap && fRowHgt < mRowHgt) || (!isWrap && fRowHgt > mRowHgt) ||
+            (this.parent.allowResizing && !this.parent.resizeModule.isFrozenColResized))) {
+                if (!this.parent.allowResizing || (this.parent.allowResizing && !this.parent.resizeModule.isFrozenColResized)) {
+                    fRows[i].style.height = mRowHgt + 'px';
+                }
+            }
+            if (mRows[i].childElementCount && ((isWrap && fRowHgt > mRowHgt) || (!isWrap && fRowHgt < mRowHgt) ||
+            (this.parent.allowResizing && this.parent.resizeModule.isFrozenColResized))) {
+                if (!this.parent.allowResizing || (this.parent.allowResizing && this.parent.resizeModule.isFrozenColResized)) {
+                    mRows[i].style.height = fRowHgt + 'px';
+                }
             }
         }
         if (isWrap) {
-            let movableContentHeight: number = this.parent.element.querySelector('.e-movablecontent').getBoundingClientRect().height;
-            let frozenContentHeight: number = this.parent.element.querySelector('.e-frozencontent').getBoundingClientRect().height;
-            if (movableContentHeight > frozenContentHeight) {
-                (this.parent.element.querySelector('.e-frozencontent') as HTMLElement).style.height = movableContentHeight -
+            this.setFrozenHeight();
+        }
+    }
+
+    private setFrozenHeight(): void {
+        let movableContentHeight: number = this.parent.element.querySelector('.e-movablecontent').getBoundingClientRect().height;
+        let frozenContentHeight: number = this.parent.element.querySelector('.e-frozencontent').getBoundingClientRect().height;
+        if (movableContentHeight > frozenContentHeight) {
+            (this.parent.element.querySelector('.e-frozencontent') as HTMLElement).style.height = movableContentHeight -
                 getScrollBarWidth() + 'px';
-            }
         }
     }
 
@@ -242,7 +281,8 @@ export class FreezeRender extends HeaderRender implements IRenderer {
     private updateStackedHdrRowHgt(idx: number, maxRowSpan: number, row: Element, rows: NodeListOf<Element>): void {
         let height: number = 0;
         for (let i: number = 0; i < maxRowSpan; i++) {
-            height += (rows[idx + i] as HTMLElement).offsetHeight;
+            height += (rows[idx + i] as HTMLElement).style.height ?
+            parseInt((rows[idx + i] as HTMLElement).style.height, 10) : (rows[idx + i] as HTMLElement).offsetHeight;
         }
         (row as HTMLElement).style.height = height + 'px';
     }

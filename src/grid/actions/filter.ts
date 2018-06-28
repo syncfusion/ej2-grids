@@ -400,7 +400,7 @@ export class Filter implements IAction {
         if (this.filterSettings.type === 'FilterBar') {
             for (let i: number = 0; i < this.filterSettings.columns.length; i++) {
                 this.column = this.parent.getColumnByField(this.filterSettings.columns[i].field) ||
-                getColumnByForeignKeyValue(this.filterSettings.columns[i].field, this.parent.getForeignKeyColumns());
+                    getColumnByForeignKeyValue(this.filterSettings.columns[i].field, this.parent.getForeignKeyColumns());
                 let filterValue: string | number | Date | boolean = this.filterSettings.columns[i].value;
                 filterValue = !isNullOrUndefined(filterValue) && filterValue.toString();
                 if (!isNullOrUndefined(this.column.format)) {
@@ -552,7 +552,10 @@ export class Filter implements IAction {
                     delete this.values[field];
                 }
                 this.parent.notify(events.modelChanged, {
-                    requestType: 'filtering', type: events.actionBegin
+                    requestType: 'filtering', type: events.actionBegin, currentFilterObject: {
+                        field: column.field, operator: this.operator, value: this.value as string, predicate: this.predicate,
+                        matchCase: this.matchCase, ignoreAccent: this.ignoreAccent, actualFilterValue: {}, actualOperator: {}
+                    }, currentFilterColumn: column
                 });
                 break;
             }
@@ -572,8 +575,10 @@ export class Filter implements IAction {
     private keyUpHandler(e: KeyboardEvent): void {
         let gObj: IGrid = this.parent;
         let target: HTMLInputElement = e.target as HTMLInputElement;
+
         if (target && matches(target, '.e-filterbar input')) {
-            this.column = gObj.getColumnByField(target.id.split('_filterBarcell')[0]);
+            let closeHeaderEle: Element = closest(target, 'th.e-filterbarcell');
+            this.column = gObj.getColumnByUid(closeHeaderEle.getAttribute('e-mappinguid'));
             if (!this.column) {
                 return;
             }
@@ -593,6 +598,7 @@ export class Filter implements IAction {
     private updateFilterMsg(): void {
         if (this.filterSettings.type === 'FilterBar') {
             let gObj: IGrid = this.parent;
+            let getFormatFlValue: string;
             let columns: PredicateModel[] = this.filterSettings.columns;
             let formater: IValueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
             let column: Column;
@@ -613,9 +619,13 @@ export class Filter implements IAction {
                         let flValue: Date | number = (column.type === 'date' || column.type === 'datetime') ?
                             new Date(this.values[column.field]) :
                             this.values[column.field];
-                        let getFormatFlValue: string = this.setFormatForFlColumn(flValue, column);
+                        if (!(column.type === 'date' || column.type === 'datetime')) {
+                            let formater: IValueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
+                            getFormatFlValue = formater.toView(flValue, column.getParser()).toString();
+                        } else {
+                            getFormatFlValue = this.setFormatForFlColumn(flValue, column);
+                        }
                         this.filterStatusMsg += column.headerText + ': ' + getFormatFlValue;
-
                     } else {
                         this.filterStatusMsg += column.headerText + ': ' + this.values[column.field];
                     }
@@ -682,7 +692,9 @@ export class Filter implements IAction {
             if (typeof templateRead === 'string') {
                 templateRead = getValue(templateRead, window);
             }
-            this.value = templateRead.call(this, filterElement);
+            if (!isNullOrUndefined(templateRead)) {
+                this.value = templateRead.call(this, filterElement);
+            }
         } else {
             filterValue = JSON.parse(JSON.stringify(filterElement.value));
         }
@@ -902,7 +914,7 @@ export class Filter implements IAction {
             if (filterIconElement) {
                 filterIconElement.classList.remove('e-filtered');
             }
-            this.parent.refresh(); //hot-fix onpropertychanged not working for object { array }           
+            this.parent.renderModule.refresh(); //hot-fix onpropertychanged not working for object { array }           
         }
         this.parent.dataBind();
     }
@@ -911,7 +923,7 @@ export class Filter implements IAction {
         let cols: PredicateModel[] = this.filterSettings.columns;
         for (let i: number = 0; i < cols.length; i++) {
             this.column = this.parent.getColumnByField(cols[i].field) ||
-            getColumnByForeignKeyValue(cols[i].field, this.parent.getForeignKeyColumns());
+                getColumnByForeignKeyValue(cols[i].field, this.parent.getForeignKeyColumns());
             let fieldName: string = cols[i].field;
             if (!this.parent.getColumnByField(cols[i].field)) {
                 fieldName = getColumnByForeignKeyValue(cols[i].field, this.parent.getForeignKeyColumns()).field;

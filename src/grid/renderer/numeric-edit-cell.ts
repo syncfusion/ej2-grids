@@ -1,6 +1,6 @@
 
 import { extend } from '@syncfusion/ej2-base';
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { createElement } from '@syncfusion/ej2-base';
 import { IGrid, EJ2Intance, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
@@ -18,10 +18,11 @@ export class NumericEditCell implements IEditCell {
     constructor(parent?: IGrid) {
         this.parent = parent;
     }
+
     public create(args: { column: Column, value: string }): Element {
         /* tslint:disable-next-line:no-any */
-        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
-        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
+        let isComplex: boolean = isComplexField(args.column.field);
+        let complexFieldName: string = getComplexFieldID(args.column.field);
         return createElement('input', {
             className: 'e-field', attrs: {
                 /* tslint:disable-next-line:no-any */
@@ -39,8 +40,8 @@ export class NumericEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, row: HTMLElement, requestType: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
-        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
-        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
+        let isComplex: boolean = isComplexField(args.column.field);
+        let complexFieldName: string = getComplexFieldID(args.column.field);
         let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
         this.obj = new NumericTextBox(extend(
             {

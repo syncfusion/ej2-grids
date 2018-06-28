@@ -17,19 +17,21 @@ import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
 import { CheckState } from './enum';
 import { Edit } from '../actions/edit';
+import { Resize } from '../actions/resize';
 import { DropDownListModel } from '@syncfusion/ej2-dropdowns';
 import { NumericTextBoxModel } from '@syncfusion/ej2-inputs';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { Data } from '../actions/data';
 import { DatePickerModel } from '@syncfusion/ej2-calendars';
 import { Matrix } from '../services/focus-strategy';
+import { CheckBoxFilter } from '../actions/checkbox-filter';
 import {
     PdfPageSize, PageOrientation, ContentType, PdfPageNumberType, PdfDashStyle,
     PdfHAlign, PdfVAlign
 } from './enum';
 import { FlMenuOptrUI } from '../renderer/filter-menu-operator';
 import { Dialog } from '@syncfusion/ej2-popups';
-import { CheckBoxFilter } from '../actions/checkbox-filter';
+import { Render } from '../renderer/render';
 
 /**
  * Specifies grid interfaces.
@@ -330,6 +332,8 @@ export interface IGrid extends Component<HTMLElement> {
 
     editModule?: Edit;
 
+    resizeModule: Resize;
+
     mergeCells?: { [key: string]: number };
 
     checkAllRows?: CheckState;
@@ -339,6 +343,12 @@ export interface IGrid extends Component<HTMLElement> {
     isPersistSelection?: boolean;
 
     localeObj?: L10n;
+
+    prevPageMoving?: boolean;
+
+    renderModule?: Render;
+
+    isPreventScrollEvent?: boolean;
 
     //public methods
     getHeaderContent?(): Element;
@@ -362,6 +372,7 @@ export interface IGrid extends Component<HTMLElement> {
     getColumnIndexByField?(field: string): number;
     getColumnByUid?(uid: string): Column;
     getColumnIndexByUid?(uid: string): number;
+    getColumnByIndex?(index: number): Column;
     getUidByColumnField?(field: string): string;
     getNormalizedColumnIndex?(uid: string): number;
     getColumnIndexesInView(): number[];
@@ -380,6 +391,7 @@ export interface IGrid extends Component<HTMLElement> {
     clearSelection?(): void;
     updateExternalMessage?(message: string): void;
     getColumns?(isRefresh?: boolean): Column[];
+    getStackedHeaderColumnByHeaderText?(stackedHeader: string, col: Column[]): Column;
     getRowTemplate?(): Function;
     getDetailTemplate?(): Function;
     sortColumn?(columnName: string, sortDirection: SortDirection, isMultiSort?: boolean): void;
@@ -429,6 +441,7 @@ export interface IGrid extends Component<HTMLElement> {
     copy?(withHeader?: boolean): void;
     getLocaleConstants?(): Object;
     getForeignKeyColumns?(): Column[];
+    getRowHeight?(): number;
     setCellValue(key: string | number, field: string, value: string | number | boolean | Date): void;
     setRowData(key: string | number, rowData?: Object): void;
     getState?(): Object;
@@ -500,27 +513,27 @@ export interface ITemplateRender {
  * @hidden
  */
 export interface IEditCell {
-    create?: Element | Function | string;
-    read?: Object | Function | string;
-    write?: void | Function | string;
+    create?: Element | Function;
+    read?: Object | Function;
+    write?: void | Function;
     params?: DatePickerModel | NumericTextBoxModel | DropDownListModel;
-    destroy?: Function | string;
+    destroy?: Function;
 }
 /**
  * @hidden
  */
 export interface IFilterUI {
-    create?: Element | Function | string;
-    read?: Object | Function | string;
-    write?: void | Function | string;
+    create?: Element | Function;
+    read?: Object | Function;
+    write?: void | Function;
 }
 /**
  * @hidden
  */
 export interface IFilterMUI {
-    create?: void | Function | string;
-    read?: Object | Function | string;
-    write?: void | Function | string;
+    create?: void | Function;
+    read?: Object | Function;
+    write?: void | Function;
 }
 
 /**
@@ -858,6 +871,13 @@ export interface RowDataBoundEventArgs {
     rowHeight?: number;
 }
 
+export interface HeaderCellInfoEventArgs {
+    /** Defines the cell. */
+    cell?: Cell<Column>;
+    /** Defines the cell element. */
+    node?: Element;
+}
+
 export interface QueryCellInfoEventArgs {
     /** Defines the row data associated with this cell. */
     data?: Object;
@@ -884,6 +904,16 @@ export interface PdfQueryCellInfoEventArgs {
     colSpan?: number;
 }
 
+export interface PdfHeaderQueryCellInfoEventArgs {
+    /** Defines the PDF grid current cell. */
+    cell?: object;
+    /** Defines the style of the current cell. */
+    /* tslint:disable:no-any */
+    style?: PdfStyle;
+    /** Defines the current cell with column */
+    gridCell?: object;
+}
+
 export interface ExcelQueryCellInfoEventArgs {
     /** Defines the row data associated with this cell. */
     data?: Object;
@@ -895,6 +925,12 @@ export interface ExcelQueryCellInfoEventArgs {
     style?: ExcelStyle;
     /** Defines the number of columns to be spanned */
     colSpan?: number;
+}
+export interface ExcelHeaderQueryCellInfoEventArgs {
+    /** Defines the cell that contains colspan. */
+    cell?: Object;
+    /** Defines the style of the current cell. */
+    style?: ExcelStyle;
 }
 
 export interface FilterSearchBeginEventArgs {
@@ -908,7 +944,7 @@ export interface FilterSearchBeginEventArgs {
     column?: Column;
     /** Defines the operator for filter request */
     operator?: string;
-    /** Defines the matchcase for filter request */
+    /** Defines the matchCase for filter request */
     matchCase?: boolean;
     /** Defines the ignoreAccent for filter request */
     ignoreAccent?: boolean;
@@ -951,6 +987,8 @@ export interface ExcelStyle {
     vAlign?: ExcelVAlign;
     /** Defines the bold style for fonts  */
     bold?: boolean;
+    /** Defines the indent for cell style */
+    indent?: number;
     /** Defines the italic style for fonts */
     italic?: boolean;
     /** Defines the underline style for fonts */
@@ -975,6 +1013,8 @@ export interface PdfStyle {
     fontSize?: number;
     /** Defines the font bold */
     bold?: boolean;
+    /** Defines the indent alignment */
+    indent?: PdfHAlign;
     /** Defines the italic font */
     italic?: boolean;
     /** Defines the underlined font */
@@ -987,6 +1027,8 @@ export interface PdfStyle {
     backgroundColor?: string;
     /** Defines the grid border */
     border?: PdfBorder;
+    /** Defines the cell indent */
+    paragraphIndent?: number;
 }
 export interface PdfBorder {
     /** Defines the border color */
@@ -1046,6 +1088,8 @@ export interface ExcelExportProperties {
     includeHiddenColumn?: boolean;
     /** Defines the theme for exported data  */
     theme?: Theme;
+    /** Defines the file name for the exported file  */
+    fileName?: string;
 }
 
 export interface RowDragEventArgs {
@@ -1139,6 +1183,16 @@ export interface BeforeBatchAddArgs extends ICancel, IPrimaryKey {
     /** Defines the default data object. */
     defaultData?: Object;
 
+}
+
+/**
+ * @hidden
+ */
+export interface BatchCancelArgs {
+    /** Defines the rows. */
+    rows?: Row<Column>[];
+    /** Defines the request type. */
+    requestType?: string;
 }
 
 /**
@@ -1408,11 +1462,13 @@ export interface PendingState {
      */
     group?: string[];
     /**
+     * aggregate support for Custom data service
+     */
+    aggregates ?: Object[];
+    /**
      *  DataSource changed through set model
      */
     isDataChanged?: Boolean;
-    aggregates?: Object[];
-
 }
 
 /**
@@ -1448,6 +1504,8 @@ export interface DataStateChangeEventArgs {
     select?: string[];
     /** If `count` is set true, then the remote service needs to return records and count */
     count?: boolean;
+    /** Defines the checkbox filter dataSource */
+    dataSource?: Function;
 }
 
 export interface DataSourceChangedEventArgs {
@@ -1520,6 +1578,7 @@ export interface FocusInfo {
     outline?: boolean;
     class?: string;
     skipAction?: boolean;
+    uid?: string;
 }
 /**
  * @hidden
@@ -1628,6 +1687,8 @@ export interface PdfExportProperties {
     exportType?: ExportType;
     /** Defines the theme for exported data  */
     theme?: Theme;
+    /** Defines the file name for the exported file  */
+    fileName?: string;
 }
 
 export interface Theme {
@@ -1782,4 +1843,5 @@ export interface SelectionNotifyArgs extends NotifyArgs {
 export interface DataResult {
     result: Object[] | Group[];
     count: number;
+    aggregates?: object;
 }

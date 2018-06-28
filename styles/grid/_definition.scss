@@ -27,8 +27,8 @@ $grid-popup-bg-color: $content-bg-color;
 $grid-border-radius: 0;
 
 $grid-sortnumber-bg-color: #bbbdc0;
-$grid-sortnumber-color: #000;
-$grid-table-background-color: #fff;
+$grid-sortnumber-color: $content-font-color;
+$grid-table-background-color: $content-bg-color;
 
 $grid-row-selection-bg-color: $active-bg-color;
 $grid-row-selection-color: $active-font-color;
@@ -126,7 +126,7 @@ $grid-default-color: '';
 $grid-stackedheadercell-border-size: 1px 0 1px 1px;
 $grid-stackedheadercell-botttom-padding: 13px;
 $group-text-align: center;
-$grid-icon-default-color: #fff;
+$grid-icon-default-color: $content-bg-color;
 $grid-right-border: 1px;
 $grid-header-border-width: 0 0 0 1px;
 $grid-grouparea-first-cell-margin: '';

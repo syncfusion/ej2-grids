@@ -1,6 +1,7 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
 import { createElement, isNullOrUndefined, addClass } from '@syncfusion/ej2-base';
+import * as events from '../base/constant';
 
 /**
  * Edit render module is used to render grid edit row.
@@ -43,6 +44,9 @@ export class InlineEditRender {
             mTbody.insertBefore(mEle, mTbody.firstChild);
             args.row.querySelector('.e-normaledit').setAttribute('colspan', this.parent.getVisibleFrozenColumns() + '');
             mEle.setAttribute('colspan', '' + (this.parent.getVisibleColumns().length - this.parent.getVisibleFrozenColumns()));
+            if (this.parent.height === 'auto') {
+                this.parent.notify(events.frozenHeight, {});
+            }
         }
     }
 

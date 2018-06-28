@@ -217,7 +217,11 @@ export class ContextMenu implements IAction {
                 if (this.parent.editSettings.mode !== 'Batch') {
                     this.parent.editModule.endEdit();
                 }
-                this.parent.editModule.deleteRow(this.row);
+                if (this.parent.getSelectedRecords().length === 1) {
+                    this.parent.editModule.deleteRow(this.row);
+                } else {
+                    this.parent.deleteRecord();
+                }
                 break;
             case 'Save':
                 this.parent.editModule.endEdit();
@@ -568,7 +572,6 @@ export class ContextMenu implements IAction {
     private getColumn(e: Event): Column {
         let cell: HTMLElement = <HTMLElement>closest(<HTMLElement>e.target, 'th.e-headercell');
         if (cell) {
-            cell.classList.add('e-resized');
             let uid: string = cell.querySelector('.e-headercelldiv').getAttribute('e-mappinguid');
             return this.parent.getColumnByUid(uid);
         }
@@ -578,7 +581,7 @@ export class ContextMenu implements IAction {
     private selectRow(e: Event, isSelectable: boolean): void {
         this.cell = (<HTMLElement>e.target) as HTMLTableCellElement;
         this.row = <HTMLElement>closest(<HTMLElement>e.target, 'tr.e-row') as HTMLTableRowElement || this.row;
-        if (this.row && isSelectable) {
+        if (this.row && isSelectable && !parentsUntil(<HTMLElement>e.target, 'e-gridpager')) {
             this.parent.selectRow(parseInt(this.row.getAttribute('aria-rowindex'), 10));
         }
     }

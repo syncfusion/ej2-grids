@@ -33,6 +33,7 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
         let input: Element;
         let column: Column = cell.column;
         tr.appendChild(node);
+        node.setAttribute('e-mappinguid', column.uid);
         if (column.type !== 'checkbox') {
             if ((isNullOrUndefined(column.allowFiltering) || column.allowFiltering) && !isNullOrUndefined(column.filterBarTemplate)) {
                 node.classList.add('e-fltrtemp');

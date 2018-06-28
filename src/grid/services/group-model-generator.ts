@@ -27,12 +27,12 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         this.captionModelGen = new CaptionSummaryModelGenerator(parent);
     }
 
-    public generateRows(data: { length: number }, args?: Object): Row<Column>[] {
+    public generateRows(data: { length: number }, args?: { startIndex?: number }): Row<Column>[] {
         if (this.parent.groupSettings.columns.length === 0) {
             return super.generateRows(data, args);
         }
         this.rows = [];
-        this.index = this.parent.enableVirtualization ? (this.parent.pageSettings.currentPage - 1) * (<Group>data).records.length : 0;
+        this.index = this.parent.enableVirtualization ? args.startIndex : 0;
         for (let i: number = 0, len: number = data.length; i < len; i++) {
             this.getGroupedRecords(0, data[i], (<Group>data).level);
         }
@@ -127,8 +127,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         let data: GroupedData = row.data;
         let col: Column = this.parent.getColumnByField(data.field);
         if (col && col.isForeignColumn && col.isForeignColumn()) {
-            setValue('foreignKey',
-                     (col.valueAccessor as Function)(col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
+            setValue('foreignKey', col.valueAccessor(col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
         }
     }
 

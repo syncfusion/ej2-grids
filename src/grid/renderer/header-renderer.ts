@@ -42,10 +42,14 @@ export class HeaderRender implements IRenderer {
             return false;
         }
         let height: number = element.offsetHeight;
-        let headercelldiv: Element = element.querySelector('.e-headercelldiv');
+        let headercelldiv: Element = element.querySelector('.e-headercelldiv') || element.querySelector('.e-stackedheadercelldiv');
         let col: Column;
         if (headercelldiv) {
-            col = gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid'));
+            if (element.querySelector('.e-stackedheadercelldiv')) {
+                 col = gObj.getStackedHeaderColumnByHeaderText((headercelldiv as HTMLElement).innerText.trim(), <Column[]>gObj.columns);
+            } else {
+                col = gObj.getColumnByUid(headercelldiv.getAttribute('e-mappinguid'));
+            }
             this.column = col;
             visualElement.setAttribute('e-mappinguid', this.column.uid);
         }
@@ -278,7 +282,7 @@ export class HeaderRender implements IRenderer {
         rows = this.getHeaderCells(rows);
         for (let i: number = 0, len: number = this.colDepth; i < len; i++) {
             headerRow = rowRenderer.render(rows[i], columns);
-            if (this.parent.rowHeight) {
+            if (this.parent.rowHeight && headerRow.querySelector('.e-headercell')) {
                 (headerRow as HTMLElement).style.height = this.parent.rowHeight + 'px';
             }
             thead.appendChild(headerRow);
@@ -533,11 +537,19 @@ export class HeaderRender implements IRenderer {
     }
 
     private checkDepth(col: Column, index: number): number {
+        let max: number = index;
+        let indices: number[] = [];
         if (col.columns) {
             index++;
             for (let i: number = 0, len: number = col.columns.length; i < len; i++) {
-                index = this.checkDepth(col.columns[i] as Column, index);
+                indices[i] = this.checkDepth(col.columns[i] as Column, index);
             }
+            for (let j: number = 0; j < indices.length; j++) {
+                if (max < indices[j]) {
+                    max = indices[j];
+                }
+            }
+            index = max;
         }
         return index;
     }

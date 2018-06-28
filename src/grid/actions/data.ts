@@ -1,4 +1,4 @@
-import { isNullOrUndefined, NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, NumberFormatOptions, DateFormatOptions, extend } from '@syncfusion/ej2-base';
 import { Query, DataManager, Predicate, Deferred, UrlAdaptor } from '@syncfusion/ej2-data';
 import { IDataProcessor, IGrid, DataStateChangeEventArgs, DataSourceChangedEventArgs, PendingState } from '../base/interface';
 import { ReturnType } from '../base/type';
@@ -131,8 +131,7 @@ export class Data implements IDataProcessor {
                 if (col) {
                     col.setSortDirection(columns[i].direction);
                 }
-                let fn: Function | string = col.sortComparer && !this.isRemote() ? (col.sortComparer as Function).bind(col) :
-                    columns[i].direction;
+                let fn: Function | string = col.sortComparer && !this.isRemote() ? col.sortComparer.bind(col) : columns[i].direction;
                 if (gObj.groupSettings.columns.indexOf(columns[i].field) === -1) {
                     query.sortBy(col.field, fn);
                 } else {
@@ -267,7 +266,18 @@ export class Data implements IDataProcessor {
             switch (args.requestType) {
                 case 'delete':
                     query = query ? query : this.generateQuery();
-                    crud = this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
+                    let len: number = Object.keys(args.data).length;
+                    if (len === 1) {
+                        crud = this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
+                    } else {
+                        let changes: { addedRecords: Object[], deletedRecords: Object[], changedRecords: Object[] } = {
+                            addedRecords: [],
+                            deletedRecords: [],
+                            changedRecords: []
+                        };
+                        changes.deletedRecords = <Object[]>args.data;
+                        crud = this.dataManager.saveChanges(changes, key, null, query.requiresCount()) as Promise<Object>;
+                    }
                     break;
                 case 'save':
                     query = query ? query : this.generateQuery();
@@ -275,7 +285,7 @@ export class Data implements IDataProcessor {
                     crud = this.dataManager.insert(args.data, null, query, args.index) as Promise<Object>;
                     break;
             }
-            if (crud && !Array.isArray(crud)) {
+            if (crud && !Array.isArray(crud) && !crud.hasOwnProperty('deletedRecords')) {
                 return crud.then((result: ReturnType) => {
                     return this.executeQuery(query);
                 });
@@ -411,11 +421,11 @@ export class Data implements IDataProcessor {
         let dm: DataManager = new DataManager({ url: '', adaptor: new UrlAdaptor });
         let state: { data?: string, pvtData?: Object[] } = adaptr.processQuery(dm, query);
         let data: Object = JSON.parse(state.data);
-        let final: Object = Object.assign(data, state.pvtData);
-        return final;
+        return extend(data, state.pvtData);
     }
 
     private eventPromise(args: { requestType?: string, foreignKeyData?: string[], data?: Object }, query?: Query, key?: string): Deferred {
+
         let state: DataStateChangeEventArgs;
         let dataArgs: DataSourceChangedEventArgs = args;
         state = this.getStateEventArgument(query);

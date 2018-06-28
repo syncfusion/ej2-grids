@@ -12,8 +12,9 @@ import { GridModel } from '../../../src/grid/base/grid-model';
 import { extend } from '@syncfusion/ej2-base';
 import { data } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
- 
+
 Grid.Inject(Aggregate);
+
 
 let createGrid: Function = (options: GridModel, done: Function): Grid => {
     let grid: Grid;

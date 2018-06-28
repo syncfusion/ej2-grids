@@ -134,8 +134,7 @@ export function prepareColumns(columns: Column[] | string[] | ColumnModel[], aut
 
         column.foreignKeyField = column.foreignKeyField || column.field;
 
-        column.valueAccessor = (typeof column.valueAccessor === 'string' ? getValue(<string>column.valueAccessor, window)
-            : column.valueAccessor) || valueAccessor;
+        column.valueAccessor = column.valueAccessor || valueAccessor;
 
         column.width = autoWidth && isNullOrUndefined(column.width) ? 200 : column.width;
 
@@ -262,7 +261,7 @@ export function getUid(prefix: string): string {
 }
 
 /** @hidden */
-export function appendChildren(elem: Element, children: Element[]): Element {
+export function appendChildren(elem: Element |DocumentFragment, children: Element[]| NodeList): Element {
     for (let i: number = 0, len: number = children.length; i < len; i++) {
         if (len === children.length) {
             elem.appendChild(children[i]);
@@ -270,8 +269,7 @@ export function appendChildren(elem: Element, children: Element[]): Element {
             elem.appendChild(children[0]);
         }
     }
-    children = null;
-    return elem;
+    return elem as Element;
 }
 
 /** @hidden */
@@ -290,13 +288,9 @@ export function parents(elem: Element, selector: string, isID?: boolean): Elemen
 /** @hidden */
 export function calculateAggregate(type: AggregateType | string, data: Object, column?: AggregateColumnModel, context?: Object): Object {
     if (type === 'Custom') {
-        let temp: Function = column.customAggregate as Function;
-        if (typeof temp === 'string') {
-            temp = getValue(temp, window);
-        }
-        return temp ? temp.call(context, data, column) : '';
+        return column.customAggregate ? column.customAggregate.call(context, data, column) : '';
     }
-    return DataUtil.aggregates[type.toLowerCase()](data, column.field);
+    return column.field in data ? DataUtil.aggregates[type.toLowerCase()](data, column.field) : null;
 }
 /** @hidden */
 let scrollWidth: number = null;
@@ -328,6 +322,8 @@ export function getRowHeight(element?: HTMLElement): number {
     rowHeight = Math.ceil(rect.height);
     return rowHeight;
 }
+
+/** @hidden */
 export function isComplexField(field: string): boolean {
     return field.split('.').length > 1;
 }
@@ -353,8 +349,6 @@ export function getComplexValue(rowData: Object, field: string): any {
     }
     return complexValue;
 }
-
-
 /** @hidden */
 export function isEditable(col: Column, type: string, elem: Element): boolean {
     let row: Element = parentsUntil(elem, 'e-row');

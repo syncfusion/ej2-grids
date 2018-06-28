@@ -9,6 +9,8 @@ export const rowDataBound: string = 'rowDataBound';
 /** @hidden */
 export const queryCellInfo: string = 'queryCellInfo';
 /** @hidden */
+export const headerCellInfo: string = 'headerCellInfo';
+/** @hidden */
 export const actionBegin: string = 'actionBegin';
 /** @hidden */
 export const actionComplete: string = 'actionComplete';
@@ -71,6 +73,8 @@ export const cellEdit: string = 'cellEdit';
 /** @hidden */
 export const cellSave: string = 'cellSave';
 /** @hidden */
+export const cellSaved: string = 'cellSaved';
+/** @hidden */
 export const endAdd: string = 'endAdd';
 /** @hidden */
 export const endDelete: string = 'endDelete';
@@ -100,6 +104,7 @@ export const filterChoiceRequest: string = 'filterchoicerequest';
 export const filterAfterOpen: string = 'filterafteropen';
 /** @hidden */
 export const filterBeforeOpen: string = 'filterbeforeopen';
+
 export const filterSearchBegin: string = 'filtersearchbegin';
 
 /**
@@ -248,11 +253,15 @@ export const excelExportComplete: string = 'excelExportComplete';
 /** @hidden */
 export const excelQueryCellInfo: string = 'excelQueryCellInfo';
 /** @hidden */
+export const excelHeaderQueryCellInfo: string = 'excelHeaderQueryCellInfo';
+/** @hidden */
 export const beforePdfExport: string = 'beforePdfExport';
 /** @hidden */
 export const pdfExportComplete: string = 'pdfExportComplete';
 /** @hidden */
 export const pdfQueryCellInfo: string = 'pdfQueryCellInfo';
+/** @hidden */
+export const pdfHeaderQueryCellInfo: string = 'pdfHeaderQueryCellInfo';
 /** @hidden */
 export const accessPredicate: string = 'access-predicate';
 /** @hidden */
@@ -291,3 +300,5 @@ export const dataSourceChanged: string = 'dataSourceChanged';
 export const rtlUpdated: string = 'rtl-updated';
 /** @hidden */
 export const beforeFragAppend: string = 'beforeFragAppend';
+/** @hidden */
+export const frozenHeight: string = 'frozenHeight';

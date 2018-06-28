@@ -101,6 +101,7 @@ export let rData: Object[] = [
     {
         ProductID: 2, ProductName: "Chang", SupplierID: 1, CategoryID: 1, QuantityPerUnit: "24 - 12 oz bottles", UnitPrice: 19.0000, UnitsInStock: 17, UnitsOnOrder: 40, ReorderLevel: 25, Discontinued: false
     }];
+
 export let filterData: Object[] = [
     {
         OrderID: 10248, CustomerID: 'VINET', EmployeeID: 5, OrderDate: new Date("07 12 1996 02:00:23"),
