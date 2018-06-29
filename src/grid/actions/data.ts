@@ -219,7 +219,7 @@ export class Data implements IDataProcessor {
                                 col.field, col.operator, col.value, !col.matchCase, this.parent.filterSettings.ignoreAccent
                             ));
                         } else {
-                            predicateList.push(getDatePredicate(col));
+                            predicateList.push(getDatePredicate(col, sType));
                         }
                     }
                 }

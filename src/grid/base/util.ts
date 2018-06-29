@@ -562,7 +562,7 @@ export function getColumnByForeignKeyValue(foreignKeyValue: string, columns: Col
  * @hidden
  * @param filterObject - Defines predicate model object
  */
-export function getDatePredicate(filterObject: PredicateModel): Predicate {
+export function getDatePredicate(filterObject: PredicateModel, type?: string): Predicate {
     let datePredicate: Predicate;
     let prevDate: Date;
     let nextDate: Date;
@@ -570,8 +570,14 @@ export function getDatePredicate(filterObject: PredicateModel): Predicate {
     let nextObj: PredicateModel = baseExtend({}, getActualProperties(filterObject)) as PredicateModel;
     let value: Date = new Date(filterObject.value as string);
     if (filterObject.operator === 'equal' || filterObject.operator === 'notequal') {
-        prevDate = new Date(value.setHours(0) - 1);
-        nextDate = new Date(value.setHours(24));
+        if (type === 'datetime') {
+            prevDate = new Date(value.setSeconds(value.getSeconds() - 1));
+            nextDate = new Date(value.setSeconds(value.getSeconds() + 2));
+            filterObject.value = new Date(value.setSeconds(nextDate.getSeconds() - 1));
+        } else {
+            prevDate = new Date(value.setHours(0) - 1);
+            nextDate = new Date(value.setHours(24));
+        }
         prevObj.value = prevDate;
         nextObj.value = nextDate;
         if (filterObject.operator === 'equal') {

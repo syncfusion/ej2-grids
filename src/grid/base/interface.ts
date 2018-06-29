@@ -470,6 +470,7 @@ export interface IRenderer {
     getMovableRowByIndex?(index: number): Element;
     getRowInfo?(target: Element): RowInfo;
     getState?(): Object;
+    getMovableHeader?(): Element;
 }
 
 /**

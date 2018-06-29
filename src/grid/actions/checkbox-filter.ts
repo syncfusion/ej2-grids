@@ -407,10 +407,11 @@ export class CheckBoxFilter {
             if (isNullOrUndefined(parsed) && val.length) {
                 return;
             }
-            predicte = getDatePredicate({
+            let filterObj: Object = {
                 field: this.options.field, operator: operator, value: parsed, matchCase: matchCase,
                 ignoreAccent: ignoreAccent
-            });
+            };
+            predicte = getDatePredicate(filterObj, this.options.type);
         }
         if (val.length) {
             query.where(predicte);
@@ -732,7 +733,7 @@ export class CheckBoxFilter {
         first = CheckBoxFilter.updateDateFilter(cols[0]);
         first.ignoreAccent = !isNullOrUndefined(first.ignoreAccent) ? first.ignoreAccent : false;
         if (first.type === 'date' || first.type === 'datetime') {
-            predicate = getDatePredicate(first);
+            predicate = getDatePredicate(first, first.type);
         } else {
             predicate = first.ejpredicate ? first.ejpredicate as Predicate :
                 new Predicate(
@@ -743,7 +744,7 @@ export class CheckBoxFilter {
             cols[p] = CheckBoxFilter.updateDateFilter(cols[p]);
             if (len > 2 && p > 1 && cols[p].predicate === 'or') {
                 if (cols[p].type === 'date' || cols[p].type === 'datetime') {
-                    predicate.predicates.push(getDatePredicate(cols[p]));
+                    predicate.predicates.push(getDatePredicate(cols[p], cols[p].type));
                 } else {
                     predicate.predicates.push(new Predicate(
                         cols[p].field, cols[p].operator, cols[p].value, !CheckBoxFilter.getCaseValue(cols[p]),
@@ -752,7 +753,7 @@ export class CheckBoxFilter {
             } else {
                 if (cols[p].type === 'date' || cols[p].type === 'datetime') {
                     predicate = (predicate[((cols[p] as Predicate).predicate) as string] as Function)(
-                        getDatePredicate(cols[p]), cols[p].ignoreAccent);
+                        getDatePredicate(cols[p], cols[p].type), cols[p].ignoreAccent);
                 } else {
                     predicate = cols[p].ejpredicate ?
                         (predicate[(cols[p] as Predicate).predicate as string] as Function)(cols[p].ejpredicate) :

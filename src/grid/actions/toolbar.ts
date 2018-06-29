@@ -79,7 +79,7 @@ export class Toolbar {
      * @return {void}
      */
     public destroy(): void {
-        if (!this.toolbar.isDestroyed) {
+        if (this.toolbar && !this.toolbar.isDestroyed) {
             if (!this.toolbar.element) {
                 this.parent.destroyTemplate(['toolbarTemplate']);
             } else {

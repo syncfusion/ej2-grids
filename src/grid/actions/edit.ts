@@ -551,14 +551,23 @@ export class Edit implements IAction {
      * @hidden
      */
     public destroy(): void {
-        this.destroyForm();
+        let gridElement: Element = this.parent.element;
+        if (!gridElement) { return; }
+        let hasGridChild: Boolean = gridElement.querySelector('.e-gridheader') &&
+            gridElement.querySelector('.e-gridcontent') ? true : false;
+        if (hasGridChild) { this.destroyForm(); }
         this.removeEventListener();
         let elem: Element = this.dialogObj.element;
-        this.dialogObj.destroy();
-        remove(elem);
+        if (elem.childElementCount > 0) {
+            this.dialogObj.destroy();
+            remove(elem);
+        }
         elem = this.alertDObj.element;
-        this.alertDObj.destroy();
-        remove(elem);
+        if (elem.childElementCount > 0) {
+            this.alertDObj.destroy();
+            remove(elem);
+        }
+        if (!hasGridChild) { return; }
         this.unwireEvents();
         if (this.editModule) {
             this.editModule.destroy();

@@ -3,7 +3,7 @@ import { remove, addClass, removeClass } from '@syncfusion/ej2-base';
 import { formatUnit, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { getScrollBarWidth, getUpdateUsingRaf } from '../base/util';
-import { scroll, contentReady, uiUpdate, onEmpty } from '../base/constant';
+import { scroll, contentReady, uiUpdate, onEmpty, headerRefreshed } from '../base/constant';
 import { ColumnWidthService } from '../services/width-controller';
 import { Grid } from '../base/grid';
 
@@ -118,6 +118,7 @@ export class Scroll implements IAction {
         this.parent.on(onEmpty, this.wireEvents, this);
         this.parent.on(contentReady, this.wireEvents, this);
         this.parent.on(uiUpdate, this.onPropertyChanged, this);
+        this.parent.on(headerRefreshed, this.setScrollLeft, this);
     }
     /**
      * @hidden
@@ -127,6 +128,13 @@ export class Scroll implements IAction {
         this.parent.off(onEmpty, this.wireEvents);
         this.parent.off(contentReady, this.wireEvents);
         this.parent.off(uiUpdate, this.onPropertyChanged);
+        this.parent.off(headerRefreshed, this.setScrollLeft);
+    }
+
+    private setScrollLeft(): void {
+        if (this.parent.frozenColumns) {
+            (<HTMLElement>(<Grid>this.parent).headerModule.getMovableHeader()).scrollLeft = this.previousValues.left;
+        }
     }
 
     private onContentScroll(scrollTarget: HTMLElement): Function {
@@ -355,6 +363,8 @@ export class Scroll implements IAction {
      * @hidden
      */
     public destroy(): void {
+        let gridElement: Element = this.parent.element;
+        if (!gridElement || (!gridElement.querySelector('.e-gridheader') && !gridElement.querySelector('.e-gridcontent'))) { return; }
         this.removeEventListener();
 
         //Remove padding

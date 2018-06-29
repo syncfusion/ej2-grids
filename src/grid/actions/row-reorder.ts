@@ -202,6 +202,9 @@ export class RowDD implements IAction {
      * @hidden
      */
     public destroy(): void {
+        let gridElement: Element = this.parent.element;
+        if (this.parent.isDestroyed || !gridElement || (!gridElement.querySelector('.e-gridheader') &&
+            !gridElement.querySelector('.e-gridcontent'))) { return; }
         if (this.parent.isDestroyed) { return; }
         this.parent.off(events.initialEnd, this.initializeDrag);
         this.parent.off(events.columnDrop, this.columnDrop);

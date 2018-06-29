@@ -68,6 +68,8 @@ export class ColumnChooser implements IAction {
     }
 
     private destroy(): void {
+        let gridElement: Element = this.parent.element;
+        if (!gridElement || (!gridElement.querySelector('.e-gridheader') && !gridElement.querySelector('.e-gridcontent'))) { return; }
         this.removeEventListener();
         this.unWireEvents();
         if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.element && !this.dlgObj.isDestroyed) {

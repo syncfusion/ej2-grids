@@ -80,7 +80,9 @@ export class DropDownEditCell implements IEditCell {
 
     private dropDownOpen(args: { popup: Popup }): void {
         let dlgElement: Element = parentsUntil(this.obj.element, 'e-dialog');
-        if (this.parent.editSettings.mode === 'Dialog' && !isNullOrUndefined(dlgElement)) {
+        let targetElement: Element = !isNullOrUndefined(dlgElement) && dlgElement.id !== '' ?
+        this.parent.element.querySelector('#' + dlgElement.id) : null;
+        if (!isNullOrUndefined(targetElement)) {
             let dlgObj: Dialog = (<EJ2Intance>this.parent.element.querySelector('#' + dlgElement.id)).ej2_instances[0];
             args.popup.element.style.zIndex = (dlgObj.zIndex + 1).toString();
         }

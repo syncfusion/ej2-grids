@@ -104,7 +104,7 @@ export const filterChoiceRequest: string = 'filterchoicerequest';
 export const filterAfterOpen: string = 'filterafteropen';
 /** @hidden */
 export const filterBeforeOpen: string = 'filterbeforeopen';
-
+/** @hidden */
 export const filterSearchBegin: string = 'filtersearchbegin';
 
 /**

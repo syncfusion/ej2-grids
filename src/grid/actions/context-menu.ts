@@ -454,6 +454,8 @@ export class ContextMenu implements IAction {
      * @hidden
      */
     public destroy(): void {
+        let gridElement: Element = this.parent.element;
+        if (!gridElement || (!gridElement.querySelector('.e-gridheader') && !gridElement.querySelector('.e-gridcontent'))) { return; }
         this.contextMenu.destroy();
         remove(this.element);
         this.removeEventListener();
@@ -572,6 +574,7 @@ export class ContextMenu implements IAction {
     private getColumn(e: Event): Column {
         let cell: HTMLElement = <HTMLElement>closest(<HTMLElement>e.target, 'th.e-headercell');
         if (cell) {
+            cell.classList.add('e-resized');
             let uid: string = cell.querySelector('.e-headercelldiv').getAttribute('e-mappinguid');
             return this.parent.getColumnByUid(uid);
         }

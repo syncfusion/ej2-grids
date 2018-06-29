@@ -2103,11 +2103,15 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {void}
      */
     public destroy(): void {
-        this.unwireEvents();
+        let gridElement: Element = this.element;
+        if (!gridElement) { return; }
+        let hasGridChild: Boolean = gridElement.querySelector('.e-gridheader') &&
+            gridElement.querySelector('.e-gridcontent') ? true : false;
+        if (hasGridChild) { this.unwireEvents(); }
         this.removeListener();
         this.notify(events.destroy, {});
         this.destroyDependentModules();
-        super.destroy();
+        if (hasGridChild) { super.destroy(); }
         this.toolTipObj.destroy();
         let modules: string[] = ['renderModule', 'headerModule', 'contentModule', 'valueFormatterService',
             'serviceLocator', 'ariaService', 'keyboardModule', 'widthService', 'searchModule', 'showHider',
@@ -2122,6 +2126,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private destroyDependentModules(): void {
+        let gridElement: Element = this.element;
+        if (!gridElement || (!gridElement.querySelector('.e-gridheader') && !gridElement.querySelector('.e-gridcontent'))) { return; }
         this.scrollModule.destroy();
         this.keyboardModule.destroy();
         this.focusModule.destroy();

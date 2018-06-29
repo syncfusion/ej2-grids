@@ -59,6 +59,9 @@ export class FilterMenuRenderer {
     }
 
     private closeDialog(): void {
+        if (!this.dlgObj) {
+            return;
+        }
         let elem: Element = document.getElementById(this.dlgObj.element.id);
         if (this.dlgObj && !this.dlgObj.isDestroyed && elem) {
             this.parent.notify(events.filterMenuClose, { field: this.col.field });

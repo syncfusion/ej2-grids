@@ -153,6 +153,8 @@ export class Resize implements IAction {
      * @hidden
      */
     public destroy(): void {
+        let gridElement: Element = this.parent.element;
+        if (!gridElement || (!gridElement.querySelector('.e-gridheader') && !gridElement.querySelector('.e-gridcontent'))) { return; }
         this.widthService = null;
         this.unwireEvents();
         this.removeEventListener();

@@ -157,7 +157,6 @@ export class NormalEdit {
                 return;
             }
             gObj.showSpinner();
-            this.destroyElements();
             gObj.notify(events.updateData, args);
         } else {
             args.action = 'add';
@@ -168,11 +167,6 @@ export class NormalEdit {
             if (args.cancel) {
                 return;
             }
-            this.destroyElements();
-        }
-        this.stopEditStatus();
-        if (gObj.editSettings.mode === 'Dialog' && args.action !== 'add') {
-            gObj.element.querySelector('.e-dlgeditrow').classList.remove('e-dlgeditrow');
         }
     }
 
@@ -204,8 +198,14 @@ export class NormalEdit {
     }
 
     private editSuccess(e: Object, args: EditArgs): void {
+        let gObj: IGrid = this.parent;
         if (!isNullOrUndefined(e)) {
             args.data = e;
+        }
+        this.destroyElements();
+        this.stopEditStatus();
+        if (gObj.editSettings.mode === 'Dialog' && (<{action?: string}>args).action !== 'add') {
+            gObj.element.querySelector('.e-dlgeditrow').classList.remove('e-dlgeditrow');
         }
         this.parent.trigger(events.beforeDataBound, args);
         args.type = events.actionComplete;
@@ -222,6 +222,7 @@ export class NormalEdit {
 
     private editFailure(e: ReturnType): void {
         this.parent.trigger(events.actionFailure, e);
+        this.parent.hideSpinner();
     }
 
     private refreshRow(data: Object): void {

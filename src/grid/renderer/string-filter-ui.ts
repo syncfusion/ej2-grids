@@ -49,6 +49,7 @@ export class StringFilterUI implements IFilterMUI {
             fields: fields,
             locale: this.parent.locale,
             enableRtl: this.parent.enableRtl,
+            query: this.parent.query.clone(),
             sortOrder: 'Ascending',
             open: this.openPopup.bind(this),
             cssClass: 'e-popup-flmenu',

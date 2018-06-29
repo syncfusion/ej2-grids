@@ -296,6 +296,8 @@ export class Sort implements IAction {
      */
     public destroy(): void {
         this.isModelChanged = false;
+        let gridElement: Element = this.parent.element;
+        if (!gridElement || (!gridElement.querySelector('.e-gridheader') && !gridElement.querySelector('.e-gridcontent'))) { return; }
         if (this.parent.element.querySelector('.e-gridpopup').querySelectorAll('.e-sortdirect').length) {
             (this.parent.element.querySelector('.e-gridpopup') as HTMLElement).style.display = 'none';
         }

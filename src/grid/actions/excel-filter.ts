@@ -90,7 +90,7 @@ export class ExcelFilter extends CheckBoxFilter {
             this.unwireExEvents();
             super.destroy();
         }
-        if (this.cmenu.parentElement) {
+        if (this.cmenu && this.cmenu.parentElement) {
             remove(this.cmenu);
         }
     }

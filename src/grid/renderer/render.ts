@@ -1,10 +1,10 @@
 import { L10n, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { createElement, remove } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, getValue, extend, DateFormatOptions } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend, DateFormatOptions } from '@syncfusion/ej2-base';
 import { DataManager, Group, Query, Deferred, Predicate, DataUtil } from '@syncfusion/ej2-data';
 import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
 import { ValueFormatter } from '../services/value-formatter';
-import { RenderType, CellType } from '../base/enum';
+import { RenderType, CellType, Action } from '../base/enum';
 import { ReturnType } from '../base/type';
 import { Data } from '../actions/data';
 import { Column } from '../models/column';
@@ -103,7 +103,6 @@ export class Render {
         if (args.requestType !== 'virtualscroll') {
             this.parent.showSpinner();
         }
-        this.parent.isEdit = false;
         this.emptyGrid = false;
         let dataManager: Promise<Object>;
         let isFActon: boolean = this.isNeedForeignAction();
@@ -113,8 +112,7 @@ export class Render {
             dataManager = this.getFData(deffered);
         }
         if (!dataManager) {
-            dataManager = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount())
-                .catch((e: Object) => { this.parent.trigger(events.actionFailure, e); return e; });
+            dataManager = this.data.getData(args as NotifyArgs, this.data.generateQuery().requiresCount());
         } else {
             dataManager = dataManager.then((e: Object) => {
                 let query: Query = this.data.generateQuery().requiresCount();
@@ -124,7 +122,7 @@ export class Render {
                     return def.promise;
                 }
                 return this.data.getData(args as NotifyArgs, query);
-            }).catch((e: Object) => { this.parent.trigger(events.actionFailure, e); return e; });
+            });
         }
         if (this.parent.getForeignKeyColumns().length && (!isFActon || this.parent.searchSettings.key.length)) {
             let deffered: Deferred = new Deferred();
@@ -137,7 +135,7 @@ export class Render {
             dataManager = dataManager.then((e: ReturnType) => this.validateGroupRecords(e));
         }
         dataManager.then((e: ReturnType) => this.dataManagerSuccess(e, args))
-            .catch((e: ReturnType) => this.dataManagerFailure(e));
+            .catch((e: ReturnType) => this.dataManagerFailure(e, args));
     }
 
     private getFData(deferred: Deferred): Promise<Object> {
@@ -161,28 +159,28 @@ export class Render {
         });
     }
 
-    private sendBulkRequest(args?: { changes: Object }): void {
-        let promise: Promise<Object> = this.data.saveChanges(args.changes, this.parent.getPrimaryKeyFieldNames()[0]);
+    private sendBulkRequest(args?: NotifyArgs): void {
+        let promise: Promise<Object> = this.data.saveChanges((<{changes?: Object }>args).changes, this.parent.getPrimaryKeyFieldNames()[0]);
         let query: Query = this.data.generateQuery().requiresCount();
         if (this.data.dataManager.dataSource.offline) {
-            this.refreshDataManager({ requestType: 'batchsave' } as NotifyArgs);
+            this.refreshDataManager({ requestType: 'batchsave' });
             return;
         } else {
             promise.then((e: ReturnType) => {
-                this.data.getData(args as NotifyArgs, query)
-                    .then((e: { result: Object[], count: number }) => this.dmSuccess(e, args as NotifyArgs))
-                    .catch((e: { result: Object[] }) => this.dmFailure(e as { result: Object[] }));
+                this.data.getData(args, query)
+                    .then((e: { result: Object[], count: number }) => this.dmSuccess(e, args))
+                    .catch((e: { result: Object[] }) => this.dmFailure(e as { result: Object[] }, args));
             })
-                .catch((e: { result: Object[] }) => this.dmFailure(e as { result: Object[] }));
+                .catch((e: { result: Object[] }) => this.dmFailure(e as { result: Object[] }, args));
         }
     }
 
     private dmSuccess(e: ReturnType, args: NotifyArgs): void {
-        this.dataManagerSuccess(e, args as NotifyArgs);
+        this.dataManagerSuccess(e, args);
     }
 
-    private dmFailure(e: { result: Object[] }): void {
-        this.dataManagerFailure(e);
+    private dmFailure(e: { result: Object[] }, args: NotifyArgs): void {
+        this.dataManagerFailure(e, args);
     }
 
     /** 
@@ -224,19 +222,19 @@ export class Render {
 
     private updateColumnType(record: Object): void {
         let columns: Column[] = this.parent.getColumns() as Column[];
-        let value: Date;
+        let value: Object;
         let data: Object = record && (<{ items: Object[] }>record).items ? (<{ items: Object[] }>record).items[0] : record;
         let fmtr: IValueFormatter = this.locator.getService<IValueFormatter>('valueFormatter');
         for (let i: number = 0, len: number = columns.length; i < len; i++) {
-            value = getValue(columns[i].field || '', data);
+            value = DataUtil.getObject(columns[i].field || '', data);
             if (columns[i].isForeignColumn() && columns[i].columnData ) {
-                value = getValue(columns[i].foreignKeyValue || '', columns[i].columnData[0]);
+                value = DataUtil.getObject(columns[i].foreignKeyValue || '', columns[i].columnData[0]);
             }
             if (!isNullOrUndefined(value)) {
                 this.isColTypeDef = true;
                 if (!columns[i].type) {
-                    columns[i].type = value.getDay ? (value.getHours() > 0 || value.getMinutes() > 0 ||
-                        value.getSeconds() > 0 || value.getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
+                    columns[i].type = (value as Date).getDay ? ((value as Date).getHours() > 0 || (value as Date).getMinutes() > 0 ||
+                    (value as Date).getSeconds() > 0 || (value as Date).getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
                 }
             } else {
                 columns[i].type = columns[i].type || null;
@@ -260,6 +258,7 @@ export class Render {
         gObj.trigger(events.beforeDataBound, e);
         let len: number = Object.keys(e.result).length;
         if (this.parent.isDestroyed) { return; }
+        this.parent.isEdit = false;
         this.parent.notify(events.tooltipDestroy, {});
         gObj.currentViewData = <Object[]>e.result;
         if (!len && e.count && gObj.allowPaging) {
@@ -298,12 +297,16 @@ export class Render {
         this.parent.notify(events.toolbarRefresh, {});
     }
 
-    private dataManagerFailure(e: { result: Object[] }): void {
+    private dataManagerFailure(e: { result: Object[] }, args: NotifyArgs): void {
         this.ariaService.setOptions(<HTMLElement>this.parent.getContent().firstChild, { busy: false, invalid: true });
         this.parent.trigger(events.actionFailure, { error: e });
+        this.parent.hideSpinner();
+        if (args.requestType === 'save' as Action || args.requestType === 'delete' as Action
+        || (<{name: string}>args).name === 'bulk-save' as Action) {
+            return;
+        }
         this.parent.currentViewData = [];
         this.renderEmptyRow();
-        this.parent.hideSpinner();
     }
 
     private updatesOnInitialRender(e: { result: Object, count: number }): void {

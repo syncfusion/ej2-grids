@@ -246,7 +246,9 @@ export class Reorder implements IAction {
      * @hidden
      */
     public destroy(): void {
-        if (this.parent.isDestroyed) { return; }
+        let gridElement: Element = this.parent.element;
+        if (this.parent.isDestroyed || !gridElement || (!gridElement.querySelector('.e-gridheader') &&
+        !gridElement.querySelector('.e-gridcontent'))) { return; }
         remove(this.upArrow);
         remove(this.downArrow);
         this.parent.off(events.headerDrop, this.headerDrop);

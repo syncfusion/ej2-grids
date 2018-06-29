@@ -124,7 +124,9 @@ export class DetailRow {
     }
 
     private destroy(): void {
-        if (this.parent.isDestroyed) { return; }
+        let gridElement: Element = this.parent.element;
+        if (this.parent.isDestroyed || !gridElement || (!gridElement.querySelector('.e-gridheader') &&
+        !gridElement.querySelector('.e-gridcontent'))) { return; }
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.destroy, this.destroy);
         this.parent.off(events.keyPressed, this.keyPressHandler);
