@@ -602,7 +602,7 @@ export class CheckBoxFilter {
         }
     }
 
-    private createCheckbox(value: string, checked: boolean): Element {
+    private createCheckbox(value: string, checked: boolean, data: Object): Element {
         let elem: Element = checked ? this.cBoxTrue.cloneNode(true) as Element :
             this.cBoxFalse.cloneNode(true) as Element;
         let label: Element = elem.querySelector('.e-label');
@@ -610,9 +610,7 @@ export class CheckBoxFilter {
             this.getLocalizedLabel('Blanks');
         if (this.options.template) {
             label.innerHTML = '';
-            let args: Object = {};
-            args[this.options.field] = value;
-            appendChildren(label, this.options.template(args));
+            appendChildren(label, this.options.template(data));
         }
         return elem;
     }
@@ -643,8 +641,10 @@ export class CheckBoxFilter {
         let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
         this.itemsCnt = data.length;
         if (data.length) {
+            let selectAllValue: string = this.getLocalizedLabel('SelectAll');
+            let checkBox: Element = this.createCheckbox(selectAllValue, false, {[this.options.field]: selectAllValue});
             let selectAll: Element =
-                createCboxWithWrap(getUid('cbox'), this.createCheckbox(this.getLocalizedLabel('SelectAll'), false), 'e-ftrchk');
+                createCboxWithWrap(getUid('cbox'), checkBox, 'e-ftrchk');
             selectAll.querySelector('.e-frame').classList.add('e-selectall');
             cBoxes.appendChild(selectAll);
             let predicate: Predicate = new Predicate('field', 'equal', this.options.field);
@@ -657,8 +657,9 @@ export class CheckBoxFilter {
                 let uid: string = getUid('cbox');
                 this.values[uid] = getValue('ejValue', data[i]);
                 let value: string = this.valueFormatter.toView(getValue(this.options.field, data[i]), this.options.formatFn) as string;
-                cBoxes.appendChild(
-                    createCboxWithWrap(uid, this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid])), 'e-ftrchk'));
+                let checkbox: Element =
+                this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid]), getValue('dataObj', data[i]));
+                cBoxes.appendChild(createCboxWithWrap(uid, checkbox, 'e-ftrchk'));
             }
             this.cBox.innerHTML = cBoxes.innerHTML;
             this.updateIndeterminatenBtn();
@@ -702,8 +703,13 @@ export class CheckBoxFilter {
                     let obj: Object = {};
                     obj[ejValue] = value;
                     lookup[value] = true;
-                    value = isForeignKey ? getValue(column.foreignKeyValue, getForeignData(column, {}, value, foreignKeyData)[0]) : value;
+                    if (isForeignKey) {
+                        let foreignDataObj: Object = getForeignData(column, {}, value, foreignKeyData)[0];
+                        setValue(events.foreignKeyData, foreignDataObj, json[len]);
+                        value = getValue(column.foreignKeyValue, foreignDataObj);
+                    }
                     setValue(field, isNullOrUndefined(value) ? null : value, obj);
+                    setValue('dataObj', json[len], obj);
                     result.push(obj);
                 }
             }
@@ -712,7 +718,7 @@ export class CheckBoxFilter {
     }
 
     public static getPredicate(columns: PredicateModel[]): Predicate {
-        let cols: PredicateModel[] = (CheckBoxFilter.getDistinct(columns, 'field') as { records: Object[] }).records || [];
+        let cols: PredicateModel[] = DataUtil.distinct(columns, 'field', true) || [];
 
         let collection: Object[] = [];
         let pred: Predicate = {} as Predicate;

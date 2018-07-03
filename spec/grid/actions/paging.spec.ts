@@ -415,4 +415,37 @@ describe('Paging module', () => {
         //     });
         // });
     });
+    
+ 
+    describe('EJ2-9910 dropDown All option', () => {
+        let gridObj: Grid;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    allowPaging: true,
+                    dataSource: data,
+                    columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
+                    { field: 'ShipCity' }],
+                    pageSettings: {
+                       pageSizes: true
+                    },
+                }, done);
+        });
+        it('dropDownChanged to All', () => {
+            (<any>gridObj.pagerModule).pagerObj.element.querySelector('.e-dropdownlist').ej2_instances[0].value = 'All';
+        });
+        it('check current pageSize value', (done: Function) => {
+            let actionComplete = (args?: any): void => {
+                expect(gridObj.currentViewData.length).toBe(15);
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+           
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
 });

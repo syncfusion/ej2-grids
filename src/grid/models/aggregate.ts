@@ -109,8 +109,8 @@ export class AggregateColumn extends ChildProperty<AggregateColumn> {
     /**
      * @hidden
      */
-    public setFormatter(): void {
-        let valueFormatter: ValueFormatter = new ValueFormatter();
+    public setFormatter(cultureName: string): void {
+        let valueFormatter: ValueFormatter = new ValueFormatter(cultureName);
         if (this.format && ((<DateFormatOptions>this.format).skeleton || (<DateFormatOptions>this.format).format)) {
             this.formatFn = valueFormatter.getFormatFunction(this.format as DateFormatOptions);
         }

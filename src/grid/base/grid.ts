@@ -2708,7 +2708,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         let cell: CellRenderer = new CellRenderer(this, this.serviceLocator);
         let selectedRow: Object = {};
         let movableSelectedRow: Object = {};
-        let selectedMovableRow: Object = {};
         let rowObjects: Object = this.contentModule.getRows();
         let movableRowObjects: Object = this.contentModule.getMovableRows();
         fieldIdx = this.getColumnIndexByField(field);
@@ -2725,8 +2724,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 tr.childNodes[fieldIdx] as Element : mTr.childNodes[fieldIdx - this.frozenColumns] as Element;
             if (!isNullOrUndefined(td)) {
                 let sRow: Cell<Column> = selectedRow[cells][fieldIdx];
-                let mRow: Cell<Column> = movableSelectedRow[cells][fieldIdx - this.frozenColumns];
+                let mRow: Cell<Column>;
+                if (this.frozenColumns) {
+                    mRow = movableSelectedRow[cells][fieldIdx - this.frozenColumns];
+                }
                 cell.refreshTD(td, !isNullOrUndefined(sRow) ? sRow : mRow, selectedRow[rowData]);
+                /* tslint:disable:no-string-literal */
+                if (!isNullOrUndefined(movableSelectedRow) && !isNullOrUndefined(movableSelectedRow['changes'])) {
+                    movableSelectedRow['changes'][field] = value;
+                }
+                /* tslint:disable:no-string-literal */
                 this.trigger(events.queryCellInfo, {
                     cell: td, column: col, data: selectedRow[rowData]
                 });

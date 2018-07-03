@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## 16.2.43 (2018-07-03)
+
+### Grid
+
+#### Bug Fixes
+
+- Passed row data to checkbox filter item template.
+- The locale is not properly applied for aggregates is resolved.
+- Export cell object is missing on exporting query cell info event argument is resolved.
+- `setCellValue` not updated the value when we use frozen columns is resolved.
+- Support to provide show all record option in pager dropdown.
+- Format is not applying for group caption while using `Urladaptor`.
+
 ## 16.2.42 (2018-06-27)
 
 ### Grid
@@ -10,7 +23,6 @@
 
 - Batch confirmation dialog is not shown when we use Excel/Checkbox filter in Grid is resolved.
 - Excel text filter icon does not update with localization is resolved.
-- `setCellValue` not updated the value when we use frozen columns is resolved.
 - Provide `cellSaved` event support for getting the edited data while using batch Editing.
 - column size in IE when grouping is not changing like in chrome is resolved.
 - Bottom rows do not get selected with Virtualization and Grouping is resolved.

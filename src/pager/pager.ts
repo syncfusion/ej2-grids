@@ -44,7 +44,8 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
         previousPageTooltip: 'Go to previous page',
         nextPagerTooltip: 'Go to next pager',
         previousPagerTooltip: 'Go to previous pager',
-        pagerDropDown: 'Items per page'
+        pagerDropDown: 'Items per page',
+        pagerAllDropDown: 'Items'
     };
 
     //Module declarations
@@ -132,7 +133,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
      * @default false    
      */
     @Property(false)
-    public pageSizes: boolean | number[];
+    public pageSizes: boolean | (number | string)[];
 
     /**    
      *  Defines the template as string or HTML element ID which renders customized elements in pager instead of default elements.    

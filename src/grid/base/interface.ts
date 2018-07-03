@@ -926,6 +926,8 @@ export interface ExcelQueryCellInfoEventArgs {
     style?: ExcelStyle;
     /** Defines the number of columns to be spanned */
     colSpan?: number;
+    /** Defines the cell datas */
+    cell?: number | ExcelStyle | {name : string};
 }
 export interface ExcelHeaderQueryCellInfoEventArgs {
     /** Defines the cell that contains colspan. */

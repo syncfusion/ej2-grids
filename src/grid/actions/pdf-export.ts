@@ -754,10 +754,11 @@ export class PdfExport {
                     style: undefined,
                     colSpan: 1
                 };
+                args.value = this.exportValueFormatter.formatCellValue(args);
                 /* tslint:enable:no-any */
                 gObj.trigger(events.pdfQueryCellInfo, args);
                 let cell: PdfGridCell = gridRow.cells.getCell(j + startIndex);
-                cell.value = this.exportValueFormatter.formatCellValue(args);
+                cell.value = args.value;
                 if (!isNullOrUndefined(args.style)) {
                     this.processCellStyle(cell, args);
                 }

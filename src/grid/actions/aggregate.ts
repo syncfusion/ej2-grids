@@ -53,7 +53,7 @@ export class Aggregate implements IAction {
             let dataColumn: ColumnModel = this.parent.getColumnByField(column.field) || {};
             let type: string = dataColumn.type;
             column.setPropertiesSilent({format: this.getFormatFromType(column.format, type)});
-            column.setFormatter();
+            column.setFormatter(this.parent.locale);
             column.setPropertiesSilent({columnName: column.columnName || column.field });
         });
     }

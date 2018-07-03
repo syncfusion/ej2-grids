@@ -1,6 +1,6 @@
 import {
     IGrid, ExcelExportProperties, ExcelHeader, ExcelFooter, ExcelRow,
-    ExcelCell, Theme, ThemeStyle, ExcelQueryCellInfoEventArgs, ExcelHeaderQueryCellInfoEventArgs
+    ExcelCell, Theme, ThemeStyle, ExcelQueryCellInfoEventArgs, ExcelHeaderQueryCellInfoEventArgs, ExcelStyle
 } from '../base/interface';
 import * as events from '../base/constant';
 import { Workbook } from '@syncfusion/ej2-excel-export';
@@ -399,14 +399,14 @@ export class ExcelExport {
                 if (!isNullOrUndefined(value)) {
                     /* tslint:disable-next-line:no-any */
                     let excelCellArgs: any = { data: record[r], column: headerRow.columns[c], foreignKeyData: foreignKeyData };
+                    let cell: { index?: number, value?: number, colSpan?: number, style?: ExcelStyle | {name : string}} = {};
                     gObj.trigger(events.excelQueryCellInfo, extend(
                         excelCellArgs,
                         <ExcelQueryCellInfoEventArgs>{
                             column: headerRow.columns[c], data: record[r],
-                            value: value, style: undefined, colSpan: 1
+                            value: value, style: undefined, colSpan: 1, cell: cell
                         }));
-                    /* tslint:disable-next-line:no-any */
-                    let cell: any = {};
+                    cell = excelCellArgs.cell;
                     cell.index = index + level;
                     cell.value = excelCellArgs.value;
                     if (excelCellArgs.colSpan > 1) {

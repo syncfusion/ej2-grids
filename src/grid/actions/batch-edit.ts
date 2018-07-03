@@ -240,6 +240,7 @@ export class BatchEdit {
         this.parent.notify(events.tooltipDestroy, {});
         args = { requestType: 'batchCancel', rows: this.parent.getRowsObject() };
         gObj.trigger(events.batchCancel, args);
+        rows.splice(this.parent.getMovableRowsObject().length, rows.length);
     }
 
     public deleteRecord(fieldname?: string, data?: Object): void {
@@ -315,16 +316,16 @@ export class BatchEdit {
             if (mRow.isDirty) {
                 let i: number = 0;
                 Object.keys(row.changes).forEach((key: string) => {
-                    if (i < frzCols) {
-                        delete mRow.changes[key];
+                    if (i >= frzCols) {
+                        row.changes[key] = mRow.changes[key];
                     }
                     i++;
                 });
 
-                extend(row.changes, mRow.changes);
             }
         } else if (mRow.isDirty) {
-            extend(row.changes, mRow.changes);
+            row.changes = mRow.changes;
+            row.isDirty = mRow.isDirty;
         }
     }
 

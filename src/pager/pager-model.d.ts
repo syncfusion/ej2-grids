@@ -60,7 +60,7 @@ export interface PagerModel extends ComponentModel{
      * It renders DropDownList in the pager which allow us to select pageSize from DropDownList.    
      * @default false    
      */
-    pageSizes?: boolean | number[];
+    pageSizes?: boolean | (number | string)[];
 
     /**
      *  Defines the template as string or HTML element ID which renders customized elements in pager instead of default elements.    
