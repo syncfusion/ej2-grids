@@ -290,7 +290,7 @@ export function calculateAggregate(type: AggregateType | string, data: Object, c
     if (type === 'Custom') {
         return column.customAggregate ? column.customAggregate.call(context, data, column) : '';
     }
-    return column.field in data ? DataUtil.aggregates[type.toLowerCase()](data, column.field) : null;
+    return (column.field in data || data instanceof Array) ? DataUtil.aggregates[type.toLowerCase()](data, column.field) : null;
 }
 /** @hidden */
 let scrollWidth: number = null;

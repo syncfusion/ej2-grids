@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## 16.2.44 (2018-07-10)
+
+### Grid
+
+#### Bug Fixes
+
+- Dynamic aggregate columns enabled is not working issue resolved.
+
 ## 16.2.43 (2018-07-03)
 
 ### Grid
