@@ -87,7 +87,7 @@ export interface AggregateColumnModel {
      * 
      * @default null
      */
-    customAggregate?: CustomSummaryType;
+    customAggregate?: CustomSummaryType | string;
 
 }
 

@@ -22,8 +22,7 @@ class ExtHtmlEscapeService implements ICellFormatter {
     };
 
     public getValue(column: Column, data: Object): string {
-        let value: string = <string>column.valueAccessor(column.field, data, column);
-
+        let value: string = ((column.valueAccessor as Function)(column.field, data, column)) as string;
         if (value === null || value === undefined) {
             return value;
         }

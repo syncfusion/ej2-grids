@@ -131,7 +131,8 @@ export class Data implements IDataProcessor {
                 if (col) {
                     col.setSortDirection(columns[i].direction);
                 }
-                let fn: Function | string = col.sortComparer && !this.isRemote() ? col.sortComparer.bind(col) : columns[i].direction;
+                let fn: Function | string = col.sortComparer && !this.isRemote() ? (col.sortComparer as Function).bind(col) :
+                columns[i].direction;
                 if (gObj.groupSettings.columns.indexOf(columns[i].field) === -1) {
                     query.sortBy(col.field, fn);
                 } else {

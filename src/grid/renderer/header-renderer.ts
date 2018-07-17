@@ -60,7 +60,7 @@ export class HeaderRender implements IRenderer {
                 visualElement.innerHTML = col.headerTemplate;
             }
         } else {
-            visualElement.textContent = headercelldiv ?
+            visualElement.innerHTML = headercelldiv ?
                 col.headerText : element.firstElementChild.innerHTML;
         }
         visualElement.style.width = element.offsetWidth + 'px';

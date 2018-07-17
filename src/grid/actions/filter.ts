@@ -40,6 +40,7 @@ export class Filter implements IAction {
     private isRemove: boolean;
     private contentRefresh: boolean = true;
     private values: Object = {};
+    private cellText: Object = {};
     private nextFlMenuOpen: string = '';
     private type: Object = { 'Menu': FilterMenuRenderer, 'CheckBox': CheckBoxFilter, 'Excel': ExcelFilter };
     private filterModule: { openDialog: Function, closeDialog: Function, destroy: Function };
@@ -413,7 +414,11 @@ export class Filter implements IAction {
                 }
                 let filterElement: HTMLInputElement = this.getFilterBarElement(this.filterSettings.columns[i].field);
                 if (filterElement) {
-                    filterElement.value = this.filterSettings.columns[i].value as string;
+                    if (!isNullOrUndefined(this.cellText[this.filterSettings.columns[i].field])) {
+                        filterElement.value = this.cellText[this.filterSettings.columns[i].field];
+                    } else {
+                        filterElement.value = this.filterSettings.columns[i].value as string;
+                    }
                 }
             }
             if (this.filterSettings.columns.length === 0) {
@@ -688,6 +693,7 @@ export class Filter implements IAction {
             filterElement = (this.parent.getHeaderContent().querySelector(selector) as HTMLInputElement);
         }
         let filterValue: string;
+        this.cellText[this.column.field] = filterElement.value;
         this.stopTimer();
         if (!isNullOrUndefined(this.column.filterBarTemplate)) {
             let templateRead: Function = this.column.filterBarTemplate.read as Function;

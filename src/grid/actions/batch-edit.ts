@@ -602,7 +602,7 @@ export class BatchEdit {
                 row = gObj.getDataRows()[index];
                 rowData = extend({}, this.getDataByIndex(index));
             }
-            if ((keys[0] === col.field && !row.classList.contains('e-insertedrow')) || col.template || col.columns ||
+            if ((keys[0] === col.field && !row.classList.contains('e-insertedrow')) || col.columns ||
                 (col.isPrimaryKey && col.isIdentity)) {
                 return;
             }
@@ -700,7 +700,7 @@ export class BatchEdit {
         }
         cell.refreshTD(
             td, rowcell[this.getCellIdx(column.uid) - (this.getCellIdx(column.uid) >= frzCols ? frzCols : 0)] as Cell<Column>,
-            rowObj.changes);
+            rowObj.changes, { 'index': this.getCellIdx(column.uid)});
         td.classList.add('e-updatedtd');
         this.parent.notify(events.toolbarRefresh, {});
     }

@@ -160,7 +160,8 @@ export class Render {
     }
 
     private sendBulkRequest(args?: NotifyArgs): void {
-        let promise: Promise<Object> = this.data.saveChanges((<{changes?: Object }>args).changes, this.parent.getPrimaryKeyFieldNames()[0]);
+        let promise: Promise<Object> = this.data.saveChanges((<{ changes?: Object }>args).changes,
+                                                             this.parent.getPrimaryKeyFieldNames()[0]);
         let query: Query = this.data.generateQuery().requiresCount();
         if (this.data.dataManager.dataSource.offline) {
             this.refreshDataManager({ requestType: 'batchsave' });
@@ -227,14 +228,14 @@ export class Render {
         let fmtr: IValueFormatter = this.locator.getService<IValueFormatter>('valueFormatter');
         for (let i: number = 0, len: number = columns.length; i < len; i++) {
             value = DataUtil.getObject(columns[i].field || '', data);
-            if (columns[i].isForeignColumn() && columns[i].columnData ) {
+            if (columns[i].isForeignColumn() && columns[i].columnData) {
                 value = DataUtil.getObject(columns[i].foreignKeyValue || '', columns[i].columnData[0]);
             }
             if (!isNullOrUndefined(value)) {
                 this.isColTypeDef = true;
                 if (!columns[i].type) {
                     columns[i].type = (value as Date).getDay ? ((value as Date).getHours() > 0 || (value as Date).getMinutes() > 0 ||
-                    (value as Date).getSeconds() > 0 || (value as Date).getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
+                        (value as Date).getSeconds() > 0 || (value as Date).getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
                 }
             } else {
                 columns[i].type = columns[i].type || null;
@@ -302,7 +303,7 @@ export class Render {
         this.parent.trigger(events.actionFailure, { error: e });
         this.parent.hideSpinner();
         if (args.requestType === 'save' as Action || args.requestType === 'delete' as Action
-        || (<{name: string}>args).name === 'bulk-save' as Action) {
+            || (<{ name: string }>args).name === 'bulk-save' as Action) {
             return;
         }
         this.parent.currentViewData = [];
@@ -413,7 +414,8 @@ export class Render {
                         let data: Object[] = itemGroup.level ? uGroupItem.records : uGroup.items;
                         let context: Object = this.parent;
                         if (type === 'Custom') {
-                            element.aggregates[key] = column.customAggregate ? column.customAggregate.call(context, data, column) : '';
+                            element.aggregates[key] = column.customAggregate ?
+                            (<Function>column.customAggregate).call(context, data, column) : '';
                         } else {
                             element.aggregates[key] = DataUtil.aggregates[type.toLowerCase()](data, column.field);
                         }

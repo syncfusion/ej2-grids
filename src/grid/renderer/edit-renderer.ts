@@ -79,7 +79,7 @@ export class EditRender {
             if (!col.visible || col.commands) {
                 continue;
             }
-            value = col.valueAccessor(col.field, args.rowData, col) as string;
+            value = ((col.valueAccessor as Function)(col.field, args.rowData, col)) as string;
             if (frzCols && cols.indexOf(col) >= frzCols && gObj.editSettings.mode === 'Normal') {
                 cell = fForm.querySelector('[e-mappinguid=' + col.uid + ']') as HTMLElement;
             } else {
@@ -87,10 +87,18 @@ export class EditRender {
             }
             let temp: Function = col.edit.write as Function;
             if (!isNullOrUndefined(cell)) {
-                (col.edit.write as Function)({
-                    rowData: args.rowData, element: cell, column: col, requestType: args.requestType, type: args.type, row: args.row,
-                    foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
-                });
+                if (typeof temp === 'string') {
+                    temp = getValue(temp, window);
+                    temp({
+                        rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
+                        foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
+                    });
+                } else {
+                    (col.edit.write as Function)({
+                        rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
+                        foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
+                    });
+                }
                 if (!isFocused && !cell.getAttribute('disabled')) {
                     this.focusElement(cell as HTMLInputElement, args.type);
                     isFocused = true;
@@ -135,11 +143,16 @@ export class EditRender {
                 elements[col.uid] = div;
                 continue;
             }
-            let value: string = col.valueAccessor(col.field, args.rowData, col) as string;
+            let value: string = ((col.valueAccessor as Function)(col.field, args.rowData, col)) as string;
             let tArgs: Object = { column: col, value: value, type: args.requestType, data: args.rowData };
             let temp: Function = col.edit.create as Function;
             let input: Element;
-            input = (col.edit.create as Function)(tArgs);
+            if (typeof temp === 'string') {
+                temp = getValue(temp, window);
+                input = temp(tArgs);
+            } else {
+                input = (col.edit.create as Function)(tArgs);
+            }
             if (typeof input === 'string') {
                 let div: Element = createElement('div');
                 div.innerHTML = input;

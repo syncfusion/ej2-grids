@@ -27,10 +27,10 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         let helper: object = {};
         let fKeyValue: string;
         if (cell.isForeignKey) {
-            fKeyValue = this.format(cell.column,  cell.column.valueAccessor('foreignKey', data, cell.column));
-        }
+            fKeyValue = this.format(cell.column,  (cell.column.valueAccessor as Function)('foreignKey', data, cell.column));
+            }
         let value: string = cell.isForeignKey ? fKeyValue : cell.column.enableGroupByFormat ? data.key :
-         this.format(cell.column, cell.column.valueAccessor('key', data, cell.column));
+        this.format(cell.column, (cell.column.valueAccessor as Function)('key', data, cell.column));
         if (!isNullOrUndefined(gObj.groupSettings.captionTemplate)) {
             if (gObj.groupSettings.captionTemplate.indexOf('#') !== -1) {
                 result = templateCompiler(document.querySelector(gObj.groupSettings.captionTemplate).innerHTML.trim())(data);

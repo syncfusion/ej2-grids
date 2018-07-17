@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title> Default-Grid Rendering </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Listview Default Rendering" />
+    <meta name="author" content="Syncfusion" />
+
+    <link href="../../../styles/material.css" rel="stylesheet" />
+    <script src="../../../node_modules/requirejs/require.js" data-main="grid_virtual.js"></script>
+    <script src="../../require.config.js"></script>
+
+</head>
+
+<body>
+
+    <div>
+        <div class="div-button">
+            <button id="genarate" class="e-info"> Load 100K Data</button>
+            <span id="popup">
+                <span id="gif" class="image"></span>
+            </span>
+            <span id="performanceTime">Time Taken: 0 ms</span>
+        </div>
+        <div id="Grid">
+        </div>
+    </div>
+    <style>
+        
+        .image {
+            position: absolute;
+            background-repeat: no-repeat;
+            background-image: url('src/grid/images/spinner.gif');
+            background-position: center;
+            width: 16px;
+            height: 28px;
+        }
+    
+        .e-bigger .image {
+            height: 36px;
+        }
+        
+        #popup {
+            position: absolute;
+            background-color: transparent;
+            display: none;
+            z-index: 100;
+        }
+        .div-button{
+            margin: 5px 5px 5px 0;
+        }
+        #performanceTime {
+            float: right;
+            margin-top: 3px;
+        }
+    
+        .e-bigger #performanceTime{
+            margin-top: 8px;
+        }
+    </style>
+</body>
+
+</html>

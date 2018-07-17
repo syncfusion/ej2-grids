@@ -32,7 +32,7 @@ export function doesImplementInterface(target: Object, checkFor: string): boolea
  */
 export function valueAccessor(field: string, data: Object, column: ColumnModel): Object {
     field = isNullOrUndefined(field) ? '' : field;
-    return getValue(field, data);
+    return DataUtil.getObject(field, data);
 }
 
 /**
@@ -134,7 +134,8 @@ export function prepareColumns(columns: Column[] | string[] | ColumnModel[], aut
 
         column.foreignKeyField = column.foreignKeyField || column.field;
 
-        column.valueAccessor = column.valueAccessor || valueAccessor;
+        column.valueAccessor = (typeof column.valueAccessor === 'string' ? getValue(<string>column.valueAccessor, window)
+        : column.valueAccessor) || valueAccessor;
 
         column.width = autoWidth && isNullOrUndefined(column.width) ? 200 : column.width;
 
@@ -288,7 +289,11 @@ export function parents(elem: Element, selector: string, isID?: boolean): Elemen
 /** @hidden */
 export function calculateAggregate(type: AggregateType | string, data: Object, column?: AggregateColumnModel, context?: Object): Object {
     if (type === 'Custom') {
-        return column.customAggregate ? column.customAggregate.call(context, data, column) : '';
+        let temp: Function = column.customAggregate as Function;
+        if (typeof temp === 'string') {
+            temp = getValue(temp, window);
+        }
+        return temp ? temp.call(context, data, column) : '';
     }
     return (column.field in data || data instanceof Array) ? DataUtil.aggregates[type.toLowerCase()](data, column.field) : null;
 }

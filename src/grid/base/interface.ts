@@ -514,27 +514,27 @@ export interface ITemplateRender {
  * @hidden
  */
 export interface IEditCell {
-    create?: Element | Function;
-    read?: Object | Function;
-    write?: void | Function;
+    create?: Element | Function | string;
+    read?: Object | Function | string;
+    write?: void | Function | string;
     params?: DatePickerModel | NumericTextBoxModel | DropDownListModel;
-    destroy?: Function;
+    destroy?: Function | string;
 }
 /**
  * @hidden
  */
 export interface IFilterUI {
-    create?: Element | Function;
-    read?: Object | Function;
-    write?: void | Function;
+    create?: Element | Function | string;
+    read?: Object | Function | string;
+    write?: void | Function | string;
 }
 /**
  * @hidden
  */
 export interface IFilterMUI {
-    create?: void | Function;
-    read?: Object | Function;
-    write?: void | Function;
+    create?: void | Function | string;
+    read?: Object | Function | string;
+    write?: void | Function | string;
 }
 
 /**
@@ -926,7 +926,7 @@ export interface ExcelQueryCellInfoEventArgs {
     style?: ExcelStyle;
     /** Defines the number of columns to be spanned */
     colSpan?: number;
-    /** Defines the cell datas */
+    /** Defines the cell data */
     cell?: number | ExcelStyle | {name : string};
 }
 export interface ExcelHeaderQueryCellInfoEventArgs {

@@ -496,11 +496,13 @@ export class Edit implements IAction {
             let value: number | string | Date | boolean;
             if (col && col.field) {
                 let temp: Function = col.edit.read as Function;
-                if (typeof temp === 'string') {
-                    temp = getValue(temp, window);
-                }
                 if (col.type !== 'checkbox') {
-                    value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
+                    if (typeof temp === 'string') {
+                        temp = getValue(temp, window);
+                        value = gObj.editModule.getValueFromType(col, (temp)(inputs[i]));
+                    } else {
+                        value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
+                    }
                 } else {
                     value = inputs[i].checked;
                 }
@@ -528,8 +530,15 @@ export class Edit implements IAction {
     public destroyWidgets(cols?: Column[]): void {
         cols = cols ? cols : this.parent.getColumns() as Column[];
         for (let col of cols) {
+            let temp: Function = col.edit.destroy as Function;
             if (col.edit.destroy) {
-                col.edit.destroy();
+                if (typeof temp === 'string') {
+                    temp = getValue(temp, window);
+                    temp();
+                } else {
+                    (col.edit.destroy as Function)();
+                }
+
             }
         }
     }

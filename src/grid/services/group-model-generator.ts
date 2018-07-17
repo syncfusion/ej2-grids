@@ -98,7 +98,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
             let tmpFlag: boolean = wFlag && indexes.indexOf(indent) !== -1;
             if (tmpFlag) { wFlag = false; }
             let cellType: CellType = !this.parent.enableColumnVirtualization || tmpFlag ?
-            CellType.GroupCaption : CellType.GroupCaptionEmpty;
+                CellType.GroupCaption : CellType.GroupCaptionEmpty;
             indent = this.parent.enableColumnVirtualization && cellType === CellType.GroupCaption ? indent + groupedLen : indent;
             cells.push(this.generateCell(column, null, cellType, indent));
         });
@@ -127,7 +127,8 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         let data: GroupedData = row.data;
         let col: Column = this.parent.getColumnByField(data.field);
         if (col && col.isForeignColumn && col.isForeignColumn()) {
-            setValue('foreignKey', col.valueAccessor(col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
+            setValue('foreignKey',
+                     (col.valueAccessor as Function) (col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
         }
     }
 

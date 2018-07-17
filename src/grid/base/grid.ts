@@ -2228,6 +2228,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'frozenColumns':
                 case 'frozenRows':
                     this.freezeRefresh(); break;
+                case 'enableVirtualization':
+                    super.refresh(); break;
                 default:
                     this.extendedPropertyChange(prop, newProp);
             }

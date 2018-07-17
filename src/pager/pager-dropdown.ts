@@ -57,14 +57,17 @@ export class PagerDropDown {
         let pageSizesModule: boolean | (number | string)[] = this.pagerModule.pageSizes;
         let pageSizesArray: string[] = ((<string[]>pageSizesModule).length ? this.convertValue(pageSizesModule as string[]) :
             ['5', '10', '12', '20', 'All']) as string[];
-        let defaultValue: Number | String = (pageSizesArray).indexOf(this.pagerModule.pageSize.toString()) > -1 ? this.pagerModule.pageSize
-            : (pageSizesArray[0] === 'All' ? this.pagerModule.totalRecordsCount : parseInt(pageSizesArray[0], 10));
+        let defaultValue: Number | String = this.pagerModule.pageSize;
         this.dropDownListObject = new DropDownList({
             dataSource: pageSizesArray,
             value: defaultValue.toString() as string,
-            change: this.onChange.bind(this)
+            change: this.onChange.bind(this),
+            cssClass: 'e-alldrop'
         });
         this.dropDownListObject.appendTo(input);
+        if ((<string[]>pageSizesModule).length) {
+            (<HTMLInputElement>this.dropDownListObject.element).value = this.pagerModule.pageSize.toString();
+        }
         pagerObj.pageSize = defaultValue as number;
         pagerObj.dataBind();
         pagerObj.trigger('dropDownChanged', { pageSize: defaultValue });
@@ -80,6 +83,9 @@ export class PagerDropDown {
             this.pagerModule.pageSize = this.pagerModule.totalRecordsCount;
             this.pagerCons.innerHTML = this.pagerModule.getLocalizedLabel('pagerAllDropDown');
             e.value = this.pagerModule.pageSize;
+            if (document.getElementsByClassName('e-popup-open e-alldrop').length) {
+                (<HTMLElement>document.getElementsByClassName('e-alldrop')[1]).style.display = 'none';
+            }
         } else {
             this.pagerModule.pageSize = parseInt(this.dropDownListObject.value as string, 10);
             if (this.pagerCons.innerHTML !== this.pagerModule.getLocalizedLabel('pagerDropDown')) {

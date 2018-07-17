@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## 16.2.45 (2018-07-17)
+
+### Grid
+
+#### Bug Fixes
+
+- Edit params is not properly applied for foreign key column is resolved.
+- Batch edit for Template column is fixed.
+- ng-compiler for filter itemTemplate property is fixed.
+- Operators are not maintained while filtering multiple columns with filterbar issue resolved.
+
 ## 16.2.44 (2018-07-10)
 
 ### Grid
@@ -9,6 +20,7 @@
 #### Bug Fixes
 
 - Dynamic aggregate columns enabled is not working issue resolved.
+- Custom aggregate is not applied in MVC
 
 ## 16.2.43 (2018-07-03)
 
