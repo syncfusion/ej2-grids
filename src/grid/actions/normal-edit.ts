@@ -197,16 +197,21 @@ export class NormalEdit {
         this.parent.getCurrentViewRecords()[this.editRowIndex] = data;
     }
 
+    private requestSuccess(args: Object): void {
+        if (this.parent.editModule.formObj && !this.parent.editModule.formObj.isDestroyed) {
+            this.destroyElements();
+            this.stopEditStatus();
+            if (this.parent.editSettings.mode === 'Dialog' && (<{action?: string}>args).action !== 'add') {
+                this.parent.element.querySelector('.e-dlgeditrow').classList.remove('e-dlgeditrow');
+            }
+        }
+    }
+
     private editSuccess(e: Object, args: EditArgs): void {
-        let gObj: IGrid = this.parent;
         if (!isNullOrUndefined(e)) {
             args.data = e;
         }
-        this.destroyElements();
-        this.stopEditStatus();
-        if (gObj.editSettings.mode === 'Dialog' && (<{action?: string}>args).action !== 'add') {
-            gObj.element.querySelector('.e-dlgeditrow').classList.remove('e-dlgeditrow');
-        }
+        this.requestSuccess(args);
         this.parent.trigger(events.beforeDataBound, args);
         args.type = events.actionComplete;
         this.parent.isEdit = false;
@@ -358,6 +363,7 @@ export class NormalEdit {
      */
     public addEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.on(events.recordAdded, this.requestSuccess, this);
         this.parent.on(events.crudAction, this.editHandler, this);
         this.parent.on(events.doubleTap, this.dblClickHandler, this);
         this.parent.on(events.click, this.clickHandler, this);
@@ -371,6 +377,7 @@ export class NormalEdit {
      */
     public removeEventListener(): void {
         if (this.parent.isDestroyed) { return; }
+        this.parent.off(events.recordAdded, this.requestSuccess);
         this.parent.off(events.crudAction, this.editHandler);
         this.parent.off(events.doubleTap, this.dblClickHandler);
         this.parent.off(events.click, this.clickHandler);

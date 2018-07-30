@@ -85,7 +85,7 @@ describe('Pagerdropdown module', () => {
         });
 
         it('pagesize value changed to array of first index', () => {
-            expect(pagerObj.pageSize).toEqual(10);
+            expect(pagerObj.pageSize).toEqual(12);
         });
         it('pagesize value changed to array of selected value', (done: Function) => {
             dropDownChanged = (args?: any): void => {
@@ -94,6 +94,12 @@ describe('Pagerdropdown module', () => {
             };
             pagerObj.dropDownChanged = dropDownChanged;
             (<any>pagerObj.pagerdropdownModule).dropDownListObject.value = 30;
+        });
+
+        it('set dropvalue', () => {
+            (<any>pagerObj.pagerdropdownModule).dropDownListObject = null;
+            (<any>pagerObj.pagerdropdownModule).setDropDownValue('value', 5);
+            expect((<any>pagerObj.pagerdropdownModule).convertValue(['5'])[0]).toBe('5');
         });
 
         afterAll(() => {

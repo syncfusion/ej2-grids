@@ -254,12 +254,12 @@ describe('Paging module', () => {
                     { field: 'ShipCity' }],
                     pageSettings: {
                         currentPage: 2, pageCount: 4,
-                        totalRecordsCount: 10, enableQueryString: true, pageSizes: [10, 20, 30, 40]
+                        enableQueryString: true, pageSizes: [10, 20, 30, 40]
                     },
                 }, done);
         });
         it('dropDownChanged event testing', () => {
-            expect(gridObj.pageSettings.pageSize).toEqual(10);
+            expect(gridObj.pageSettings.pageSize).toEqual(12);
             expect(gridObj.pageSettings.currentPage).toBe(1);
         });
         it('pagesizes value changed to 30 and check currentpage', (done: Function) => {

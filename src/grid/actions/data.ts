@@ -2,7 +2,6 @@ import { isNullOrUndefined, NumberFormatOptions, DateFormatOptions, extend } fro
 import { Query, DataManager, Predicate, Deferred, UrlAdaptor } from '@syncfusion/ej2-data';
 import { IDataProcessor, IGrid, DataStateChangeEventArgs, DataSourceChangedEventArgs, PendingState } from '../base/interface';
 import { ReturnType } from '../base/type';
-import { Grid } from '../base/grid';
 import { SearchSettingsModel, PredicateModel, SortDescriptorModel } from '../base/grid-model';
 import { setFormatter, getDatePredicate, getColumnByForeignKeyValue } from '../base/util';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
@@ -288,12 +287,19 @@ export class Data implements IDataProcessor {
             }
             if (crud && !Array.isArray(crud) && !crud.hasOwnProperty('deletedRecords')) {
                 return crud.then((result: ReturnType) => {
-                    return this.executeQuery(query);
+                    return this.insert(query, args);
                 });
             } else {
-                return this.executeQuery(query);
+                return this.insert(query, args);
             }
         }
+    }
+
+    private insert(query: Query, args: Object): Promise<Object> {
+        if ((<{requestType?: string}>args).requestType === 'save') {
+            this.parent.notify(events.recordAdded, args);
+        }
+        return this.executeQuery(query);
     }
     private executeQuery(query: Query): Promise<Object> {
         if (this.dataManager.ready) {

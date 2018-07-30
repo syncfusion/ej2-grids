@@ -171,6 +171,9 @@ export class Selection implements IAction {
         let selectedRow: Element = gObj.getRowByIndex(index);
         let selectedMovableRow: Element = this.getSelectedMovableRow(index);
         let selectData: Object = gObj.getCurrentViewRecords()[index];
+        if (gObj.enableVirtualization && gObj.allowGrouping && gObj.groupSettings.columns.length && selectedRow) {
+                selectData = gObj.getRowObjectFromUID(selectedRow.getAttribute('data-uid')).data;
+        }
         if (!this.isRowType() || !selectedRow || this.isEditing()) {
             // if (this.isEditing()) {
             //     gObj.selectedRowIndex = index;

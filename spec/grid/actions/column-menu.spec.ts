@@ -604,7 +604,11 @@ describe('column menu module', () => {
             expect(st.iconCss).toBe(null);
         });
         it('get key id from unknown key', () => {
-            let st: boolean = (gridObj.columnMenuModule as any).getKeyFromId('SortAscending')
+            let st: boolean = (gridObj.columnMenuModule as any).getKeyFromId('SortAscending');
+            (gridObj.columnMenuModule as any).enableAfterRenderMenu({enable: false});
+            gridObj.isDestroyed = true;
+            (gridObj.columnMenuModule as any).addEventListener();
+            gridObj.isDestroyed = false;
             expect(st).toBe(false);
         });
         afterAll(() => {

@@ -318,7 +318,7 @@ export class Scroll implements IAction {
                 if (!this.parent.enableColumnVirtualization) {
                     this.content.scrollLeft = sLeft;
                 }
-                if (this.parent.frozenColumns) {
+                if (this.parent.frozenColumns && this.header.querySelector('.e-movableheader')) {
                     (this.header.querySelector('.e-movableheader') as HTMLElement).scrollLeft =
                     (this.content.querySelector('.e-movablecontent') as HTMLElement).scrollLeft;
                 }

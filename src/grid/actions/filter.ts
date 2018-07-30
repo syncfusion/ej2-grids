@@ -210,7 +210,10 @@ export class Filter implements IAction {
      */
     public onActionComplete(e: NotifyArgs): void {
         let args: Object = !this.isRemove ? {
-            currentFilterObject: this.currentFilterObject, currentFilteringColumn: this.column.field,
+            currentFilterObject: this.currentFilterObject,
+            /* tslint:disable:no-string-literal */
+            currentFilteringColumn: !isNullOrUndefined(this.column) ? this.column.field : undefined,
+            /* tslint:enable:no-string-literal */
             columns: this.filterSettings.columns, requestType: 'filtering', type: events.actionComplete
         } : {
                 requestType: 'filtering', type: events.actionComplete

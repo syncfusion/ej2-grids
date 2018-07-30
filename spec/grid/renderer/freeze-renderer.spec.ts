@@ -172,6 +172,9 @@ describe('Freeze render module', () => {
         });
 
         it('Movable Content testing', () => {
+            gridObj.isDestroyed = true;
+            (gridObj as any).freezeModule.addEventListener();
+            gridObj.isDestroyed = false;
             expect(gridObj.getContent().querySelector('.e-movablecontent').querySelector('tbody').childElementCount).toBeGreaterThan(1);
         });
 

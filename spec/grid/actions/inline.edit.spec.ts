@@ -1339,7 +1339,7 @@ describe('Inline Editing module', () => {
             };
             (gridObj.element.querySelector('#' + gridObj.element.id + 'OrderID') as any).value = 10247;
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updated';
-            (gridObj.editModule as any).editModule.endEdit();
+            // (gridObj.editModule as any).editModule.endEdit();
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_update' } });

@@ -56,7 +56,7 @@ export class PagerDropDown {
         this.pagerModule.element.appendChild(this.pagerDropDownDiv);
         let pageSizesModule: boolean | (number | string)[] = this.pagerModule.pageSizes;
         let pageSizesArray: string[] = ((<string[]>pageSizesModule).length ? this.convertValue(pageSizesModule as string[]) :
-            ['5', '10', '12', '20', 'All']) as string[];
+            [this.pagerModule.getLocalizedLabel('All'), '5', '10', '12', '20']) as string[];
         let defaultValue: Number | String = this.pagerModule.pageSize;
         this.dropDownListObject = new DropDownList({
             dataSource: pageSizesArray,
@@ -79,7 +79,7 @@ export class PagerDropDown {
      * @hidden
      */
     private onChange(e: ChangeEventArgs): void {
-        if (this.dropDownListObject.value === 'All') {
+        if (this.dropDownListObject.value === this.pagerModule.getLocalizedLabel('All')) {
             this.pagerModule.pageSize = this.pagerModule.totalRecordsCount;
             this.pagerCons.innerHTML = this.pagerModule.getLocalizedLabel('pagerAllDropDown');
             e.value = this.pagerModule.pageSize;

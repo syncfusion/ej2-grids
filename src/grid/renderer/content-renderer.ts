@@ -241,7 +241,7 @@ export class ContentRender implements IRenderer {
         this.index = idx;
         getUpdateUsingRaf<HTMLElement>(
             () => {
-                this.parent.notify(events.beforeFragAppend, {});
+                this.parent.notify(events.beforeFragAppend, args);
                 if (!this.parent.enableVirtualization) {
                     remove(this.tbody);
                     this.tbody = createElement('tbody');

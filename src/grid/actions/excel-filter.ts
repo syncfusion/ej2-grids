@@ -196,7 +196,7 @@ export class ExcelFilter extends CheckBoxFilter {
                 pos.top = client.top;
                 pos.left = this.getCMenuYPosition(this.dlg, this.menuObj);
             }
-            this.menuObj.open(pos.top, pos.left);
+            this.menuObj.open(pos.top, pos.left, e.target as HTMLElement);
         }
     }
 
@@ -268,10 +268,14 @@ export class ExcelFilter extends CheckBoxFilter {
         let column: string = this.options.field;
         let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
-        let mainDiv: HTMLElement = createElement('div', { className: 'e-xlfl-maindiv',
-        id: isComplex ? complexFieldName + '-xlflmenu' : column + '-xlflmenu' });
-        this.dlgDiv = createElement('div', { className: 'e-xlflmenu',
-        id: isComplex ? complexFieldName + '-xlfldlg' : column + '-xlfldlg' });
+        let mainDiv: HTMLElement = createElement('div', {
+            className: 'e-xlfl-maindiv',
+            id: isComplex ? complexFieldName + '-xlflmenu' : column + '-xlflmenu'
+        });
+        this.dlgDiv = createElement('div', {
+            className: 'e-xlflmenu',
+            id: isComplex ? complexFieldName + '-xlfldlg' : column + '-xlfldlg'
+        });
         this.parent.element.appendChild(this.dlgDiv);
         this.dlgObj = new Dialog({
             header: this.getLocalizedLabel('CustomFilter'),
@@ -338,7 +342,7 @@ export class ExcelFilter extends CheckBoxFilter {
     private filterBtnClick(col: string): void {
         let isComplex: boolean = !isNullOrUndefined(col) && isComplexField(col);
         let complexFieldName: string = !isNullOrUndefined(col) && getComplexFieldID(col);
-        let colValue : string = isComplex ? complexFieldName : col;
+        let colValue: string = isComplex ? complexFieldName : col;
         let fValue: NumericTextBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlfl-frstvalue')).ej2_instances[0];
         let fOperator: DropDownList = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlfl-frstoptr')).ej2_instances[0];
         let sValue: NumericTextBox = (<EJ2Intance>this.dlgDiv.querySelector('#' + colValue + '-xlfl-secndvalue')).ej2_instances[0];
@@ -646,8 +650,10 @@ export class ExcelFilter extends CheckBoxFilter {
             false;
 
         // Initialize Match Case check box.
-        let checkbox: CheckBox = new CheckBox({ label: this.getLocalizedLabel('MatchCase'),
-        enableRtl: this.parent.enableRtl, checked: flValue });
+        let checkbox: CheckBox = new CheckBox({
+            label: this.getLocalizedLabel('MatchCase'),
+            enableRtl: this.parent.enableRtl, checked: flValue
+        });
 
         // Render initialized CheckBox.
         checkbox.appendTo(matchCaseInput);

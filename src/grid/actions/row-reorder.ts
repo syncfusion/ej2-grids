@@ -5,6 +5,7 @@ import { IGrid, IAction, NotifyArgs, EJ2Intance, IPosition } from '../base/inter
 import { parentsUntil, removeElement, getPosition } from '../base/util';
 import * as events from '../base/constant';
 import { Column } from '../models/column';
+import { RowDropEventArgs } from '../base/interface';
 
 /**
  * 
@@ -83,13 +84,13 @@ export class RowDD implements IAction {
         if (gObj.rowDropSettings.targetID && dropElem && dropElem.ej2_instances) {
             dropElem.ej2_instances[0].getContent().classList.remove('e-allowRowDrop');
         }
+        let args: RowDropEventArgs = {
+                    target: target, draggableType: 'rows', cancel: false,
+                    rows: gObj.getSelectedRows(), data: gObj.getSelectedRecords()
+                };
+        gObj.trigger(events.rowDrop, args);
 
-        gObj.trigger(events.rowDrop, {
-            target: target, draggableType: 'rows',
-            rows: gObj.getSelectedRows(), data: gObj.getSelectedRecords()
-        });
-
-        if (!parentsUntil(target, 'e-gridcontent')) {
+        if (!parentsUntil(target, 'e-gridcontent') || args.cancel) {
             remove(e.helper);
             return;
         }

@@ -1711,6 +1711,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     private ignoreInColumn(ignoreOnColumn: string[], column: Column): void {
         ignoreOnColumn.forEach((val: string) => {
             delete column[val];
+            column.filter = {};
         });
     }
 
@@ -2163,7 +2164,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'pageSettings':
                     this.notify(events.inBoundModelChanged, { module: 'pager', properties: newProp.pageSettings });
                     if (isNullOrUndefined(newProp.pageSettings.currentPage) && isNullOrUndefined(newProp.pageSettings.totalRecordsCount)
-                        || ((newProp.pageSettings.currentPage !== oldProp.pageSettings.currentPage)
+                        || !isNullOrUndefined(oldProp.pageSettings) &&
+                        ((newProp.pageSettings.currentPage !== oldProp.pageSettings.currentPage)
                             && !this.enableColumnVirtualization && !this.enableVirtualization
                             && this.pageSettings.totalRecordsCount <= this.pageSettings.pageSize)) { requireRefresh = true; }
                     break;

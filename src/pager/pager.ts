@@ -45,7 +45,8 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
         nextPagerTooltip: 'Go to next pager',
         previousPagerTooltip: 'Go to previous pager',
         pagerDropDown: 'Items per page',
-        pagerAllDropDown: 'Items'
+        pagerAllDropDown: 'Items',
+        All: 'All'
     };
 
     //Module declarations

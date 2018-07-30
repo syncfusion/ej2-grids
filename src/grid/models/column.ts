@@ -397,7 +397,7 @@ export class Column {
             this.edit.params = extend({
                 dataSource: <DataManager>this.dataSource,
                 query: new Query(), fields: { value: this.foreignKeyField || this.field, text: this.foreignKeyValue }
-            }, this.edit.params);
+            },                        this.edit.params);
         }
 
         if (this.sortComparer) {

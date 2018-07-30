@@ -1097,7 +1097,7 @@ export interface ExcelExportProperties {
 
 export interface RowDragEventArgs {
     /** Defines the selected row's element. */
-    rows?: Element;
+    rows?: Element[];
     /** Defines the target element from which drag starts. */
     target?: Element;
     /** Defines the type of the element to be dragged.
@@ -1847,4 +1847,8 @@ export interface DataResult {
     result: Object[] | Group[];
     count: number;
     aggregates?: object;
+}
+
+export interface RowDropEventArgs extends RowDragEventArgs {
+    cancel?: boolean;
 }

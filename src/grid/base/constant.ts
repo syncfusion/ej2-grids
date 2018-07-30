@@ -302,3 +302,5 @@ export const rtlUpdated: string = 'rtl-updated';
 export const beforeFragAppend: string = 'beforeFragAppend';
 /** @hidden */
 export const frozenHeight: string = 'frozenHeight';
+/** @hidden */
+export const recordAdded: string = 'recordAdded';

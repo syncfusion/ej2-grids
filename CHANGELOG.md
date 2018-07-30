@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## 16.2.46 (2018-07-30)
+
+### Grid
+
+#### Bug Fixes
+
+- Selected rows event arguments are wrong with grouping and `enableVirtualization` is resolved.
+- Multiple rows selecting while scrolling with grouping and `enableVirtualization` is resolved.
+- Provided locale string for pager All option.
+
 ## 16.2.45 (2018-07-17)
 
 ### Grid
@@ -12,6 +22,8 @@
 - Batch edit for Template column is fixed.
 - ng-compiler for filter itemTemplate property is fixed.
 - Operators are not maintained while filtering multiple columns with filterbar issue resolved.
+- Display of raw HTML when dragging column header to group area is resolved.
+- Grid displays fine when enable/disable `enableVirtualization` dynamically.
 
 ## 16.2.44 (2018-07-10)
 

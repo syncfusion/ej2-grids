@@ -8,7 +8,7 @@ import { DatePicker } from '@syncfusion/ej2-calendars';
 import { Grid } from '../../../src/grid/base/grid';
 import { createGrid, destroy } from '../base/specutil.spec';
 import { Column } from '../../../src/grid/models';
-import { data } from '../base/datasource.spec';
+import { data, data1 } from '../base/datasource.spec';
 import { Edit, Toolbar, Filter, Aggregate } from '../../../src/grid/actions';
 
 Grid.Inject(Edit, Toolbar, Filter, Aggregate);
@@ -93,7 +93,7 @@ describe('Util module', () => {
 
         it('Custom Aggregate method from window', (done: Function) => {
             let column: Object = { customAggregate: 'customAggregateFn' };
-            let tempData: any = { result: data };
+            let tempData: any = { result: data1 };
             let count: any = calculateAggregate('Custom', tempData, column);
             expect(count).toBe(4);
             done();

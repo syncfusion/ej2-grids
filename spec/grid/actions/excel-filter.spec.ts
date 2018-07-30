@@ -34,7 +34,7 @@ let getString: Function = (obj: any) => {
     });
 };
 
-describe('Excel Filter functionalities', () => {
+describe('Excel Filter =>', () => {
     let l10n: L10n;
     let gridObj: Grid;
     let actionBegin: () => void;
@@ -63,10 +63,11 @@ describe('Excel Filter functionalities', () => {
             { value: 'equal', text: 'Equal' }, { value: 'notEqual', text: 'Not Equal' }
         ]
     };
+    describe('Excel Filter Functionalities =>', () => {
     beforeAll((done: Function) => {
         gridObj = createGrid(
             {
-                dataSource: filterData,
+                dataSource: filterData.slice(0),
                 allowFiltering: true,
                 allowPaging: false,
                 filterSettings: {
@@ -250,6 +251,7 @@ describe('Excel Filter functionalities', () => {
     afterAll(() => {
         destroy(gridObj);
     });
+});
     describe('EJ2-6702 Script Error throws If we Check the match case and then click ok button', () => {
         let l10n: L10n;
         let grid: Grid;
@@ -279,7 +281,7 @@ describe('Excel Filter functionalities', () => {
         beforeAll((done: Function) => {
             grid = createGrid(
                 {
-                    dataSource: filterData,
+                    dataSource: filterData.slice(0),
                     allowFiltering: true,
                     allowPaging: false,
                     filterSettings: {
@@ -315,8 +317,8 @@ describe('Excel Filter functionalities', () => {
 
         it('EJ2-7609-Excel Filter For Equal Date Is Not Working', (done: Function) => {
             let actionComplete = (args: any) => {
-                expect(grid.currentViewData[0]['OrderID']).toBe(10251);
-                expect(grid.currentViewData.length).toBe(1);
+                expect(grid.filterSettings.columns.length).toBe(1);
+                expect(grid.filterSettings.columns[0].value).toBe('7/8/1996');
                 done();
             };
             grid.actionComplete = actionComplete;
@@ -325,7 +327,7 @@ describe('Excel Filter functionalities', () => {
             test.column = grid.getColumnByField('OrderDate');
             let excel: any = new test.type['Excel'](grid, grid.filterSettings, grid.serviceLocator, customOperators);
             excel.updateModel({
-                type: 'datetime', field: 'OrderDate', displayName: 'OrderDate',
+                type: 'date', field: 'OrderDate', displayName: 'OrderDate',
                 dataSource: grid.dataSource,
                 filteredColumns: grid.filterSettings.columns, target: grid.element,
                 query: grid.query,
@@ -345,7 +347,7 @@ describe('Excel Filter functionalities', () => {
             test.column = grid.getColumnByField('OrderDate');
             let excel: any = new test.type['Excel'](grid, grid.filterSettings, grid.serviceLocator, customOperators);
             excel.updateModel({
-                type: 'datetime', field: 'OrderDate', displayName: 'OrderDate',
+                type: 'date', field: 'OrderDate', displayName: 'OrderDate',
                 dataSource: grid.dataSource,
                 filteredColumns: grid.filterSettings.columns, target: grid.element,
                 query: grid.query,

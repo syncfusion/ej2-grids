@@ -8,6 +8,7 @@ import { PageSettingsModel } from '../models/page-settings-model';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { extend as gridExtend, getActualProperties, isActionPrevent } from '../base/util';
 import * as events from '../base/constant';
+import { PagerModel } from '../../pager';
 Pager.Inject(ExternalMessage, PagerDropDown);
 
 /**
@@ -57,13 +58,13 @@ export class Page implements IAction {
      */
     public render(): void {
         let gObj: IGrid = this.parent;
-        let pagerObj: Pager;
+        let pagerObj: PagerModel;
         this.pagerDestroy();
         if (!isNullOrUndefined(this.parent.pagerTemplate)) {
             this.pageSettings.template = this.parent.pagerTemplate;
         }
         this.element = createElement('div', { className: 'e-gridpager' });
-        pagerObj = <Pager>gridExtend(
+        pagerObj = <PagerModel>gridExtend(
             {},
             extend({}, getActualProperties(this.pageSettings)),
             {

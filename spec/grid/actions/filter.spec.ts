@@ -432,7 +432,7 @@ describe('Filtering module => ', () => {
         });
 
         it('column allowFiltering false testing', () => {
-            filterColumn(gridObj, 'CustomerID', 'VINET');
+            gridObj.filterModule.filterByColumn('CustomerID', 'equal', 'VINET');
             filterColumn(gridObj, 'CustomerID', 'VINET', 8);
             expect(gridObj.element.querySelectorAll('.e-row').length).toBe(71);
         });

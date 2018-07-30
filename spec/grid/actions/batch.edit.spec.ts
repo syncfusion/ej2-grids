@@ -1730,7 +1730,9 @@ describe('Batch Editing module', () => {
             let cell = tr.cells[tr.cells.length - 2];
             let ele = gridObj.element.querySelector('.e-editedbatchcell').querySelector('input');
             ele['ej2_instances'][0].value = 'France';
+            ele['ej2_instances'][0].dataBind();
             gridObj.keyboardModule.keyAction({ action: 'enter', preventDefault: preventDefault, target: cell } as any);
+            gridObj.editModule.saveCell();
             expect(cell.classList.contains('e-updatedtd')).toBeGreaterThan(0);
         });
 
