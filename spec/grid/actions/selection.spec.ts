@@ -2009,8 +2009,8 @@ describe('Grid Touch Selection', () => {
                 expect(JSON.stringify(args['data'])).toEqual(JSON.stringify(gridObj.getSelectedRecords()[0]));
                 expect(args['rowIndex']).toBe(gridObj.getSelectedRowIndexes()[0]);
                 expect(args['row']).toEqual(gridObj.getSelectedRows()[0]);
-                expect(args['previousRow']).toEqual(gridObj.getSelectedRows()[0]);
-                expect(args['previousRowIndex']).toBe(0);
+                expect(args['previousRow']).toBeUndefined();
+                expect(args['previousRowIndex']).toBeUndefined();
                 previousRow = args['previousRow'];
                 previousRowIndex = args['previousRowIndex'];
                 expect(gridObj.getRows()[0].children[2].hasAttribute('aria-selected')).toBeTruthy();

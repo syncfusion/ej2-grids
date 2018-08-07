@@ -240,7 +240,9 @@ export class BatchEdit {
         this.parent.notify(events.tooltipDestroy, {});
         args = { requestType: 'batchCancel', rows: this.parent.getRowsObject() };
         gObj.trigger(events.batchCancel, args);
-        rows.splice(this.parent.getMovableRowsObject().length, rows.length);
+        if (gObj.frozenColumns) {
+            rows.splice(this.parent.getMovableRowsObject().length, rows.length);
+        }
     }
 
     public deleteRecord(fieldname?: string, data?: Object): void {

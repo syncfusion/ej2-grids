@@ -26,6 +26,7 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         let result: Element[];
         let helper: object = {};
         let fKeyValue: string;
+        data.headerText = cell.column.headerText;
         if (cell.isForeignKey) {
             fKeyValue = this.format(cell.column,  (cell.column.valueAccessor as Function)('foreignKey', data, cell.column));
             }

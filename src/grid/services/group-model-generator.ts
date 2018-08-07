@@ -177,4 +177,5 @@ export interface GroupedData {
     key?: string;
     foreignKey?: string;
     count?: number;
+    headerText?: string;
 }

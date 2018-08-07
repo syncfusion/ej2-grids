@@ -26,6 +26,7 @@ import { Render } from '../renderer/render';
 import { Column, ColumnModel } from '../models/column';
 import { Action, SelectionType, GridLine, RenderType, SortDirection, SelectionMode, PrintMode, FilterType, FilterBarMode } from './enum';
 import { WrapMode, ToolbarItems, ContextMenuItem, ColumnMenuItem, ToolbarItem, CellSelectionMode, EditMode } from './enum';
+import { ColumnQueryModeType } from './enum';
 import { Data } from '../actions/data';
 import { Cell } from '../models/cell';
 import { RowRenderer } from '../renderer/row-renderer';
@@ -1231,6 +1232,16 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     @Property(0)
     public frozenColumns: number;
+
+    /**
+     * `columnQueryMode`provides options to retrive data from the datasource.Their types are 
+     * * `All`: It Retrives whole datasource.
+     * * `Schema`: Retrives data for all the defined columns in grid from the datasource. 
+     * * `ExcludeHidden`: Retrives data only for visible columns of grid from the dataSource. 
+     * @default All
+     */
+    @Property('All')
+    public columnQueryMode: ColumnQueryModeType;
 
     /** 
      * Triggers when the component is created.

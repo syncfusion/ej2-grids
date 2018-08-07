@@ -15,7 +15,7 @@ import { GridLine, Action, CellType, SortDirection, PrintMode, ToolbarItems, Com
 import { MultipleExportType, ExportType, ExcelHAlign, ExcelVAlign, BorderLineStyle, ToolbarItem } from './enum';
 import { PredicateModel } from './grid-model';
 import { SentinelType, Offsets } from './type';
-import { CheckState } from './enum';
+import { CheckState, ColumnQueryModeType } from './enum';
 import { Edit } from '../actions/edit';
 import { Resize } from '../actions/resize';
 import { DropDownListModel } from '@syncfusion/ej2-dropdowns';
@@ -282,6 +282,13 @@ export interface IGrid extends Component<HTMLElement> {
      * @default []
      */
     query?: Query;
+
+    /**
+     * @hidden
+     * `columnQueryMode`provides options to retrive data from the datasource.
+     * @default All
+     */
+    columnQueryMode?: ColumnQueryModeType;
 
     /**
      * @hidden

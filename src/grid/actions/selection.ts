@@ -204,7 +204,6 @@ export class Selection implements IAction {
             if (gObj.getFrozenColumns()) { this.updateRowSelection(selectedMovableRow, index); }
             gObj.selectedRowIndex = index;
         }
-        this.updateRowProps(index);
         if (!isToggle) {
             args = {
                 data: selectData, rowIndex: index,
@@ -214,6 +213,7 @@ export class Selection implements IAction {
             args = this.addMovableArgs(args, selectedMovableRow);
             this.onActionComplete(args, events.rowSelected);
         }
+        this.updateRowProps(index);
     }
 
     private addMovableArgs(targetObj: Object, mRow: Element): Object {
@@ -337,7 +337,6 @@ export class Selection implements IAction {
                 this.updateRowSelection(selectedRow, rowIndex);
                 if (frzCols) { this.updateRowSelection(selectedMovableRow, rowIndex); }
             }
-            this.updateRowProps(rowIndex);
             if (!isUnSelected) {
                 args = {
                     data: rowObj.data, rowIndex: rowIndex, row: selectedRow, target: this.target,
@@ -347,6 +346,7 @@ export class Selection implements IAction {
                 args = this.addMovableArgs(args, selectedMovableRow);
                 this.onActionComplete(args, events.rowSelected);
             }
+            this.updateRowProps(rowIndex);
             if (this.isSingleSel()) {
                 break;
             }

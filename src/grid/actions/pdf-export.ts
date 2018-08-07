@@ -64,7 +64,14 @@ export class PdfExport {
         let gObj: IGrid = parent;
         this.isGrouping = false;
         this.isExporting = true;
-        gObj.trigger(events.beforePdfExport);
+        let can: string = 'cancel';
+        let args: Object = {
+            requestType: 'beforePdfExport', gridObject: gObj, cancel: false
+        };
+        gObj.trigger(events.beforePdfExport, args);
+        if (args[can] === true) {
+            return;
+        }
     }
     /**
      * Used to map the input data
@@ -108,7 +115,7 @@ export class PdfExport {
                 this.isExporting = false;
                 parent.trigger(events.pdfExportComplete, this.isBlob ? { promise: this.blobPromise } : {});
                 return this.pdfDocument;
-            // tslint:disable-next-line:no-any
+                // tslint:disable-next-line:no-any
             }) as any;
         }
     }

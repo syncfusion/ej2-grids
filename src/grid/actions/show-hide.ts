@@ -108,5 +108,8 @@ export class ShowHide {
             this.parent.clearSelection();
         }
         this.parent.notify(events.columnVisibilityChanged, columns);
+        if (this.parent.columnQueryMode !== 'All') {
+            this.parent.refresh();
+        }
     }
 }

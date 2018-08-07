@@ -50,6 +50,20 @@ export type SortDirection =
     /**  Defines SortDirection as Descending */
     'Descending';
 
+/** 
+ * `columnQueryMode`provides options to retrive data from the datasource. They are
+ * * All
+ * * Schema 
+ * * ExcludeHidden
+ */
+export type ColumnQueryModeType =
+    /**  It Retrieves whole datasource */
+    'All' |
+    /**  Retrives data for all the defined columns in grid from the datasource.  */
+    'Schema' |
+    /**  Retrives data only for visible columns of grid from the dataSource. */
+    'ExcludeHidden';
+
 
 /** 
  * Defines types of Selection. They are

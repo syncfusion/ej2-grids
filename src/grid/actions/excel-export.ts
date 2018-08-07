@@ -99,17 +99,30 @@ export class ExcelExport {
     /* tslint:disable-next-line:no-any */
     public Map(grid: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any, isCsv: boolean, isBlob: boolean): Promise<any> {
         let gObj: IGrid = grid;
-        gObj.trigger(events.beforeExcelExport);
-        this.data = new Data(gObj);
-        this.isExporting = true;
-        this.isBlob = isBlob;
-        if (isCsv) {
-            this.isCsvExport = isCsv;
+        let cancel: string = 'cancel';
+        let isBlb: string = 'isBlob';
+        let csv: string = 'isCsv';
+        let workbk: string = 'workbook';
+        let isMultiEx: string = 'isMultipleExport';
+        let args: Object = {
+            requestType: 'beforeExcelExport', gridObject: gObj, cancel: false,
+            isMultipleExport: isMultipleExport, workbook: workbook, isCsv: isCsv, isBlob: isBlob
+        };
+        gObj.trigger(events.beforeExcelExport, args);
+        if (args[cancel] === true) {
+            return null;
         } else {
-            this.isCsvExport = false;
-        }
+            this.data = new Data(gObj);
+            this.isExporting = true;
+            this.isBlob = args[isBlb];
+            if (args[csv]) {
+                this.isCsvExport = args[csv];
+            } else {
+                this.isCsvExport = false;
+            }
 
-        return this.processRecords(gObj, exportProperties, isMultipleExport, workbook);
+            return this.processRecords(gObj, exportProperties, args[isMultiEx], args[workbk]);
+        }
     }
     /* tslint:disable-next-line:no-any */
     private processRecords(gObj: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any): Promise<any> {
@@ -313,7 +326,7 @@ export class ExcelExport {
             };
 
             cell.value = this.parent.getColumnByField(item.field).headerText +
-            ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
+                ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
             if (item.count > 1) {
                 cell.value += item.count + ' items';
             } else {
@@ -399,7 +412,7 @@ export class ExcelExport {
                 if (!isNullOrUndefined(value)) {
                     /* tslint:disable-next-line:no-any */
                     let excelCellArgs: any = { data: record[r], column: headerRow.columns[c], foreignKeyData: foreignKeyData };
-                    let cell: { index?: number, value?: number, colSpan?: number, style?: ExcelStyle | {name : string}} = {};
+                    let cell: { index?: number, value?: number, colSpan?: number, style?: ExcelStyle | { name: string } } = {};
                     gObj.trigger(events.excelQueryCellInfo, extend(
                         excelCellArgs,
                         <ExcelQueryCellInfoEventArgs>{

@@ -8,7 +8,7 @@ import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
 import { ValueFormatter } from '../services/value-formatter';
 import { ServiceLocator } from '../services/service-locator';
-import { Column } from '../models/column';
+import { Column, ColumnModel } from '../models/column';
 import { CheckBoxFilter } from '../actions/checkbox-filter';
 import { SortDirection } from '../base/enum';
 
@@ -61,6 +61,16 @@ export class Data implements IDataProcessor {
     public generateQuery(skipPage?: boolean): Query {
         let gObj: IGrid = this.parent;
         let query: Query = gObj.query.clone();
+        if (this.parent.columnQueryMode === 'ExcludeHidden') {
+            query.select(this.parent.getColumnFieldNames());
+        } else if (this.parent.columnQueryMode === 'Schema') {
+            let selectQueryFields: string[] = [];
+            let columns: string[] | Column[] | ColumnModel[] =  this.parent.columns;
+            for (let i: number = 0; i < columns.length; i++) {
+                selectQueryFields.push((columns[i] as Column).field);
+            }
+            query.select(selectQueryFields);
+        }
 
         this.filterQuery(query);
 
@@ -268,7 +278,7 @@ export class Data implements IDataProcessor {
                     query = query ? query : this.generateQuery();
                     let len: number = Object.keys(args.data).length;
                     if (len === 1) {
-                        crud = this.dataManager.remove(key, args.data[0], null, query) as Promise<Object>;
+                        crud = this.dataManager.remove(key, args.data[0], query.fromTable, query) as Promise<Object>;
                     } else {
                         let changes: { addedRecords: Object[], deletedRecords: Object[], changedRecords: Object[] } = {
                             addedRecords: [],
@@ -276,13 +286,13 @@ export class Data implements IDataProcessor {
                             changedRecords: []
                         };
                         changes.deletedRecords = <Object[]>args.data;
-                        crud = this.dataManager.saveChanges(changes, key, null, query.requiresCount()) as Promise<Object>;
+                        crud = this.dataManager.saveChanges(changes, key, query.fromTable, query.requiresCount()) as Promise<Object>;
                     }
                     break;
                 case 'save':
                     query = query ? query : this.generateQuery();
                     args.index = isNullOrUndefined(args.index) ? 0 : args.index;
-                    crud = this.dataManager.insert(args.data, null, query, args.index) as Promise<Object>;
+                    crud = this.dataManager.insert(args.data, query.fromTable, query, args.index) as Promise<Object>;
                     break;
             }
             if (crud && !Array.isArray(crud) && !crud.hasOwnProperty('deletedRecords')) {
@@ -346,7 +356,7 @@ export class Data implements IDataProcessor {
         }
         switch (args.requestType) {
             case 'save':
-                promise = this.dataManager.update(key, args.data, null, this.generateQuery()) as Promise<Object>;
+                promise = this.dataManager.update(key, args.data, query.fromTable, this.generateQuery()) as Promise<Object>;
                 break;
         }
         args[pr] = promise;
@@ -370,7 +380,7 @@ export class Data implements IDataProcessor {
             return deff.promise;
         } else {
             let promise: Promise<Object> =
-                this.dataManager.saveChanges(changes, key, null, this.generateQuery().requiresCount()) as Promise<Object>;
+                this.dataManager.saveChanges(changes, key, query.fromTable, this.generateQuery().requiresCount()) as Promise<Object>;
             return promise;
         }
     }

@@ -102,7 +102,7 @@ export class ForeignKey extends Data {
 
     private genarateColumnQuery(column: Column): Query {
         let gObj: IGrid = this.parent;
-        let query: Query = gObj.query.clone();
+        let query: Query = new Query();
         let predicate: PredicateModel[] = [];
         let queryColumn: { column: PredicateModel[], isTrue: boolean } = this.isFiltered(column);
         if (queryColumn.isTrue) {
