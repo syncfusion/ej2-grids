@@ -1,7 +1,7 @@
 /* tslint:disable-next-line:max-line-length */
 import { EventHandler, L10n, isNullOrUndefined, extend, classList, addClass, removeClass, Browser, getValue, setValue } from '@syncfusion/ej2-base';
 import { parentsUntil, getUid, isActionPrevent, appendChildren, getDatePredicate } from '../base/util';
-import { remove, createElement, debounce } from '@syncfusion/ej2-base';
+import { remove, debounce } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
 import { DataUtil, Query, DataManager, Predicate, UrlAdaptor, Deferred } from '@syncfusion/ej2-data';
 import { createCheckBox } from '@syncfusion/ej2-buttons';
@@ -65,12 +65,12 @@ export class CheckBoxFilter {
         this.filterSettings = filterSettings;
         this.valueFormatter = new ValueFormatter(this.parent.locale);
         this.cBoxTrue.insertBefore(
-            createElement('input', {
+            this.parent.createElement('input', {
                 className: 'e-chk-hidden', attrs: { type: 'checkbox' }
             }),
             this.cBoxTrue.firstChild);
         this.cBoxFalse.insertBefore(
-            createElement('input', {
+            this.parent.createElement('input', {
                 className: 'e-chk-hidden', attrs: { 'type': 'checkbox' }
             }),
             this.cBoxFalse.firstChild);
@@ -166,24 +166,24 @@ export class CheckBoxFilter {
     }
 
     protected getAndSetChkElem(options: IFilterArgs): HTMLElement {
-        this.dlg = createElement('div', {
+        this.dlg = this.parent.createElement('div', {
             id: this.id + this.options.type + '_excelDlg',
             className: 'e-checkboxfilter e-filter-popup'
         });
 
-        this.sBox = createElement('div', { className: 'e-searchcontainer' });
+        this.sBox = this.parent.createElement('div', { className: 'e-searchcontainer' });
 
         if (!options.hideSearchbox) {
-            this.sInput = createElement('input', {
+            this.sInput = this.parent.createElement('input', {
                 id: this.id + '_SearchBox',
                 className: 'e-searchinput'
             }) as HTMLInputElement;
-            this.sIcon = createElement('span', {
+            this.sIcon = this.parent.createElement('span', {
                 className: 'e-searchclear e-search-icon e-icons e-input-group-icon', attrs: {
                     type: 'text', title: this.getLocalizedLabel('Search')
                 }
             });
-            this.searchBox = createElement('span', { className: 'e-searchbox e-fields' });
+            this.searchBox = this.parent.createElement('span', { className: 'e-searchbox e-fields' });
             this.searchBox.appendChild(this.sInput);
             this.sBox.appendChild(this.searchBox);
             Input.createInput({
@@ -194,8 +194,8 @@ export class CheckBoxFilter {
             this.searchBox.querySelector('.e-input-group').appendChild(this.sIcon);
         }
 
-        this.spinner = createElement('div', { className: 'e-spinner' }); //for spinner
-        this.cBox = createElement('div', {
+        this.spinner = this.parent.createElement('div', { className: 'e-spinner' }); //for spinner
+        this.cBox = this.parent.createElement('div', {
             id: this.id + this.options.type + '_CheckBoxList',
             className: 'e-checkboxlist e-fields'
         }) as HTMLElement;
@@ -637,7 +637,7 @@ export class CheckBoxFilter {
     }
 
     private createFilterItems(data: Object[], isInitial?: boolean): void {
-        let cBoxes: Element = createElement('div');
+        let cBoxes: Element = this.parent.createElement('div');
         let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
         this.itemsCnt = data.length;
         if (data.length) {
@@ -665,7 +665,7 @@ export class CheckBoxFilter {
             this.updateIndeterminatenBtn();
             btn.disabled = false;
         } else {
-            cBoxes.appendChild(createElement('span', { innerHTML: this.getLocalizedLabel('NoResult') }));
+            cBoxes.appendChild(this.parent.createElement('span', { innerHTML: this.getLocalizedLabel('NoResult') }));
             this.cBox.innerHTML = cBoxes.innerHTML;
             btn.disabled = true;
         }

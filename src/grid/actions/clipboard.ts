@@ -1,4 +1,4 @@
-import { Browser, createElement, KeyboardEventArgs, remove } from '@syncfusion/ej2-base';
+import { Browser, KeyboardEventArgs, remove } from '@syncfusion/ej2-base';
 import { IGrid, IAction, BeforeCopyEventArgs } from '../base/interface';
 import { Column } from '../models/column';
 import * as events from '../base/constant';
@@ -43,7 +43,7 @@ export class Clipboard implements IAction {
 
     private initialEnd(): void {
         this.parent.off(events.contentReady, this.initialEnd);
-        this.clipBoardTextArea = createElement('textarea', {
+        this.clipBoardTextArea = this.parent.createElement('textarea', {
             className: 'e-clipboard',
             styles: 'opacity: 0',
             attrs: { readonly: 'true', tabindex: '-1', 'aria-label': 'clipboard' }

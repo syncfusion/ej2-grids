@@ -1,4 +1,4 @@
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
@@ -13,7 +13,8 @@ import { GroupedData } from '../services/group-model-generator';
  */
 export class GroupCaptionCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-groupcaption', attrs: { role: 'gridcell', tabindex: '-1' } });
+    public element: HTMLElement = this.parent
+    .createElement('TD', { className: 'e-groupcaption', attrs: { role: 'gridcell', tabindex: '-1' } });
 
     /**
      * Function to render the cell content based on Column object.
@@ -56,7 +57,7 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
  */
 export class GroupCaptionEmptyCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-groupcaption' });
+    public element: HTMLElement = this.parent.createElement('TD', { className: 'e-groupcaption' });
 
     /**
      * Function to render the cell content based on Column object.

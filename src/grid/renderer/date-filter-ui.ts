@@ -3,7 +3,7 @@ import { Column } from '../models/column';
 import { FilterSettings } from '../base/grid';
 import { PredicateModel } from '../base/grid-model';
 import { DatePicker } from '@syncfusion/ej2-calendars';
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Internationalization } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
@@ -35,7 +35,7 @@ export class DateFilterUI implements IFilterMUI {
         let colFormat: string = args.column.format as string;
         let format: string = intl.getDatePattern({ type: 'date', skeleton: colFormat }, false);
         this.dialogObj = args.dialogObj;
-        this.inputElem = createElement('input', { className: 'e-flmenu-input', id: 'dateui-' + args.column.uid });
+        this.inputElem = this.parent.createElement('input', { className: 'e-flmenu-input', id: 'dateui-' + args.column.uid });
         args.target.appendChild(this.inputElem);
         this.datePickerObj = new DatePicker({
             format: format,

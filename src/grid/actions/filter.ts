@@ -1,6 +1,6 @@
 import { EventHandler, L10n, isNullOrUndefined, extend, closest, getValue } from '@syncfusion/ej2-base';
 import { getActualPropFromColl, isActionPrevent, getColumnByForeignKeyValue } from '../base/util';
-import { remove, createElement, matches } from '@syncfusion/ej2-base';
+import { remove, matches } from '@syncfusion/ej2-base';
 import { DataUtil, Predicate, Query, DataManager } from '@syncfusion/ej2-data';
 import { FilterSettings, Grid } from '../base/grid';
 import { IGrid, IAction, NotifyArgs, IFilterOperator, IValueFormatter } from '../base/interface';
@@ -90,7 +90,7 @@ export class Filter implements IAction {
                 let cellrender: CellRendererFactory = this.serviceLocator.getService<CellRendererFactory>('cellRendererFactory');
                 cellrender.addCellRenderer(CellType.Filter, new FilterCellRenderer(this.parent, this.serviceLocator));
                 this.valueFormatter = this.serviceLocator.getService<IValueFormatter>('valueFormatter');
-                rowRenderer.element = createElement('tr', { className: 'e-filterbar' });
+                rowRenderer.element = this.parent.createElement('tr', { className: 'e-filterbar' });
                 row = this.generateRow();
                 row.data = this.values;
                 this.parent.getHeaderContent().querySelector('thead').appendChild(rowRenderer.element);

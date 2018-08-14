@@ -1,5 +1,5 @@
 import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
-import { closest as closestElement, removeClass, classList, createElement, remove } from '@syncfusion/ej2-base';
+import { closest as closestElement, removeClass, classList, remove } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { getElementIndex, inArray, parentsUntil, getPosition, isActionPrevent } from '../base/util';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
@@ -226,9 +226,11 @@ export class Reorder implements IAction {
     private createReorderElement(): void {
         let header: Element = (this.parent.element.querySelector('.e-headercontent') as Element);
         this.upArrow = header.appendChild(
-            createElement('div', { className: 'e-icons e-icon-reorderuparrow e-reorderuparrow', attrs: { style: 'display:none' } }));
+            this.parent
+            .createElement('div', { className: 'e-icons e-icon-reorderuparrow e-reorderuparrow', attrs: { style: 'display:none' } }));
         this.downArrow = header.appendChild(
-            createElement('div', { className: 'e-icons e-icon-reorderdownarrow e-reorderdownarrow', attrs: { style: 'display:none' } }));
+            this.parent
+            .createElement('div', { className: 'e-icons e-icon-reorderdownarrow e-reorderdownarrow', attrs: { style: 'display:none' } }));
     }
 
     /**

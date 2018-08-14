@@ -1,5 +1,5 @@
 import { isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
-import { createElement, attributes } from '@syncfusion/ej2-base';
+import { attributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
@@ -12,13 +12,13 @@ import { Input } from '@syncfusion/ej2-inputs';
  */
 export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TH', { className: 'e-filterbarcell' });
+    public element: HTMLElement = this.parent.createElement('TH', { className: 'e-filterbarcell' });
     /**
      * Function to return the wrapper for the TH content.
      * @returns string 
      */
     public getGui(): string | Element {
-        return createElement('div');
+        return this.parent.createElement('div');
     }
 
     /**
@@ -41,7 +41,7 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                     'class': 'e-fltrtempdiv'
                 });
                 if (isNullOrUndefined(column.filterBarTemplate.create)) {
-                    input = createElement('input', {
+                    input = this.parent.createElement('input', {
                         id: column.field + '_filterBarcell', className: 'e-filterUi_input e-filtertext e-fltrTemp',
                         attrs: { type: 'search', title: column.headerText }
                     });
@@ -54,7 +54,7 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                     }
                     input = temp(args);
                     if (typeof input === 'string') {
-                        let div: Element = createElement('div');
+                        let div: Element = this.parent.createElement('div');
                         div.innerHTML = input;
                         input = div.firstChild as Element;
                     }
@@ -69,7 +69,7 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                 attributes(innerDIV, {
                     'class': 'e-filterdiv e-fltrinputdiv'
                 });
-                input = createElement('input', {
+                input = this.parent.createElement('input', {
                     id: column.field + '_filterBarcell', className: 'e-filtertext',
                     attrs: {
                         type: 'search', title: column.headerText + (cell.attributes as { title: string }).title,

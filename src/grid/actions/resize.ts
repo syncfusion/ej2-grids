@@ -1,4 +1,4 @@
-import { EventHandler, createElement, detach, formatUnit, Browser, closest } from '@syncfusion/ej2-base';
+import { EventHandler, detach, formatUnit, Browser, closest, isNullOrUndefined  } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { IGrid, IAction, ResizeArgs } from '../base/interface';
 import { ColumnWidthService } from '../services/width-controller';
@@ -74,6 +74,7 @@ export class Resize implements IAction {
         let tWidth: number = 0;
         let headerTable: Element;
         let contentTable: Element;
+        let footerTable: Element;
         let headerDivTag: string = 'e-gridheader';
         let contentDivTag: string = 'e-gridcontent';
         let indentWidth: number = 0;
@@ -82,6 +83,9 @@ export class Resize implements IAction {
         let headerTextClone: Element;
         let contentTextClone: NodeListOf<Element>;
         let frzCols: number = gObj.getFrozenColumns();
+        if (!isNullOrUndefined(gObj.getFooterContent())) {
+            footerTable = gObj.getFooterContentTable();
+        }
         if (frzCols) {
             if (index < frzCols) {
                 headerTable = gObj.getHeaderTable();
@@ -135,6 +139,9 @@ export class Resize implements IAction {
             }
             (<HTMLTableElement>headerTable).style.width = formatUnit(calcTableWidth);
             (<HTMLTableElement>contentTable).style.width = formatUnit(calcTableWidth);
+            if (!isNullOrUndefined(footerTable)) {
+                (<HTMLTableElement>footerTable).style.width = formatUnit(calcTableWidth);
+            }
         }
         let tableWidth: number = (headerTable as HTMLElement).offsetWidth;
         let contentwidth: number = (gObj.getContent().scrollWidth);
@@ -144,6 +151,9 @@ export class Resize implements IAction {
         } else {
             headerTable.classList.remove('e-tableborder');
             contentTable.classList.remove('e-tableborder');
+        }
+        if (!isNullOrUndefined(footerTable)) {
+            footerTable.classList.add('e-tableborder');
         }
     }
 
@@ -180,16 +190,16 @@ export class Resize implements IAction {
      * @hidden
      */
     protected createTable(table: Element, text: Element[], tag: string): number {
-        let myTableDiv: HTMLDivElement = createElement('div') as HTMLDivElement;
+        let myTableDiv: HTMLDivElement = this.parent.createElement('div') as HTMLDivElement;
         myTableDiv.className = this.parent.element.className;
         myTableDiv.style.cssText = 'display: inline-block;visibility:hidden;position:absolute';
-        let mySubDiv: HTMLDivElement = createElement('div') as HTMLDivElement;
+        let mySubDiv: HTMLDivElement = this.parent.createElement('div') as HTMLDivElement;
         mySubDiv.className = tag;
-        let myTable: HTMLTableElement = createElement('table') as HTMLTableElement;
+        let myTable: HTMLTableElement = this.parent.createElement('table') as HTMLTableElement;
         myTable.className = table.className;
         myTable.classList.add('e-resizetable');
         myTable.style.cssText = 'table-layout: auto;width: auto';
-        let myTr: HTMLTableRowElement = createElement('tr') as HTMLTableRowElement;
+        let myTr: HTMLTableRowElement = this.parent.createElement('tr') as HTMLTableRowElement;
         text.forEach((element: Element) => {
             let tr: HTMLTableRowElement = myTr.cloneNode() as HTMLTableRowElement;
             tr.className = table.querySelector('tr').className;
@@ -446,7 +456,7 @@ export class Resize implements IAction {
     }
 
     private appendHelper(): void {
-        this.helper = createElement('div', {
+        this.helper = this.parent.createElement('div', {
             className: resizeClassList.helper
         });
         this.parent.element.appendChild(this.helper);

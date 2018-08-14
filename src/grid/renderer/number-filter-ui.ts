@@ -2,7 +2,6 @@ import { IGrid, EJ2Intance, IFilterMUI, IFilterCreate } from '../base/interface'
 import { Column } from '../models/column';
 import { FilterSettings } from '../base/grid';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
-import { createElement } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 
@@ -27,7 +26,7 @@ export class NumberFilterUI implements IFilterMUI {
         this.serviceLocator = serviceLocator;
     }
     public create(args: IFilterCreate): void {
-        this.instance = createElement('input', { className: 'e-flmenu-input', id: 'numberui-' + args.column.uid });
+        this.instance = this.parent.createElement('input', { className: 'e-flmenu-input', id: 'numberui-' + args.column.uid });
         args.target.appendChild(this.instance);
         this.numericTxtObj = new NumericTextBox({
             format: args.column.format as string,

@@ -1,4 +1,3 @@
-import { createElement } from '@syncfusion/ej2-base';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
 import { IndentCellRenderer } from './indent-cell-renderer';
@@ -21,7 +20,7 @@ export class ExpandCellRenderer extends IndentCellRenderer implements ICellRende
         node.setAttribute('ej-mappingvalue', data.key);
         node.setAttribute('aria-expanded', 'true');
         node.setAttribute('tabindex', '-1');
-        node.appendChild(createElement('div', { className: 'e-icons e-gdiagonaldown e-icon-gdownarrow' }));
+        node.appendChild(this.parent.createElement('div', { className: 'e-icons e-gdiagonaldown e-icon-gdownarrow' }));
         return node;
     }
 

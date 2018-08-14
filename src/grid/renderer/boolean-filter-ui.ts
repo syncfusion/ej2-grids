@@ -7,7 +7,7 @@ import { ServiceLocator } from '../services/service-locator';
 import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
 import { Filter } from '../actions/filter';
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { FlMenuOptrUI } from './filter-menu-operator';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
 /**
@@ -37,7 +37,7 @@ export class BooleanFilterUI implements IFilterMUI {
         let isForeignColumn: boolean = args.column.isForeignColumn();
         let dataSource: Object = isForeignColumn ? args.column.dataSource : this.parent.dataSource;
         let fields: string = isForeignColumn ? args.column.foreignKeyValue : args.column.field;
-        this.elem = createElement('input', { className: 'e-flmenu-input', id: 'bool-ui-' + args.column.uid });
+        this.elem = this.parent.createElement('input', { className: 'e-flmenu-input', id: 'bool-ui-' + args.column.uid });
         args.target.appendChild(this.elem);
         this.dialogObj = args.dialogObj;
         this.dropInstance = new DropDownList({

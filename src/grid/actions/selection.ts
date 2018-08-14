@@ -1,6 +1,6 @@
 import { Browser, EventHandler, MouseEventArgs } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, isUndefined, addClass, removeClass } from '@syncfusion/ej2-base';
-import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
+import { remove, closest, classList } from '@syncfusion/ej2-base';
 import { Query } from '@syncfusion/ej2-data';
 import { IGrid, IAction, IIndex, ISelectedCell, IPosition, IRenderer, EJ2Intance, NotifyArgs, CellFocusArgs } from '../base/interface';
 import { SelectionSettings } from '../base/grid';
@@ -1076,7 +1076,7 @@ export class Selection implements IAction {
                     return;
                 }
                 isDrag = true;
-                this.element = createElement('div', { className: 'e-griddragarea' });
+                this.element = this.parent.createElement('div', { className: 'e-griddragarea' });
                 gObj.getContent().appendChild(this.element);
             }
             if (isDrag) {

@@ -1,5 +1,5 @@
 import { KeyboardEventArgs } from '@syncfusion/ej2-base';
-import { createElement, closest, classList } from '@syncfusion/ej2-base';
+import { closest, classList } from '@syncfusion/ej2-base';
 import { IGrid } from '../base/interface';
 import { Grid } from '../base/grid';
 import { parents, getUid, appendChildren } from '../base/util';
@@ -56,8 +56,8 @@ export class DetailRow {
                 if (this.isDetailRow(nextRow)) {
                     nextRow.style.display = '';
                 } else if (gObj.getDetailTemplate() || gObj.childGrid) {
-                    let detailRow: Element = createElement('tr', { className: 'e-detailrow' });
-                    let detailCell: Element = createElement('td', { className: 'e-detailcell' });
+                    let detailRow: Element = this.parent.createElement('tr', { className: 'e-detailrow' });
+                    let detailCell: Element = this.parent.createElement('td', { className: 'e-detailcell' });
                     detailCell.setAttribute('colspan', this.parent.getVisibleColumns().length.toString());
                     let row: Row<Column> = new Row<Column>({
                         isDataRow: true,
@@ -65,10 +65,10 @@ export class DetailRow {
                         cells: [new Cell<Column>({ cellType: CellType.Indent }), new Cell<Column>({ isDataCell: true, visible: true })]
                     });
                     for (let i: number = 0, len: number = gObj.groupSettings.columns.length; i < len; i++) {
-                        detailRow.appendChild(createElement('td', { className: 'e-indentcell' }));
+                        detailRow.appendChild(this.parent.createElement('td', { className: 'e-indentcell' }));
                         row.cells.unshift(new Cell<Column>({ cellType: CellType.Indent }));
                     }
-                    detailRow.appendChild(createElement('td', { className: 'e-detailindentcell' }));
+                    detailRow.appendChild(this.parent.createElement('td', { className: 'e-detailindentcell' }));
                     detailRow.appendChild(detailCell);
                     tr.parentNode.insertBefore(detailRow, tr.nextSibling);
                     if (gObj.detailTemplate) {
@@ -87,7 +87,7 @@ export class DetailRow {
                         if (!modules || modules.length !== injectedModues.length) {
                             grid.setInjectedModules(injectedModues);
                         }
-                        let gridElem: HTMLElement = createElement('div', {
+                        let gridElem: HTMLElement = this.parent.createElement('div', {
                             id: 'child' + parents(tr, 'e-grid').length +
                             '_grid' + tr.rowIndex + getUid('')
                         });

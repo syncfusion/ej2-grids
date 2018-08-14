@@ -304,3 +304,7 @@ export const beforeFragAppend: string = 'beforeFragAppend';
 export const frozenHeight: string = 'frozenHeight';
 /** @hidden */
 export const recordAdded: string = 'recordAdded';
+/** @hidden */
+export const cancelBegin: string = 'cancel-Begin';
+/** @hidden */
+export const editNextValCell: string = 'editNextValCell';

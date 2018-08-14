@@ -1,4 +1,4 @@
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { Input } from '@syncfusion/ej2-inputs';
@@ -18,7 +18,7 @@ export class DefaultEditCell implements IEditCell {
 
     public create(args: { column: Column, value: string, requestType: string }): Element {
         let col: Column = args.column;
-        let input: Element = createElement('input', {
+        let input: Element = this.parent.createElement('input', {
             className: 'e-field e-input e-defaultcell', attrs: {
                 type: 'text', value: !isNullOrUndefined(args.value) ? args.value : '', 'e-mappinguid': col.uid,
                 id: this.parent.element.id + col.field, name: col.field, style: 'text-align:' + col.textAlign,

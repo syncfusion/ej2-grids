@@ -1,4 +1,4 @@
-import { createElement, remove, addClass } from '@syncfusion/ej2-base';
+import { remove, addClass } from '@syncfusion/ej2-base';
 import { IGrid, IRenderer, IModelGenerator } from '../base/interface';
 import { Column } from '../models/column';
 import { HeaderRender } from './header-renderer';
@@ -22,8 +22,8 @@ export class FreezeContentRender extends ContentRender implements IRenderer {
 
     public renderPanel(): void {
         super.renderPanel();
-        let fDiv: Element = createElement('div', { className: 'e-frozencontent' });
-        let mDiv: Element = createElement('div', { className: 'e-movablecontent' });
+        let fDiv: Element = this.parent.createElement('div', { className: 'e-frozencontent' });
+        let mDiv: Element = this.parent.createElement('div', { className: 'e-movablecontent' });
         this.getPanel().firstChild.appendChild(fDiv);
         this.getPanel().firstChild.appendChild(mDiv);
         this.setFrozenContent(fDiv);
@@ -103,8 +103,8 @@ export class FreezeRender extends HeaderRender implements IRenderer {
 
     public renderPanel(): void {
         super.renderPanel();
-        let fDiv: Element = createElement('div', { className: 'e-frozenheader' });
-        let mDiv: Element = createElement('div', { className: 'e-movableheader' });
+        let fDiv: Element = this.parent.createElement('div', { className: 'e-frozenheader' });
+        let mDiv: Element = this.parent.createElement('div', { className: 'e-movableheader' });
         this.getPanel().firstChild.appendChild(fDiv);
         this.getPanel().firstChild.appendChild(mDiv);
         this.setFrozenHeader(fDiv);

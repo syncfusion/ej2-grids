@@ -1,6 +1,6 @@
 import { Droppable, DropEventArgs } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
-import { createElement, setStyleAttribute, remove } from '@syncfusion/ej2-base';
+import { setStyleAttribute, remove } from '@syncfusion/ej2-base';
 import { getUpdateUsingRaf, appendChildren } from '../base/util';
 import * as events from '../base/constant';
 import { IRenderer, IGrid, NotifyArgs, IModelGenerator } from '../base/interface';
@@ -88,8 +88,8 @@ export class ContentRender implements IRenderer {
      */
     public renderPanel(): void {
         let gObj: IGrid = this.parent;
-        let div: Element = createElement('div', { className: 'e-gridcontent' });
-        let innerDiv: Element = createElement('div', {
+        let div: Element = this.parent.createElement('div', { className: 'e-gridcontent' });
+        let innerDiv: Element = this.parent.createElement('div', {
             className: 'e-content'
         });
         this.ariaService.setOptions(<HTMLElement>innerDiv, { busy: false });
@@ -121,7 +121,7 @@ export class ContentRender implements IRenderer {
      */
     public createContentTable(id: String): Element {
         let innerDiv: Element = <Element>this.getPanel().firstChild;
-        let table: Element = createElement('table', {
+        let table: Element = this.parent.createElement('table', {
             className: 'e-table', attrs: {
                 cellspacing: '0.25px', role: 'grid',
                 id: this.parent.element.id + id
@@ -129,7 +129,7 @@ export class ContentRender implements IRenderer {
         });
         this.setColGroup(<Element>this.parent.element.querySelector('.e-gridheader').querySelector('colgroup').cloneNode(true));
         table.appendChild(this.getColGroup());
-        table.appendChild(createElement('tbody'));
+        table.appendChild(this.parent.createElement('tbody'));
         innerDiv.appendChild(table);
         return innerDiv;
     }
@@ -244,7 +244,7 @@ export class ContentRender implements IRenderer {
                 this.parent.notify(events.beforeFragAppend, args);
                 if (!this.parent.enableVirtualization) {
                     remove(this.tbody);
-                    this.tbody = createElement('tbody');
+                    this.tbody = this.parent.createElement('tbody');
                 }
                 if (frzCols) {
                     this.tbody.appendChild(frag);
@@ -253,7 +253,7 @@ export class ContentRender implements IRenderer {
                         fCont.querySelector('table').appendChild(this.tbody);
                     } else {
                         if (this.tbody.childElementCount < 1) {
-                            this.tbody.appendChild(createElement('tr').appendChild(createElement('td')));
+                            this.tbody.appendChild(this.parent.createElement('tr').appendChild(this.parent.createElement('td')));
                         }
                         this.isLoaded = true;
                         mCont.querySelector('table').appendChild(this.tbody);

@@ -1,4 +1,4 @@
-import { createElement, EventHandler, remove, Browser } from '@syncfusion/ej2-base';
+import { EventHandler, remove, Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
 import { parentsUntil, isActionPrevent } from '../base/util';
 import { IGrid, IFilterArgs, EJ2Intance } from '../base/interface';
@@ -97,13 +97,13 @@ export class ExcelFilter extends CheckBoxFilter {
 
     private createMenu(type: string, isFiltered: boolean, isCheckIcon: boolean): void {
         let options: Object = { string: 'TextFilter', date: 'DateFilter', datetime: 'DateFilter', number: 'NumberFilter' };
-        this.menu = createElement('div', { className: 'e-contextmenu-wrapper' });
+        this.menu = this.parent.createElement('div', { className: 'e-contextmenu-wrapper' });
         if (this.parent.enableRtl) {
             this.menu.classList.add('e-rtl');
         } else {
             this.menu.classList.remove('e-rtl');
         }
-        let ul: Element = createElement('ul');
+        let ul: Element = this.parent.createElement('ul');
         let icon: string = isFiltered ? 'e-excl-filter-icon e-filtered' : 'e-excl-filter-icon';
         ul.appendChild(this.createMenuElem(this.getLocalizedLabel('ClearFilter'), isFiltered ? '' : 'e-disabled', icon));
         if (type !== 'boolean') {
@@ -115,11 +115,11 @@ export class ExcelFilter extends CheckBoxFilter {
     }
 
     private createMenuElem(val: string, className?: string, iconName?: string, isSubMenu?: boolean): Element {
-        let li: Element = createElement('li', { className: className + ' e-menu-item' });
+        let li: Element = this.parent.createElement('li', { className: className + ' e-menu-item' });
         li.innerHTML = val;
-        li.insertBefore(createElement('span', { className: 'e-menu-icon e-icons ' + iconName }), li.firstChild);
+        li.insertBefore(this.parent.createElement('span', { className: 'e-menu-icon e-icons ' + iconName }), li.firstChild);
         if (isSubMenu) {
-            li.appendChild(createElement('span', { className: 'e-icons e-caret' }));
+            li.appendChild(this.parent.createElement('span', { className: 'e-icons e-caret' }));
         }
         return li;
     }
@@ -249,7 +249,7 @@ export class ExcelFilter extends CheckBoxFilter {
         this.dlg.insertBefore(this.menu, this.dlg.firstChild);
         this.dlg.classList.add('e-excelfilter');
         this.dlg.classList.remove('e-checkboxfilter');
-        this.cmenu = createElement('ul', { className: 'e-excel-menu' }) as HTMLUListElement;
+        this.cmenu = this.parent.createElement('ul', { className: 'e-excel-menu' }) as HTMLUListElement;
         this.wireExEvents();
     }
 
@@ -268,11 +268,11 @@ export class ExcelFilter extends CheckBoxFilter {
         let column: string = this.options.field;
         let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
-        let mainDiv: HTMLElement = createElement('div', {
+        let mainDiv: HTMLElement = this.parent.createElement('div', {
             className: 'e-xlfl-maindiv',
             id: isComplex ? complexFieldName + '-xlflmenu' : column + '-xlflmenu'
         });
-        this.dlgDiv = createElement('div', {
+        this.dlgDiv = this.parent.createElement('div', {
             className: 'e-xlflmenu',
             id: isComplex ? complexFieldName + '-xlfldlg' : column + '-xlfldlg'
         });
@@ -330,11 +330,11 @@ export class ExcelFilter extends CheckBoxFilter {
         let dlgConetntEle: Element = this.dlgObj.element.querySelector('.e-xlfl-maindiv');
 
         /* tslint:disable-next-line:max-line-length */
-        let dlgFields: HTMLElement = createElement('div', { innerHTML: this.getLocalizedLabel('ShowRowsWhere'), className: 'e-xlfl-dlgfields' });
+        let dlgFields: HTMLElement = this.parent.createElement('div', { innerHTML: this.getLocalizedLabel('ShowRowsWhere'), className: 'e-xlfl-dlgfields' });
         dlgConetntEle.appendChild(dlgFields);
 
         //column name
-        let fieldSet: HTMLElement = createElement('div', { innerHTML: this.options.displayName, className: 'e-xlfl-fieldset' });
+        let fieldSet: HTMLElement = this.parent.createElement('div', { innerHTML: this.options.displayName, className: 'e-xlfl-fieldset' });
         dlgConetntEle.appendChild(fieldSet);
 
         this.renderFilterUI(column, dlgConetntEle);
@@ -447,18 +447,19 @@ export class ExcelFilter extends CheckBoxFilter {
     /* tslint:disable-next-line:max-line-length */
     private renderOperatorUI(column: string, table: HTMLElement, elementID: string, predicates: PredicateModel[], isFirst?: boolean): { fieldElement: HTMLElement, operator: string } {
 
-        let fieldElement: HTMLElement = createElement('tr', { className: 'e-xlfl-fields' });
+        let fieldElement: HTMLElement = this.parent.createElement('tr', { className: 'e-xlfl-fields' });
         table.appendChild(fieldElement);
 
-        let xlfloptr: HTMLElement = createElement('td', { className: 'e-xlfl-optr' });
+        let xlfloptr: HTMLElement = this.parent.createElement('td', { className: 'e-xlfl-optr' });
         fieldElement.appendChild(xlfloptr);
 
-        let optrDiv: HTMLElement = createElement('div', { className: 'e-xlfl-optrdiv' });
+        let optrDiv: HTMLElement = this.parent.createElement('div', { className: 'e-xlfl-optrdiv' });
 
         let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
 
-        let optrInput: HTMLElement = createElement('input', { id: isComplex ? complexFieldName + elementID : column + elementID });
+        let optrInput: HTMLElement = this.parent
+        .createElement('input', { id: isComplex ? complexFieldName + elementID : column + elementID });
 
         optrDiv.appendChild(optrInput);
         xlfloptr.appendChild(optrDiv);
@@ -517,10 +518,10 @@ export class ExcelFilter extends CheckBoxFilter {
 
     private renderFilterUI(column: string, dlgConetntEle: Element): void {
         let predicates: PredicateModel[] = this.existingPredicate[column];
-        let table: HTMLElement = createElement('table', { className: 'e-xlfl-table' });
+        let table: HTMLElement = this.parent.createElement('table', { className: 'e-xlfl-table' });
         dlgConetntEle.appendChild(table);
 
-        let colGroup: HTMLElement = createElement('colGroup');
+        let colGroup: HTMLElement = this.parent.createElement('colGroup');
         colGroup.innerHTML = '<col style="width: 50%"></col><col style="width: 50%"></col>';
         table.appendChild(colGroup);
 
@@ -531,7 +532,7 @@ export class ExcelFilter extends CheckBoxFilter {
         //Renders first value
         this.renderFlValueUI(column, optr, '-xlfl-frstvalue', predicates, true);
 
-        let predicate: HTMLElement = createElement('tr', { className: 'e-xlfl-predicate' });
+        let predicate: HTMLElement = this.parent.createElement('tr', { className: 'e-xlfl-predicate' });
         table.appendChild(predicate);
 
         //Renders first radion button
@@ -544,18 +545,19 @@ export class ExcelFilter extends CheckBoxFilter {
     }
     private renderRadioButton(column: string, tr: HTMLElement, predicates: PredicateModel[]): void {
 
-        let td: HTMLElement = createElement('td', { className: 'e-xlfl-radio', attrs: { 'colSpan': '2' } });
+        let td: HTMLElement = this.parent.createElement('td', { className: 'e-xlfl-radio', attrs: { 'colSpan': '2' } });
         tr.appendChild(td);
 
-        let radioDiv: HTMLElement = createElement('div', { className: 'e-xlfl-radiodiv', attrs: { 'style': 'display: inline-block' } });
+        let radioDiv: HTMLElement = this.parent
+        .createElement('div', { className: 'e-xlfl-radiodiv', attrs: { 'style': 'display: inline-block' } });
 
         let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
         /* tslint:disable-next-line:max-line-length */
-        let frstpredicate: HTMLInputElement = createElement('input', { id: isComplex ? complexFieldName + 'e-xlfl-frstpredicate' : column + 'e-xlfl-frstpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
+        let frstpredicate: HTMLInputElement = this.parent.createElement('input', { id: isComplex ? complexFieldName + 'e-xlfl-frstpredicate' : column + 'e-xlfl-frstpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
 
         /* tslint:disable-next-line:max-line-length */
-        let secndpredicate: HTMLInputElement = createElement('input', { id: isComplex ? complexFieldName + 'e-xlfl-secndpredicate' : column + 'e-xlfl-secndpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
+        let secndpredicate: HTMLInputElement = this.parent.createElement('input', { id: isComplex ? complexFieldName + 'e-xlfl-secndpredicate' : column + 'e-xlfl-secndpredicate', attrs: { 'type': 'radio' } }) as HTMLInputElement;
 
         //appends into div
         radioDiv.appendChild(frstpredicate);
@@ -599,14 +601,14 @@ export class ExcelFilter extends CheckBoxFilter {
     /* tslint:disable-next-line:max-line-length */
     private renderFlValueUI(column: string, optr: { fieldElement: HTMLElement, operator: string }, elementId: string, predicates: PredicateModel[], isFirst?: boolean): void {
 
-        let value: HTMLElement = createElement('td', { className: 'e-xlfl-value' });
+        let value: HTMLElement = this.parent.createElement('td', { className: 'e-xlfl-value' });
         optr.fieldElement.appendChild(value);
 
         let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
 
-        let valueDiv: HTMLElement = createElement('div', { className: 'e-xlfl-valuediv' });
-        let valueInput: Element = createElement('input', { id: isComplex ? complexFieldName + elementId : column + elementId });
+        let valueDiv: HTMLElement = this.parent.createElement('div', { className: 'e-xlfl-valuediv' });
+        let valueInput: Element = this.parent.createElement('input', { id: isComplex ? complexFieldName + elementId : column + elementId });
 
         valueDiv.appendChild(valueInput);
         value.appendChild(valueDiv);
@@ -632,12 +634,12 @@ export class ExcelFilter extends CheckBoxFilter {
     private renderMatchCase(column: string, tr: HTMLElement, matchCase: HTMLElement, elementId: string, predicates: PredicateModel[]): void {
 
         /* tslint:disable-next-line:max-line-length */
-        let matchCaseDiv: HTMLElement = createElement('div', { className: 'e-xlfl-matchcasediv', attrs: { 'style': 'display: inline-block' } });
+        let matchCaseDiv: HTMLElement = this.parent.createElement('div', { className: 'e-xlfl-matchcasediv', attrs: { 'style': 'display: inline-block' } });
 
         let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
 
-        let matchCaseInput: HTMLInputElement = createElement(
+        let matchCaseInput: HTMLInputElement = this.parent.createElement(
             'input',
             { id: isComplex ? complexFieldName + elementId : column + elementId, attrs: { 'type': 'checkbox' } }
         ) as HTMLInputElement;

@@ -584,6 +584,15 @@ describe('Batch Editing module', () => {
             (gridObj.getContent().querySelectorAll('.e-row')[2].firstElementChild as any).click();
         });
 
+        it('edit cell', function () {
+            gridObj.editModule.editCell(0, 'CustomerID');           
+        });
+
+        it('add - cell edit complete', function () {
+            gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'ssdfd';
+            (gridObj.getContent().querySelectorAll('.e-row')[2].firstElementChild as any).click();
+        });
+
         it('delete', (done: Function) => {
             let cell = gridObj.getContent().querySelectorAll('.e-row')[2].childNodes[1] as any;
             let beforeBatchDelete = (args?: any): void => {
@@ -2432,6 +2441,96 @@ describe('Batch Editing module', () => {
             expect(tr.cells[4].innerText).toBe('updated');
         });
 
+        afterAll(() => {
+            gridObj.notify('tooltip-destroy', {});
+            destroy(gridObj);
+        });
+    });
+
+    describe('add record with multiple validation for enforce all cells => ', () => {
+        let gridObj: Grid;
+        let actionBegin: () => void;
+        let preventDefault: Function = new Function();
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: dataSource(),
+                    allowFiltering: true,
+                    allowGrouping: true,
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                    allowPaging: false,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                        { field: 'CustomerID', type: 'string', validationRules: { required: true } },
+                        { field: 'EmployeeID', type: 'number', allowEditing: false },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'ShipCity' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'ShipRegion', type: 'string', validationRules: { required: true } },
+                        { field: 'ShipAddress', allowFiltering: true, visible: false },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'date', editType: 'datepickeredit' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete
+                }, done);
+        });
+
+        it('add and update check', function () {
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_add') as any).click();
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_update') as any).click();
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);                
+            (gridObj.element.querySelector('#'+gridObj.element.id+'CustomerID') as any).value ='test';
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_update') as any).click();
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_update') as any).click();
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);
+
+
+            (gridObj.element.querySelector('#'+gridObj.element.id+'ShipRegion') as any).value ='test';
+            expect(gridObj.isEdit).toBe(true);
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_update') as any).click();
+            expect(gridObj.isEdit).toBe(false);
+            expect((gridObj.editModule as any).editModule.isAdded).toBe(false);
+        });
+
+        it('add and focus out', function () {
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_add') as any).click();
+            gridObj.element.click()
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);
+            (gridObj.element.querySelector('#'+gridObj.element.id+'CustomerID') as any).value ='test';
+            gridObj.element.click()
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);
+            gridObj.element.click()
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);
+            (gridObj.element.querySelector('#'+gridObj.element.id+'ShipRegion') as any).value ='test';
+            expect(gridObj.isEdit).toBe(true);
+            gridObj.element.click()
+            expect(gridObj.isEdit).toBe(false);
+            //datasource .engt +1                
+            expect((gridObj.editModule as any).editModule.isAdded).toBe(false);
+        });
+
+        it('add and delete', function () {
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_add') as any).click();
+            gridObj.element.click()
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_delete') as any).click();
+            expect(document.querySelectorAll('.e-griderror').length).toBe(0);          
+            expect((gridObj.editModule as any).editModule.isAdded).toBe(false);
+        });
+
+        it('add and cancel', function () {
+            (gridObj.element.querySelector('#'+gridObj.element.id+'_add') as any).click();
+            gridObj.element.click()
+            expect(document.querySelectorAll('.e-griderror').length).toBe(1);
+            gridObj.editModule.closeEdit();     
+        });
+
+        
         afterAll(() => {
             gridObj.notify('tooltip-destroy', {});
             destroy(gridObj);

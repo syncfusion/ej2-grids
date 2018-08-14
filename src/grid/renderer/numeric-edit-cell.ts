@@ -1,6 +1,5 @@
 
 import { extend } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base';
 import { IGrid, EJ2Intance, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
@@ -23,7 +22,7 @@ export class NumericEditCell implements IEditCell {
         /* tslint:disable-next-line:no-any */
         let isComplex: boolean = isComplexField(args.column.field);
         let complexFieldName: string = getComplexFieldID(args.column.field);
-        return createElement('input', {
+        return this.parent.createElement('input', {
             className: 'e-field', attrs: {
                 /* tslint:disable-next-line:no-any */
                 id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + args.column.field,

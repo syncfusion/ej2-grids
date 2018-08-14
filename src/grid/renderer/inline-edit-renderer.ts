@@ -1,6 +1,6 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
-import { createElement, isNullOrUndefined, addClass } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, addClass } from '@syncfusion/ej2-base';
 import * as events from '../base/constant';
 
 /**
@@ -28,7 +28,7 @@ export class InlineEditRender {
         } else {
             tbody = this.parent.getContentTable().querySelector('tbody');
         }
-        args.row = createElement('tr', { className: 'e-row e-addedrow' });
+        args.row = this.parent.createElement('tr', { className: 'e-row e-addedrow' });
         if (tbody.querySelector('.e-emptyrow')) {
             tbody.querySelector('.e-emptyrow').classList.add('e-hide');
         }
@@ -143,21 +143,22 @@ export class InlineEditRender {
         if (gObj.allowGrouping) {
             gLen = gObj.groupSettings.columns.length;
         }
-        let td: HTMLTableCellElement = createElement('td', {
+        let td: HTMLTableCellElement = this.parent.createElement('td', {
             className: 'e-editcell e-normaledit',
             attrs: { colspan: (gObj.getVisibleColumns().length - gObj.getVisibleFrozenColumns() + gLen + isDetail).toString() }
         }) as HTMLTableCellElement;
-        let form: HTMLFormElement = createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
-        let table: Element = createElement('table', { className: 'e-table e-inline-edit', attrs: { cellspacing: '0.25' } });
+        let form: HTMLFormElement = this.parent
+        .createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
+        let table: Element = this.parent.createElement('table', { className: 'e-table e-inline-edit', attrs: { cellspacing: '0.25' } });
         table.appendChild(gObj.getContentTable().querySelector('colgroup').cloneNode(true));
-        let tbody: Element = createElement('tbody');
-        let tr: Element = createElement('tr');
+        let tbody: Element = this.parent.createElement('tbody');
+        let tr: Element = this.parent.createElement('tr');
         let i: number = 0;
         if (isDetail) {
-            tr.insertBefore(createElement('td', { className: 'e-detailrowcollapse' }), tr.firstChild);
+            tr.insertBefore(this.parent.createElement('td', { className: 'e-detailrowcollapse' }), tr.firstChild);
         }
         while (i < gLen) {
-            tr.appendChild(createElement('td', { className: 'e-indentcell' }));
+            tr.appendChild(this.parent.createElement('td', { className: 'e-indentcell' }));
             i++;
         }
         let m: number = 0;
@@ -165,7 +166,7 @@ export class InlineEditRender {
         while ((isEdit && m < tdElement.length && i < gObj.getColumns().length) || i < gObj.getColumns().length) {
             let span: string = isEdit ? tdElement[m].getAttribute('colspan') : null;
             let col: Column = gObj.getColumns()[i] as Column;
-            let td: HTMLElement = createElement(
+            let td: HTMLElement = this.parent.createElement(
                 'td',
                 {
                     className: 'e-rowcell', attrs:

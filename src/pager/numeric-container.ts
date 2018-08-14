@@ -1,6 +1,6 @@
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { EventHandler } from '@syncfusion/ej2-base';
-import { createElement, remove, classList, append } from '@syncfusion/ej2-base';
+import { classList, append } from '@syncfusion/ej2-base';
 import { Pager, IRender } from './pager';
 
 /**
@@ -63,7 +63,7 @@ export class NumericContainer implements IRender {
         let frag: DocumentFragment = document.createDocumentFragment();
         div.innerHTML = '';
         for (let i: number = 1; i <= pagerObj.pageCount; i++) {
-            link = createElement('a', {
+            link = this.pagerModule.createElement('a', {
                 className: 'e-link e-numericitem e-spacing e-pager-default',
                 attrs: { role: 'link', tabindex: '-1', 'aria-label': 'Goto Page ' + i,
                 href: 'javascript:void(0);' , name: 'Goto page' + i }
@@ -104,19 +104,19 @@ export class NumericContainer implements IRender {
     }
 
     private renderNumericContainer(): void {
-        this.element = createElement('div', {
+        this.element = this.pagerModule.createElement('div', {
             className: 'e-pagercontainer', attrs: { 'role': 'navigation' }
         });
         this.renderFirstNPrev(this.element);
         this.renderPrevPagerSet(this.element);
-        this.element.appendChild(createElement('div', { className: 'e-numericcontainer' }));
+        this.element.appendChild(this.pagerModule.createElement('div', { className: 'e-numericcontainer' }));
         this.renderNextPagerSet(this.element);
         this.renderNextNLast(this.element);
         this.pagerModule.element.appendChild(this.element);
     }
 
     private renderFirstNPrev(pagerContainer: Element): void {
-        this.first = createElement(
+        this.first = this.pagerModule.createElement(
             'div', {
                 className: 'e-first e-icons e-icon-first',
                 attrs: {
@@ -125,7 +125,7 @@ export class NumericContainer implements IRender {
                     tabindex: '-1'
                 }
             });
-        this.prev = createElement(
+        this.prev = this.pagerModule.createElement(
             'div', {
                 className: 'e-prev e-icons e-icon-prev',
                 attrs: {
@@ -138,8 +138,8 @@ export class NumericContainer implements IRender {
     }
 
     private renderPrevPagerSet(pagerContainer: Element): void {
-        let prevPager: Element = createElement('div');
-        this.PP = createElement(
+        let prevPager: Element = this.pagerModule.createElement('div');
+        this.PP = this.pagerModule.createElement(
             'a', {
                 className: 'e-link e-pp e-spacing', innerHTML: '...',
                 attrs: {
@@ -155,8 +155,8 @@ export class NumericContainer implements IRender {
     }
 
     private renderNextPagerSet(pagerContainer: Element): void {
-        let nextPager: Element = createElement('div');
-        this.NP = createElement(
+        let nextPager: Element = this.pagerModule.createElement('div');
+        this.NP = this.pagerModule.createElement(
             'a', {
                 className: 'e-link e-np e-spacing',
                 innerHTML: '...', attrs: {
@@ -172,7 +172,7 @@ export class NumericContainer implements IRender {
     }
 
     private renderNextNLast(pagerContainer: Element): void {
-        this.next = createElement(
+        this.next = this.pagerModule.createElement(
             'div', {
                 className: 'e-next e-icons e-icon-next',
                 attrs: {
@@ -181,7 +181,7 @@ export class NumericContainer implements IRender {
                     tabindex: '-1'
                 }
             });
-        this.last = createElement(
+        this.last = this.pagerModule.createElement(
             'div', {
                 className: 'e-last e-icons e-icon-last',
                 attrs: {

@@ -1,6 +1,6 @@
 import { KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { extend } from '@syncfusion/ej2-base';
-import { remove, createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { remove, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Pager } from '../../pager/pager';
 import { PagerDropDown } from '../../pager/pager-dropdown';
 import { ExternalMessage } from '../../pager/external-message';
@@ -63,7 +63,7 @@ export class Page implements IAction {
         if (!isNullOrUndefined(this.parent.pagerTemplate)) {
             this.pageSettings.template = this.parent.pagerTemplate;
         }
-        this.element = createElement('div', { className: 'e-gridpager' });
+        this.element = this.parent.createElement('div', { className: 'e-gridpager' });
         pagerObj = <PagerModel>gridExtend(
             {},
             extend({}, getActualProperties(this.pageSettings)),
@@ -84,7 +84,7 @@ export class Page implements IAction {
 
     private addAriaAttr(): void {
         if (!(this.pageSettings.template)) {
-            let numericContainerNew: Element = createElement('div', { className: 'e-numericcontainer' });
+            let numericContainerNew: Element = this.parent.createElement('div', { className: 'e-numericcontainer' });
             let pagerContainer: Element = this.element.querySelector('.e-pagercontainer');
             let frag: DocumentFragment = document.createDocumentFragment();
             let numericContainer: Element = this.element.querySelector('.e-numericcontainer');
@@ -95,7 +95,7 @@ export class Page implements IAction {
                 } else {
                     (<Element>links[i]).setAttribute('aria-owns', this.parent.element.getAttribute('id') + '_content_table');
                 }
-                let numericContainerDiv: Element = createElement('div');
+                let numericContainerDiv: Element = this.parent.createElement('div');
                 numericContainerDiv.appendChild(links[i]);
                 frag.appendChild(numericContainerDiv);
             }

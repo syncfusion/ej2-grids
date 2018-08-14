@@ -1,4 +1,4 @@
-import { createElement, addClass, removeClass, attributes } from '@syncfusion/ej2-base';
+import { addClass, removeClass, attributes } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
@@ -14,10 +14,10 @@ import { appendChildren } from '../base/util';
  */
 
 export class CommandColumnRenderer extends CellRenderer implements ICellRenderer<Column> {
-    private buttonElement: HTMLButtonElement = <HTMLButtonElement>createElement('button', {});
-    private unbounDiv: HTMLElement = createElement('div', { className: 'e-unboundcelldiv', styles: 'display: inline-block' });
+    private buttonElement: HTMLButtonElement = <HTMLButtonElement>this.parent.createElement('button', {});
+    private unbounDiv: HTMLElement = this.parent.createElement('div', { className: 'e-unboundcelldiv', styles: 'display: inline-block' });
 
-    public element: HTMLElement = createElement('TD', {
+    public element: HTMLElement = this.parent.createElement('TD', {
         className: 'e-rowcell e-unboundcell', attrs: {
             role: 'gridcell', tabindex: '-1'
         }

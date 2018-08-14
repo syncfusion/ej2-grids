@@ -1,6 +1,5 @@
 import { L10n } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer, IValueFormatter, ICellFormatter, IGrid, ICell } from '../base/interface';
@@ -15,8 +14,8 @@ import { foreignKeyData } from '../base/constant';
  */
 export class CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell', tabindex: '-1' } });
-    private rowChkBox: Element = createElement('input', { className: 'e-checkselect', attrs: { 'type': 'checkbox' } });
+    public element: HTMLElement;
+    private rowChkBox: Element;
     protected localizer: L10n;
     protected formatter: IValueFormatter;
     protected parent: IGrid;
@@ -25,6 +24,8 @@ export class CellRenderer implements ICellRenderer<Column> {
         this.localizer = locator.getService<L10n>('localization');
         this.formatter = locator.getService<IValueFormatter>('valueFormatter');
         this.parent = parent;
+        this.element = this.parent.createElement('TD', { className: 'e-rowcell', attrs: { role: 'gridcell', tabindex: '-1' } });
+        this.rowChkBox = this.parent.createElement('input', { className: 'e-checkselect', attrs: { 'type': 'checkbox' } });
     }
     /**
      * Function to return the wrapper for the TD content

@@ -65,6 +65,15 @@ export function iterateArrayOrObject<T, U>(collection: U[], predicate: (item: Ob
 }
 
 /** @hidden */
+export function iterateExtend(array: Object[]): Object[] {
+    let obj: Object[] = [];
+    for (let i: number = 0; i < array.length; i++) {
+        obj.push(baseExtend({}, getActualProperties(array[i]), {}, true));
+    }
+    return obj;
+}
+
+/** @hidden */
 export function templateCompiler(template: string): Function {
     if (template) {
         let e: Object;

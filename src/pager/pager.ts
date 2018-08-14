@@ -1,5 +1,5 @@
 import { Component, ModuleDeclaration, L10n, EmitType, Browser } from '@syncfusion/ej2-base';
-import { createElement, remove, classList, compile as templateCompiler } from '@syncfusion/ej2-base';
+import { compile as templateCompiler } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Property, Event, NotifyPropertyChanges, INotifyPropertyChanged } from '@syncfusion/ej2-base';
 import { PagerModel } from './pager-model';
@@ -472,12 +472,12 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     }
 
     private renderFirstPrevDivForDevice(): void {
-        this.element.appendChild(createElement(
+        this.element.appendChild(this.createElement(
             'div', {
                 className: 'e-mfirst e-icons e-icon-first',
                 attrs: { title: this.getLocalizedLabel('firstPageTooltip'), tabindex: '-1' }
             }));
-        this.element.appendChild(createElement(
+        this.element.appendChild(this.createElement(
             'div', {
                 className: 'e-mprev e-icons e-icon-prev',
                 attrs: { title: this.getLocalizedLabel('previousPageTooltip'), tabindex: '-1' }
@@ -485,12 +485,12 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
     }
 
     private renderNextLastDivForDevice(): void {
-        this.element.appendChild(createElement(
+        this.element.appendChild(this.createElement(
             'div', {
                 className: 'e-mnext e-icons e-icon-next',
                 attrs: { title: this.getLocalizedLabel('nextPageTooltip'), tabindex: '-1' }
             }));
-        this.element.appendChild(createElement(
+        this.element.appendChild(this.createElement(
             'div', {
                 className: 'e-mlast e-icons e-icon-last',
                 attrs: { title: this.getLocalizedLabel('lastPageTooltip'), tabindex: '-1' }

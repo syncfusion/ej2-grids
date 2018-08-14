@@ -1,4 +1,4 @@
-import { remove, createElement, closest, formatUnit } from '@syncfusion/ej2-base';
+import { createElement, remove, closest, formatUnit } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { DataManager } from '@syncfusion/ej2-data';
 import { IGrid, IRenderer, NotifyArgs, VirtualInfo, IModelGenerator, InterSection } from '../base/interface';
@@ -157,7 +157,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         this.virtualEle.setWrapperWidth(width, this.parent.enableColumnVirtualization);
 
         remove(target);
-        target = createElement('tbody');
+        target = this.parent.createElement('tbody');
         target.appendChild(newChild);
         this.getTable().appendChild(target);
 

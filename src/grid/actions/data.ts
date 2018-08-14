@@ -62,7 +62,9 @@ export class Data implements IDataProcessor {
         let gObj: IGrid = this.parent;
         let query: Query = gObj.query.clone();
         if (this.parent.columnQueryMode === 'ExcludeHidden') {
-            query.select(this.parent.getColumnFieldNames());
+            query.select((<Column[]>this.parent.getColumns()).filter(
+                (column: Column) => !(column.isPrimaryKey !== true && column.visible === false || column.field === undefined)
+            ).map((column: Column) => column.field));
         } else if (this.parent.columnQueryMode === 'Schema') {
             let selectQueryFields: string[] = [];
             let columns: string[] | Column[] | ColumnModel[] =  this.parent.columns;
@@ -160,12 +162,13 @@ export class Data implements IDataProcessor {
         let sSettings: SearchSettingsModel = this.parent.searchSettings;
         let fields: string[] = sSettings.fields.length ? sSettings.fields : this.parent.getColumns().map((f: Column) => f.field);
         let predicateList: Predicate[] = [];
+        let needForeignKeySearch: boolean = false;
         if (this.parent.searchSettings.key.length) {
-            let predicate: Predicate;
-            if (this.parent.getForeignKeyColumns().length) {
+            needForeignKeySearch = this.parent.getForeignKeyColumns().some((col: Column) => fields.indexOf(col.field) > -1);
+            if (needForeignKeySearch && !((<{getModulename?: Function}>this.dataManager.adaptor).getModulename &&
+            (<{getModulename?: Function}>this.dataManager.adaptor).getModulename() === 'ODataV4Adaptor')) {
                 fields.forEach((columnName: string) => {
                     let column: Column = this.getColumnByField(columnName);
-                    let sQuery: Query = new Query();
                     if (column.isForeignColumn()) {
                         predicateList = this.fGeneratePredicate(column, predicateList);
                     } else {
@@ -343,7 +346,7 @@ export class Data implements IDataProcessor {
         return formatVal;
     }
     private crudActions(args: {
-        requestType?: string, foreignKeyData?: string[], data?: Object
+        requestType?: string, foreignKeyData?: string[], data?: Object, previousData?: Object
     }): void {
         let query: Query = this.generateQuery();
         let promise: Promise<Object> = null;
@@ -356,7 +359,7 @@ export class Data implements IDataProcessor {
         }
         switch (args.requestType) {
             case 'save':
-                promise = this.dataManager.update(key, args.data, query.fromTable, this.generateQuery()) as Promise<Object>;
+                promise = this.dataManager.update(key, args.data, query.fromTable, query, args.previousData) as Promise<Object>;
                 break;
         }
         args[pr] = promise;
@@ -365,7 +368,7 @@ export class Data implements IDataProcessor {
 
 
     /** @hidden */
-    public saveChanges(changes: Object, key: string): Promise<Object> {
+    public saveChanges(changes: Object, key: string, original: Object): Promise<Object> {
         let query: Query = this.generateQuery().requiresCount();
         if ('result' in this.parent.dataSource) {
             let state: DataStateChangeEventArgs;
@@ -380,7 +383,7 @@ export class Data implements IDataProcessor {
             return deff.promise;
         } else {
             let promise: Promise<Object> =
-                this.dataManager.saveChanges(changes, key, query.fromTable, this.generateQuery().requiresCount()) as Promise<Object>;
+                this.dataManager.saveChanges(changes, key, query.fromTable, query, original) as Promise<Object>;
             return promise;
         }
     }

@@ -1,5 +1,5 @@
 import { isNullOrUndefined, getValue, L10n, remove } from '@syncfusion/ej2-base';
-import { createElement, Browser } from '@syncfusion/ej2-base';
+import { Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
 import { IGrid, IValueFormatter, IFilterArgs } from '../base/interface';
 import { PredicateModel } from '../base/grid-model';
@@ -78,8 +78,8 @@ export class FilterMenuRenderer {
         };
         this.parent.trigger(events.actionBegin, args);
 
-        let mainDiv: HTMLElement = createElement('div', { className: 'e-flmenu-maindiv', id: column.uid + '-flmenu' });
-        this.dlgDiv = createElement('div', { className: 'e-flmenu', id: column.uid + '-flmdlg' });
+        let mainDiv: HTMLElement = this.parent.createElement('div', { className: 'e-flmenu-maindiv', id: column.uid + '-flmenu' });
+        this.dlgDiv = this.parent.createElement('div', { className: 'e-flmenu', id: column.uid + '-flmdlg' });
         this.parent.element.appendChild(this.dlgDiv);
         this.dlgObj = new Dialog({
             showCloseIcon: false,
@@ -139,7 +139,7 @@ export class FilterMenuRenderer {
     }
 
     private renderFlValueUI(dlgConetntEle: Element, target: Element, column: Column): void {
-        let valueDiv: HTMLElement = createElement('div', { className: 'e-flmenu-valuediv' });
+        let valueDiv: HTMLElement = this.parent.createElement('div', { className: 'e-flmenu-valuediv' });
         dlgConetntEle.appendChild(valueDiv);
         let args: Object = { target: valueDiv, column: column, getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj };
         let instanceofFilterUI: NumberFilterUI | StringFilterUI | DateFilterUI =

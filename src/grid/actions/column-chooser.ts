@@ -1,4 +1,4 @@
-import { createElement, remove, classList, addClass, removeClass, isNullOrUndefined, Browser } from '@syncfusion/ej2-base';
+import { remove, classList, addClass, removeClass, isNullOrUndefined, Browser } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { Button } from '@syncfusion/ej2-buttons';
@@ -52,12 +52,12 @@ export class ColumnChooser implements IAction {
         this.serviceLocator = serviceLocator;
         this.addEventListener();
         this.cBoxTrue.insertBefore(
-            createElement('input', {
+            this.parent.createElement('input', {
                 className: 'e-chk-hidden e-cc e-cc-chbox', attrs: { type: 'checkbox' }
             }),
             this.cBoxTrue.firstChild);
         this.cBoxFalse.insertBefore(
-            createElement('input', {
+            this.parent.createElement('input', {
                 className: 'e-chk-hidden e-cc e-cc-chbox', attrs: { 'type': 'checkbox' }
             }),
             this.cBoxFalse.firstChild);
@@ -266,7 +266,7 @@ export class ColumnChooser implements IAction {
 
     private renderDlgContent(): void {
         let y: number;
-        this.dlgDiv = createElement('div', { className: 'e-ccdlg e-cc', id: this.parent.element.id + '_ccdlg' });
+        this.dlgDiv = this.parent.createElement('div', { className: 'e-ccdlg e-cc', id: this.parent.element.id + '_ccdlg' });
         this.parent.element.appendChild(this.dlgDiv);
         let xpos: number = this.parent.element.getBoundingClientRect().width - 250;
         let dialoPos: string = this.parent.enableRtl ? 'left' : 'right';
@@ -305,16 +305,16 @@ export class ColumnChooser implements IAction {
     }
 
     private renderChooserList(): HTMLElement {
-        this.mainDiv = createElement('div', { className: 'e-main-div e-cc' });
-        let searchDiv: HTMLElement = createElement('div', { className: 'e-cc-searchdiv e-cc e-input-group' });
-        let ccsearchele: HTMLElement = createElement('input', {
+        this.mainDiv = this.parent.createElement('div', { className: 'e-main-div e-cc' });
+        let searchDiv: HTMLElement = this.parent.createElement('div', { className: 'e-cc-searchdiv e-cc e-input-group' });
+        let ccsearchele: HTMLElement = this.parent.createElement('input', {
             className: 'e-ccsearch e-cc e-input',
             attrs: { placeholder: this.l10n.getConstant('Search') }
         });
-        let ccsearchicon: HTMLElement = createElement('span', { className: 'e-ccsearch-icon e-icons e-cc e-input-group-icon',
+        let ccsearchicon: HTMLElement = this.parent.createElement('span', { className: 'e-ccsearch-icon e-icons e-cc e-input-group-icon',
         attrs: {title : this.l10n.getConstant('Search')} });
-        let conDiv: HTMLElement = createElement('div', { className: 'e-cc-contentdiv' });
-        this.innerDiv = createElement('div', { className: 'e-innerdiv e-cc' });
+        let conDiv: HTMLElement = this.parent.createElement('div', { className: 'e-cc-contentdiv' });
+        this.innerDiv = this.parent.createElement('div', { className: 'e-innerdiv e-cc' });
         searchDiv.appendChild(ccsearchele);
         searchDiv.appendChild(ccsearchicon);
         this.searchBoxObj = new SearchBox(ccsearchele);
@@ -402,7 +402,7 @@ export class ColumnChooser implements IAction {
                 this.addcancelIcon();
             }
         } else {
-            let nMatchele: HTMLElement = createElement('span', { className: 'e-cc e-nmatch' });
+            let nMatchele: HTMLElement = this.parent.createElement('span', { className: 'e-cc e-nmatch' });
             nMatchele.innerHTML = this.l10n.getConstant('Matchs');
             this.innerDiv.innerHTML = ' ';
             this.innerDiv.appendChild(nMatchele);
@@ -458,7 +458,7 @@ export class ColumnChooser implements IAction {
     }
 
     private refreshCheckboxList(gdCol: Column[], searchVal?: string): HTMLElement {
-        this.ulElement = createElement('ul', { className: 'e-ccul-ele e-cc' });
+        this.ulElement = this.parent.createElement('ul', { className: 'e-ccul-ele e-cc' });
         for (let i: number = 0; i < gdCol.length; i++) {
             let columns: Column = (gdCol[i] as Column);
             this.renderCheckbox(columns);
@@ -500,7 +500,7 @@ export class ColumnChooser implements IAction {
         let showColState: boolean;
         let checkBoxObj: CheckBox;
         if (column.showInColumnChooser) {
-            cclist = createElement('li', { className: 'e-cclist e-cc', styles: 'list-style:None', id: 'e-ccli_' + column.uid });
+            cclist = this.parent.createElement('li', { className: 'e-cclist e-cc', styles: 'list-style:None', id: 'e-ccli_' + column.uid });
             hideColState = this.hideColumn.indexOf(column.uid) === -1 ? false : true;
             showColState = this.showColumn.indexOf(column.uid) === -1 ? false : true;
             let cccheckboxlist: Element =

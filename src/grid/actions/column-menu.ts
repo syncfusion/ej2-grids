@@ -1,5 +1,5 @@
 import { L10n, EventHandler, closest, Browser, isNullOrUndefined } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base';
+import { remove } from '@syncfusion/ej2-base';
 import { ContextMenu as Menu, MenuEventArgs, OpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
 import { IGrid, IAction, ColumnMenuItemModel, NotifyArgs, ColumnMenuOpenEventArgs, ColumnMenuClickEventArgs } from '../base/interface';
 import { parentsUntil } from '../base/util';
@@ -160,7 +160,7 @@ export class ColumnMenu implements IAction {
 
     private render(): void {
         this.l10n = this.serviceLocator.getService<L10n>('localization');
-        this.element = createElement('ul', { id: this.gridID + '_columnmenu', className: 'e-colmenu' }) as HTMLUListElement;
+        this.element = this.parent.createElement('ul', { id: this.gridID + '_columnmenu', className: 'e-colmenu' }) as HTMLUListElement;
         this.parent.element.appendChild(this.element);
         this.columnMenu = new Menu({
             cssClass: 'e-grid-menu',
@@ -204,7 +204,7 @@ export class ColumnMenu implements IAction {
             args.element.innerHTML = '';
             args.element.appendChild(check);
         } else if (args.item.id && this.getKeyFromId(args.item.id) === 'Filter') {
-            args.element.appendChild(createElement('span', { className: 'e-icons e-caret' }));
+            args.element.appendChild(this.parent.createElement('span', { className: 'e-icons e-caret' }));
             args.element.className += 'e-filter-item e-menu-caret-icon';
         }
     }

@@ -1,5 +1,4 @@
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base';
 import { AggregateColumnModel } from '../models/models';
 import { Cell } from '../models/cell';
 import { AggregateColumn } from '../models/aggregate';
@@ -13,7 +12,8 @@ import { CellRenderer } from './cell-renderer';
  */
 export class SummaryCellRenderer extends CellRenderer implements ICellRenderer<AggregateColumnModel> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-summarycell', attrs: { role: 'gridcell', tabindex: '-1' } });
+    public element: HTMLElement = this.parent
+    .createElement('TD', { className: 'e-summarycell', attrs: { role: 'gridcell', tabindex: '-1' } });
 
     public getValue(field: string, data: Object, column: AggregateColumnModel): Object {
         let key: string;

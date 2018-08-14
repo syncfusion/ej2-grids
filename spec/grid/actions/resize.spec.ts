@@ -67,6 +67,47 @@ describe('Resize module', () => {
             destroy(gridObj);
         });
     });
+    describe('Resize functionalities for columns', () => {
+        let gridObj: Grid;
+        let contentTable: any;
+        let footerTable: any;
+        let columns: Column[];
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: data,
+                    allowResizing: true,
+                    columns: [{ field: 'OrderID', headerText: 'OrderID', width: 150 }, { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'EmployeeID', width: 150 }, { field: 'Freight', headerText: 'Freight', width: 200 },
+                    { field: 'ShipCity', headerText: 'ShipCity', width: 180 }],
+         aggregates: [{
+         columns: [{
+             type: 'Sum',
+             field: 'Freight',
+             footerTemplate: 'Sum: ${Sum}'
+         }]
+     },
+     {
+         columns: [{
+             type: 'Max',
+             field: 'OrderID',
+             footerTemplate: 'Max: ${Max}'
+         }]
+     }]
+                }, done);
+        });
+        it('autofit all columns', () => {
+            gridObj.autoFitColumns('');
+        });
+        it('autofit all columns with footer content', () => {
+            contentTable = gridObj.getContentTable();
+            footerTable = gridObj.getFooterContentTable();
+            expect(contentTable.style.width).toEqual(footerTable.style.width)
+        });
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
     describe('Resize functionalities for all columns', () => {
         let gridObj: Grid;
         let headers: any;

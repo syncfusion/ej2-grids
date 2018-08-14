@@ -1,7 +1,7 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
 import { Dialog, PositionDataModel } from '@syncfusion/ej2-popups';
-import { remove, createElement } from '@syncfusion/ej2-base';
+import { remove } from '@syncfusion/ej2-base';
 import { L10n } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import * as events from '../base/constant';
@@ -48,7 +48,7 @@ export class DialogEditRender {
 
     private createDialog(elements: Element[], args: { primaryKeyValue?: string[] }): void {
         let gObj: IGrid = this.parent;
-        this.dialog = createElement('div', { id: gObj.element.id + '_dialogEdit_wrapper' });
+        this.dialog = this.parent.createElement('div', { id: gObj.element.id + '_dialogEdit_wrapper' });
         gObj.element.appendChild(this.dialog);
         this.setLocaleObj();
         let position: PositionDataModel = this.parent.element.getBoundingClientRect().height < 400 ?
@@ -97,22 +97,23 @@ export class DialogEditRender {
 
     private getEditElement(elements: Object): Element {
         let gObj: IGrid = this.parent;
-        let div: Element = createElement('div', { className: this.isEdit ? 'e-editedrow' : 'e-insertedrow' });
-        let form: HTMLFormElement = createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
-        let table: Element = createElement('table', { className: 'e-table', attrs: { cellspacing: '6px' } });
-        let tbody: Element = createElement('tbody');
+        let div: Element = this.parent.createElement('div', { className: this.isEdit ? 'e-editedrow' : 'e-insertedrow' });
+        let form: HTMLFormElement = this.parent
+        .createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
+        let table: Element = this.parent.createElement('table', { className: 'e-table', attrs: { cellspacing: '6px' } });
+        let tbody: Element = this.parent.createElement('tbody');
         let cols: Column[] = gObj.getColumns() as Column[];
         for (let i: number = 0; i < cols.length; i++) {
             if (!cols[i].visible || cols[i].commands || cols[i].commandsTemplate) {
                 continue;
             }
-            let tr: Element = createElement('tr');
-            let dataCell: HTMLElement = createElement('td', {
+            let tr: Element = this.parent.createElement('tr');
+            let dataCell: HTMLElement = this.parent.createElement('td', {
                 className: 'e-rowcell', attrs: {
                     style: 'text-align:' + (this.parent.enableRtl ? 'right' : 'left') + ';width:190px'
                 }
             });
-            let label: Element = createElement('label', { innerHTML: cols[i].field });
+            let label: Element = this.parent.createElement('label', { innerHTML: cols[i].field });
             elements[cols[i].uid].classList.remove('e-input');
             dataCell.appendChild(elements[cols[i].uid]);
             tr.appendChild(dataCell);

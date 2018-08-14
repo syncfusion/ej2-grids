@@ -1,5 +1,4 @@
 import { extend } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { IEditCell, IGrid, EJ2Intance } from '../base/interface';
 import { DatePicker } from '@syncfusion/ej2-calendars';
@@ -19,7 +18,7 @@ export class DatePickerEditCell implements IEditCell {
         /* tslint:disable-next-line:no-any */
         let complexFieldName: string = getComplexFieldID(args.column.field);
         let isComplex: boolean = isComplexField(args.column.field);
-        return createElement('input', {
+        return this.parent.createElement('input', {
             className: 'e-field', attrs: {
                 id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + args.column.field,
                 name: isComplex ? complexFieldName : args.column.field, type: 'text', 'e-mappinguid': args.column.uid

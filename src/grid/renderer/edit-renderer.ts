@@ -4,7 +4,7 @@ import { Column } from '../models/column';
 import { InlineEditRender } from './inline-edit-renderer';
 import { BatchEditRender } from './batch-edit-renderer';
 import { DialogEditRender } from './dialog-edit-renderer';
-import { createElement, attributes, classList } from '@syncfusion/ej2-base';
+import { attributes, classList } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { CellType } from '../base/enum';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -154,7 +154,7 @@ export class EditRender {
                 input = (col.edit.create as Function)(tArgs);
             }
             if (typeof input === 'string') {
-                let div: Element = createElement('div');
+                let div: Element = this.parent.createElement('div');
                 div.innerHTML = input;
                 input = div.firstChild as Element;
             }

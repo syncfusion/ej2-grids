@@ -1,5 +1,5 @@
 import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
-import { createElement, attributes } from '@syncfusion/ej2-base';
+import { attributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer, IGrid } from '../base/interface';
@@ -14,12 +14,13 @@ import { headerCellInfo } from '../base/constant';
  */
 export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TH', { className: 'e-headercell', attrs: { role: 'columnheader', tabindex: '-1' } });
+    public element: HTMLElement = this.parent
+    .createElement('TH', { className: 'e-headercell', attrs: { role: 'columnheader', tabindex: '-1' } });
     private ariaService: AriaService = new AriaService();
-    private hTxtEle: Element = createElement('span', { className: 'e-headertext' });
-    private sortEle: Element = createElement('div', { className: 'e-sortfilterdiv e-icons' });
-    private gui: Element = createElement('div');
-    private chkAllBox: Element = createElement('input', { className: 'e-checkselectall', attrs: { 'type': 'checkbox' } });
+    private hTxtEle: Element = this.parent.createElement('span', { className: 'e-headertext' });
+    private sortEle: Element = this.parent.createElement('div', { className: 'e-sortfilterdiv e-icons' });
+    private gui: Element = this.parent.createElement('div');
+    private chkAllBox: Element = this.parent.createElement('input', { className: 'e-checkselectall', attrs: { 'type': 'checkbox' } });
     /**
      * Function to return the wrapper for the TH content.
      * @returns string 
@@ -36,7 +37,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
      */
     public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
         let node: Element = this.element.cloneNode() as Element;
-        let fltrMenuEle: Element = createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
+        let fltrMenuEle: Element = this.parent.createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
         return this.prepareHeader(cell, node, fltrMenuEle);
     }
 
@@ -47,7 +48,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
      */
     public refresh(cell: Cell<Column>, node: Element): Element {
         this.clean(node);
-        let fltrMenuEle: Element = createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
+        let fltrMenuEle: Element = this.parent.createElement('div', { className: 'e-filtermenudiv e-icons e-icon-filter' });
         return this.prepareHeader(cell, node, fltrMenuEle);
     }
 
@@ -153,7 +154,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
 
     private extendPrepareHeader(column: Column, node: Element): Element {
         if (this.parent.showColumnMenu && column.showColumnMenu && !isNullOrUndefined(column.field)) {
-            let element: Element = (createElement('div', { className: 'e-icons e-columnmenu' }));
+            let element: Element = (this.parent.createElement('div', { className: 'e-icons e-columnmenu' }));
             let matchFilteredColumns: Object[] = [];
             if (this.parent.filterSettings.columns.length && this.parent.filterSettings.columns.length !== matchFilteredColumns.length) {
                 for (let i: number = 0; i < this.parent.columns.length; i++) {
@@ -171,7 +172,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
         }
 
         if (this.parent.allowResizing) {
-            let handler: HTMLElement = createElement('div');
+            let handler: HTMLElement = this.parent.createElement('div');
             handler.className = column.allowResizing ? 'e-rhandler e-rcursor' : 'e-rsuppress';
             node.appendChild(handler);
         }

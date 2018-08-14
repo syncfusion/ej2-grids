@@ -1,6 +1,6 @@
 import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs, closest } from '@syncfusion/ej2-base';
 import { extend, getValue } from '@syncfusion/ej2-base';
-import { remove, createElement } from '@syncfusion/ej2-base';
+import { remove } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs, IEdit } from '../base/interface';
 import * as events from '../base/constant';
@@ -248,8 +248,12 @@ export class Edit implements IAction {
     public endEdit(): void {
         if (this.parent.editSettings.mode === 'Batch' && this.parent.editSettings.showConfirmDialog &&
             (isNullOrUndefined(this.formObj) || this.formObj.validate())) {
-            this.showDialog('BatchSaveConfirm', this.dialogObj);
-            return;
+            this.parent.editModule.saveCell();
+            this.parent.notify(events.editNextValCell, {});
+            if (isNullOrUndefined(this.formObj) || this.formObj.validate()) {
+                this.showDialog('BatchSaveConfirm', this.dialogObj);
+                return;
+            }
         }
         this.endEditing();
     }
@@ -401,7 +405,7 @@ export class Edit implements IAction {
     }
 
     private dlgWidget(btnOptions: Object[], name: string): Dialog {
-        let div: HTMLElement = createElement('div', { id: this.parent.element.id + name });
+        let div: HTMLElement = this.parent.createElement('div', { id: this.parent.element.id + name });
         this.parent.element.appendChild(div);
         let options: Object = {
             showCloseIcon: false,
@@ -718,7 +722,7 @@ export class Edit implements IAction {
         let input: HTMLElement = parentsUntil(element, 'e-rowcell') as HTMLElement;
         let inputClient: ClientRect = input.getBoundingClientRect();
         let td: ClientRect = (closest(element, 'td') as HTMLElement).getBoundingClientRect();
-        let div: HTMLElement = createElement('div', {
+        let div: HTMLElement = this.parent.createElement('div', {
             className: 'e-tooltip-wrap e-control e-popup e-griderror',
             id: name + '_Error',
             styles: 'display:' + display + ';top:' +
@@ -728,11 +732,11 @@ export class Edit implements IAction {
                 'max-width:' + td.width + 'px;text-align:center;'
         });
 
-        let content: Element = createElement('div', { className: 'e-tip-content' });
+        let content: Element = this.parent.createElement('div', { className: 'e-tip-content' });
         content.appendChild(error);
-        let arrow: Element = createElement('div', { className: 'e-arrow-tip e-tip-top' });
-        arrow.appendChild(createElement('div', { className: 'e-arrow-tip-outer e-tip-top' }));
-        arrow.appendChild(createElement('div', { className: 'e-arrow-tip-inner e-tip-top' }));
+        let arrow: Element = this.parent.createElement('div', { className: 'e-arrow-tip e-tip-top' });
+        arrow.appendChild(this.parent.createElement('div', { className: 'e-arrow-tip-outer e-tip-top' }));
+        arrow.appendChild(this.parent.createElement('div', { className: 'e-arrow-tip-inner e-tip-top' }));
         div.appendChild(content);
         div.appendChild(arrow);
         table.appendChild(div);

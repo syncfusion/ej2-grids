@@ -383,7 +383,7 @@ export class Group implements IAction {
         if (groupElem) {
             remove(groupElem);
         }
-        this.element = createElement('div', { className: 'e-groupdroparea', attrs: { 'tabindex': '-1' } });
+        this.element = this.parent.createElement('div', { className: 'e-groupdroparea', attrs: { 'tabindex': '-1' } });
         this.updateGroupDropArea();
         this.parent.element.insertBefore(this.element, this.parent.element.firstChild);
         if (!this.groupSettings.showDropArea) {
@@ -545,8 +545,8 @@ export class Group implements IAction {
     private addColToGroupDrop(field: string): void {
         let gObj: IGrid = this.parent;
         let direction: string = 'Ascending';
-        let groupedColumn: Element = createElement('div', { className: 'e-grid-icon e-groupheadercell' });
-        let childDiv: Element = createElement('div', { attrs: { 'ej-mappingname': field } });
+        let groupedColumn: Element = this.parent.createElement('div', { className: 'e-grid-icon e-groupheadercell' });
+        let childDiv: Element = this.parent.createElement('div', { attrs: { 'ej-mappingname': field } });
         let column: Column = this.parent.getColumnByField(field);
         if (isNullOrUndefined(column)) {
             return;
@@ -561,14 +561,14 @@ export class Group implements IAction {
             }
             childDiv.firstElementChild.classList.add('e-grouptext');
         } else {
-            childDiv.appendChild(createElement('span', {
+            childDiv.appendChild(this.parent.createElement('span', {
                 className: 'e-grouptext', innerHTML: column.headerText,
                 attrs: { tabindex: '-1', 'aria-label': 'sort the grouped column' }
             }));
         }
 
         if (this.groupSettings.showToggleButton) {
-            childDiv.appendChild(createElement(
+            childDiv.appendChild(this.parent.createElement(
                 'span', {
                     className: 'e-togglegroupbutton e-icons e-icon-ungroup e-toggleungroup', innerHTML: '&nbsp;',
                     attrs: { tabindex: '-1', 'aria-label': 'ungroup button' }
@@ -578,13 +578,13 @@ export class Group implements IAction {
         if (headerCell.querySelectorAll('.e-ascending,.e-descending').length) {
             direction = headerCell.querySelector('.e-ascending') ? 'Ascending' : 'Descending';
         }
-        childDiv.appendChild(createElement(
+        childDiv.appendChild(this.parent.createElement(
             'span', {
                 className: 'e-groupsort e-icons ' +
                 ('e-' + direction.toLowerCase() + ' e-icon-' + direction.toLowerCase()), innerHTML: '&nbsp;',
                 attrs: { tabindex: '-1', 'aria-label': 'sort the grouped column' }
             }));
-        childDiv.appendChild(createElement(
+        childDiv.appendChild(this.parent.createElement(
             'span', {
                 className: 'e-ungroupbutton e-icons e-icon-hide', innerHTML: '&nbsp;',
                 attrs: { title: this.l10n.getConstant('UnGroup'), tabindex: '-1', 'aria-label': 'ungroup the grouped column' },
@@ -608,7 +608,7 @@ export class Group implements IAction {
                             remove(headers[i].querySelectorAll('.e-grptogglebtn')[0] as Element);
                         }
                         if (!isRemove) {
-                            headers[i].appendChild(createElement(
+                            headers[i].appendChild(this.parent.createElement(
                                 'span', {
                                     className: 'e-grptogglebtn e-icons ' +
                                     (this.groupSettings.columns.indexOf(column.field) > -1 ? 'e-toggleungroup e-icon-ungroup'
@@ -757,7 +757,7 @@ export class Group implements IAction {
                 this.groupSettings.columns.indexOf(cols[i].field) > -1)) {
                 classList(header.querySelector('.e-sortfilterdiv'), ['e-ascending', 'e-icon-ascending'], []);
                 if (cols.length > 1) {
-                    header.querySelector('.e-headercelldiv').appendChild(createElement(
+                    header.querySelector('.e-headercelldiv').appendChild(this.parent.createElement(
                         'span', { className: 'e-sortnumber', innerHTML: (i + 1).toString() }));
                 }
             } else if (this.getGHeaderCell(cols[i].field) && this.getGHeaderCell(cols[i].field).querySelectorAll('.e-groupsort').length) {

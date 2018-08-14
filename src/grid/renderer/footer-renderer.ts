@@ -1,4 +1,4 @@
-import { createElement, isNullOrUndefined, remove } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, remove } from '@syncfusion/ej2-base';
 import { formatUnit } from '@syncfusion/ej2-base';
 import { IRenderer, IGrid } from '../base/interface';
 import { Browser } from '@syncfusion/ej2-base';
@@ -36,12 +36,12 @@ export class FooterRenderer extends ContentRender implements IRenderer {
      * The function is used to render grid footer div    
      */
     public renderPanel(): void {
-        let div: Element = createElement('div', { className: 'e-gridfooter' });
-        let innerDiv: Element = createElement('div', { className: 'e-summarycontent' });
+        let div: Element = this.parent.createElement('div', { className: 'e-gridfooter' });
+        let innerDiv: Element = this.parent.createElement('div', { className: 'e-summarycontent' });
         let movableContent: Element = innerDiv;
         if (this.parent.getFrozenColumns()) {
-            let fDiv: Element = createElement('div', { className: 'e-frozenfootercontent' });
-            let mDiv: Element = createElement('div', { className: 'e-movablefootercontent' });
+            let fDiv: Element = this.parent.createElement('div', { className: 'e-frozenfootercontent' });
+            let mDiv: Element = this.parent.createElement('div', { className: 'e-movablefootercontent' });
             innerDiv.appendChild(fDiv);
             innerDiv.appendChild(mDiv);
             this.frozenContent = fDiv;
@@ -64,7 +64,7 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         let contentDiv: Element = this.getPanel();
         let innerDiv: Element = this.createContentTable('_footer_table');
         let table: HTMLTableElement = <HTMLTableElement>innerDiv.querySelector('.e-table');
-        let tFoot: HTMLTableSectionElement = <HTMLTableSectionElement>createElement('tfoot');
+        let tFoot: HTMLTableSectionElement = <HTMLTableSectionElement>this.parent.createElement('tfoot');
         table.appendChild(tFoot);
         if (this.parent.getFrozenColumns()) {
             let freezeTable: HTMLTableElement = table.cloneNode(true) as HTMLTableElement;
@@ -90,7 +90,7 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         let fragment: DocumentFragment = <DocumentFragment>document.createDocumentFragment();
 
         let rowrenderer: RowRenderer<AggregateColumnModel> = new RowRenderer<AggregateColumnModel>(this.locator, null, this.parent);
-        rowrenderer.element = createElement('TR', { className: 'e-summaryrow' });
+        rowrenderer.element = this.parent.createElement('TR', { className: 'e-summaryrow' });
 
         for (let srow: number = 0, len: number = summaries.length; srow < len; srow ++) {
             let row: Row<AggregateColumnModel> = rows[srow];

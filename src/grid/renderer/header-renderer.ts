@@ -1,5 +1,5 @@
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
-import { createElement, setStyleAttribute, closest as getClosest, remove } from '@syncfusion/ej2-base';
+import { setStyleAttribute, closest as getClosest, remove } from '@syncfusion/ej2-base';
 import { classList } from '@syncfusion/ej2-base';
 import { CellType } from '../base/enum';
 import { IRenderer, IGrid, ICell } from '../base/interface';
@@ -36,7 +36,7 @@ export class HeaderRender implements IRenderer {
             && parentEle.querySelectorAll('.e-checkselectall').length > 0)) {
             return false;
         }
-        let visualElement: HTMLElement = createElement('div', { className: 'e-cloneproperties e-dragclone e-headerclone' });
+        let visualElement: HTMLElement = this.parent.createElement('div', { className: 'e-cloneproperties e-dragclone e-headerclone' });
         let element: HTMLElement = target.classList.contains('e-headercell') ? target as HTMLElement : parentEle;
         if (!element || (!gObj.allowReordering && element.classList.contains('e-stackedheadercell'))) {
             return false;
@@ -138,8 +138,8 @@ export class HeaderRender implements IRenderer {
      * The function is used to render grid header div    
      */
     public renderPanel(): void {
-        let div: Element = createElement('div', { className: 'e-gridheader' });
-        let innerDiv: Element = createElement('div', { className: 'e-headercontent' });
+        let div: Element = this.parent.createElement('div', { className: 'e-gridheader' });
+        let innerDiv: Element = this.parent.createElement('div', { className: 'e-headercontent' });
         div.appendChild(innerDiv);
         this.setPanel(div);
         this.parent.element.appendChild(div);
@@ -234,21 +234,21 @@ export class HeaderRender implements IRenderer {
     public createTable(): Element {
         let gObj: IGrid = this.parent;
         let columns: Column[] = <Column[]>gObj.getColumns();
-        let table: Element = createElement('table', { className: 'e-table', attrs: { cellspacing: '0.25px', role: 'grid' } });
+        let table: Element = this.parent.createElement('table', { className: 'e-table', attrs: { cellspacing: '0.25px', role: 'grid' } });
         let innerDiv: Element = <Element>this.getPanel().firstChild;
         let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
         let thead: Element = findHeaderRow.thead;
-        let tbody: Element = createElement('tbody', { className: this.parent.frozenRows ? '' : 'e-hide' });
-        this.caption = createElement('caption', { innerHTML: this.parent.element.id + '_header_table', className: 'e-hide' });
-        let colGroup: Element = createElement('colgroup');
-        let rowBody: Element = createElement('tr');
+        let tbody: Element = this.parent.createElement('tbody', { className: this.parent.frozenRows ? '' : 'e-hide' });
+        this.caption = this.parent.createElement('caption', { innerHTML: this.parent.element.id + '_header_table', className: 'e-hide' });
+        let colGroup: Element = this.parent.createElement('colgroup');
+        let rowBody: Element = this.parent.createElement('tr');
         let bodyCell: Element;
         let rows: Row<Column>[] = this.rows = findHeaderRow.rows;
-        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header);
+        let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header, this.parent);
         for (let i: number = 0, len: number = rows.length; i < len; i++) {
             for (let j: number = 0, len: number = rows[i].cells.length; j < len; j++) {
                 let cell: Cell<Column> = rows[i].cells[j];
-                bodyCell = createElement('td');
+                bodyCell = this.parent.createElement('td');
                 rowBody.appendChild(bodyCell);
             }
         }
@@ -267,8 +267,8 @@ export class HeaderRender implements IRenderer {
     private createHeaderContent(): { thead: Element, rows: Row<Column>[] } {
         let gObj: IGrid = this.parent;
         let columns: Column[] = <Column[]>gObj.getColumns();
-        let thead: Element = createElement('thead');
-        let colHeader: Element = createElement('tr', { className: 'e-columnheader' });
+        let thead: Element = this.parent.createElement('thead');
+        let colHeader: Element = this.parent.createElement('tr', { className: 'e-columnheader' });
         let rowRenderer: RowRenderer<Column> = new RowRenderer<Column>(this.serviceLocator, CellType.Header, gObj);
         rowRenderer.element = colHeader;
         let rows: Row<Column>[] = [];
@@ -300,16 +300,16 @@ export class HeaderRender implements IRenderer {
         if (this.parent.allowGrouping) {
             for (let i: number = 0, len: number = this.parent.groupSettings.columns.length; i < len; i++) {
                 if (this.parent.enableColumnVirtualization && indexes.indexOf(i) === -1) { continue; }
-                col = createElement('col');
+                col = this.parent.createElement('col');
                 colGroup.appendChild(col);
             }
         }
         if (this.parent.detailTemplate || this.parent.childGrid) {
-            col = createElement('col');
+            col = this.parent.createElement('col');
             colGroup.appendChild(col);
         }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
-            col = createElement('col');
+            col = this.parent.createElement('col');
             if (cols[i].visible === false) {
                 setStyleAttribute(<HTMLElement>col, { 'display': 'none' });
             }
@@ -491,7 +491,7 @@ export class HeaderRender implements IRenderer {
         remove(this.getTable());
         table.removeChild(table.firstChild);
         table.removeChild(table.childNodes[0]);
-        let colGroup: Element = createElement('colgroup');
+        let colGroup: Element = this.parent.createElement('colgroup');
         let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
         this.rows = findHeaderRow.rows;
         table.insertBefore(findHeaderRow.thead, table.firstChild);

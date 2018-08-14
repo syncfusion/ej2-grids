@@ -1,4 +1,3 @@
-import { createElement } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
@@ -12,7 +11,7 @@ import { headerCellInfo } from '../base/constant';
  */
 export class StackedHeaderCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TH', {
+    public element: HTMLElement = this.parent.createElement('TH', {
         className: 'e-headercell e-stackedheadercell', attrs: {
             role: 'columnheader',
             tabindex: '-1'
@@ -28,7 +27,7 @@ export class StackedHeaderCellRenderer extends CellRenderer implements ICellRend
     public render(cell: Cell<Column>, data: Object, attributes?: { [x: string]: Object }): Element {
 
         let node: Element = this.element.cloneNode() as Element;
-        let div : Element = createElement('div', {className: 'e-stackedheadercelldiv'});
+        let div : Element = this.parent.createElement('div', {className: 'e-stackedheadercelldiv'});
         node.appendChild(div);
         div.innerHTML = cell.column.headerText;
 

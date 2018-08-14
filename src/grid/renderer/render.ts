@@ -1,5 +1,5 @@
 import { L10n, NumberFormatOptions } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base';
+import { remove } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, extend, DateFormatOptions } from '@syncfusion/ej2-base';
 import { DataManager, Group, Query, Deferred, Predicate, DataUtil } from '@syncfusion/ej2-data';
 import { IGrid, NotifyArgs, IValueFormatter } from '../base/interface';
@@ -86,6 +86,7 @@ export class Render {
         this.parent.notify(`${e.requestType}-begin`, e);
         this.parent.trigger(events.actionBegin, e);
         if (e.cancel) {
+            this.parent.notify(events.cancelBegin, e);
             return;
         }
         this.refreshDataManager(e);
@@ -161,7 +162,8 @@ export class Render {
 
     private sendBulkRequest(args?: NotifyArgs): void {
         let promise: Promise<Object> = this.data.saveChanges((<{ changes?: Object }>args).changes,
-                                                             this.parent.getPrimaryKeyFieldNames()[0]);
+                                                             this.parent.getPrimaryKeyFieldNames()[0],
+                                                             (<{ original?: Object }>args).original);
         let query: Query = this.data.generateQuery().requiresCount();
         if (this.data.dataManager.dataSource.offline) {
             this.refreshDataManager({ requestType: 'batchsave' });
@@ -198,9 +200,9 @@ export class Render {
         let tbody: Element = this.contentRenderer.getTable().querySelector('tbody');
         let tr: Element;
         remove(tbody);
-        tbody = createElement('tbody');
-        tr = createElement('tr', { className: 'e-emptyrow' });
-        tr.appendChild(createElement('td', {
+        tbody = this.parent.createElement('tbody');
+        tr = this.parent.createElement('tr', { className: 'e-emptyrow' });
+        tr.appendChild(this.parent.createElement('td', {
             innerHTML: this.l10n.getConstant('EmptyRecord'),
             attrs: { colspan: gObj.getColumns().length.toString() }
         }));

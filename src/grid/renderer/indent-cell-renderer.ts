@@ -1,4 +1,3 @@
-import { createElement } from '@syncfusion/ej2-base';
 import { setStyleAndAttributes } from '../base/util';
 import { Cell } from '../models/cell';
 import { Column } from '../models/column';
@@ -11,7 +10,7 @@ import { CellRenderer } from './cell-renderer';
  */
 export class IndentCellRenderer extends CellRenderer implements ICellRenderer<Column> {
 
-    public element: HTMLElement = createElement('TD', { className: 'e-indentcell' });
+    public element: HTMLElement = this.parent.createElement('TD', { className: 'e-indentcell' });
 
     /**
      * Function to render the indent cell

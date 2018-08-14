@@ -1,5 +1,5 @@
 import { IGrid } from '../base/interface';
-import { createElement, classList } from '@syncfusion/ej2-base';
+import { classList } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 
 /**
@@ -28,7 +28,8 @@ export class BatchEditRender {
 
     private getEditElement(elements: Object, args: { columnObject?: Column, cell?: Element, row?: Element }): Element {
         let gObj: IGrid = this.parent;
-        let form: HTMLFormElement = createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
+        let form: HTMLFormElement = this.parent
+        .createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
         form.appendChild(elements[args.columnObject.uid]);
         if (args.columnObject.editType === 'booleanedit') {
             args.cell.classList.add('e-boolcell');

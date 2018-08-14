@@ -1,5 +1,5 @@
 import { isNullOrUndefined, extend, getValue, addClass } from '@syncfusion/ej2-base';
-import { createElement, attributes as addAttributes } from '@syncfusion/ej2-base';
+import { attributes as addAttributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Row } from '../models/row';
 import { Cell } from '../models/cell';
@@ -17,7 +17,7 @@ import { CellMergeRender } from './cell-merge-renderer';
  */
 export class RowRenderer<T> implements IRowRenderer<T> {
 
-    public element: Element = createElement('tr', { attrs: { role: 'row' } });
+    public element: Element;
 
     private cellRenderer: ICellRenderer<T>;
 
@@ -31,6 +31,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         this.cellType = cellType;
         this.serviceLocator = serviceLocator;
         this.parent = parent;
+        this.element = this.parent.createElement('tr', { attrs: { role: 'row' } });
     }
 
     /**

@@ -1,6 +1,6 @@
 import { MouseEventArgs, Draggable } from '@syncfusion/ej2-base';
 import { extend } from '@syncfusion/ej2-base';
-import { remove, createElement, closest as closestElement, classList } from '@syncfusion/ej2-base';
+import { remove, closest as closestElement, classList } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs, EJ2Intance, IPosition } from '../base/interface';
 import { parentsUntil, removeElement, getPosition } from '../base/util';
 import * as events from '../base/constant';
@@ -23,12 +23,12 @@ export class RowDD implements IAction {
             (!(e.sender.target as Element).classList.contains('e-selectionbackground') && gObj.selectionSettings.type !== 'Single')) {
             return false;
         }
-        let visualElement: HTMLElement = createElement('div', {
+        let visualElement: HTMLElement = this.parent.createElement('div', {
             className: 'e-cloneproperties e-draganddrop e-grid e-dragclone',
             styles: 'height:"auto", z-index:2, width:' + gObj.element.offsetWidth
         });
-        let table: Element = createElement('table', { styles: 'width:' + gObj.element.offsetWidth });
-        let tbody: Element = createElement('tbody');
+        let table: Element = this.parent.createElement('table', { styles: 'width:' + gObj.element.offsetWidth });
+        let tbody: Element = this.parent.createElement('tbody');
         if (gObj.selectionSettings.mode === 'Row' && gObj.selectionSettings.type === 'Single') {
             let index: number = parseInt((e.sender.target as Element).parentElement.getAttribute('aria-rowindex'), 10);
             gObj.selectRow(index);

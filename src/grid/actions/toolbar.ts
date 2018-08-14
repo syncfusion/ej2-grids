@@ -1,5 +1,5 @@
 import { L10n, EventHandler, extend, isNullOrUndefined } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base';
+import { remove } from '@syncfusion/ej2-base';
 import { Toolbar as tool, ItemModel, ClickEventArgs } from '@syncfusion/ej2-navigations';
 import { IGrid, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
@@ -105,7 +105,7 @@ export class Toolbar {
             this.toolbar[registerTemp] = {};
             this.toolbar[viewStr] = this.parent[viewStr];
         }
-        this.element = createElement('div', { id: this.gridID + '_toolbarItems' });
+        this.element = this.parent.createElement('div', { id: this.gridID + '_toolbarItems' });
         if (this.parent.toolbarTemplate) {
             if (typeof (this.parent.toolbarTemplate) === 'string') {
                 this.toolbar.appendTo(this.parent.toolbarTemplate);

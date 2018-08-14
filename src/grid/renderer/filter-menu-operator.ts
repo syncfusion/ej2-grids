@@ -1,6 +1,5 @@
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
-import { createElement } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { FilterSettings } from '../base/grid';
 import { PredicateModel } from '../base/grid-model';
@@ -43,9 +42,9 @@ export class FlMenuOptrUI {
             this.parent.filterSettings.operators[optr] : this.customFilterOperators[optr];
         let dropDatasource: { [key: string]: Object }[] = this.customOptr;
         let selectedValue: string = this.dropSelectedVal(column, optr);
-        let optrDiv: HTMLElement = createElement('div', { className: 'e-flm_optrdiv' });
+        let optrDiv: HTMLElement = this.parent.createElement('div', { className: 'e-flm_optrdiv' });
         dlgConetntEle.appendChild(optrDiv);
-        let optrInput: Element = createElement('input', { id: column.uid + '-floptr' });
+        let optrInput: Element = this.parent.createElement('input', { id: column.uid + '-floptr' });
         optrDiv.appendChild(optrInput);
         this.dropOptr = new DropDownList({
             dataSource: dropDatasource,

@@ -1,11 +1,11 @@
 import { Browser, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
-import { remove, createElement, closest, classList } from '@syncfusion/ej2-base';
+import { remove, closest, classList } from '@syncfusion/ej2-base';
 import { SortSettings } from '../base/grid';
 import { Column } from '../models/column';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { SortDirection } from '../base/enum';
-import { setCssInGridPopUp, getActualPropFromColl, isActionPrevent } from '../base/util';
+import { setCssInGridPopUp, getActualPropFromColl, isActionPrevent, iterateExtend } from '../base/util';
 import * as events from '../base/constant';
 import { SortDescriptorModel } from '../base/grid-model';
 import { AriaService } from '../services/aria-service';
@@ -30,6 +30,8 @@ export class Sort implements IAction {
     private isModelChanged: boolean = true;
     private aria: AriaService = new AriaService();
     private focus: FocusStrategy;
+    private lastSortedCols: SortDescriptorModel[];
+    private lastCols: string[];
     //Module declarations   
     private parent: IGrid;
 
@@ -124,6 +126,7 @@ export class Sort implements IAction {
                 });
             return;
         }
+        this.backupSettings();
         this.columnName = columnName;
         this.direction = direction;
         this.isMultiSort = isMultiSort;
@@ -131,6 +134,20 @@ export class Sort implements IAction {
         let column: Element = gObj.getColumnHeaderByField(columnName);
         this.updateSortedCols(columnName, isMultiSort);
         this.updateModel();
+    }
+
+    private backupSettings(): void {
+        this.lastSortedCols = iterateExtend(this.sortSettings.columns);
+        this.lastCols = this.sortedColumns;
+    }
+
+    private restoreSettings(): void {
+        this.isModelChanged = false;
+        this.isMultiSort = true;
+        this.parent.setProperties({ sortSettings: { columns: this.lastSortedCols } }, true);
+        //this.parent.sortSettings.columns =  this.lastSortedCols;        
+        this.sortedColumns = this.lastCols;
+        this.isModelChanged = true;
     }
 
     private updateSortedCols(columnName: string, isMultiSort: boolean): void {
@@ -162,7 +179,7 @@ export class Sort implements IAction {
         if (this.contentRefresh) {
             let args: Object = this.sortSettings.columns.length ? {
                 columnName: this.columnName, direction: this.direction, requestType: 'sorting', type: events.actionBegin
-            } : { requestType: 'sorting', type: events.actionBegin };
+            } : { requestType: 'sorting', type: events.actionBegin, cancel: false };
             this.parent.notify(events.modelChanged, args);
         }
         this.refreshSortSettings();
@@ -212,6 +229,7 @@ export class Sort implements IAction {
             this.parent.notify(events.preventBatch, { instance: this, handler: this.removeSortColumn, arg1: field });
             return;
         }
+        this.backupSettings();
         this.removeSortIcons();
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             if (cols[i].field === field) {
@@ -276,6 +294,7 @@ export class Sort implements IAction {
         this.parent.on(events.click, this.clickHandler, this);
         this.parent.on(events.headerRefreshed, this.refreshSortIcons, this);
         this.parent.on(events.keyPressed, this.keyPressed, this);
+        this.parent.on(events.cancelBegin, this.cancelBeginEvent, this);
     }
     /**
      * @hidden
@@ -287,6 +306,7 @@ export class Sort implements IAction {
         this.parent.off(events.click, this.clickHandler);
         this.parent.off(events.headerRefreshed, this.refreshSortIcons);
         this.parent.off(events.keyPressed, this.keyPressed);
+        this.parent.off(events.cancelBegin, this.cancelBeginEvent);
     }
 
     /**
@@ -304,6 +324,14 @@ export class Sort implements IAction {
         this.clearSorting();
         this.isModelChanged = true;
         this.removeEventListener();
+    }
+
+    private cancelBeginEvent(e: { requestType: string }): void {
+        if (e.requestType === 'sorting') {
+            this.restoreSettings();
+            this.refreshSortIcons();
+            this.isMultiSort = true;
+        }
     }
 
     private clickHandler(e: MouseEvent): void {
@@ -398,7 +426,7 @@ export class Sort implements IAction {
             this.aria.setSort(<HTMLElement>header, cols[i].direction);
             if (this.isMultiSort && cols.length > 1) {
                 header.querySelector('.e-headercelldiv').insertBefore(
-                    createElement('span', { className: 'e-sortnumber', innerHTML: (i + 1).toString() }),
+                    this.parent.createElement('span', { className: 'e-sortnumber', innerHTML: (i + 1).toString() }),
                     header.querySelector('.e-headertext'));
             }
             filterElement = header.querySelector('.e-sortfilterdiv');

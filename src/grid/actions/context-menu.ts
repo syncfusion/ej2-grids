@@ -1,5 +1,5 @@
 import { L10n, closest, isNullOrUndefined, KeyboardEventArgs, EventHandler } from '@syncfusion/ej2-base';
-import { createElement, remove } from '@syncfusion/ej2-base';
+import { remove } from '@syncfusion/ej2-base';
 import { ContextMenu as Menu, MenuItemModel } from '@syncfusion/ej2-navigations';
 import { OpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
 import { IGrid, ContextMenuItemModel, IAction, NotifyArgs, ContextMenuOpenEventArgs, ContextMenuClickEventArgs } from '../base/interface';
@@ -124,7 +124,7 @@ export class ContextMenu implements IAction {
     private render(): void {
         this.parent.element.classList.add('e-noselect');
         this.l10n = this.serviceLocator.getService<L10n>('localization');
-        this.element = createElement('ul', { id: this.gridID + '_cmenu' }) as HTMLUListElement;
+        this.element = this.parent.createElement('ul', { id: this.gridID + '_cmenu' }) as HTMLUListElement;
         EventHandler.add(this.element, 'keydown', this.keyDownHandler.bind(this));
         this.parent.element.appendChild(this.element);
         let target: string = '#' + this.gridID;

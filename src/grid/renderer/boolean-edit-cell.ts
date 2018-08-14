@@ -1,4 +1,4 @@
-import { createElement, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IEditCell, IGrid } from '../base/interface';
 import { Row } from '../models/row';
 import { Column } from '../models/column';
@@ -29,7 +29,7 @@ export class BooleanEditCell implements IEditCell {
         }
         let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
         let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
-        return createElement('input', {
+        return this.parent.createElement('input', {
             className: classNames, attrs: {
                 type: 'checkbox', value: args.value, 'e-mappinguid': col.uid,
                 id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + col.field,

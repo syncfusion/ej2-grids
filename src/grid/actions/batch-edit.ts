@@ -1,5 +1,5 @@
 import { extend, addClass, removeClass } from '@syncfusion/ej2-base';
-import { remove, classList, createElement } from '@syncfusion/ej2-base';
+import { remove, classList } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { isNullOrUndefined, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { IGrid, BeforeBatchAddArgs, BeforeBatchDeleteArgs, BeforeBatchSaveArgs } from '../base/interface';
@@ -36,6 +36,7 @@ export class BatchEdit {
         foreignKeyData?: Object
     } = {};
     private isColored: boolean;
+    private isAdded: boolean;
 
     constructor(parent?: IGrid, serviceLocator?: ServiceLocator, renderer?: EditRender) {
         this.parent = parent;
@@ -58,6 +59,8 @@ export class BatchEdit {
         this.parent.addEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.on(events.doubleTap, this.dblClickHandler, this);
         this.parent.on(events.keyPressed, this.keyDownHandler, this);
+        this.parent.on(events.editNextValCell, this.editNextValCell, this);
+        this.parent.off(events.editNextValCell, this.editNextValCell);
     }
 
     /**
@@ -88,6 +91,7 @@ export class BatchEdit {
     protected clickHandler(e: MouseEvent): void {
         if (!parentsUntil(e.target as Element, this.parent.element.id + '_add', true)) {
             this.saveCell();
+            this.editNextValCell();
             if (parentsUntil(e.target as HTMLElement, 'e-rowcell') && !this.parent.isEdit) {
                 this.setCellIdx(e.target as HTMLTableCellElement);
             }
@@ -135,7 +139,7 @@ export class BatchEdit {
             rowIndex += this.parent.frozenRows;
         }
         let isEdit: boolean = this.parent.isEdit;
-        if (!document.querySelectorAll('.e-popup-open').length) {
+        if (!this.parent.element.querySelectorAll('.e-popup-open').length) {
             isEdit = isEdit && !this.validateFormObj();
             switch (e.keyArgs.action) {
                 case 'tab':
@@ -182,6 +186,7 @@ export class BatchEdit {
         if (gObj.isEdit) {
             this.saveCell(true);
         }
+        this.isAdded = false;
         gObj.clearSelection();
         for (let i: number = 0; i < rows.length; i++) {
             if (rows[i].isDirty) {
@@ -250,6 +255,7 @@ export class BatchEdit {
         if (this.validateFormObj()) {
             this.saveCell(true);
         }
+        this.isAdded = false;
         this.bulkDelete(fieldname, data);
     }
 
@@ -271,17 +277,22 @@ export class BatchEdit {
     public batchSave(): void {
         let gObj: IGrid = this.parent;
         this.saveCell();
-        if (gObj.isEdit) {
+        if (gObj.isEdit || this.editNextValCell() || gObj.isEdit) {
             return;
         }
         let changes: Object = this.getBatchChanges();
+        let original: Object = {
+            changedRecords: this.parent.getRowsObject()
+            .filter((row: Row<Column>) => row.isDirty && ['add', 'delete'].indexOf(row.edit) === -1)
+            .map((row: Row<Column>) => row.data)
+        };
         let args: BeforeBatchSaveArgs = { batchChanges: changes, cancel: false };
         gObj.trigger(events.beforeBatchSave, args);
         if (args.cancel) {
             return;
         }
         gObj.showSpinner();
-        gObj.notify(events.bulkSave, { changes: changes });
+        gObj.notify(events.bulkSave, { changes: changes, original: original });
     }
 
     public getBatchChanges(): Object {
@@ -410,7 +421,7 @@ export class BatchEdit {
             if (frzCols) {
                 mRows = [].slice.call(this.parent.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody').children);
                 for (let i: number = 0; i < mRows.length; i++) {
-                    nonMovableRows[i] = createElement('tr', { className: 'emptynonmv' });
+                    nonMovableRows[i] = this.parent.createElement('tr', { className: 'emptynonmv' });
                 }
             }
         }
@@ -464,6 +475,7 @@ export class BatchEdit {
         if (args.cancel) {
             return;
         }
+        this.isAdded = true;
         gObj.clearSelection();
         let mTr: Element;
         let mTbody: Element;
@@ -474,7 +486,7 @@ export class BatchEdit {
         let col: Column;
         let index: number;
         for (let i: number = 0; i < this.parent.groupSettings.columns.length; i++) {
-            tr.insertBefore(createElement('td', { className: 'e-indentcell' }), tr.firstChild);
+            tr.insertBefore(this.parent.createElement('td', { className: 'e-indentcell' }), tr.firstChild);
             modelData[0].cells.unshift(new Cell<Column>({ cellType: CellType.Indent }));
         }
         let tbody: Element = gObj.getContentTable().querySelector('tbody');
@@ -531,14 +543,16 @@ export class BatchEdit {
         return mEle;
     }
 
-    private findNextEditableCell(columnIndex: number, isAdd: boolean): number {
+    private findNextEditableCell(columnIndex: number, isAdd: boolean, isValOnly?: boolean): number {
         let cols: Column[] = this.parent.getColumns() as Column[];
         let endIndex: number = cols.length;
+        let validation: boolean;
         for (let i: number = columnIndex; i < endIndex; i++) {
+            validation = isValOnly ? isNullOrUndefined(cols[i].validationRules) : false;
             if (!isAdd && this.checkNPCell(cols[i])) {
                 return i;
             } else if (isAdd && !cols[i].template && cols[i].visible && cols[i].allowEditing &&
-                !(cols[i].isIdentity && cols[i].isPrimaryKey)) {
+                !(cols[i].isIdentity && cols[i].isPrimaryKey) && !validation) {
                 return i;
             }
         }
@@ -722,6 +736,26 @@ export class BatchEdit {
             }
         }
         return -1;
+    }
+
+    private editNextValCell(): void {
+        let gObj: IGrid = this.parent;
+        if (this.isAdded && !gObj.isEdit) {
+            for (let i: number = this.cellDetails.cellIndex; i < gObj.getColumns().length; i++) {
+                if (gObj.isEdit) {
+                    return;
+                }
+                let index: number = this.findNextEditableCell(this.cellDetails.cellIndex + 1, true, true);
+                let col: Column = (gObj.getColumns()[index] as Column);
+                if (col) {
+                    this.editCell(0, col.field, true);
+                    this.saveCell();
+                }
+            }
+            if (!gObj.isEdit) {
+                this.isAdded = false;
+            }
+        }
     }
 
     public saveCell(isForceSave?: boolean): void {

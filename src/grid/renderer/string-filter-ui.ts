@@ -4,7 +4,7 @@ import { FilterSettings } from '../base/grid';
 import { PredicateModel } from '../base/grid-model';
 import { AutoComplete } from '@syncfusion/ej2-dropdowns';
 import { DataManager } from '@syncfusion/ej2-data';
-import { createElement, Browser, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { Browser, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
@@ -33,7 +33,7 @@ export class StringFilterUI implements IFilterMUI {
     public create(args: IFilterCreate): void {
         let data: DataManager | Object[];
         let floptr: 'Contains' | 'StartsWith' | 'EndsWith';
-        this.instance = createElement('input', { className: 'e-flmenu-input', id: 'strui-' + args.column.uid });
+        this.instance = this.parent.createElement('input', { className: 'e-flmenu-input', id: 'strui-' + args.column.uid });
         args.target.appendChild(this.instance);
         this.dialogObj = args.dialogObj;
         this.actObj = new AutoComplete(this.getAutoCompleteOptions(args));

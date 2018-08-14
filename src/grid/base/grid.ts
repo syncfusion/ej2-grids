@@ -1,6 +1,6 @@
 import { Component, ModuleDeclaration, ChildProperty, Browser, closest, extend } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, setValue, getValue } from '@syncfusion/ej2-base';
-import { createElement, addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
+import { addClass, removeClass, append, remove, classList } from '@syncfusion/ej2-base';
 import { Property, Collection, Complex, Event, NotifyPropertyChanges, INotifyPropertyChanged, L10n } from '@syncfusion/ej2-base';
 import { EventHandler, KeyboardEvents, KeyboardEventArgs, EmitType } from '@syncfusion/ej2-base';
 import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';
@@ -3545,11 +3545,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private createGridPopUpElement(): void {
-        let popup: Element = createElement('div', { className: 'e-gridpopup', styles: 'display:none;' });
-        let content: Element = createElement('div', { className: 'e-content', attrs: { tabIndex: '-1' } });
-        append([content, createElement('div', { className: 'e-uptail e-tail' })], popup);
-        content.appendChild(createElement('span'));
-        append([content, createElement('div', { className: 'e-downtail e-tail' })], popup);
+        let popup: Element = this.createElement('div', { className: 'e-gridpopup', styles: 'display:none;' });
+        let content: Element = this.createElement('div', { className: 'e-content', attrs: { tabIndex: '-1' } });
+        append([content, this.createElement('div', { className: 'e-uptail e-tail' })], popup);
+        content.appendChild(this.createElement('span'));
+        append([content, this.createElement('div', { className: 'e-downtail e-tail' })], popup);
         this.element.appendChild(popup);
     }
 
@@ -3694,17 +3694,17 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @hidden
      */
     protected createTable(table: Element, tag: string, type: string): HTMLDivElement {
-        let myTableDiv: HTMLDivElement = createElement('div') as HTMLDivElement;
+        let myTableDiv: HTMLDivElement = this.createElement('div') as HTMLDivElement;
         myTableDiv.className = this.element.className;
         myTableDiv.style.cssText = 'display: inline-block;visibility:hidden;position:absolute';
-        let mySubDiv: HTMLDivElement = createElement('div') as HTMLDivElement;
+        let mySubDiv: HTMLDivElement = this.createElement('div') as HTMLDivElement;
         mySubDiv.className = tag;
-        let myTable: HTMLTableElement = createElement('table') as HTMLTableElement;
+        let myTable: HTMLTableElement = this.createElement('table') as HTMLTableElement;
         myTable.className = table.className;
         myTable.style.cssText = 'table-layout: auto;width: auto';
         let ele: string = (type === 'header') ? 'th' : 'td';
-        let myTr: HTMLTableRowElement = createElement('tr') as HTMLTableRowElement;
-        let mytd: HTMLElement = createElement(ele) as HTMLElement;
+        let myTr: HTMLTableRowElement = this.createElement('tr') as HTMLTableRowElement;
+        let mytd: HTMLElement = this.createElement(ele) as HTMLElement;
         myTr.appendChild(mytd);
         myTable.appendChild(myTr);
         mySubDiv.appendChild(myTable);
@@ -3828,6 +3828,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         if ((!e.relatedTarget || !parentsUntil(e.relatedTarget as Element, 'e-grid'))
             && !this.keyPress && this.editSettings.mode === 'Batch' && this.isEdit && !Browser.isDevice) {
             this.editModule.saveCell();
+            this.notify(events.editNextValCell, {});
         }
         this.keyPress = false;
     }
