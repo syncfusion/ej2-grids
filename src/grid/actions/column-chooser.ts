@@ -40,8 +40,8 @@ export class ColumnChooser implements IAction {
     private dlgDiv: HTMLElement;
     private isInitialOpen: boolean = false;
     private isCustomizeOpenCC: boolean = false;
-    private cBoxTrue: Element = createCheckBox(true, { checked: true, label: ' ' });
-    private cBoxFalse: Element = createCheckBox(true, { checked: false, label: ' ' });
+    private cBoxTrue: Element;
+    private cBoxFalse: Element;
     private searchBoxObj: SearchBox;
     /**
      * Constructor for the Grid ColumnChooser module
@@ -51,6 +51,8 @@ export class ColumnChooser implements IAction {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.addEventListener();
+        this.cBoxTrue = createCheckBox(this.parent.createElement, true, { checked: true, label: ' ' });
+        this.cBoxFalse = createCheckBox(this.parent.createElement, true, { checked: false, label: ' ' });
         this.cBoxTrue.insertBefore(
             this.parent.createElement('input', {
                 className: 'e-chk-hidden e-cc e-cc-chbox', attrs: { type: 'checkbox' }

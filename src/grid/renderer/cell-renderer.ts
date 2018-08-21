@@ -156,7 +156,7 @@ export class CellRenderer implements ICellRenderer<Column> {
             } else {
                 value = false;
             }
-            let checkWrap: Element = createCheckBox(false, { checked: value as boolean, label: ' ' });
+            let checkWrap: Element = createCheckBox(this.parent.createElement, false, { checked: value as boolean, label: ' ' });
             checkWrap.insertBefore(this.rowChkBox.cloneNode(), checkWrap.firstChild);
             node.appendChild(checkWrap);
         }
@@ -169,7 +169,7 @@ export class CellRenderer implements ICellRenderer<Column> {
 
         if (column.type === 'boolean' && column.displayAsCheckBox) {
             let checked: boolean = isNaN(parseInt(value.toString(), 10)) ? value === 'true' : parseInt(value.toString(), 10) > 0;
-            let checkWrap: Element = createCheckBox(false, { checked: checked, label: ' ' });
+            let checkWrap: Element = createCheckBox(this.parent.createElement, false, { checked: checked, label: ' ' });
             node.innerHTML = '';
             checkWrap.classList.add('e-checkbox-disabled');
             node.appendChild(checkWrap);

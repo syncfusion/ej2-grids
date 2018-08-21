@@ -548,7 +548,7 @@ export function getForeignData(column: Column, data?: Object, lValue?: string | 
     let key: string | Date = <string | Date>(lValue || valueAccessor(column.field, data, column));
     key = isNullOrUndefined(key) ? '' : key;
     let query: Query = new Query();
-    let fdata: Object[] = foreignKeyData || (column.dataSource instanceof DataManager) && column.dataSource.dataSource.offline ?
+    let fdata: Object[] = foreignKeyData || (column.dataSource instanceof DataManager) && column.dataSource.dataSource.json.length ?
         (<DataManager>column.dataSource).dataSource.json : column.columnData;
     if ((<Date>key).getDay) {
         query.where(getDatePredicate({ field: fField, operator: 'equal', value: key, matchCase: false }));

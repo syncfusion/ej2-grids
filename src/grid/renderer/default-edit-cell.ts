@@ -3,6 +3,7 @@ import { IGrid, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { Input } from '@syncfusion/ej2-inputs';
 import { isEditable } from '../base/util';
+import { InputArgs }  from '@syncfusion/ej2-inputs';
 
 /**
  * `DefaultEditCell` is used to handle default cell type editing.
@@ -34,12 +35,13 @@ export class DefaultEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string }): void {
         let col: Column = args.column;
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
-        Input.createInput({
+        let inputargs: InputArgs = {
             element: args.element as HTMLInputElement, floatLabelType: this.parent.editSettings.mode !== 'Dialog' ? 'Never' : 'Always',
             properties: {
                 enableRtl: this.parent.enableRtl, enabled: isEditable(args.column, args.requestType, args.element),
                 placeholder: isInline ? '' : args.column.headerText
             }
-        });
+        };
+        Input.createInput(inputargs , this.parent.createElement);
     }
 }

@@ -194,7 +194,7 @@ export class ColumnMenu implements IAction {
         if (this.isChooserItem(args.item)) {
             let field: string = this.getKeyFromId(args.item.id, this.CHOOSER);
             let column: Column = this.parent.getColumnByField(field);
-            let check: Element = createCheckBox(false, {
+            let check: Element = createCheckBox(this.parent.createElement, false, {
                 label: args.item.text,
                 checked: column.visible
             });

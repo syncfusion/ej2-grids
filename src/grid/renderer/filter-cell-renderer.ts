@@ -1,5 +1,6 @@
 import { isNullOrUndefined, getValue } from '@syncfusion/ej2-base';
 import { attributes } from '@syncfusion/ej2-base';
+import { InputArgs }  from '@syncfusion/ej2-inputs';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
 import { ICellRenderer } from '../base/interface';
@@ -77,12 +78,13 @@ export class FilterCellRenderer extends CellRenderer implements ICellRenderer<Co
                     }
                 });
                 innerDIV.appendChild(input);
-                Input.createInput({
+                let args: InputArgs = {
                     element: input as HTMLInputElement, floatLabelType: 'Never',
                     properties: {
                         enableRtl: this.parent.enableRtl, showClearButton: true
                     }
-                });
+                };
+                Input.createInput(args, this.parent.createElement);
             }
             //TODO: apply intial filtering
             if (column.allowFiltering === false || column.field === '' || isNullOrUndefined(column.field)) {

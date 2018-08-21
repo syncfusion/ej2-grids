@@ -244,7 +244,9 @@ export class Resize implements IAction {
 
     private refreshHeight(): void {
         this.getResizeHandlers().forEach((ele: HTMLElement) => {
-            ele.style.height = ele.parentElement.offsetHeight + 'px';
+            if (ele.parentElement.offsetHeight > 0) {
+                ele.style.height = ele.parentElement.offsetHeight + 'px';
+            }
         });
     }
 

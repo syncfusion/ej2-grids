@@ -57,6 +57,10 @@ export class ContentRender implements IRenderer {
             if (arg) {
                 let action: string = (arg.requestType || '').toLowerCase() + '-complete';
                 this.parent.notify(action, arg);
+                if (args.requestType === 'batchsave') {
+                    args.cancel = false;
+                    this.parent.trigger(events.actionComplete, args);
+                }
             }
             if (this.isLoaded) {
                 this.parent.hideSpinner();

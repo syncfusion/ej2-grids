@@ -2538,3 +2538,41 @@ describe('Batch Editing module', () => {
     });
 
 });
+
+describe('Action Complete in batch edit => ', () => {
+    let gridObj: Grid;
+    let preventDefault: Function = new Function();
+    let actionComplete: () => void;
+    beforeAll((done: Function) => {
+        gridObj = createGrid(
+            {
+                dataSource: data,
+                editSettings: {
+                    allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch',
+                    showConfirmDialog: false, showDeleteConfirmDialog: false
+                },
+                toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                allowPaging: true,
+                columns: [
+                    { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                    { field: 'CustomerID', type: 'string' },
+                    { field: 'EmployeeID', type: 'number', allowEditing: false },
+                    { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                    { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                ],
+                actionComplete: actionComplete
+            }, done);
+    });
+    it('batchsave as requestType in actionComplete', () => {
+        actionComplete = (args?: any): void => {
+            expect(args.requestType).toBe('batchsave');
+        }
+        gridObj.actionComplete = actionComplete;
+        gridObj.editModule.updateCell(0, 'CustomerID', 'updated');
+        gridObj.editModule.batchSave();
+    });
+    afterAll(() => {
+        destroy(gridObj);
+    });
+});
+

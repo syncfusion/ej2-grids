@@ -73,7 +73,7 @@ export class HeaderCellRenderer extends CellRenderer implements ICellRenderer<Co
             innerDIV.appendChild(headerText);
         } else {
             column.editType = 'booleanedit';
-            let checkAllWrap: Element = createCheckBox(false, { checked: false, label: ' ' });
+            let checkAllWrap: Element = createCheckBox(this.parent.createElement, false, { checked: false, label: ' ' });
             checkAllWrap.insertBefore(this.chkAllBox.cloneNode(), checkAllWrap.firstChild);
             innerDIV.appendChild(checkAllWrap);
             innerDIV.classList.add('e-headerchkcelldiv');

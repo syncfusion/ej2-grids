@@ -289,7 +289,7 @@ describe('column menu module', () => {
             let colMenu = gridObj.columnMenuModule as any;
             let colMenuObj = colMenu.columnMenu as ContextMenuItemModel;
             let elem = createElement('span', {className: 'e-columnchooser'});
-            elem.appendChild(createCheckBox(false,{label: 'OrderID', checked: false}));
+            elem.appendChild(createCheckBox(gridObj.createElement, false,{label: 'OrderID', checked: false}));
             let columnChooseritem = colMenu.defaultItems['ColumnChooser'] as ContextMenuItemModel;
             let args = {item: columnChooseritem.items[0], element: elem};
             colMenu.columnMenuItemClick(args);

@@ -18,6 +18,7 @@ import { Dialog, DialogModel } from '@syncfusion/ej2-popups';
 import { Input } from '@syncfusion/ej2-inputs';
 import { createSpinner, hideSpinner, showSpinner } from '@syncfusion/ej2-popups';
 import { getFilterMenuPostion, toogleCheckbox, createCboxWithWrap, removeAddCboxClasses, getColumnByForeignKeyValue } from '../base/util';
+import { InputArgs }  from '@syncfusion/ej2-inputs';
 /**
  * @hidden
  * `CheckBoxFilter` module is used to handle filtering action.
@@ -44,8 +45,8 @@ export class CheckBoxFilter {
     protected foreignKeyData: Object[];
     protected filterState: boolean = true;
     protected values: Object = {};
-    private cBoxTrue: Element = createCheckBox(false, { checked: true, label: ' ' });
-    private cBoxFalse: Element = createCheckBox(false, { checked: false, label: ' ' });
+    private cBoxTrue: Element;
+    private cBoxFalse: Element;
     private itemsCnt: number;
     private result: Object;
     //Module declarations
@@ -64,6 +65,8 @@ export class CheckBoxFilter {
         this.serviceLocator = serviceLocator;
         this.filterSettings = filterSettings;
         this.valueFormatter = new ValueFormatter(this.parent.locale);
+        this.cBoxTrue = createCheckBox(this.parent.createElement, false, { checked: true, label: ' ' });
+        this.cBoxFalse = createCheckBox(this.parent.createElement, false, { checked: false, label: ' ' });
         this.cBoxTrue.insertBefore(
             this.parent.createElement('input', {
                 className: 'e-chk-hidden', attrs: { type: 'checkbox' }
@@ -79,6 +82,7 @@ export class CheckBoxFilter {
             addClass([this.cBoxTrue, this.cBoxFalse], ['e-rtl']);
         }
     }
+
 
     /** 
      * To destroy the filter bar. 
@@ -186,11 +190,12 @@ export class CheckBoxFilter {
             this.searchBox = this.parent.createElement('span', { className: 'e-searchbox e-fields' });
             this.searchBox.appendChild(this.sInput);
             this.sBox.appendChild(this.searchBox);
-            Input.createInput({
+            let inputargs: InputArgs = {
                 element: this.sInput as HTMLInputElement, floatLabelType: 'Never', properties: {
                     placeholder: this.getLocalizedLabel('Search')
                 }
-            });
+            };
+            Input.createInput(inputargs, this.parent.createElement);
             this.searchBox.querySelector('.e-input-group').appendChild(this.sIcon);
         }
 
@@ -224,7 +229,7 @@ export class CheckBoxFilter {
             width: (!isNullOrUndefined(parentsUntil(options.target, 'e-bigger')))
                 || this.parent.element.classList.contains('e-device') ? 260 : 255,
             target: this.parent.element, animationSettings:
-                { effect: 'None' },
+            { effect: 'None' },
             buttons: [{
                 click: this.btnClick.bind(this),
                 buttonModel: {
@@ -620,7 +625,7 @@ export class CheckBoxFilter {
         let className: string[] = [];
         let elem: Element = this.cBox.querySelector('.e-selectall');
         let selected: number = this.cBox.querySelectorAll('.e-check:not(.e-selectall)').length;
-        let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
+        let btn: Button = (<{ btnObj?: Button }>(this.dialogObj as DialogModel)).btnObj[0];
         btn.disabled = false;
         if (cnt === selected) {
             className = ['e-check'];
@@ -638,11 +643,11 @@ export class CheckBoxFilter {
 
     private createFilterItems(data: Object[], isInitial?: boolean): void {
         let cBoxes: Element = this.parent.createElement('div');
-        let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
+        let btn: Button = (<{ btnObj?: Button }>(this.dialogObj as DialogModel)).btnObj[0];
         this.itemsCnt = data.length;
         if (data.length) {
             let selectAllValue: string = this.getLocalizedLabel('SelectAll');
-            let checkBox: Element = this.createCheckbox(selectAllValue, false, {[this.options.field]: selectAllValue});
+            let checkBox: Element = this.createCheckbox(selectAllValue, false, { [this.options.field]: selectAllValue });
             let selectAll: Element =
                 createCboxWithWrap(getUid('cbox'), checkBox, 'e-ftrchk');
             selectAll.querySelector('.e-frame').classList.add('e-selectall');
@@ -658,7 +663,7 @@ export class CheckBoxFilter {
                 this.values[uid] = getValue('ejValue', data[i]);
                 let value: string = this.valueFormatter.toView(getValue(this.options.field, data[i]), this.options.formatFn) as string;
                 let checkbox: Element =
-                this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid]), getValue('dataObj', data[i]));
+                    this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid]), getValue('dataObj', data[i]));
                 cBoxes.appendChild(createCboxWithWrap(uid, checkbox, 'e-ftrchk'));
             }
             this.cBox.innerHTML = cBoxes.innerHTML;
