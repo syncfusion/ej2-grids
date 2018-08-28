@@ -248,7 +248,7 @@ export class CheckBoxFilter {
         this.dialogObj.element.style.maxHeight = '800px';
         this.dialogObj.show();
         this.wireEvents();
-        createSpinner({ target: this.spinner });
+        createSpinner({ target: this.spinner }, this.parent.createElement);
         showSpinner(this.spinner);
         this.getAllData();
     }

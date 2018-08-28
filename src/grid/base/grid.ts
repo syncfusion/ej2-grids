@@ -891,7 +891,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * If `allowPdfExport` set to true, then it will allow the user to export grid to Pdf file.
      * 
-     * > Check the [`Pdfexport`](./pdf-exporting.html) to configure the exporting document.
+     * > Check the [`Pdfexport`](./pdf-export.html) to configure the exporting document.
      * @default false    
      */
     @Property(false)
@@ -1151,7 +1151,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * * CsvExport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
      * The following code example implements the custom toolbar items.
      * 
-     *  > Check the [`Toolbar`](./toolbar.html#custom-toolbar-items) to customize its default items.
+     *  > Check the [`Toolbar`](./tool-bar.html#custom-toolbar-items) to customize its default items.
      * 
      * {% codeBlock src="grid/toolbar-api/index.ts" %}{% endcodeBlock %}
      * @default null
@@ -2021,7 +2021,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
     protected render(): void {
         this.ariaService.setOptions(this.element, { role: 'grid' });
-        createSpinner({ target: this.element });
+        createSpinner({ target: this.element }, this.createElement);
         this.renderModule = new Render(this, this.serviceLocator);
         this.getMediaColumns();
         this.searchModule = new Search(this);

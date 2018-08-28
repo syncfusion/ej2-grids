@@ -573,7 +573,7 @@ export interface GridModel extends ComponentModel{
     /**
      * If `allowPdfExport` set to true, then it will allow the user to export grid to Pdf file.
      * 
-     * > Check the [`Pdfexport`](./pdf-exporting.html) to configure the exporting document.
+     * > Check the [`Pdfexport`](./pdf-export.html) to configure the exporting document.
      * @default false    
      */
     allowPdfExport?: boolean;
@@ -805,7 +805,7 @@ export interface GridModel extends ComponentModel{
      * * CsvExport - Export the Grid to CSV(csvExport() method manually to make export.)<br><br>
      * The following code example implements the custom toolbar items.
      * 
-     *  > Check the [`Toolbar`](./toolbar.html#custom-toolbar-items) to customize its default items.
+     *  > Check the [`Toolbar`](./tool-bar.html#custom-toolbar-items) to customize its default items.
      * 
      * {% codeBlock src="grid/toolbar-api/index.ts" %}{% endcodeBlock %}
      * @default null
