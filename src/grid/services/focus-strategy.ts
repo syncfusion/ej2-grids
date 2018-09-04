@@ -578,7 +578,8 @@ export class HeaderFocus extends ContentFocus implements IFocus {
     }
 
     public getTable(): HTMLTableElement {
-        return <HTMLTableElement>(this.parent.frozenColumns ? this.parent.getHeaderContent().querySelector('.e-movableheader .e-table') :
+        return <HTMLTableElement>(this.parent.getFrozenColumns() ?
+            this.parent.getHeaderContent().querySelector('.e-movableheader .e-table') :
             this.parent.getHeaderTable());
     }
 

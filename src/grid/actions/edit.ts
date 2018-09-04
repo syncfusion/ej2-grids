@@ -705,7 +705,7 @@ export class Edit implements IAction {
 
     private createTooltip(element: Element, error: HTMLElement, name: string, display: string): void {
         let gcontent: HTMLElement = this.parent.getContent().firstElementChild as HTMLElement;
-        let isScroll: boolean = gcontent.scrollHeight > gcontent.clientHeight;
+        let isScroll: boolean = gcontent.scrollHeight > gcontent.clientHeight || gcontent.scrollWidth > gcontent.clientWidth;
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
         let isFHdr: boolean;
         if (isInline) {

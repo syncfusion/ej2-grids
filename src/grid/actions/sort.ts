@@ -478,7 +478,8 @@ export class Sort implements IAction {
         }
     }
 
-    private refreshSortIcons(): void {
+    private refreshSortIcons(params: {args: {isFrozen: boolean}} = {args: {isFrozen: false}}): void {
+        if (!params.args.isFrozen) {
         this.removeSortIcons();
         this.isMultiSort = true;
         this.removeSortIcons();
@@ -486,6 +487,7 @@ export class Sort implements IAction {
         this.isMultiSort = false;
         this.updateAriaAttr();
     }
+}
 
 
 }

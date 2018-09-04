@@ -488,35 +488,37 @@ export class HeaderRender implements IRenderer {
         let headerDiv: Element = this.getPanel();
         let table: Element = this.getTable();
         let frzCols: number = this.parent.getFrozenColumns();
-        remove(this.getTable());
-        table.removeChild(table.firstChild);
-        table.removeChild(table.childNodes[0]);
-        let colGroup: Element = this.parent.createElement('colgroup');
-        let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
-        this.rows = findHeaderRow.rows;
-        table.insertBefore(findHeaderRow.thead, table.firstChild);
-        this.updateColGroup(colGroup);
-        table.insertBefore(this.setColGroup(colGroup), table.firstChild);
-        this.setTable(table);
-        this.appendContent(table);
-        this.parent.notify(events.colGroupRefresh, {});
-        this.widthService.setWidthToColumns();
-        this.parent.updateDefaultCursor();
-        if (!frzCols) {
-            this.initializeHeaderDrag();
-        }
-        let rows: Element[] = [].slice.call(headerDiv.querySelectorAll('tr.e-columnheader'));
-        for (let row of rows) {
-            let gCells: Element[] = [].slice.call(row.querySelectorAll('.e-grouptopleftcell'));
-            if (gCells.length) {
-                gCells[gCells.length - 1].classList.add('e-lastgrouptopleftcell');
+        if (this.getTable()) {
+            remove(this.getTable());
+            table.removeChild(table.firstChild);
+            table.removeChild(table.childNodes[0]);
+            let colGroup: Element = this.parent.createElement('colgroup');
+            let findHeaderRow: { thead: Element, rows: Row<Column>[] } = this.createHeaderContent();
+            this.rows = findHeaderRow.rows;
+            table.insertBefore(findHeaderRow.thead, table.firstChild);
+            this.updateColGroup(colGroup);
+            table.insertBefore(this.setColGroup(colGroup), table.firstChild);
+            this.setTable(table);
+            this.appendContent(table);
+            this.parent.notify(events.colGroupRefresh, {});
+            this.widthService.setWidthToColumns();
+            this.parent.updateDefaultCursor();
+            if (!frzCols) {
+                this.initializeHeaderDrag();
             }
-        }
-        if (!frzCols) {
-            this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: this.parent.getFrozenColumns() !== 0 } });
-        }
-        if (this.parent.allowTextWrap && this.parent.textWrapSettings.wrapMode === 'Header') {
-            wrap(rows, true);
+            let rows: Element[] = [].slice.call(headerDiv.querySelectorAll('tr.e-columnheader'));
+            for (let row of rows) {
+                let gCells: Element[] = [].slice.call(row.querySelectorAll('.e-grouptopleftcell'));
+                if (gCells.length) {
+                    gCells[gCells.length - 1].classList.add('e-lastgrouptopleftcell');
+                }
+            }
+            if (!frzCols) {
+                this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: this.parent.getFrozenColumns() !== 0 } });
+            }
+            if (this.parent.allowTextWrap && this.parent.textWrapSettings.wrapMode === 'Header') {
+                wrap(rows, true);
+            }
         }
     }
 

@@ -2670,6 +2670,50 @@ describe('Grid Touch Selection', () => {
             destroy(gridObj);
         });
     });
+    describe('Cell Selection Issue Fixes', () =>{
+        let gridObj: Grid;
+        let cellSelected: EmitType<Object>;
+        let template: Element = createElement('div', { id: 'template' });
+            template.innerHTML = '<div>${CustomerID}</div>';
+            document.body.appendChild(template);
+        beforeAll((done) => {
+            gridObj = createGrid({
+                    dataSource: data,
+                    allowPaging: true,
+                    allowSelection: true,
+                    selectionSettings: { mode: 'Cell' },
+                    enableHover: false,
+                    columns: [
+                        { type: 'checkbox', width: 50 },
+                        { field: 'OrderID', headerText: 'OrderID', width: 180 },
+          {
+            headerText: 'Employee Image', textAlign: 'Center',
+            template: '#template', width: 150
+        },
+            { field: 'ShipPostalCode', headerText: 'ShipPostalCode', width: 195, textAlign: 'Right' },
+            { field: 'ShipCity', headerText: 'ShipCity', width: 120 },
+            { field: 'ShipCountry', headerText: 'ShipCountry', width: 130}
+                    ],
+                    pageSettings: { pageCount: 2 },
+                    cellSelected: cellSelected
+                }, done);
+        });
+        it('select the cell', () => {
+            expect(gridObj.getRows()[0].children[0].classList.contains('e-gridchkbox')).toBeTruthy();
+        });
+        it('select the cell', () => {
+            cellSelected = (args: Object) => {
+                expect(gridObj.getRows()[0].children[2].classList.contains('e-cellselectionbackground')).toBeTruthy();
+                gridObj.cellSelected = undefined;
+            };
+            gridObj.cellSelected = cellSelected;
+            gridObj.selectCell({ rowIndex: 0, cellIndex: 2 }, true);
+            gridObj.dataBind();
+        });
+            afterAll(() => {
+            destroy(gridObj);
+        });
+    });
 
     // describe('Grid checkbox selection functionality', () => {
     //     describe('grid checkbox selection functionality with persist selection', () => {

@@ -100,7 +100,7 @@ export class RowModelGenerator implements IModelGenerator<Column> {
         };
 
         if (opt.isDataCell || opt.column.type === 'checkbox') {
-            opt.index = this.parent.getColumnIndexByField(column.field);
+            opt.index = oIndex;
         }
 
         return new Cell<Column>(<{ [x: string]: Object }>opt);

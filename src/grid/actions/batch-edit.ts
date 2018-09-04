@@ -60,7 +60,6 @@ export class BatchEdit {
         this.parent.on(events.doubleTap, this.dblClickHandler, this);
         this.parent.on(events.keyPressed, this.keyDownHandler, this);
         this.parent.on(events.editNextValCell, this.editNextValCell, this);
-        this.parent.off(events.editNextValCell, this.editNextValCell);
     }
 
     /**
@@ -75,6 +74,7 @@ export class BatchEdit {
         this.parent.removeEventListener(events.dataBound, this.dataBoundFunction);
         this.parent.off(events.doubleTap, this.dblClickHandler);
         this.parent.off(events.keyPressed, this.keyDownHandler);
+        this.parent.off(events.editNextValCell, this.editNextValCell);
     }
 
     private dataBound(): void {
@@ -461,6 +461,7 @@ export class BatchEdit {
         }
         if (gObj.isEdit) {
             this.saveCell();
+            this.parent.notify(events.editNextValCell, {});
         }
         if (gObj.isEdit) {
             return;

@@ -47,6 +47,7 @@ export class Render {
     private ariaService: AriaService;
     private renderer: RendererFactory;
     private emptyGrid: boolean = false;
+    private isLayoutRendered: boolean;
 
     /**
      * Constructor for render module
@@ -71,6 +72,7 @@ export class Render {
         this.headerRenderer.renderPanel();
         this.contentRenderer.renderPanel();
         if (gObj.getColumns().length) {
+            this.isLayoutRendered = true;
             this.headerRenderer.renderTable();
             this.contentRenderer.renderTable();
             this.emptyRow(false);
@@ -261,6 +263,10 @@ export class Render {
         gObj.trigger(events.beforeDataBound, e);
         let len: number = Object.keys(e.result).length;
         if (this.parent.isDestroyed) { return; }
+        if ((!gObj.getColumns().length && !len) && !(gObj.columns.length && gObj.columns[0] instanceof Column)) {
+            gObj.hideSpinner();
+            return;
+        }
         this.parent.isEdit = false;
         this.parent.notify(events.tooltipDestroy, {});
         gObj.currentViewData = <Object[]>e.result;
@@ -271,7 +277,7 @@ export class Render {
             gObj.dataBind();
             return;
         }
-        if (!gObj.getColumns().length && len) {
+        if (!gObj.getColumns().length && len || !this.isLayoutRendered) {
             this.updatesOnInitialRender(e);
         }
         if (!this.isColTypeDef && gObj.getCurrentViewRecords()) {
@@ -313,7 +319,10 @@ export class Render {
     }
 
     private updatesOnInitialRender(e: { result: Object, count: number }): void {
-        this.buildColumns(e.result[0]);
+        this.isLayoutRendered = true;
+        if (this.parent.columns.length < 1) {
+            this.buildColumns(e.result[0]);
+        }
         prepareColumns(this.parent.columns);
         this.headerRenderer.renderTable();
         this.contentRenderer.renderTable();

@@ -382,7 +382,8 @@ export class CheckBoxFilter {
         let val: string = this.sInput.value;
         let query: Query = this.options.query.clone();
         let parsed: string | number | Date | boolean = (this.options.type !== 'string' && parseFloat(val)) ? parseFloat(val) : val;
-        let operator: string = this.options.type ? 'startswith' : 'contains';
+        let operator: string = this.parent.getDataModule().isRemote() ?
+            (this.options.type === 'string' ? 'contains' : 'equal') : (this.options.type ? 'startswith' : 'contains');
         let matchCase: boolean = true;
         let ignoreAccent: boolean = this.parent.filterSettings.ignoreAccent;
         parsed = (parsed === '' || parsed === undefined) ? undefined : parsed;
