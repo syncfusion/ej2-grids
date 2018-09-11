@@ -80,7 +80,7 @@ export class ForeignKey extends Data {
         let query: Query = new Query();
         let field: string = fromData ? column.foreignKeyField : column.field;
         if (gObj.allowPaging || gObj.enableVirtualization || fromData) {
-            e = <{ records?: Object[] }>new DataManager(((gObj.allowGrouping && gObj.groupSettings.columns.length) ?
+            e = <{ records?: Object[] }>new DataManager(((gObj.allowGrouping && gObj.groupSettings.columns.length && !fromData) ?
                 e.records : e) as JSON[]).executeLocal(new Query().select(field));
             let filteredValue: Object[] = DataUtil.distinct(<Object[]>e, field, false);
             field = fromData ? column.field : column.foreignKeyField;

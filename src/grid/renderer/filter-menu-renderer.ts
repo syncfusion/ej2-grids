@@ -1,7 +1,7 @@
 import { isNullOrUndefined, getValue, L10n, remove } from '@syncfusion/ej2-base';
 import { Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
-import { IGrid, IValueFormatter, IFilterArgs } from '../base/interface';
+import { IGrid, IValueFormatter, IFilterArgs, EJ2Intance } from '../base/interface';
 import { PredicateModel } from '../base/grid-model';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
@@ -13,7 +13,7 @@ import { StringFilterUI } from './string-filter-ui';
 import { NumberFilterUI } from './number-filter-ui';
 import { BooleanFilterUI } from './boolean-filter-ui';
 import { DateFilterUI } from './date-filter-ui';
-import { getFilterMenuPostion, parentsUntil } from '../base/util';
+import { getFilterMenuPostion, parentsUntil, appendChildren } from '../base/util';
 import * as events from '../base/constant';
 
 /**
@@ -59,9 +59,7 @@ export class FilterMenuRenderer {
     }
 
     private closeDialog(): void {
-        if (!this.dlgObj) {
-            return;
-        }
+        if (!this.dlgObj) { return; }
         let elem: Element = document.getElementById(this.dlgObj.element.id);
         if (this.dlgObj && !this.dlgObj.isDestroyed && elem) {
             this.parent.notify(events.filterMenuClose, { field: this.col.field });
@@ -116,7 +114,9 @@ export class FilterMenuRenderer {
         this.parent.notify(events.filterDialogCreated, {});
         this.dlgObj.element.style.maxHeight = '350px';
         this.dlgObj.show();
-        this.writeMethod(column, this.dlgObj.element.querySelector('#' + column.uid + '-flmenu'));
+        if (!column.filterTemplate) {
+            this.writeMethod(column, this.dlgObj.element.querySelector('#' + column.uid + '-flmenu'));
+        }
         let args: Object = {
             requestType: events.filterAfterOpen,
             filterModel: this, columnName: column.field, columnType: column.type
@@ -140,25 +140,38 @@ export class FilterMenuRenderer {
 
     private renderFlValueUI(dlgConetntEle: Element, target: Element, column: Column): void {
         let valueDiv: HTMLElement = this.parent.createElement('div', { className: 'e-flmenu-valuediv' });
+        let fObj: Object = this.filterObj;
         dlgConetntEle.appendChild(valueDiv);
         let args: Object = { target: valueDiv, column: column, getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj };
         let instanceofFilterUI: NumberFilterUI | StringFilterUI | DateFilterUI =
             new this.colTypes[column.type](this.parent, this.serviceLocator, this.parent.filterSettings);
-        if (!isNullOrUndefined(column.filter) && !isNullOrUndefined(column.filter.ui)
-            && !isNullOrUndefined(column.filter.ui.create as Function)) {
-            let temp: Function = column.filter.ui.create as Function;
-            if (typeof temp === 'string') {
-                temp = getValue(temp, window);
+        if (column.filterTemplate) {
+            let fltrData: Object = {};
+            fltrData[column.field] = (<{ values: Object }>fObj).values[column.field];
+            if (column.foreignKeyValue) {
+                fltrData[column.foreignKeyValue] = (<{ values: Object }>fObj).values[column.foreignKeyValue];
             }
-            (temp as Function)({
-                column: column, target: valueDiv,
-                getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj
-            });
+            let col: string = 'column';
+            fltrData[col] = column;
+            let compElement: Element[] = column.getFilterTemplate()(fltrData, this.parent, 'filterTemplate');
+            appendChildren(valueDiv, compElement);
         } else {
-            instanceofFilterUI.create({
-                column: column, target: valueDiv,
-                getOptrInstance: this.flMuiObj, localizeText: this.l10n, dialogObj: this.dlgObj
-            });
+            if (!isNullOrUndefined(column.filter) && !isNullOrUndefined(column.filter.ui)
+                && !isNullOrUndefined(column.filter.ui.create as Function)) {
+                let temp: Function = column.filter.ui.create as Function;
+                if (typeof temp === 'string') {
+                    temp = getValue(temp, window);
+                }
+                (temp as Function)({
+                    column: column, target: valueDiv,
+                    getOptrInstance: this.flMuiObj, dialogObj: this.dlgObj
+                });
+            } else {
+                instanceofFilterUI.create({
+                    column: column, target: valueDiv,
+                    getOptrInstance: this.flMuiObj, localizeText: this.l10n, dialogObj: this.dlgObj
+                });
+            }
         }
     }
 
@@ -193,16 +206,27 @@ export class FilterMenuRenderer {
         flOptrValue = this.flMuiObj.getFlOperator();
         let instanceofFilterUI: NumberFilterUI | StringFilterUI | DateFilterUI =
             new this.colTypes[col.type](this.parent, this.serviceLocator, this.parent.filterSettings);
-        if (!isNullOrUndefined(col.filter) &&
-            !isNullOrUndefined(col.filter.ui) && !isNullOrUndefined(col.filter.ui.read as Function)) {
-            let temp: Function = col.filter.ui.read as Function;
-            if (typeof temp === 'string') {
-                temp = getValue(temp, window);
+        if (col.filterTemplate) {
+            let element: Element = this.dlgDiv.querySelector('.e-flmenu-valuediv');
+            let fltrValue: string | boolean | Date;
+            if ((<HTMLInputElement>element.children[0]).value) {
+                fltrValue = (<HTMLInputElement>element.children[0]).value;
+            } else {
+                fltrValue = ((<EJ2Intance>(element.children[0] as Element)).ej2_instances[0] as { value?: string | boolean | Date }).value;
             }
-            flValue = (temp as Function)({ element: targ, column: col, operator: flOptrValue, fltrObj: this.filterObj });
+            this.filterObj.filterByColumn(col.field, flOptrValue, fltrValue);
         } else {
-            instanceofFilterUI.read(targ, col, flOptrValue, this.filterObj);
+            if (!isNullOrUndefined(col.filter) &&
+                !isNullOrUndefined(col.filter.ui) && !isNullOrUndefined(col.filter.ui.read as Function)) {
+                let temp: Function = col.filter.ui.read as Function;
+                if (typeof temp === 'string') {
+                    temp = getValue(temp, window);
+                }
+                flValue = (temp as Function)({ element: targ, column: col, operator: flOptrValue, fltrObj: this.filterObj });
+            } else {
+                instanceofFilterUI.read(targ, col, flOptrValue, this.filterObj);
 
+            }
         }
         let iconClass: string = this.parent.showColumnMenu ? '.e-columnmenu' : '.e-icon-filter';
         let column: Element = this.parent.element.querySelector('[e-mappinguid="' + col.uid + '"]').parentElement;

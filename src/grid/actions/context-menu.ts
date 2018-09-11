@@ -574,7 +574,6 @@ export class ContextMenu implements IAction {
     private getColumn(e: Event): Column {
         let cell: HTMLElement = <HTMLElement>closest(<HTMLElement>e.target, 'th.e-headercell');
         if (cell) {
-            cell.classList.add('e-resized');
             let uid: string = cell.querySelector('.e-headercelldiv').getAttribute('e-mappinguid');
             return this.parent.getColumnByUid(uid);
         }

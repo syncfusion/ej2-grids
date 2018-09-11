@@ -7,7 +7,7 @@ import { CellType } from '../base/enum';
 import { Cell } from '../models/cell';
 import { RowModelGenerator } from '../services/row-model-generator';
 import { GroupSummaryModelGenerator, CaptionSummaryModelGenerator } from '../services/summary-model-generator';
-import { getForeignData } from '../../grid/base/util';
+import { getForeignData, getUid } from '../../grid/base/util';
 /**
  * GroupModelGenerator is used to generate group caption rows and data rows.
  * @hidden
@@ -98,7 +98,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
             let tmpFlag: boolean = wFlag && indexes.indexOf(indent) !== -1;
             if (tmpFlag) { wFlag = false; }
             let cellType: CellType = !this.parent.enableColumnVirtualization || tmpFlag ?
-                CellType.GroupCaption : CellType.GroupCaptionEmpty;
+            CellType.GroupCaption : CellType.GroupCaptionEmpty;
             indent = this.parent.enableColumnVirtualization && cellType === CellType.GroupCaption ? indent + groupedLen : indent;
             cells.push(this.generateCell(column, null, cellType, indent));
         });
@@ -116,6 +116,7 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
             (<GroupedData>options.data).field = data.field;
         }
         options.isDataRow = false;
+        options.uid = getUid('grid-row');
         let row: Row<Column> = new Row<Column>(<{ [x: string]: Object }>options);
         row.indent = indent;
         this.getForeignKeyData(row);
@@ -127,8 +128,8 @@ export class GroupModelGenerator extends RowModelGenerator implements IModelGene
         let data: GroupedData = row.data;
         let col: Column = this.parent.getColumnByField(data.field);
         if (col && col.isForeignColumn && col.isForeignColumn()) {
-            setValue('foreignKey',
-                     (col.valueAccessor as Function) (col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col), row.data);
+            setValue('foreignKey', (col.valueAccessor as Function)(col.foreignKeyValue, getForeignData(col, {}, <string>data.key)[0], col),
+                     row.data);
         }
     }
 

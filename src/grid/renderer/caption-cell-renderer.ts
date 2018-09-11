@@ -30,7 +30,7 @@ export class GroupCaptionCellRenderer extends CellRenderer implements ICellRende
         data.headerText = cell.column.headerText;
         if (cell.isForeignKey) {
             fKeyValue = this.format(cell.column,  (cell.column.valueAccessor as Function)('foreignKey', data, cell.column));
-            }
+          }
         let value: string = cell.isForeignKey ? fKeyValue : cell.column.enableGroupByFormat ? data.key :
         this.format(cell.column, (cell.column.valueAccessor as Function)('key', data, cell.column));
         if (!isNullOrUndefined(gObj.groupSettings.captionTemplate)) {

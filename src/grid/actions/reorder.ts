@@ -99,9 +99,11 @@ export class Reorder implements IAction {
         let destElem: Element = closestElement(e.target as Element, '.e-headercell');
         let destElemDiv : Element = destElem.querySelector('.e-headercelldiv') || destElem.querySelector('.e-stackedheadercelldiv');
         let destElemUid: string = destElemDiv.getAttribute('e-mappinguid');
-        let destColumn: Column = gObj.getColumnByUid(destElemUid);
-        if (isNullOrUndefined(destColumn) || destColumn.allowReordering === false) {
-            return;
+        if (!isNullOrUndefined(destElemUid)) {
+            let destColumn: Column = gObj.getColumnByUid(destElemUid);
+            if (isNullOrUndefined(destColumn) || destColumn.allowReordering === false) {
+                return;
+            }
         }
         if (destElem && !(!this.chkDropPosition(this.element, destElem) || !this.chkDropAllCols(this.element, destElem))) {
             if (this.parent.enableColumnVirtualization) {
@@ -250,7 +252,7 @@ export class Reorder implements IAction {
     public destroy(): void {
         let gridElement: Element = this.parent.element;
         if (this.parent.isDestroyed || !gridElement || (!gridElement.querySelector('.e-gridheader') &&
-        !gridElement.querySelector('.e-gridcontent'))) { return; }
+            !gridElement.querySelector('.e-gridcontent'))) { return; }
         remove(this.upArrow);
         remove(this.downArrow);
         this.parent.off(events.headerDrop, this.headerDrop);

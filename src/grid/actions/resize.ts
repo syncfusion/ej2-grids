@@ -1,10 +1,11 @@
-import { EventHandler, detach, formatUnit, Browser, closest, isNullOrUndefined  } from '@syncfusion/ej2-base';
+import { EventHandler, detach, formatUnit, Browser, closest, classList } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { IGrid, IAction, ResizeArgs } from '../base/interface';
 import { ColumnWidthService } from '../services/width-controller';
 import * as events from '../base/constant';
 import { getScrollBarWidth, parentsUntil  } from '../base/util';
 import { OffsetPosition } from '@syncfusion/ej2-popups';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 
 export const resizeClassList: ResizeClasses = {
     root: 'e-rhandler',
@@ -84,7 +85,7 @@ export class Resize implements IAction {
         let contentTextClone: NodeListOf<Element>;
         let frzCols: number = gObj.getFrozenColumns();
         if (!isNullOrUndefined(gObj.getFooterContent())) {
-            footerTable = gObj.getFooterContentTable();
+        footerTable = gObj.getFooterContentTable();
         }
         if (frzCols) {
             if (index < frzCols) {
@@ -154,7 +155,7 @@ export class Resize implements IAction {
         }
         if (!isNullOrUndefined(footerTable)) {
             footerTable.classList.add('e-tableborder');
-        }
+           }
     }
 
     /**
@@ -248,6 +249,7 @@ export class Resize implements IAction {
                 ele.style.height = ele.parentElement.offsetHeight + 'px';
             }
         });
+        this.setHandlerHeight();
     }
 
     private wireEvents(): void {
@@ -291,6 +293,21 @@ export class Resize implements IAction {
                     this.widthService.setWidthToTable();
                 }
                 this.element = e.target as HTMLElement;
+                if (this.parent.getVisibleFrozenColumns()) {
+                    let mtbody: Element = this.parent.getContent().querySelector('.e-movablecontent').querySelector('tbody');
+                    let ftbody: Element = this.parent.getContent().querySelector('.e-frozencontent').querySelector('tbody');
+                    let mtr: NodeListOf<HTMLElement> = mtbody.querySelectorAll('tr');
+                    let ftr: NodeListOf<HTMLElement> = ftbody.querySelectorAll('tr');
+                    for (let i: number = 0; i < mtr.length; i++) {
+                        if (this.parent.rowHeight) {
+                             mtr[i].style.height = this.parent.rowHeight + 'px';
+                             ftr[i].style.height = this.parent.rowHeight + 'px';
+                        } else {
+                            mtr[i].style.removeProperty('height');
+                            ftr[i].style.removeProperty('height');
+                        }
+                    }
+                }
                 this.parentElementWidth = this.parent.element.getBoundingClientRect().width;
                 this.appendHelper();
                 this.column = this.getTargetColumn(e);
@@ -351,11 +368,6 @@ export class Resize implements IAction {
 
     private resizing(e: PointerEvent | TouchEvent): void {
         if (this.parent.allowTextWrap) {
-            if (this.parent.getFrozenColumns()) {
-                if (!this.parent.getHeaderContent().querySelectorAll('.e-stackedheadercell').length) {
-                    this.parent.notify(events.freezeRender, { case: 'textwrap' });
-                }
-            }
             this.element.style.height = this.element.parentElement.offsetHeight + 'px';
             this.setHelperHeight();
         }

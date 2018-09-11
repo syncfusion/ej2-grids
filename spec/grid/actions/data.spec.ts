@@ -451,7 +451,7 @@ describe('Data module', () => {
         let actionComplete: () => void;
         beforeAll((done: Function) => {
             let options: Object = {
-                dataSource: data,
+                dataSource: data.map(data => data),
                 selectionSettings: { type: 'Multiple' },
                 pageSettings: { pageSize: 6 },
                 toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],

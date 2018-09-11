@@ -17,6 +17,7 @@ import { Reorder } from '../../../src/grid/actions/reorder';
 import { createGrid, destroy, getKeyUpObj } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
 import { ColumnMenu } from '../../../src/grid/actions/column-menu';
+import * as events from '../../../src/grid/base/constant';
 
 Grid.Inject(Filter, Page, Selection, Group, Freeze, Reorder, ColumnMenu);
 
@@ -41,7 +42,7 @@ describe('Filtering module => ', () => {
     };
 
     let filterColumn: Function = (gridObj: Grid, colName: string, value: string, keyCode?: number) => {
-        let filterElement: any = gridObj.element.querySelector('[id=\''+colName+'_filterBarcell\']');
+        let filterElement: any = gridObj.element.querySelector('[id=\'' + colName + '_filterBarcell\']');
         filterElement.value = value;
         filterElement.focus();
         (gridObj.filterModule as any).keyUpHandler(getKeyUpObj(keyCode ? keyCode : 13, filterElement));
@@ -330,7 +331,7 @@ describe('Filtering module => ', () => {
             expect(gridObj.element.querySelectorAll('.e-filterbar').length).toBe(1);
         });
 
-        it('filter clear testing', (done: Function) => {          
+        it('filter clear testing', (done: Function) => {
             gridObj.clearFiltering();
             gridObj.actionComplete = (args?: Object): void => {
                 gridObj.actionComplete = null;
@@ -375,7 +376,7 @@ describe('Filtering module => ', () => {
         //     };
         //     filterColumn(gridObj, '9-10', 'vi');
         // });
-        
+
         afterAll(() => {
             destroy(gridObj);
         });
@@ -674,7 +675,7 @@ describe('Filtering module => ', () => {
         });
     });
 
-    describe('Filter a column and clear fitering => ', () => {
+    describe('Filter a column and clear filtering => ', () => {
         let gridObj: Grid;
         let actionBegin: () => void;
         let actionComplete: () => void;
@@ -1122,6 +1123,220 @@ describe('Filtering module => ', () => {
             };
             gridObj.actionBegin = dBound;
             gridObj.removeFilteredColsByField('ShipCity');
+        });
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
+    describe('Excel Filter dialog not updated while programmatically filter the column=> ', () => {
+        let gridObj: Grid;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    allowPaging: false,
+                    filterSettings: { type: 'Excel' },
+                    columns: [{ field: 'CustomerID', type: 'string' },
+                    { field: 'OrderID', type: 'number', visible: true },
+                    { field: 'ShipAddress', allowFiltering: true, visible: false }],
+                    actionComplete: actionComplete
+                }, done);
+        });
+
+
+        it('EJ2-10000(case 1) - Filtering customerID column by filterByColumn method', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.filterByColumn('CustomerID', 'contains', 'VIN');
+        });
+
+        it('EJ2-10000(case 1) - checking excel filter icon and whether value gets updated in Excel filter popup', (done: Function) => {
+            expect(gridObj.element.querySelector('.e-columnheader').firstElementChild.querySelector('.e-filtered')).toBeTruthy();
+            expect((gridObj.filterModule as any).actualPredicate["CustomerID"].length).toBe(1);
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.removeFilteredColsByField("CustomerID");
+        });
+
+        it('EJ2-10000(case 1) - Checking whether values in excel filter popup is cleared', () => {
+            expect((gridObj.filterModule as any).actualPredicate["CustomerID"]).toBe(undefined);
+        });
+
+        it('EJ2-10000(case 2) - changing filtertype', (done: Function) => {
+            let headerRefreshed = (): void => {
+                gridObj.off(events.headerRefreshed, headerRefreshed);
+                done();
+            }
+            gridObj.on(events.headerRefreshed, headerRefreshed, this);
+            gridObj.filterSettings.type = 'Menu';
+        });
+
+        it('EJ2-10000(case 2) - Filtering in Menu type', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.filterByColumn('CustomerID', 'contains', 'VIN');
+        });
+
+        it('EJ2-10000(case 2) -clearing in Menu type', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.removeFilteredColsByField("CustomerID");
+        });
+
+        it('EJ2-10000(case 2) - changing filter type', (done: Function) => {
+            let headerRefreshed = (): void => {
+                gridObj.off(events.headerRefreshed, headerRefreshed);
+                done();
+            }
+            gridObj.on(events.headerRefreshed, headerRefreshed, this);
+            gridObj.filterSettings.type = 'FilterBar';
+        });
+
+        it('EJ2-10000(case 3) - checking filterbar cell value after clearing in Menu type', (done: Function) => {
+            //checking for case 2 actions.
+            expect((gridObj.element.querySelector('#CustomerID_filterBarcell') as any).value).toBe('');
+            let headerRefreshed = (): void => {
+                gridObj.off(events.headerRefreshed, headerRefreshed);
+                done();
+            }
+            gridObj.on(events.headerRefreshed, headerRefreshed, this);
+            gridObj.filterSettings.type = 'Excel';
+        });
+
+        it('EJ2-10000(case 3) - Filtering in Excel type', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.filterByColumn('CustomerID', 'contains', 'VIN');
+        });
+
+        it('EJ2-10000(case 3) - clearing in Excel type', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            (gridObj.filterModule as any).filterHandler({ action: "clear-filter", field: "CustomerID" });
+        });
+
+        it('EJ2-10000(case 3) - changing filter settings', (done: Function) => {
+            let headerRefreshed = (): void => {
+                gridObj.off(events.headerRefreshed, headerRefreshed);
+                done();
+            }
+            gridObj.on(events.headerRefreshed, headerRefreshed, this);
+            gridObj.filterSettings.type = 'FilterBar';
+        });
+
+        it('EJ2-10000(case 4) - checking filterbar cell value after clearing in Excel type', (done: Function) => {
+            //checking for case 3 actions.
+            expect((gridObj.element.querySelector('#CustomerID_filterBarcell') as any).value).toBe('');
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.filterByColumn('CustomerID', 'contains', 'VIN');
+        });
+
+        it('EJ2-10000(case 4) - clearing in FilterBar type', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                gridObj.actionComplete = null;
+                done();
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.removeFilteredColsByField("CustomerID");
+        });
+
+        it('EJ2-10000(case 4) - checking whether filterbar value is cleared by removeFilteredColsByField method', () => {
+            //checking for case 4 actions
+            expect((gridObj.element.querySelector('#CustomerID_filterBarcell') as any).value).toBe('');
+        });
+
+        afterAll(() => {
+           destroy(gridObj);
+        });
+    });
+
+    describe('Filter template in FilterBar filter type => ', () => {
+        let gridObj: Grid;       
+        let actionComplete: () => void;
+        let drpdwn: string ='<input id="dropdown" value="1" >'       
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    allowPaging: false,
+                    pageSettings: { currentPage: 1 },
+                    filterSettings: { type: 'FilterBar' },
+                    columns: [
+                        { field: 'OrderID', visible: true },
+                        {
+                            field: 'EmployeeID', headerText: 'EmployeeID', filterTemplate: drpdwn
+                        },
+                        {field:'Fright',headerText:'Frieght', width:130}
+                    ],
+                }, done);
+        });
+
+        it('compile filterTemplate in filterbar filter', () => {            
+            expect((<any>gridObj).columns[1].filterTemplateFn).not.toBe(undefined);
+        });
+        it('compile filterTemplate in filterbar filter', () => {              
+            (<any>gridObj).filterByColumn('OrderID','equal',10248);        
+        });
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
+    describe('Filter template in Menu filter type => ', () => {
+        let gridObj: Grid;       
+        let actionComplete: () => void;
+        let drpdwn: string ='<input id="dropdown" value="1" >'       
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    allowPaging: false,
+                    pageSettings: { currentPage: 1 },
+                    filterSettings: { type: 'Menu' },
+                    columns: [
+                        { field: 'OrderID', visible: true },
+                        {
+                            field: 'EmployeeID', headerText: 'EmployeeID', filterTemplate: drpdwn
+                        },
+                        {field:'Fright',headerText:'Frieght', width:130}
+                    ],
+                }, done);
+        });
+
+        it('compile filterTemplate in menu filter', () => {
+            (<any>gridObj).element.querySelector('.e-headercell:nth-child(2)').querySelector('.e-filtermenudiv').click();
+            expect((<any>gridObj).columns[1].filterTemplateFn).not.toBe(undefined);
+        });
+        it('compile filterTemplate in menu filter', () => {  
+            (<any>gridObj).element.querySelector('.e-headercell:nth-child(1)').querySelector('.e-filtermenudiv').click();
+            (<any>gridObj).filterByColumn('OrderID','equal',10248);        
         });
         afterAll(() => {
             destroy(gridObj);

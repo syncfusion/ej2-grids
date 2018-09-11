@@ -1777,7 +1777,7 @@ describe('Checkbox Filter module => ', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: filterData,
+                    dataSource: filterData.slice(0),
                     allowFiltering: true,
                     editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch', showConfirmDialog: true, showDeleteConfirmDialog: false },
                     toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],

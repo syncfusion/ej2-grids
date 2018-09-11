@@ -144,7 +144,7 @@ export function prepareColumns(columns: Column[] | string[] | ColumnModel[], aut
         column.foreignKeyField = column.foreignKeyField || column.field;
 
         column.valueAccessor = (typeof column.valueAccessor === 'string' ? getValue(<string>column.valueAccessor, window)
-        : column.valueAccessor) || valueAccessor;
+            : column.valueAccessor) || valueAccessor;
 
         column.width = autoWidth && isNullOrUndefined(column.width) ? 200 : column.width;
 
@@ -271,7 +271,7 @@ export function getUid(prefix: string): string {
 }
 
 /** @hidden */
-export function appendChildren(elem: Element |DocumentFragment, children: Element[]| NodeList): Element {
+export function appendChildren(elem: Element | DocumentFragment, children: Element[] | NodeList): Element {
     for (let i: number = 0, len: number = children.length; i < len; i++) {
         if (len === children.length) {
             elem.appendChild(children[i]);
@@ -342,27 +342,14 @@ export function isComplexField(field: string): boolean {
     return field.split('.').length > 1;
 }
 /** @hidden */
-export function getComplexFieldID(field: string): string {
-
-    let length: number = field.split('.').length;
-    let splits: string[] = field.split('.');
-    let fieldName: string = '';
-    for (let i: number = 0; i < length; i++) {
-        fieldName = fieldName + splits[i];
-    }
-    return fieldName;
+export function getComplexFieldID(field: string = ''): string {
+    return field.replace(/\./g, '_');
 }
 /** @hidden */
-export function getComplexValue(rowData: Object, field: string): any {
-    let length: number = field.split('.').length;
-    let splits: string[] = field.split('.');
-    let complexData: Object = rowData[splits[0]];
-    let complexValue: string | Date | number | boolean | Object = complexData[splits[1]];
-    for (let i: number = 2; i < length; i++) {
-        complexValue = complexValue[splits[i]];
-    }
-    return complexValue;
+export function setComplexFieldID(field: string = ''): string {
+    return field.replace(/_/g, '.');
 }
+
 /** @hidden */
 export function isEditable(col: Column, type: string, elem: Element): boolean {
     let row: Element = parentsUntil(elem, 'e-row');
@@ -399,12 +386,6 @@ export function wrap(elem: any, action: boolean): void {
     }
 }
 
-export function changeButtonType(target: Element): void {
-    let elements: Element[] = [].slice.call(target.querySelectorAll('button'));
-    for (let button of elements) {
-        attributes(button, { type: 'button' });
-    }
-}
 /** @hidden */
 export function setFormatter(serviceLocator?: ServiceLocator, column?: Column): void {
     let fmtr: IValueFormatter = serviceLocator.getService<IValueFormatter>('valueFormatter');
@@ -632,4 +613,16 @@ export function renderMovable(ele: Element, frzCols: number): Element {
         ele.removeChild(ele.children[ele.childElementCount - 1]);
     }
     return mEle;
+}
+
+
+export function getObject(field: string = '', object?: Object): any {
+    if (field) {
+        let value: Object = object;
+        let splits: string[] = field.split('.');
+        for (let i: number = 0; i < splits.length && !isNullOrUndefined(value); i++) {
+            value = value[splits[i]];
+        }
+        return value as string;
+    }
 }

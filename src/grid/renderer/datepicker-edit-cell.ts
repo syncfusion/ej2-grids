@@ -1,8 +1,8 @@
 import { extend } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { IEditCell, IGrid, EJ2Intance } from '../base/interface';
-import { DatePicker } from '@syncfusion/ej2-calendars';
-import { isEditable, isComplexField, getComplexFieldID, getComplexValue } from '../base/util';
+import { DatePicker, DateTimePicker } from '@syncfusion/ej2-calendars';
+import { isEditable, isComplexField, getComplexFieldID, getObject } from '../base/util';
 
 /**
  * `DatePickerEditCell` is used to handle datepicker cell type editing.
@@ -17,11 +17,10 @@ export class DatePickerEditCell implements IEditCell {
     public create(args: { column: Column, value: string, type: string }): Element {
         /* tslint:disable-next-line:no-any */
         let complexFieldName: string = getComplexFieldID(args.column.field);
-        let isComplex: boolean = isComplexField(args.column.field);
         return this.parent.createElement('input', {
             className: 'e-field', attrs: {
-                id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + args.column.field,
-                name: isComplex ? complexFieldName : args.column.field, type: 'text', 'e-mappinguid': args.column.uid
+                id: this.parent.element.id + complexFieldName,
+                name: complexFieldName, type: 'text', 'e-mappinguid': args.column.uid
             }
         });
     }
@@ -33,19 +32,32 @@ export class DatePickerEditCell implements IEditCell {
         /* tslint:disable-next-line:no-any */
         let isComplex: boolean = isComplexField(args.column.field);
         let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
-        let value: Date = isComplex && !isAddRow ?
-            getComplexValue(args.rowData, args.column.field) : args.rowData[args.column.field];
+        let value: Date = getObject(args.column.field, args.rowData);
         value = value ? new Date(value) : null;
-        this.obj = new DatePicker(
-            extend(
-                {
-                    floatLabelType: isInline ? 'Never' : 'Always',
-                    value: value,
-                    placeholder: isInline ?
-                        '' : args.column.headerText, enableRtl: this.parent.enableRtl,
-                    enabled: isEditable(args.column, args.type, args.element),
-                },
-                args.column.edit.params));
+        if (args.column.editType === 'datepickeredit') {
+            this.obj = new DatePicker(
+                extend(
+                    {
+                        floatLabelType: isInline ? 'Never' : 'Always',
+                        value: value,
+                        placeholder: isInline ?
+                            '' : args.column.headerText, enableRtl: this.parent.enableRtl,
+                        enabled: isEditable(args.column, args.type, args.element),
+                    },
+                    args.column.edit.params));
+
+        } else if (args.column.editType === 'datetimepickeredit') {
+            this.obj = new DateTimePicker(
+                extend(
+                    {
+                        floatLabelType: isInline ? 'Never' : 'Always',
+                        value: value,
+                        placeholder: isInline ?
+                            '' : args.column.headerText, enableRtl: this.parent.enableRtl,
+                        enabled: isEditable(args.column, args.type, args.element),
+                    },
+                    args.column.edit.params));
+        }
         this.obj.appendTo(args.element as HTMLElement);
     }
 

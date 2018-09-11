@@ -118,6 +118,7 @@ export class FreezeRender extends HeaderRender implements IRenderer {
         this.rfshMovable();
         this.getMovableHeader().querySelector('tbody').innerHTML = tbody.innerHTML;
         this.updateColgroup();
+        this.parent.updateDefaultCursor();
         renderMovable(this.parent.getContentTable().querySelector('colgroup'), this.parent.getFrozenColumns());
         this.initializeHeaderDrag();
         this.parent.notify(events.headerRefreshed, { rows: this.rows, args: { isFrozen: false } });
@@ -219,15 +220,11 @@ export class FreezeRender extends HeaderRender implements IRenderer {
             mRowHgt = width[i];
             if (fRows[i].childElementCount && ((isWrap && fRowHgt < mRowHgt) || (!isWrap && fRowHgt > mRowHgt) ||
             (this.parent.allowResizing && !this.parent.resizeModule.isFrozenColResized))) {
-                if (!this.parent.allowResizing || (this.parent.allowResizing && !this.parent.resizeModule.isFrozenColResized)) {
-                    fRows[i].style.height = mRowHgt + 'px';
-                }
+                fRows[i].style.height = mRowHgt + 'px';
             }
             if (mRows[i].childElementCount && ((isWrap && fRowHgt > mRowHgt) || (!isWrap && fRowHgt < mRowHgt) ||
             (this.parent.allowResizing && this.parent.resizeModule.isFrozenColResized))) {
-                if (!this.parent.allowResizing || (this.parent.allowResizing && this.parent.resizeModule.isFrozenColResized)) {
-                    mRows[i].style.height = fRowHgt + 'px';
-                }
+                mRows[i].style.height = fRowHgt + 'px';
             }
         }
         if (isWrap) {

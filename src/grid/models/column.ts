@@ -1,11 +1,11 @@
-import { merge, isNullOrUndefined, getValue, extend } from '@syncfusion/ej2-base';
+import { merge, isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { NumberFormatOptions, DateFormatOptions } from '@syncfusion/ej2-base';
 import { DataManager, Query, DataUtil } from '@syncfusion/ej2-data';
 import { ICellFormatter, IFilterUI, IEditCell, CommandModel, IFilter } from '../base/interface';
 import { TextAlign, ClipMode } from '../base/enum';
 import { ValueFormatter } from '../services/value-formatter';
 import { ValueAccessor, SortComparer } from '../base/type';
-import { getUid, templateCompiler, getForeignData } from '../base/util';
+import { getUid, templateCompiler, getForeignData, getObject } from '../base/util';
 
 /**
  * Represents Grid `Column` model class.
@@ -366,6 +366,22 @@ export class Column {
      */
     public columnData: Object[];
 
+    /**
+     * Defines the cell edit template that used as editor for a particular column.
+     * It accepts either template string or HTML element ID.
+     * @default null
+     * @aspIgnore
+     */
+    public editTemplate: string;
+
+    /**
+     * Defines the filter template/UI that used as filter for a particular column.
+     * It accepts either template string or HTML element ID.
+     * @default null
+     * @aspIgnore
+     */
+    public filterTemplate: string;
+
     constructor(options: ColumnModel) {
         merge(this, options);
         this.uid = getUid('grid-column');
@@ -391,6 +407,12 @@ export class Column {
         if (this.filter.itemTemplate) {
             this.fltrTemplateFn = templateCompiler(this.filter.itemTemplate);
         }
+        if (this.editTemplate) {
+            this.editTemplateFn = templateCompiler(this.editTemplate);
+        }
+        if (this.filterTemplate) {
+            this.filterTemplateFn = templateCompiler(this.filterTemplate);
+        }
 
         if (this.isForeignColumn() && (isNullOrUndefined(this.editType) || this.editType === 'dropdownedit')) {
             this.editType = 'dropdownedit';
@@ -404,7 +426,7 @@ export class Column {
             let a: Function = this.sortComparer as Function;
             this.sortComparer = function comparer(x: number | string, y: number | string): number {
                 if (typeof a === 'string') {
-                    a = getValue(a, window);
+                    a = getObject(a, window);
                 }
                 if (this.sortDirection === 'Descending') {
                     let z: number | string = x;
@@ -417,8 +439,8 @@ export class Column {
 
         if (!this.sortComparer && this.isForeignColumn()) {
             this.sortComparer = (x: number | string, y: number | string) => {
-                x = getValue(this.foreignKeyValue, getForeignData(this, {}, <string>x)[0]);
-                y = getValue(this.foreignKeyValue, getForeignData(this, {}, <string>y)[0]);
+                x = getObject(this.foreignKeyValue, getForeignData(this, {}, <string>x)[0]);
+                y = getObject(this.foreignKeyValue, getForeignData(this, {}, <string>y)[0]);
                 return this.sortDirection === 'Descending' ? DataUtil.fnDescending(x, y) : DataUtil.fnAscending(x, y);
             };
         }
@@ -429,7 +451,15 @@ export class Column {
     private templateFn: Function;
     private fltrTemplateFn: Function;
     private headerTemplateFn: Function;
+    private editTemplateFn: Function;
+    private filterTemplateFn: Function;
     private sortDirection: string = 'Descending';
+
+    /** @hidden */
+    public getEditTemplate: Function = () => this.editTemplateFn;
+
+    /** @hidden */
+    public getFilterTemplate: Function = () => this.filterTemplateFn;
 
     /** @hidden */
     public getSortDirection(): string {
@@ -930,4 +960,18 @@ export interface ColumnModel {
      * It defines the column is foreign key column or not.
      */
     isForeignColumn?: () => boolean;
+
+    /**
+     * Defines the cell edit template that used as editor for a particular column.
+     * It accepts either template string or HTML element ID.
+     * @aspIgnore
+     */
+    editTemplate?: string;
+
+    /**
+     * Defines the filter template/UI that used as filter for a particular column.
+     * It accepts either template string or HTML element ID.
+     * @aspIgnore
+     */
+    filterTemplate?: string;
 }

@@ -84,7 +84,8 @@ export class InterSectionObserver {
             if (check) {
                 let fn: Function =  debounced100; //this.fromWheel ? this.options.debounceEvent ? debounced100 : callback : debounced100;
                 if (current.axis === 'X') { fn = debounced50; }
-                fn({ direction: direction, sentinel: current, offset: { top: top, left: left }});
+                fn({ direction: direction, sentinel: current, offset: { top: top, left: left },
+                        focusElement: document.activeElement});
             }
             this.fromWheel = false;
         };

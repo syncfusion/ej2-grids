@@ -125,7 +125,7 @@ export class CellRenderer implements ICellRenderer<Column> {
         let value: Object = cell.isForeignKey ? this.getValue(column.foreignKeyValue, fData, column) :
             this.getValue(column.field, data, column);
 
-        if (column.type === 'date' && !isNullOrUndefined(value)) {
+        if ((column.type === 'date' || column.type === 'datetime') && !isNullOrUndefined(value)) {
             value = new Date(value as string);
         }
 

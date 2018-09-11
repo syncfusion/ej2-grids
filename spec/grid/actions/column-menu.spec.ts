@@ -41,7 +41,7 @@ describe('column menu module', () => {
             document.body.appendChild(elem);
             gridObj = new Grid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     dataBound: dataBound,
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true },
@@ -517,7 +517,7 @@ describe('column menu module', () => {
             Browser.userAgent = desktop;
             grid = createGrid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true },
                     allowResizing: true,

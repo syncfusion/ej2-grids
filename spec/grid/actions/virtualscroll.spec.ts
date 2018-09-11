@@ -562,8 +562,34 @@ describe('Column virtualization', () => {
             let contentModule: VirtualContentRenderer = <VirtualContentRenderer>grid.contentModule;
             contentModule.ensureBlocks({ block: 0, blockIndexes: [124, 125], page: 63, direction: 'up' });
         });
-
-
+        afterAll(() => {
+            destroy(grid);
+        });
+    });
+    describe('Check scroll position after selecting and scroll', () => {
+        let grid: Grid;
+        beforeAll((done: Function) => {
+            grid = createGrid(
+                {
+                    dataSource: data,
+                    enableVirtualization: true,
+                    allowFiltering: true,
+                    allowSorting: true,
+                    selectionSettings: { persistSelection: true, type: 'Multiple'},
+                    height: 300
+                },
+                done
+            );
+        });
+        it('check selecting row', () => {
+            grid.selectRow(1,true);
+        });
+        it('change the scrollbar place', () => {
+            (<HTMLElement>grid.getContent().firstChild).scrollTop = 100;  
+        });
+        it('check scrollposition is same or not', () => {
+            expect((<HTMLElement>grid.getContent().firstChild).scrollTop).toBe(100);
+        });
         afterAll(() => {
             destroy(grid);
         });

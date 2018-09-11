@@ -163,6 +163,14 @@ export const ungroupBegin: string = 'ungrouping-begin';
 /** @hidden */
 export const ungroupComplete: string = 'ungrouping-complete';
 /** @hidden */
+export const groupAggregates : string = 'group-aggregates';
+/** @hidden */
+export const refreshFooterRenderer: string = 'refresh-footer-rendered';
+/** @hidden */
+export const refreshAggregateCell: string = 'refresh-aggregate-cell';
+/** @hidden */
+export const refreshAggregates: string = 'refresh-aggregates';
+/** @hidden */
 export const rowSelectionBegin: string = 'rowselecting';
 /** @hidden */
 export const rowSelectionComplete: string = 'rowselected';

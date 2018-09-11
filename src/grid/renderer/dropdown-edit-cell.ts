@@ -3,7 +3,7 @@ import { IGrid, EJ2Intance, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { DropDownList } from '@syncfusion/ej2-dropdowns';
 import { Query, DataManager, DataUtil } from '@syncfusion/ej2-data';
-import { isEditable, getComplexFieldID, getComplexValue, isComplexField } from '../base/util';
+import { isEditable, getComplexFieldID, getObject } from '../base/util';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
 import { parentsUntil } from '../base/util';
 
@@ -25,35 +25,25 @@ export class DropDownEditCell implements IEditCell {
 
     public create(args: { column: Column, value: string }): Element {
         //create
-        /* tslint:disable-next-line:no-any */
         let complexFieldName: string = getComplexFieldID(args.column.field);
-        /* tslint:disable-next-line:no-any */
-        let isComplex: boolean = isComplexField(args.column.field);
         return this.parent.createElement('input', {
             className: 'e-field', attrs: {
-                /* tslint:disable-next-line:no-any */
-                id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + args.column.field,
-                /* tslint:disable-next-line:no-any */
-                name: isComplex ? complexFieldName : args.column.field, type: 'text', 'e-mappinguid': args.column.uid,
+                id: this.parent.element.id + complexFieldName,
+                name: complexFieldName, type: 'text', 'e-mappinguid': args.column.uid,
             }
         });
     }
 
     public write(args: { rowData: Object, element: Element, column: Column, row: HTMLElement, requestType: string }): void {
         this.column = args.column;
-        /* tslint:disable-next-line:no-any */
-        let complexFieldName: string = getComplexFieldID(args.column.field);
-        let isComplex: boolean = isComplexField(args.column.field);
         let isInline: boolean = this.parent.editSettings.mode !== 'Dialog';
-        let isAddRow: boolean = args.requestType === 'add' || args.row.classList.contains('e-addedrow');
         this.obj = new DropDownList(extend(
             {
                 dataSource: this.parent.dataSource instanceof DataManager ?
                     this.parent.dataSource : new DataManager(this.parent.dataSource),
                 query: new Query().select(args.column.field), enabled: isEditable(args.column, args.requestType, args.element),
                 fields: { value: args.column.field },
-                value: isComplex && !isAddRow ?
-                    getComplexValue(args.rowData, args.column.field) : args.rowData[args.column.field],
+                value: getObject(args.column.field, args.rowData),
                 enableRtl: this.parent.enableRtl, actionComplete: this.ddActionComplete.bind(this),
                 placeholder: isInline ? '' : args.column.headerText, popupHeight: '200px',
                 floatLabelType: isInline ? 'Never' : 'Always', open: this.dropDownOpen.bind(this),
@@ -62,8 +52,7 @@ export class DropDownEditCell implements IEditCell {
             args.column.edit.params));
         this.obj.appendTo(args.element as HTMLElement);
         /* tslint:disable-next-line:no-any */
-        args.element.setAttribute('name', isComplex ? complexFieldName : args.column.field);
-
+        args.element.setAttribute('name', getComplexFieldID(args.column.field));
     }
 
     public read(element: Element): string {
@@ -79,9 +68,7 @@ export class DropDownEditCell implements IEditCell {
 
     private dropDownOpen(args: { popup: Popup }): void {
         let dlgElement: Element = parentsUntil(this.obj.element, 'e-dialog');
-        let targetElement: Element = !isNullOrUndefined(dlgElement) && dlgElement.id !== '' ?
-        this.parent.element.querySelector('#' + dlgElement.id) : null;
-        if (!isNullOrUndefined(targetElement)) {
+        if (this.parent.editSettings.mode === 'Dialog' && !isNullOrUndefined(dlgElement)) {
             let dlgObj: Dialog = (<EJ2Intance>this.parent.element.querySelector('#' + dlgElement.id)).ej2_instances[0];
             args.popup.element.style.zIndex = (dlgObj.zIndex + 1).toString();
         }

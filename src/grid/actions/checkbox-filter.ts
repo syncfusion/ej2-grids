@@ -83,7 +83,6 @@ export class CheckBoxFilter {
         }
     }
 
-
     /** 
      * To destroy the filter bar. 
      * @return {void} 
@@ -229,7 +228,7 @@ export class CheckBoxFilter {
             width: (!isNullOrUndefined(parentsUntil(options.target, 'e-bigger')))
                 || this.parent.element.classList.contains('e-device') ? 260 : 255,
             target: this.parent.element, animationSettings:
-            { effect: 'None' },
+                { effect: 'None' },
             buttons: [{
                 click: this.btnClick.bind(this),
                 buttonModel: {
@@ -270,6 +269,10 @@ export class CheckBoxFilter {
 
     public closeDialog(): void {
         if (this.dialogObj && !this.dialogObj.isDestroyed) {
+            let filterTemplateCol: Column[] = this.parent.getColumns().filter((col: Column) => col.getFilterItemTemplate());
+            if (filterTemplateCol.length) {
+                this.parent.destroyTemplate(['filterItemTemplate']);
+            }
             this.parent.notify(events.filterMenuClose, { field: this.options.field });
             this.dialogObj.destroy();
             this.unWireEvents();
@@ -318,9 +321,10 @@ export class CheckBoxFilter {
         let optr: string = 'equal';
         let caseSen: boolean = this.options.type === 'string' ?
             this.options.allowCaseSensitive : true;
-        let defaults: { predicate?: string, field?: string, operator?: string, matchCase?: boolean, ignoreAccent?: boolean } = {
+        let defaults: { predicate?: string, field?: string, type?: string,
+            operator?: string, matchCase?: boolean, ignoreAccent?: boolean } = {
             field: this.options.field, predicate: 'or',
-            operator: optr, matchCase: caseSen, ignoreAccent: this.parent.filterSettings.ignoreAccent
+            operator: optr, type: this.options.type, matchCase: caseSen, ignoreAccent: this.parent.filterSettings.ignoreAccent
         };
         let isNotEqual: boolean = this.itemsCnt !== checked.length && this.itemsCnt - checked.length < checked.length;
         if (isNotEqual) {
@@ -614,9 +618,10 @@ export class CheckBoxFilter {
         let label: Element = elem.querySelector('.e-label');
         label.innerHTML = !isNullOrUndefined(value) && value.toString().length ? value :
             this.getLocalizedLabel('Blanks');
+        addClass([label], ['e-checkboxfiltertext']);
         if (this.options.template) {
             label.innerHTML = '';
-            appendChildren(label, this.options.template(data));
+            appendChildren(label, this.options.template(data, this.parent, 'filterItemTemplate'));
         }
         return elem;
     }
@@ -626,7 +631,7 @@ export class CheckBoxFilter {
         let className: string[] = [];
         let elem: Element = this.cBox.querySelector('.e-selectall');
         let selected: number = this.cBox.querySelectorAll('.e-check:not(.e-selectall)').length;
-        let btn: Button = (<{ btnObj?: Button }>(this.dialogObj as DialogModel)).btnObj[0];
+        let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
         btn.disabled = false;
         if (cnt === selected) {
             className = ['e-check'];
@@ -644,13 +649,12 @@ export class CheckBoxFilter {
 
     private createFilterItems(data: Object[], isInitial?: boolean): void {
         let cBoxes: Element = this.parent.createElement('div');
-        let btn: Button = (<{ btnObj?: Button }>(this.dialogObj as DialogModel)).btnObj[0];
+        let btn: Button = (<{btnObj?: Button}>(this.dialogObj as DialogModel)).btnObj[0];
         this.itemsCnt = data.length;
         if (data.length) {
             let selectAllValue: string = this.getLocalizedLabel('SelectAll');
-            let checkBox: Element = this.createCheckbox(selectAllValue, false, { [this.options.field]: selectAllValue });
-            let selectAll: Element =
-                createCboxWithWrap(getUid('cbox'), checkBox, 'e-ftrchk');
+            let checkBox: Element = this.createCheckbox(selectAllValue, false, {[this.options.field]: selectAllValue});
+            let selectAll: Element = createCboxWithWrap(getUid('cbox'), checkBox, 'e-ftrchk');
             selectAll.querySelector('.e-frame').classList.add('e-selectall');
             cBoxes.appendChild(selectAll);
             let predicate: Predicate = new Predicate('field', 'equal', this.options.field);
@@ -664,7 +668,7 @@ export class CheckBoxFilter {
                 this.values[uid] = getValue('ejValue', data[i]);
                 let value: string = this.valueFormatter.toView(getValue(this.options.field, data[i]), this.options.formatFn) as string;
                 let checkbox: Element =
-                    this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid]), getValue('dataObj', data[i]));
+                this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid]), getValue('dataObj', data[i]));
                 cBoxes.appendChild(createCboxWithWrap(uid, checkbox, 'e-ftrchk'));
             }
             this.cBox.innerHTML = cBoxes.innerHTML;
@@ -725,7 +729,6 @@ export class CheckBoxFilter {
 
     public static getPredicate(columns: PredicateModel[]): Predicate {
         let cols: PredicateModel[] = DataUtil.distinct(columns, 'field', true) || [];
-
         let collection: Object[] = [];
         let pred: Predicate = {} as Predicate;
         for (let i: number = 0; i < cols.length; i++) {
@@ -765,7 +768,7 @@ export class CheckBoxFilter {
             } else {
                 if (cols[p].type === 'date' || cols[p].type === 'datetime') {
                     predicate = (predicate[((cols[p] as Predicate).predicate) as string] as Function)(
-                        getDatePredicate(cols[p], cols[p].type), cols[p].ignoreAccent);
+                        getDatePredicate(cols[p]), cols[p].type, cols[p].ignoreAccent);
                 } else {
                     predicate = cols[p].ejpredicate ?
                         (predicate[(cols[p] as Predicate).predicate as string] as Function)(cols[p].ejpredicate) :

@@ -1,5 +1,5 @@
 import { IGrid } from '../base/interface';
-import { isNullOrUndefined, closest, getValue } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, closest, extend } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { InlineEditRender } from './inline-edit-renderer';
 import { BatchEditRender } from './batch-edit-renderer';
@@ -12,7 +12,7 @@ import { RowModelGenerator } from '../services/row-model-generator';
 import { IModelGenerator, ICellRenderer } from '../base/interface';
 import { Cell } from '../models/cell';
 import { FocusStrategy } from '../services/focus-strategy';
-import { isComplexField, getComplexFieldID } from '../base/util';
+import { getComplexFieldID, getObject, appendChildren } from '../base/util';
 /**
  * Edit render module is used to render grid edit row.
  * @hidden
@@ -39,18 +39,12 @@ export class EditRender {
         this.focus = serviceLocator.getService<FocusStrategy>('focus');
     }
 
-    public addNew(args: {
-        rowData?: Object, columnName?: string, columnObject?: Column,
-        requestType?: string, cell?: Element, row?: Element, primaryKeyValue?: string[]
-    }): void {
+    public addNew(args: Object): void {
         this.renderer.addNew(this.getEditElements(args), args);
         this.convertWidget(args);
     }
 
-    public update(args: {
-        rowData?: Object, columnName?: string, columnObject?: Column,
-        requestType?: string, cell?: Element, row?: Element, primaryKeyValue?: string[]
-    }): void {
+    public update(args: Object): void {
         this.renderer.update(this.getEditElements(args), args);
         this.convertWidget(args);
     }
@@ -76,6 +70,19 @@ export class EditRender {
         }
         let cols: Column[] = gObj.editSettings.mode !== 'Batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
         for (let col of cols) {
+            if (this.parent.editSettings.template) {
+                let cellArgs: Object = extend({}, args);
+                (<{element: Element}>cellArgs).element = form.querySelector('[name=' + getComplexFieldID(col.field) + ']');
+                if (isNullOrUndefined((<{element: Element}>cellArgs).element) && frzCols) {
+                    (<{element: Element}>cellArgs).element = fForm.querySelector('[name=' + getComplexFieldID(col.field) + ']');
+                }
+                if (typeof col.edit.write === 'string') {
+                    getObject(col.edit.write, window)(cellArgs);
+                } else {
+                    (col.edit.write as Function)(cellArgs);
+                }
+                continue;
+            }
             if (!col.visible || col.commands) {
                 continue;
             }
@@ -88,15 +95,15 @@ export class EditRender {
             let temp: Function = col.edit.write as Function;
             if (!isNullOrUndefined(cell)) {
                 if (typeof temp === 'string') {
-                    temp = getValue(temp, window);
+                    temp = getObject(temp, window);
                     temp({
                         rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
-                        foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
+                        foreignKeyData: col.isForeignColumn() && getObject(col.field, args.foreignKeyData)
                     });
                 } else {
                     (col.edit.write as Function)({
                         rowData: args.rowData, element: cell, column: col, requestType: args.requestType, row: args.row,
-                        foreignKeyData: col.isForeignColumn() && getValue(col.field, args.foreignKeyData)
+                        foreignKeyData: col.isForeignColumn() && getObject(col.field, args.foreignKeyData)
                     });
                 }
                 if (!isFocused && !cell.getAttribute('disabled')) {
@@ -126,6 +133,9 @@ export class EditRender {
         let gObj: IGrid = this.parent;
         let elements: Object = {};
         let cols: Column[] = gObj.editSettings.mode !== 'Batch' ? gObj.getColumns() as Column[] : [gObj.getColumnByField(args.columnName)];
+        if (this.parent.editSettings.template) {
+            return {};
+        }
         for (let i: number = 0, len: number = cols.length; i < len; i++) {
             let col: Column = cols[i];
             if (!col.visible) {
@@ -147,31 +157,35 @@ export class EditRender {
             let tArgs: Object = { column: col, value: value, type: args.requestType, data: args.rowData };
             let temp: Function = col.edit.create as Function;
             let input: Element;
-            if (typeof temp === 'string') {
-                temp = getValue(temp, window);
-                input = temp(tArgs);
+            if (col.editTemplate) {
+                input = this.parent.createElement('span', {attrs: {'e-mappinguid': col.uid}});
+                appendChildren(input, col.getEditTemplate()(args.rowData, this.parent, 'editTemplate'));
             } else {
-                input = (col.edit.create as Function)(tArgs);
-            }
-            if (typeof input === 'string') {
-                let div: Element = this.parent.createElement('div');
-                div.innerHTML = input;
-                input = div.firstChild as Element;
-            }
-            let isInput: number = input.tagName !== 'input' && input.querySelectorAll('input').length;
-            let isComplex: boolean = !isNullOrUndefined(col.field) && isComplexField(col.field);
-            let complexFieldName: string = !isNullOrUndefined(col.field) && getComplexFieldID(col.field);
-            attributes(isInput ? input.querySelector('input') : input, {
-                name: isComplex ? complexFieldName : col.field, 'e-mappinguid': col.uid,
-                id: isComplex ? gObj.element.id + complexFieldName : gObj.element.id + col.field
-            });
-            classList(input, ['e-input', 'e-field'], []);
-            if (col.textAlign === 'Right') {
-                input.classList.add('e-ralign');
-            }
-            if ((col.isPrimaryKey || col.isIdentity) && args.requestType === 'beginEdit' ||
-                (col.isIdentity && args.requestType === 'add')) { // already disabled in cell plugins
-                input.setAttribute('disabled', 'true');
+                if (typeof temp === 'string') {
+                    temp = getObject(temp, window);
+                    input = temp(tArgs);
+                } else {
+                    input = (col.edit.create as Function)(tArgs);
+                }
+                if (typeof input === 'string') {
+                    let div: Element = this.parent.createElement('div');
+                    div.innerHTML = input;
+                    input = div.firstChild as Element;
+                }
+                let isInput: number = input.tagName !== 'input' && input.querySelectorAll('input').length;
+                let complexFieldName: string = getComplexFieldID(col.field);
+                attributes(isInput ? input.querySelector('input') : input, {
+                    name: complexFieldName, 'e-mappinguid': col.uid,
+                    id: gObj.element.id + complexFieldName
+                });
+                classList(input, ['e-input', 'e-field'], []);
+                if (col.textAlign === 'Right') {
+                    input.classList.add('e-ralign');
+                }
+                if ((col.isPrimaryKey || col.isIdentity) && args.requestType === 'beginEdit' ||
+                    (col.isIdentity && args.requestType === 'add')) { // already disabled in cell plugins
+                    input.setAttribute('disabled', 'true');
+                }
             }
             elements[col.uid] = input;
         }

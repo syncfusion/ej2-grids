@@ -1,4 +1,4 @@
-import { createElement, remove, closest, formatUnit } from '@syncfusion/ej2-base';
+import { remove, createElement, closest, formatUnit } from '@syncfusion/ej2-base';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { DataManager } from '@syncfusion/ej2-data';
 import { IGrid, IRenderer, NotifyArgs, VirtualInfo, IModelGenerator, InterSection } from '../base/interface';
@@ -76,7 +76,7 @@ export class VirtualContentRenderer extends ContentRender implements IRenderer {
         }
         this.parent.setColumnIndexesInView(this.parent.enableColumnVirtualization ? viewInfo.columnIndexes : []);
         this.parent.pageSettings.currentPage = viewInfo.loadNext && !viewInfo.loadSelf ? viewInfo.nextInfo.page : viewInfo.page;
-        this.parent.notify(viewInfo.event, { requestType: 'virtualscroll', virtualInfo: viewInfo });
+        this.parent.notify(viewInfo.event, { requestType: 'virtualscroll', virtualInfo: viewInfo, focusElement: scrollArgs.focusElement });
     }
 
     private block(blk: number): boolean {
@@ -410,4 +410,4 @@ export class VirtualElementHandler {
     }
 }
 
-type ScrollArg = { direction: string, sentinel: SentinelType, offset: Offsets };
+type ScrollArg = { direction: string, sentinel: SentinelType, offset: Offsets, focusElement: HTMLElement };

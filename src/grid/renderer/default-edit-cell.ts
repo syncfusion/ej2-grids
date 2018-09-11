@@ -2,7 +2,7 @@ import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IEditCell } from '../base/interface';
 import { Column } from '../models/column';
 import { Input } from '@syncfusion/ej2-inputs';
-import { isEditable } from '../base/util';
+import { isEditable, getComplexFieldID } from '../base/util';
 import { InputArgs }  from '@syncfusion/ej2-inputs';
 
 /**
@@ -22,7 +22,8 @@ export class DefaultEditCell implements IEditCell {
         let input: Element = this.parent.createElement('input', {
             className: 'e-field e-input e-defaultcell', attrs: {
                 type: 'text', value: !isNullOrUndefined(args.value) ? args.value : '', 'e-mappinguid': col.uid,
-                id: this.parent.element.id + col.field, name: col.field, style: 'text-align:' + col.textAlign,
+                id: this.parent.element.id + getComplexFieldID(col.field), name: getComplexFieldID(col.field),
+                style: 'text-align:' + col.textAlign,
             }
         });
         return input;
@@ -42,6 +43,6 @@ export class DefaultEditCell implements IEditCell {
                 placeholder: isInline ? '' : args.column.headerText
             }
         };
-        Input.createInput(inputargs , this.parent.createElement);
+        Input.createInput(inputargs, this.parent.createElement);
     }
 }

@@ -47,6 +47,7 @@ export class ExcelExport {
     private isElementIdChanged: boolean = false;
     private helper: ExportHelper;
     private foreignKeyData: { [key: string]: Object[] } = {};
+    private groupedColLength: number;
 
     /**
      * Constructor for the Grid Excel Export module.
@@ -109,20 +110,16 @@ export class ExcelExport {
             isMultipleExport: isMultipleExport, workbook: workbook, isCsv: isCsv, isBlob: isBlob
         };
         gObj.trigger(events.beforeExcelExport, args);
-        if (args[cancel] === true) {
-            return null;
+        this.data = new Data(gObj);
+        this.isExporting = true;
+        this.isBlob = args[isBlb];
+        if (args[csv]) {
+            this.isCsvExport = args[csv];
         } else {
-            this.data = new Data(gObj);
-            this.isExporting = true;
-            this.isBlob = args[isBlb];
-            if (args[csv]) {
-                this.isCsvExport = args[csv];
-            } else {
-                this.isCsvExport = false;
-            }
-
-            return this.processRecords(gObj, exportProperties, args[isMultiEx], args[workbk]);
+            this.isCsvExport = false;
         }
+
+        return this.processRecords(gObj, exportProperties, args[isMultiEx], args[workbk]);
     }
     /* tslint:disable-next-line:no-any */
     private processRecords(gObj: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any): Promise<any> {
@@ -158,6 +155,7 @@ export class ExcelExport {
     /* tslint:disable-next-line:max-line-length */
     /* tslint:disable-next-line:no-any */
     private processInnerRecords(gObj: IGrid, exportProperties: ExcelExportProperties, isMultipleExport: boolean, workbook: any, r: ReturnType): any {
+        this.groupedColLength = gObj.groupSettings.columns.length;
         let blankRows: number = 5;
         if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.multipleExport)) {
             /* tslint:disable-next-line:max-line-length */
@@ -224,7 +222,7 @@ export class ExcelExport {
         if (!isNullOrUndefined(exportProperties) && !isNullOrUndefined(exportProperties.dataSource) && !(exportProperties.dataSource instanceof DataManager)) {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties, exportProperties.dataSource as Object[]);
         } else if (!isNullOrUndefined(exportProperties) && exportProperties.exportType === 'CurrentPage') {
-            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties, gObj.getCurrentViewRecords());
+            this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties, gObj.currentViewData);
         } else {
             this.processRecordContent(gObj, r, headerRow, isMultipleExport, exportProperties);
         }
@@ -326,7 +324,7 @@ export class ExcelExport {
             };
 
             cell.value = this.parent.getColumnByField(item.field).headerText +
-                ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
+            ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ';
             if (item.count > 1) {
                 cell.value += item.count + ' items';
             } else {
@@ -355,14 +353,10 @@ export class ExcelExport {
                 if ((lIndex - cell.index) > 1) {
                     cell.colSpan = lIndex - cell.index;
                 }
-                while (hIndex < (headerRow.columns.length + level)) {
+                while (hIndex < (headerRow.columns.length + level + dataSource.childLevels)) {
                     /* tslint:disable-next-line:no-any */
                     let sCell: any = {};
-                    if (dataSource.childLevels === 0) {
-                        sCell.index = (hIndex);
-                    } else {
-                        sCell.index = (hIndex + 1);
-                    }
+                    sCell.index = (hIndex + 1);
                     sCell.style = this.getCaptionThemeStyle(this.theme);
                     cells.push(sCell);
                     hIndex++;
@@ -379,8 +373,10 @@ export class ExcelExport {
             }
             this.rows[this.rows.length - 1].cells = cells;
             this.rowLength++;
-
-
+            if (this.groupedColLength < 8 && level > 1) {
+                let grouping: Object = { outlineLevel: level - 1, isCollapsed: true };
+                this.rows[this.rows.length - 1].grouping = grouping;
+            }
 
             if (!isNullOrUndefined(dataSource.childLevels) && dataSource.childLevels > 0) {
                 this.processGroupedRows(gObj, item.items, headerRow, item.items.level);
@@ -412,7 +408,7 @@ export class ExcelExport {
                 if (!isNullOrUndefined(value)) {
                     /* tslint:disable-next-line:no-any */
                     let excelCellArgs: any = { data: record[r], column: headerRow.columns[c], foreignKeyData: foreignKeyData };
-                    let cell: { index?: number, value?: number, colSpan?: number, style?: ExcelStyle | { name: string } } = {};
+                    let cell: { index?: number, value?: number, colSpan?: number, style?: ExcelStyle | {name : string}} = {};
                     gObj.trigger(events.excelQueryCellInfo, extend(
                         excelCellArgs,
                         <ExcelQueryCellInfoEventArgs>{
@@ -436,7 +432,12 @@ export class ExcelExport {
                 index++;
 
             }
-            this.rows.push({ index: this.rowLength++, cells: cells });
+            if (this.groupedColLength < 8 && level > 0) {
+                let grouping: Object = { outlineLevel: level, isCollapsed: true };
+                this.rows.push({ index: this.rowLength++, cells: cells, grouping: grouping});
+            } else {
+                this.rows.push({ index: this.rowLength++, cells: cells });
+            }
         }
     }
     /* tslint:disable-next-line:no-any */
@@ -529,7 +530,17 @@ export class ExcelExport {
             if (!isNullOrUndefined(customIndex)) {
                 this.rows.push({ index: customIndex, cells: cells });
             } else {
-                this.rows.push({ index: this.rowLength++, cells: cells });
+                let row: Object = {};
+                if (this.groupedColLength < 8) {
+                    let dummyOutlineLevel: string = 'outlineLevel';
+                    let dummyGrouping: string = 'grouping';
+                    let level: number = this.rows[this.rows.length - 1][dummyGrouping][dummyOutlineLevel];
+                    let grouping: Object = { outlineLevel: level, isCollapsed: true };
+                    row = {index: this.rowLength++, cells: cells, grouping};
+                } else {
+                    row = {index: this.rowLength++, cells: cells};
+                }
+                this.rows.push(row);
             }
         }
     }

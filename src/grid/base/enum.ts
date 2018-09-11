@@ -76,6 +76,16 @@ export type SelectionType =
     /**  Defines multiple selections in the Grid */
     'Multiple';
 
+/** 
+ * Defines modes of checkbox Selection. They are
+ * * Default
+ * * ResetOnRowClick
+ */
+export type CheckboxSelectionType =
+    /**  Allows the user to select multiple rows by clicking rows one by one */
+    'Default' |
+    /**  Allows to reset the previously selected row when a row is clicked and multiple rows can be selected by using CTRL or SHIFT key */
+    'ResetOnRowClick';
 
 /** 
  * Defines alignments of text, they are

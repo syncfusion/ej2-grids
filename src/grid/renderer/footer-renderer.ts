@@ -2,7 +2,7 @@ import { isNullOrUndefined, remove } from '@syncfusion/ej2-base';
 import { formatUnit } from '@syncfusion/ej2-base';
 import { IRenderer, IGrid } from '../base/interface';
 import { Browser } from '@syncfusion/ej2-base';
-import { colGroupRefresh, columnWidthChanged, scroll, columnVisibilityChanged } from '../base/constant';
+import { colGroupRefresh, columnWidthChanged, scroll, columnVisibilityChanged, refreshFooterRenderer } from '../base/constant';
 import { Column } from '../models/column';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import { Row } from '../models/row';
@@ -10,7 +10,9 @@ import { ContentRender } from './content-renderer';
 import { RowRenderer } from './row-renderer';
 import { ServiceLocator } from '../services/service-locator';
 import { SummaryModelGenerator } from '../services/summary-model-generator';
-import { renderMovable } from '../base/util';
+import { renderMovable, calculateAggregate } from '../base/util';
+import { DataUtil } from '@syncfusion/ej2-data';
+import { AggregateColumn, AggregateRow } from '../models/aggregate';
 
 /**
  * Footer module is used to render grid content
@@ -161,6 +163,7 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         this.parent.on(columnWidthChanged, this.onWidthChange, this);
         this.parent.on(scroll, this.onScroll, this);
         this.parent.on(columnVisibilityChanged, this.columnVisibilityChanged, this);
+        this.parent.on(refreshFooterRenderer, this.refreshFooterRenderer, this);
     }
 
     public removeEventListener(): void {
@@ -168,11 +171,80 @@ export class FooterRenderer extends ContentRender implements IRenderer {
         this.parent.off(columnWidthChanged, this.onWidthChange);
         this.parent.off(scroll, this.onScroll);
         this.parent.off(columnVisibilityChanged, this.columnVisibilityChanged);
+        this.parent.off(refreshFooterRenderer, this.refreshFooterRenderer);
     }
     private updateFooterTableWidth(tFoot: HTMLElement): void {
         let tHead: HTMLTableElement = this.parent.getHeaderTable() as HTMLTableElement;
         if (tHead && tFoot) {
             tFoot.style.width = tHead.style.width;
         }
+    }
+    public refreshFooterRenderer(editedData: Object[]): void {
+        let aggregates: Object = this.onAggregates(editedData);
+        this.refresh(aggregates);
+    }
+    public onAggregates(editedData: Object[]): Object {
+        editedData = editedData instanceof Array ? editedData : [];
+        let field: string = this.parent.getPrimaryKeyFieldNames()[0];
+        let deletedCols: Object[] = [];
+        let mergeds: Object[];
+        let rows: Row<Column>[] = this.parent.frozenColumns > 0 ? this.parent.getMovableRowsObject() : this.parent.getRowsObject();
+        let initds: Object[] = this.parent.dataSource instanceof Array ? this.parent.dataSource : this.parent.getCurrentViewRecords();
+        let addrow: Object[] = [];
+        let changeds: Object[] = rows.map((row: Row<{}>) => {
+            if (row.changes && row.edit === 'add') { addrow.push(row.changes); }
+            if (row.edit === 'delete') { deletedCols.push(row.data); }
+            return row.isDirty && row.changes ? row.changes : row.data;
+        });
+        changeds = editedData.length === 0 ? changeds : editedData;
+        mergeds = initds.map((item: Object) => {
+            let idVal: Object = DataUtil.getObject(field, item);
+            let value: Object;
+            let hasVal: boolean = changeds.some((cItem: Object) => {
+                value = cItem;
+                return idVal === DataUtil.getObject(field, cItem);
+            });
+            return hasVal ? value : item;
+        });
+        let currentData: Object[] = this.parent.groupSettings.columns.length > 0 && 'records' in this.parent.currentViewData ?
+            this.parent.getCurrentViewRecords() : this.parent.currentViewData;
+        let currentds: Object[];
+        currentds = currentData.map((item: Object) => {
+            let idVal: Object = DataUtil.getObject(field, item);
+            let value: Object;
+            let hasVal: boolean = mergeds.some((cItem: Object) => {
+                value = cItem;
+                return idVal === DataUtil.getObject(field, cItem);
+            });
+            return hasVal ? value : item;
+        });
+        if (addrow.length > 0) { addrow.forEach((row: Object) => { mergeds.push(row); currentds.push(row); }); }
+        let eData: Object = editedData;
+        if (!((<{ type: string }>eData).type && (<{ type: string }>eData).type === 'cancel') && deletedCols.length > 0) {
+            deletedCols.forEach((row: Object) => {
+                let index: number = mergeds.indexOf(row);
+                let curIndx: number = currentData.indexOf(row);
+                mergeds.splice(index, 1);
+                if (currentds && currentds.length) { currentds.splice(curIndx, 1); }
+            });
+        }
+        let aggregate: Object = {};
+        let agrVal: Object;
+        let aggregateRows: AggregateRow | Object[] = this.parent.aggregates;
+        aggregateRows.forEach((row: AggregateRow) => {
+            row.columns.forEach((col: AggregateColumn) => {
+                let data: Object[] = [];
+                let type: string = col.type.toString();
+                data = type.toLowerCase() === 'custom' && !isNullOrUndefined(currentds) ? currentds : mergeds;
+                agrVal = calculateAggregate(type, data, col, this.parent);
+                aggregate[col.field + ' - ' + type.toLowerCase()] = agrVal;
+            });
+        });
+        let result: Object = {
+            result: this.parent.groupSettings.columns.length > 0 ? mergeds : currentds,
+            count: mergeds.length,
+            aggregates: aggregate
+        };
+        return result;
     }
 }

@@ -4,12 +4,17 @@ import { isNullOrUndefined, extend } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { GroupSettingsModel, SortDescriptorModel } from '../base/grid-model';
 import { parentsUntil, isActionPrevent } from '../base/util';
-import { Action } from '../base/enum';
+import { Action, AggregateType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import * as events from '../base/constant';
 import { AriaService } from '../services/aria-service';
 import { FocusStrategy } from '../services/focus-strategy';
+import { GroupModelGenerator } from '../services/group-model-generator';
+import { DataUtil } from '@syncfusion/ej2-data';
+import { AggregateColumn, AggregateRow } from '../models/aggregate';
+import { Row } from '../models/row';
+import { Cell } from '../models/cell';
 
 /**
  * 
@@ -23,6 +28,7 @@ export class Group implements IAction {
     private column: Column;
     private isAppliedGroup: boolean = false;
     private isAppliedUnGroup: boolean = false;
+    private groupGenerator: GroupModelGenerator;
     private visualElement: HTMLElement = createElement('div', {
         className: 'e-cloneproperties e-dragclone e-gdclone',
         styles: 'line-height:23px', attrs: { action: 'grouping' }
@@ -96,6 +102,7 @@ export class Group implements IAction {
         this.sortedColumns = sortedColumns;
         this.focus = serviceLocator.getService<FocusStrategy>('focus');
         this.addEventListener();
+        this.groupGenerator = new GroupModelGenerator(this.parent);
     }
 
     private columnDrag(e: { target: Element }): void {
@@ -152,6 +159,7 @@ export class Group implements IAction {
         this.parent.on(events.contentReady, this.initialEnd, this);
         this.parent.on(events.onEmpty, this.initialEnd, this);
         this.parent.on(events.initialEnd, this.render, this);
+        this.parent.on(events.groupAggregates, this.onGroupAggregates, this);
     }
     /**
      * @hidden
@@ -170,6 +178,7 @@ export class Group implements IAction {
         this.parent.off(events.headerRefreshed, this.refreshSortIcons);
         this.parent.off(events.sortComplete, this.refreshSortIcons);
         this.parent.off(events.keyPressed, this.keyPressHandler);
+        this.parent.off(events.groupAggregates, this.onGroupAggregates);
     }
 
     private initialEnd(): void {
@@ -783,5 +792,64 @@ export class Group implements IAction {
             return this.element.querySelector('[ej-mappingname="' + field + '"]').parentElement;
         }
         return null;
+    }
+
+    private onGroupAggregates(editedData: Object[]): void {
+        let aggregates: Object[] = this.iterateGroupAggregates(editedData);
+        let rowData: Object[] = this.groupGenerator.generateRows(aggregates, {});
+        let summaryRows: Row<Column>[] = this.parent.getRowsObject().filter((row: Row<Column>) => !row.isDataRow);
+        let updateSummaryRows: Object[] = rowData.filter((data: Row<Column>) => !data.isDataRow);
+        updateSummaryRows.forEach((row: Row<Column>, indx: number) => {
+            let cells: Object[] = row.cells.filter((cell: Cell<{}>) => cell.isDataCell);
+            let args: Object = { cells: cells, data: row.data, dataUid: summaryRows[indx] ? summaryRows[indx].uid : '' };
+            this.parent.notify(events.refreshAggregateCell, args);
+        });
+    }
+
+    private iterateGroupAggregates(editedData: Object[]): Object[] {
+        let updatedData: Object[] = editedData instanceof Array ? editedData : [];
+        let rows: Object[] = this.parent.getRowsObject();
+        let initData: Object[] = this.parent.getCurrentViewRecords();
+        let deletedCols: Object[] = [];
+        let changeds: Object[] = rows.map((row: Row<AggregateColumn> | Row<Column>) => {
+            if (row.edit === 'delete') { deletedCols.push(row.data); }
+            return row.changes instanceof Object ? row.changes : row.data;
+        });
+        let field: string = this.parent.getPrimaryKeyFieldNames()[0];
+        changeds = updatedData.length === 0 ? changeds : updatedData;
+        let mergeData: Object[] = initData.map((item: Object) => {
+            let pKeyVal: Object = DataUtil.getObject(field, item);
+            let value: Object;
+            let hasVal: boolean = changeds.some((cItem: Object) => {
+                value = cItem;
+                return pKeyVal === DataUtil.getObject(field, cItem);
+            });
+            return hasVal ? value : item;
+        });
+        let eData: Object = editedData;
+        if (!((<{ type: string }>eData).type && (<{ type: string }>eData).type === 'cancel') && deletedCols.length > 0) {
+            deletedCols.forEach((row: Object) => {
+                let index: number = mergeData.indexOf(row);
+                mergeData.splice(index, 1);
+            });
+        }
+        let aggregates: Object[] = [];
+        let aggregateRows: AggregateRow | Object[] = this.parent.aggregates;
+        aggregateRows.forEach((row: AggregateRow) => {
+            row.columns.forEach((col: AggregateColumn) => {
+                let aggr: Object = {};
+                let type: string | AggregateType[] = col.type.toString();
+                aggr = { type: type.toLowerCase(), field: col.field };
+                aggregates.push(aggr);
+            });
+        });
+        let result: Object[];
+        let aggrds: Object[];
+        let groupedCols: string[] = this.parent.groupSettings.columns;
+        groupedCols.forEach((field: string) => {
+            aggrds = result ? result : mergeData;
+            result = DataUtil.group(aggrds, field, aggregates, null, null);
+        });
+        return result;
     }
 }

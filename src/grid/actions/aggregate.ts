@@ -5,7 +5,7 @@ import { IAction, IGrid, NotifyArgs, ICellRenderer } from '../base/interface';
 import { CellType } from '../base/enum';
 import { ServiceLocator } from '../services/service-locator';
 import { CellRendererFactory } from '../services/cell-render-factory';
-import { uiUpdate, initialEnd, dataReady, modelChanged } from '../base/constant';
+import { uiUpdate, initialEnd, dataReady, modelChanged, refreshAggregates, refreshFooterRenderer, groupAggregates } from '../base/constant';
 import { FooterRenderer } from '../renderer/footer-renderer';
 import { SummaryCellRenderer } from '../renderer/summary-cell-renderer';
 import { AggregateRowModel, ColumnModel } from '../models/models';
@@ -100,6 +100,7 @@ export class Aggregate implements IAction {
         if (this.parent.isDestroyed) { return; }
         this.parent.on(initialEnd, this.initiateRender, this);
         this.parent.on(uiUpdate, this.onPropertyChanged, this);
+        this.parent.on(refreshAggregates, this.refresh, this);
     }
 
     public removeEventListener(): void {
@@ -108,12 +109,22 @@ export class Aggregate implements IAction {
         this.parent.off(initialEnd, this.initiateRender);
         this.parent.off(dataReady, this.footerRenderer.refresh);
         this.parent.off(uiUpdate, this.onPropertyChanged);
+        this.parent.off(refreshAggregates, this.refresh);
     }
 
     public destroy(): void {
         this.removeEventListener();
         remove(this.parent.element.querySelector('.e-gridfooter'));
     }
+
+    public refresh(data: Object): void {
+        let editedData: Object[] = data instanceof Array ? data : [data];
+        this.parent.notify(refreshFooterRenderer, editedData);
+        if (this.parent.groupSettings.columns.length > 0) {
+            this.parent.notify(groupAggregates, editedData);
+        }
+    }
+
 }
 /**
  * @private

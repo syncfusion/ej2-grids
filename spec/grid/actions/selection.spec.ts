@@ -3118,7 +3118,7 @@ describe('Grid Touch Selection', () => {
     //     });
     // });
 
-        describe('grid checkbox selection binding with data source', () => {
+    describe('grid checkbox selection binding with data source', () => {
         let gridObj: Grid;
         let rowSelected: () => void;
         beforeAll((done: Function) => {
@@ -3156,4 +3156,114 @@ describe('Grid Touch Selection', () => {
             destroy(gridObj);
         });
     });
+
+    describe('Grid Selection Issue Fixes', () =>{
+        let gridObj: Grid;
+        let rowSelected: () => void;
+        beforeAll((done) => {
+            gridObj = createGrid({
+                    dataSource: data,
+                    columns: [
+                    { type: 'checkbox', width: 50 },
+                    { field: 'OrderID', headerText: 'Order ID' },
+                    { field: 'CustomerID', headerText: 'CustomerID' },
+                    { field: 'EmployeeID', headerText: 'Employee ID' }],
+                    allowPaging: true,
+                    rowSelected: rowSelected
+            }, done);
+        });
+
+        it('Selecting First row', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(1);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            gridObj.isCheckBoxSelection = false;
+            (<HTMLElement>gridObj.element.querySelectorAll('.e-row')[0].querySelector('.e-rowcell')).click();
+        });
+
+        it('Selecting Second row', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(1);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            (<HTMLElement>gridObj.element.querySelectorAll('.e-row')[1].querySelector('.e-rowcell')).click();
+        });
+
+        it('Selecting Third row', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(2);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            (<HTMLElement>gridObj.element.querySelectorAll('.e-row')[2].querySelector('.e-gridchkbox')
+            .querySelector('.e-checkbox-wrapper')).click();
+        });
+
+        it('multi row - ctrl click testing- selecting Fourth row', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(3);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            (gridObj.selectionModule as any).clickHandler({target: gridObj.element.querySelectorAll('.e-row')[3]
+            .querySelectorAll('.e-rowcell')[2], ctrlKey: true});
+        });
+
+        it('Selecting First row', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(1);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            gridObj.isCheckBoxSelection = false;
+            (<HTMLElement>gridObj.element.querySelectorAll('.e-row')[0].querySelector('.e-rowcell')).click();
+        });
+
+        it('multi row - Shift click testing', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(4);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            (gridObj.selectionModule as any)
+            .clickHandler({target: gridObj.element.querySelectorAll('.e-row')[3].querySelectorAll('.e-rowcell')[2], shiftKey: true});
+        });
+
+        it('Selecting First row', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(1);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            gridObj.isCheckBoxSelection = false;
+            (<HTMLElement>gridObj.element.querySelectorAll('.e-row')[0].querySelector('.e-rowcell')).click();
+        });
+
+        it('Shift + Clicking Checkbox in Fourth Row', (done: Function) => {
+            rowSelected = (): void => {
+                expect(gridObj.getSelectedRowIndexes().length).toBe(2);
+                gridObj.rowSelected = null;
+                done();
+            };
+            gridObj.rowSelected = rowSelected;
+            (gridObj.selectionModule as any)
+            .clickHandler({target: gridObj.element.querySelectorAll('.e-row')[3].querySelector('.e-gridchkbox')
+            .querySelector('.e-checkbox-wrapper'), shiftKey: true});
+        });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
 });

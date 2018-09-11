@@ -2,6 +2,41 @@
 
 ## [Unreleased]
 
+## 16.3.17 (2018-09-11)
+
+### Grid
+
+#### Bug Fixes
+
+- Initial multi-sorting icon is added incorrectly fixed.
+- Validation for complex property is not added properly resolved.
+
+#### New Features
+
+- Dialog edit template support added.
+- Reactive aggregate update support added.
+- Date time type column filter support added.
+- Windows explorer like check-box selection added.
+- Expand and collapse enabled in excel exported document for grouped grid.
+- Support to prevent the overriding of autofit columns by Resizing added.
+- Show All option added for page size drop-down.
+
+## 16.2.50 (2018-09-04)
+
+### Grid
+
+#### Bug Fixes
+
+- Script error thrown with dynamic column and datasource inside the service subscription.
+- Cell selection misbehaves when having both checkbox and template columns in Grid issue is fixed.
+- Initial sorting and grid sorting is fixed when `isFrozen` property set for column.
+- Maximum call stack occurred when traverse through grouped hierarchy grid issue resolved.
+
+#### Breaking Changes
+
+- For remote data, while using the checkbox/excel filter, the search operator is changed to `equal` for `number` and `date` type columns.
+  Previously `startswith` operator was used.
+
 ## 16.2.49 (2018-08-21)
 
 ### Grid
@@ -52,10 +87,10 @@
 
 #### Bug Fixes
 
-- Edit params is not properly applied for foreign key column is resolved.
+- Edit parameter is not properly applied for foreign key column is resolved.
 - Batch edit for Template column is fixed.
-- ng-compiler for filter itemTemplate property is fixed.
-- Operators are not maintained while filtering multiple columns with filterbar issue resolved.
+- ng-compiler for filter `itemTemplate` property is fixed.
+- Operators are not maintained while filtering multiple columns with filter bar issue resolved.
 - Display of raw HTML when dragging column header to group area is resolved.
 - Grid displays fine when enable/disable `enableVirtualization` dynamically.
 
@@ -120,26 +155,6 @@
 - Aggregates row get misaligned while horizontal scrolling if vertical scrollbar presents resolved.
 - Excel filter dialog is not updated when properties updated through `setProperties` issue resolved.
 - Indent column disappeared when resizing the hierarchy column in Grid issue fixed.
-
-## 16.1.48 (2018-06-13)
-
-### Grid
-
-#### Bug Fixes
-
-- Dropdown Editing issue fixed when grid is resides in Dialog
-- Complex object properties missed while batch editing issue fixed.
-- Refreshing grid in edit state while using frozen rows and columns is fixed
-- Sorting in disable state while set dynamic sort settings with descending order issue fixed
-
-## 16.1.47 (2018-06-06)
-
-### Grid
-
-#### Bug Fixes
-
-Memory leak issue with angular routing fixed.
-Sort icon misalignment with auto wrap feature.
 
 ## 16.1.44 (2018-05-18)
 

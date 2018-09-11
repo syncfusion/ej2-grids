@@ -1989,6 +1989,11 @@
        }
   }
 
+    .e-checkboxfiltertext {
+      width: 150px;
+      word-break: normal;
+    }
+
     .e-frozenhdrcont .e-headercontent > .e-table,
     .e-frozenhdrcont .e-frozenheader > .e-table,
     .e-frozenhdrcont .e-movableheader > .e-table {

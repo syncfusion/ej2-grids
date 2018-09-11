@@ -62,9 +62,9 @@ export class PdfExport {
         this.currentViewData = false;
         this.parent = parent;
         let gObj: IGrid = parent;
+        let can: string = 'cancel';
         this.isGrouping = false;
         this.isExporting = true;
-        let can: string = 'cancel';
         let args: Object = {
             requestType: 'beforePdfExport', gridObject: gObj, cancel: false
         };
@@ -115,7 +115,7 @@ export class PdfExport {
                 this.isExporting = false;
                 parent.trigger(events.pdfExportComplete, this.isBlob ? { promise: this.blobPromise } : {});
                 return this.pdfDocument;
-                // tslint:disable-next-line:no-any
+            // tslint:disable-next-line:no-any
             }) as any;
         }
     }
@@ -253,7 +253,7 @@ export class PdfExport {
                 isForeignKey: col.isForeignColumn(),
             };
             /* tslint:disable-next-line:max-line-length */
-            let value: string = dataSourceItems.field + ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ' + dataSourceItems.count + (dataSource.count > 1 ? ' items' : ' item');
+            let value: string = this.parent.getColumnByField(dataSourceItems.field).headerText + ': ' + this.exportValueFormatter.formatCellValue(args) + ' - ' + dataSourceItems.count + (dataSource.count > 1 ? ' items' : ' item');
             row.cells.getCell(groupIndex).value = value;
             row.cells.getCell(groupIndex + 1).style.stringFormat = new PdfStringFormat(PdfTextAlignment.Left);
             row.style.setBorder(border);
@@ -400,7 +400,7 @@ export class PdfExport {
                 this.currentViewData = false;
             } else if (!isNullOrUndefined(pdfExportProperties.exportType)) {
                 if (pdfExportProperties.exportType === 'CurrentPage') {
-                    dataSource = this.parent.getCurrentViewRecords();
+                    dataSource = this.parent.currentViewData;
                     this.currentViewData = true;
                     this.customDataSource = false;
                 } else {

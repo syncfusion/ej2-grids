@@ -215,10 +215,26 @@ export class FocusStrategy {
                     if (bool) {
                         this.content.matrix.current[0] = index;
                         this.content.matrix.current[1] = this.parent.getColumnIndexByUid(this.focusedColumnUid) || 0;
+                        let focusElement: HTMLElement = this.getContent().getFocusInfo().elementToFocus;
+                        if (focusElement) {
+                            let cellPosition: ClientRect = focusElement.getBoundingClientRect();
+                            let gridPosition: ClientRect = this.parent.element.getBoundingClientRect();
+                            if (cellPosition.top >= 0 && cellPosition.left >= 0 &&
+                                cellPosition.right <= Math.min(gridPosition.right, window.innerWidth ||
+                                    document.documentElement.clientWidth) &&
+                                cellPosition.bottom <= Math.min(gridPosition.bottom, window.innerHeight ||
+                                    document.documentElement.clientHeight)) {
                         this.focus();
                     }
                 }
             }
+        } else if (e.args.focusElement && e.args.focusElement.classList.contains('e-filtertext')) {
+            let focusElement: HTMLElement = <HTMLElement>this.parent.element.querySelector('#' + e.args.focusElement.id);
+            if (focusElement) {
+                focusElement.focus();
+            }
+        }
+    }
         };
     }
 
@@ -347,6 +363,9 @@ export class Matrix {
         let first: number = this.first(this.matrix[rowIndex], columnIndex, navigator, true, action);
         columnIndex = first === null ? tmp : first;
         let val: number = getValue(`${rowIndex}.${columnIndex}`, this.matrix);
+        if (rowIndex === this.rows && action === 'downArrow') {
+            navigator[0] = -1;
+        }
         return this.inValid(val) || !validator(rowIndex, columnIndex, action) ?
             this.get(rowIndex, tmp, navigator, action, validator) : [rowIndex, columnIndex];
     }

@@ -219,7 +219,7 @@ export class ColumnMenu implements IAction {
             || (args.event.currentTarget && (args.event.currentTarget as Document).activeElement &&
             parentsUntil((args.event.currentTarget as Document).activeElement as Element, 'e-filter-popup'))
             || parentsUntil(args.event.target as Element, 'e-popup') ||
-            (parentsUntil(args.event.target as Element, 'e-popup-wrapper')))) {
+            (parentsUntil(args.event.target as Element, 'e-popup-wrapper'))) && !Browser.isDevice) {
             args.cancel = true;
         }
     }

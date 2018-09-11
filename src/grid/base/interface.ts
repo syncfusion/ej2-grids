@@ -30,7 +30,7 @@ import {
     PdfHAlign, PdfVAlign
 } from './enum';
 import { FlMenuOptrUI } from '../renderer/filter-menu-operator';
-import { Dialog } from '@syncfusion/ej2-popups';
+import { Dialog, DialogModel } from '@syncfusion/ej2-popups';
 import { Render } from '../renderer/render';
 
 /**
@@ -337,6 +337,8 @@ export interface IGrid extends Component<HTMLElement> {
 
     isEdit?: boolean;
 
+    isLastCellPrimaryKey?: boolean;
+
     editModule?: Edit;
 
     resizeModule: Resize;
@@ -401,6 +403,8 @@ export interface IGrid extends Component<HTMLElement> {
     getStackedHeaderColumnByHeaderText?(stackedHeader: string, col: Column[]): Column;
     getRowTemplate?(): Function;
     getDetailTemplate?(): Function;
+    getEditTemplate?(): Function;
+    getFilterTemplate?(): Function;
     sortColumn?(columnName: string, sortDirection: SortDirection, isMultiSort?: boolean): void;
     removeSortColumn?(field: string): void;
     getColumnHeaderByUid?(uid: string): Element;
@@ -478,6 +482,7 @@ export interface IRenderer {
     getRowInfo?(target: Element): RowInfo;
     getState?(): Object;
     getMovableHeader?(): Element;
+    destroyTemplate?(templateName: string[]): void;
 }
 
 /**
@@ -551,6 +556,7 @@ export interface ICustomOptr {
     stringOperator?: { [key: string]: Object }[];
     numberOperator?: { [key: string]: Object }[];
     dateOperator?: { [key: string]: Object }[];
+    dateTimeOperator?: { [key: string]: Object }[];
     booleanOperator?: { [key: string]: Object }[];
 }
 /**
@@ -620,6 +626,7 @@ export interface NotifyArgs {
     isFrozen?: boolean;
     args?: NotifyArgs;
     oldProperties?: string[];
+    focusElement?: HTMLElement;
 }
 
 /**
@@ -934,7 +941,7 @@ export interface ExcelQueryCellInfoEventArgs {
     /** Defines the number of columns to be spanned */
     colSpan?: number;
     /** Defines the cell data */
-    cell?: number | ExcelStyle | {name : string};
+    cell?: number | ExcelStyle | { name: string };
 }
 export interface ExcelHeaderQueryCellInfoEventArgs {
     /** Defines the cell that contains colspan. */
@@ -1308,6 +1315,11 @@ export interface AddEventArgs {
     row?: Object;
     /** Added row index */
     index?: number;
+    /** 
+     * @hidden 
+     * Defines the record objects.
+     */
+    rowData?: Object;
 }
 
 export interface SaveEventArgs extends AddEventArgs {
@@ -1327,6 +1339,15 @@ export interface EditEventArgs extends BeginEditArgs {
     /** Defines foreign data object. */
     foreignKeyData?: Object;
     addRecord?(data?: Object, index?: number): void;
+    /** Define the form element */
+    form?: HTMLFormElement;
+    /** Define the movable table form element */
+    movableForm?: HTMLFormElement;
+}
+
+export interface DialogEditEventArgs extends EditEventArgs {
+    /** Defines the dialog object */
+    dialog?: DialogModel;
 }
 
 
@@ -1410,6 +1431,7 @@ export interface IEdit {
     updateCell?(rowIndex: number, field: string, value: string | number | boolean | Date): void;
     updateRow?(index: number, data: Object): void;
     saveCell?(isForceSave?: boolean): void;
+    addCancelWhilePaging?(): void;
 }
 
 /**
@@ -1474,7 +1496,7 @@ export interface PendingState {
     /**
      * aggregate support for Custom data service
      */
-    aggregates ?: Object[];
+    aggregates?: Object[];
     /**
      *  DataSource changed through set model
      */

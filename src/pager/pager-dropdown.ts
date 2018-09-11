@@ -1,4 +1,4 @@
-import { remove } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Pager } from './pager';
 import { DropDownList, ChangeEventArgs } from '@syncfusion/ej2-dropdowns';
 
@@ -44,12 +44,11 @@ export class PagerDropDown {
      */
     public render(): void {
         let pagerObj: Pager = this.pagerModule;
-        this.pagerDropDownDiv = this.pagerModule.createElement('div', { className: 'e-pagesizes' });
-        let dropDownDiv: Element = this.pagerModule.createElement('div', { className: 'e-pagerdropdown' });
-        let defaultTextDiv: Element = this.pagerModule.createElement('div', { className: 'e-pagerconstant' });
-        let input: HTMLElement = this.pagerModule.createElement('input', { attrs: { type: 'text', tabindex: '1' } });
-        this.pagerCons = this.pagerModule
-        .createElement('span', { className: 'e-constant', innerHTML: this.pagerModule.getLocalizedLabel('pagerDropDown') });
+        this.pagerDropDownDiv = createElement('div', { className: 'e-pagesizes' });
+        let dropDownDiv: Element = createElement('div', { className: 'e-pagerdropdown' });
+        let defaultTextDiv: Element = createElement('div', { className: 'e-pagerconstant' });
+        let input: HTMLElement = createElement('input', { attrs: { type: 'text', tabindex: '1' } });
+        this.pagerCons = createElement('span', { className: 'e-constant', innerHTML: this.pagerModule.getLocalizedLabel('pagerDropDown') });
         dropDownDiv.appendChild(input);
         defaultTextDiv.appendChild(this.pagerCons);
         this.pagerDropDownDiv.appendChild(dropDownDiv);

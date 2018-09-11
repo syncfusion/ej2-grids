@@ -4,7 +4,7 @@ import { Row } from '../models/row';
 import { Column } from '../models/column';
 import { CheckBox, ChangeEventArgs } from '@syncfusion/ej2-buttons';
 import { extend } from '@syncfusion/ej2-base';
-import { isEditable, getComplexValue, addRemoveActiveClasses, isComplexField, getComplexFieldID } from '../base/util';
+import { isEditable, addRemoveActiveClasses, getComplexFieldID, getObject } from '../base/util';
 
 /**
  * `BooleanEditCell` is used to handle boolean cell type editing.
@@ -27,13 +27,12 @@ export class BooleanEditCell implements IEditCell {
         if (col.type === 'checkbox') {
             classNames = 'e-field e-boolcell e-edit-checkselect';
         }
-        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
-        let complexFieldName: string = !isNullOrUndefined(args.column.field) && getComplexFieldID(args.column.field);
+        let complexFieldName: string = getComplexFieldID(args.column.field);
         return this.parent.createElement('input', {
             className: classNames, attrs: {
                 type: 'checkbox', value: args.value, 'e-mappinguid': col.uid,
-                id: isComplex ? this.parent.element.id + complexFieldName : this.parent.element.id + col.field,
-                name: isComplex ? complexFieldName : col.field
+                id: this.parent.element.id + complexFieldName,
+                name: complexFieldName
             }
         });
     }
@@ -45,17 +44,12 @@ export class BooleanEditCell implements IEditCell {
     public write(args: { rowData: Object, element: Element, column: Column, requestType: string, row: Element }): void {
         let selectChkBox: Element;
         let chkState: boolean;
-        let isComplex: boolean = !isNullOrUndefined(args.column.field) && isComplexField(args.column.field);
         let isAddRow : boolean =  args.requestType === 'add' || args.row.classList.contains('e-addedrow');
         if (!isNullOrUndefined(args.row)) {
             selectChkBox = args.row.querySelector('.e-edit-checkselect') as Element;
         }
-        if (!isComplex && args.rowData[args.column.field]) {
-            chkState = JSON.parse(args.rowData[args.column.field].toString().toLowerCase());
-        }
-        if (isComplex && !isAddRow && getComplexValue(args.rowData, args.column.field)) {
-
-            chkState = JSON.parse(getComplexValue(args.rowData, args.column.field).toString().toLowerCase());
+        if (getObject(args.column.field, args.rowData)) {
+            chkState = JSON.parse(getObject(args.column.field, args.rowData).toString().toLowerCase());
         }
         if (!isNullOrUndefined(selectChkBox)) {
             this.editType = this.parent.editSettings.mode;

@@ -1,4 +1,4 @@
-import { append } from '@syncfusion/ej2-base';
+import { createElement, append } from '@syncfusion/ej2-base';
 import { Pager, IRender } from './pager';
 
 /**
@@ -26,10 +26,9 @@ export class PagerMessage implements IRender {
      * @hidden
      */
     public render(): void {
-        let div: Element = this.pagerModule
-        .createElement('div', { className: 'e-parentmsgbar', attrs: { 'aria-label': 'Pager Information' } });
-        this.pageNoMsgElem = this.pagerModule.createElement('span', { className: 'e-pagenomsg', styles: 'textalign:right' });
-        this.pageCountMsgElem = this.pagerModule.createElement('span', { className: 'e-pagecountmsg', styles: 'textalign:right' });
+        let div: Element = createElement('div', { className: 'e-parentmsgbar', attrs: { 'aria-label': 'Pager Information' } });
+        this.pageNoMsgElem = createElement('span', { className: 'e-pagenomsg', styles: 'textalign:right' });
+        this.pageCountMsgElem = createElement('span', { className: 'e-pagecountmsg', styles: 'textalign:right' });
         append([this.pageNoMsgElem, this.pageCountMsgElem], div);
         this.pagerModule.element.appendChild(div);
         this.refresh();

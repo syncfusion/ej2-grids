@@ -185,9 +185,7 @@ export class Clipboard implements IAction {
      */
     public destroy(): void {
         this.removeEventListener();
-        if (this.clipBoardTextArea) {
-            remove(this.clipBoardTextArea);
-        }
+        if (this.clipBoardTextArea) { remove(this.clipBoardTextArea); }
     }
 
     private checkBoxSelection(): { status: boolean, rowIndexes?: number[], colIndexes?: number[] } {

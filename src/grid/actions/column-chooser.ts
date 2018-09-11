@@ -1,4 +1,4 @@
-import { remove, classList, addClass, removeClass, isNullOrUndefined, Browser } from '@syncfusion/ej2-base';
+import { classList, addClass, removeClass, isNullOrUndefined, Browser } from '@syncfusion/ej2-base';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { Column } from '../models/column';
 import { Button } from '@syncfusion/ej2-buttons';
@@ -9,7 +9,7 @@ import { IGrid, IAction, NotifyArgs, EJ2Intance } from '../base/interface';
 import * as events from '../base/constant';
 import { ShowHide } from './show-hide';
 import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
-import { changeButtonType, createCboxWithWrap, toogleCheckbox, parentsUntil } from '../base/util';
+import { createCboxWithWrap, toogleCheckbox, parentsUntil } from '../base/util';
 import { createCheckBox } from '@syncfusion/ej2-buttons';
 import { SearchBox } from '../services/focus-strategy';
 
@@ -302,7 +302,6 @@ export class ColumnChooser implements IAction {
             animationSettings: { effect: 'None' },
         });
         this.dlgObj.appendTo(this.dlgDiv);
-        changeButtonType(this.dlgObj.element);
         this.wireEvents();
     }
 

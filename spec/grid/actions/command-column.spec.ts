@@ -146,7 +146,7 @@ describe('Command Column ', () => {
         beforeAll((done: Function) => {
             grid = createGrid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     editSettings: { allowAdding: true, allowDeleting: true, allowEditing: true },
                     columns: [{ field: 'OrderID', isPrimaryKey: true }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' },

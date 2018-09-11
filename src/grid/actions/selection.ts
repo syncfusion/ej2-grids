@@ -172,7 +172,7 @@ export class Selection implements IAction {
         let selectedMovableRow: Element = this.getSelectedMovableRow(index);
         let selectData: Object = gObj.getCurrentViewRecords()[index];
         if (gObj.enableVirtualization && gObj.allowGrouping && gObj.groupSettings.columns.length && selectedRow) {
-                selectData = gObj.getRowObjectFromUID(selectedRow.getAttribute('data-uid')).data;
+            selectData = gObj.getRowObjectFromUID(selectedRow.getAttribute('data-uid')).data;
         }
         if (!this.isRowType() || !selectedRow || this.isEditing()) {
             // if (this.isEditing()) {
@@ -1204,6 +1204,10 @@ export class Selection implements IAction {
         }
         this.checkBoxSelectionChanged();
         this.initPerisistSelection();
+        let checkboxColumn: Column[] = this.parent.getColumns().filter((col: Column) => col.type === 'checkbox');
+        if (checkboxColumn.length) {
+            gObj.isCheckBoxSelection = !(this.selectionSettings.checkboxMode === 'ResetOnRowClick');
+        }
     }
 
     private hidePopUp(): void {
@@ -1500,7 +1504,7 @@ export class Selection implements IAction {
     };
 
     private setCheckAllState(index?: number, isInteraction?: boolean): void {
-        if (this.parent.isCheckBoxSelection) {
+        if (this.parent.isCheckBoxSelection || this.parent.selectionSettings.checkboxMode === 'ResetOnRowClick') {
             let checkedLen: number = Object.keys(this.selectedRowState).length;
             if (!this.parent.isPersistSelection) {
                 checkedLen = this.selectedRecords.length;
@@ -1620,7 +1624,11 @@ export class Selection implements IAction {
             }
             this.selectCell({ rowIndex: rowIndex, cellIndex: cellIndex }, true);
         } else if (this.isMultiShiftRequest) {
-            this.selectRowsByRange(isUndefined(this.prevRowIndex) ? rowIndex : this.prevRowIndex, rowIndex);
+            if (this.parent.isCheckBoxSelection || (!this.parent.isCheckBoxSelection && !this.target.classList.contains('e-gridchkbox'))) {
+                this.selectRowsByRange(isUndefined(this.prevRowIndex) ? rowIndex : this.prevRowIndex, rowIndex);
+            } else {
+                this.addRowsToSelection([rowIndex]);
+            }
             this.selectCellsByRange(
                 isUndefined(this.prevCIdxs) ? { rowIndex: rowIndex, cellIndex: cellIndex } : this.prevCIdxs,
                 { rowIndex: rowIndex, cellIndex: cellIndex });

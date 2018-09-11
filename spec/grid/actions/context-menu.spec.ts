@@ -111,7 +111,7 @@ describe('context menu module', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true, showToggleButton: true, showUngroupButton: true },
                     allowResizing: true,
@@ -194,7 +194,7 @@ describe('context menu module', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true, showToggleButton: true, showUngroupButton: true },
                     allowResizing: true,
@@ -586,7 +586,7 @@ describe('context menu module', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     allowPaging: true,
                     editSettings: { allowDeleting: true, allowEditing: true, allowAdding: true, mode: 'Batch' },
                     pageSettings: {
@@ -633,7 +633,7 @@ describe('context menu module', () => {
             let dataBound: EmitType<Object> = () => { done(); };
             gridObj = createGrid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     dataBound: dataBound,
                     allowGrouping: true,
                     groupSettings: { showGroupedColumn: true, showToggleButton: true, showUngroupButton: true },

@@ -409,7 +409,7 @@ describe('Grid checkbox selection functionality', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: employeeSelectData,
+                    dataSource: employeeSelectData.map(data => data),
                     columns: [
                         { type: 'checkbox', field: 'IsAutoSelect' },
                         { field: 'EmployeeID', isPrimaryKey: true, headerText: 'Employee ID', textAlign: 'Right', width: 135, },
@@ -495,7 +495,7 @@ describe('Grid checkbox selection functionality', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: employeeSelectData,
+                    dataSource: employeeSelectData.map(data => data),
                     columns: [
                         { type: 'checkbox', field: 'IsAutoSelect' },
                         { field: 'EmployeeID', isPrimaryKey: true, headerText: 'Employee ID', textAlign: 'Right', width: 135, },

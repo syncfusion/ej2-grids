@@ -428,7 +428,7 @@ describe('Paging module', () => {
                     columns: [{ field: 'OrderID' }, { field: 'CustomerID' }, { field: 'EmployeeID' }, { field: 'Freight' },
                     { field: 'ShipCity' }],
                     pageSettings: {
-                       pageSizes: true
+                        pageSizes: true
                     },
                 }, done);
         });

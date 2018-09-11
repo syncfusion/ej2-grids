@@ -1,6 +1,6 @@
 import { EventHandler, remove, Browser } from '@syncfusion/ej2-base';
 import { FilterSettings } from '../base/grid';
-import { parentsUntil, isActionPrevent } from '../base/util';
+import { parentsUntil, isActionPrevent, appendChildren } from '../base/util';
 import { IGrid, IFilterArgs, EJ2Intance } from '../base/interface';
 import * as events from '../base/constant';
 import { ContextMenu, MenuItemModel, ContextMenuModel, MenuEventArgs, BeforeOpenCloseMenuEventArgs } from '@syncfusion/ej2-navigations';
@@ -18,7 +18,7 @@ import { distinctStringValues, isComplexField, getComplexFieldID } from '../base
 import { Column } from '../models/column';
 import { generateQuery } from '../base/constant';
 import { ReturnType } from '../base/type';
-import { DatePicker } from '@syncfusion/ej2-calendars';
+import { DatePicker, DateTimePicker } from '@syncfusion/ej2-calendars';
 import { OffsetPosition } from '@syncfusion/ej2-popups';
 /**
  * @hidden
@@ -27,6 +27,7 @@ import { OffsetPosition } from '@syncfusion/ej2-popups';
 export class ExcelFilter extends CheckBoxFilter {
     //Internal variables            
     private datePicker: DatePicker;
+    private dateTimePicker: DateTimePicker;
     private actObj: AutoComplete;
     private numericTxtObj: NumericTextBox;
     private dlgDiv: HTMLElement;
@@ -96,7 +97,7 @@ export class ExcelFilter extends CheckBoxFilter {
     }
 
     private createMenu(type: string, isFiltered: boolean, isCheckIcon: boolean): void {
-        let options: Object = { string: 'TextFilter', date: 'DateFilter', datetime: 'DateFilter', number: 'NumberFilter' };
+        let options: Object = { string: 'TextFilter', date: 'DateFilter', datetime: 'DateTimeFilter', number: 'NumberFilter' };
         this.menu = this.parent.createElement('div', { className: 'e-contextmenu-wrapper' });
         if (this.parent.enableRtl) {
             this.menu.classList.add('e-rtl');
@@ -289,7 +290,9 @@ export class ExcelFilter extends CheckBoxFilter {
             enableRtl: this.parent.enableRtl,
             open: () => {
                 let row: HTMLTableRowElement = this.dlgObj.element.querySelector('table.e-xlfl-table>tr') as HTMLTableRowElement;
-                (row.cells[1].querySelector('input:not([type=hidden])') as HTMLElement).focus();
+                if (this.options.column.filterTemplate) {
+                    (row.querySelector('#' + this.options.column.field + '-xlfl-frstvalue') as HTMLElement).focus();
+                } else { (row.cells[1].querySelector('input:not([type=hidden])') as HTMLElement).focus(); }
             },
             close: this.removeDialog.bind(this),
             created: this.createdDialog.bind(this, target, column),
@@ -310,7 +313,7 @@ export class ExcelFilter extends CheckBoxFilter {
         this.dlgObj.appendTo(this.dlgDiv);
     }
     private removeDialog(): void {
-        this.removeObjects([this.dropOptr, this.datePicker, this.actObj, this.numericTxtObj, this.dlgObj]);
+        this.removeObjects([this.dropOptr, this.datePicker, this.dateTimePicker, this.actObj, this.numericTxtObj, this.dlgObj]);
         remove(this.dlgDiv);
     }
     private clearBtnClick(field: string): void {
@@ -459,7 +462,7 @@ export class ExcelFilter extends CheckBoxFilter {
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
 
         let optrInput: HTMLElement = this.parent
-        .createElement('input', { id: isComplex ? complexFieldName + elementID : column + elementID });
+            .createElement('input', { id: isComplex ? complexFieldName + elementID : column + elementID });
 
         optrDiv.appendChild(optrInput);
         xlfloptr.appendChild(optrDiv);
@@ -549,7 +552,7 @@ export class ExcelFilter extends CheckBoxFilter {
         tr.appendChild(td);
 
         let radioDiv: HTMLElement = this.parent
-        .createElement('div', { className: 'e-xlfl-radiodiv', attrs: { 'style': 'display: inline-block' } });
+            .createElement('div', { className: 'e-xlfl-radiodiv', attrs: { 'style': 'display: inline-block' } });
 
         let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
@@ -608,27 +611,49 @@ export class ExcelFilter extends CheckBoxFilter {
         let complexFieldName: string = !isNullOrUndefined(column) && getComplexFieldID(column);
 
         let valueDiv: HTMLElement = this.parent.createElement('div', { className: 'e-xlfl-valuediv' });
-        let valueInput: Element = this.parent.createElement('input', { id: isComplex ? complexFieldName + elementId : column + elementId });
+        let isFilteredCol: boolean = this.filterSettings.columns.some((col: Column) => { return column === col.field; });
+        let fltrPredicates: Object[] = this.options.filteredColumns.filter((col: Column) => col.field === column);
+        if (this.options.column.filterTemplate) {
+            let data: Object = {};
+            let columnObj: Column = this.parent.getColumnByField(column);
+            if (isFilteredCol && elementId === '-xlfl-frstvalue') {
+                data = { column: predicates instanceof Array ? predicates[0] : predicates };
+                let indx: number = this.options.column.columnData && fltrPredicates.length > 1 ?
+                    (this.options.column.columnData.length === 1 ? 0 : 1) : 0;
+                data[this.options.field] = columnObj.foreignKeyValue ? this.options.column.columnData[indx][columnObj.foreignKeyValue] :
+                    ((<HTMLInputElement>fltrPredicates[indx]) as { value?: string | boolean | Date }).value;
+                if (this.options.foreignKeyValue) {
+                    data[this.options.foreignKeyValue] = this.options.column.columnData[indx][columnObj.foreignKeyValue];
+                }
+            }
+            let element: Element[] = this.options.column.getFilterTemplate()(data, this.parent, 'filterTemplate');
+            appendChildren(valueDiv, element);
+            valueDiv.children[0].id = isComplex ? complexFieldName + elementId : column + elementId;
+            value.appendChild(valueDiv);
+        } else {
+            let valueInput: Element = this.parent
+                .createElement('input', { id: isComplex ? complexFieldName + elementId : column + elementId });
 
-        valueDiv.appendChild(valueInput);
-        value.appendChild(valueDiv);
+            valueDiv.appendChild(valueInput);
+            value.appendChild(valueDiv);
 
-        let flValue: string | number | Date | boolean;
-        let predicate: PredicateModel;
-        if (predicates && predicates.length > 0) {
-            predicate = predicates.length === 2 ?
-                (isFirst ? predicates[0] : predicates[1]) :
-                (isFirst ? predicates[0] : undefined);
+            let flValue: string | number | Date | boolean;
+            let predicate: PredicateModel;
+            if (predicates && predicates.length > 0) {
+                predicate = predicates.length === 2 ?
+                    (isFirst ? predicates[0] : predicates[1]) :
+                    (isFirst ? predicates[0] : undefined);
 
-            flValue = (predicate && predicate.operator === optr.operator) ? predicate.value : undefined;
+                flValue = (predicate && predicate.operator === optr.operator) ? predicate.value : undefined;
+            }
+            let types: Object = {
+                'string': this.renderAutoComplete.bind(this),
+                'number': this.renderNumericTextBox.bind(this),
+                'date': this.renderDate.bind(this),
+                'datetime': this.renderDateTime.bind(this)
+            };
+            types[this.options.type](this.options, column, valueInput, flValue, this.parent.enableRtl);
         }
-        let types: Object = {
-            'string': this.renderAutoComplete.bind(this),
-            'number': this.renderNumericTextBox.bind(this),
-            'date': this.renderDate.bind(this),
-            'datetime': this.renderDate.bind(this)
-        };
-        types[this.options.type](this.options, column, valueInput, flValue, this.parent.enableRtl);
     }
     /* tslint:disable-next-line:max-line-length */
     private renderMatchCase(column: string, tr: HTMLElement, matchCase: HTMLElement, elementId: string, predicates: PredicateModel[]): void {
@@ -674,6 +699,21 @@ export class ExcelFilter extends CheckBoxFilter {
             value: new Date(fValue as string),
         });
         this.datePicker.appendTo(inputValue);
+    }
+
+    /* tslint:disable-next-line:max-line-length */
+    private renderDateTime(options: IFilterArgs, column: string, inputValue: HTMLElement, fValue: string | number | Date | boolean, isRtl: boolean): void {
+        let intl: Internationalization = new Internationalization();
+        let format: string = intl.getDatePattern({ type: 'dateTime', skeleton: options.format }, false);
+        this.dateTimePicker = new DateTimePicker({
+            format: format,
+            cssClass: 'e-popup-flmenu',
+            placeholder: this.getLocalizedLabel('CustomFilterDatePlaceHolder'),
+            width: '100%',
+            enableRtl: isRtl,
+            value: new Date(fValue as string),
+        });
+        this.dateTimePicker.appendTo(inputValue);
     }
 
     private completeAction(e: { result: string[] }): void {
@@ -722,16 +762,31 @@ export class ExcelFilter extends CheckBoxFilter {
             placeholder: this.getLocalizedLabel('CustomFilterPlaceHolder'),
             enableRtl: isRtl,
             actionComplete: (e: { result: { [key: string]: Object; }[] }) => {
+                let isComplex: boolean = !isNullOrUndefined(column) && isComplexField(column);
                 e.result = e.result.filter((obj: { [key: string]: Object; }, index: number, arr: { [key: string]: Object; }[]) => {
                     return arr.map((mapObject: Object) => {
-                        return mapObject[actObj.fields.value];
-                    }).indexOf(obj[this.actObj.fields.value]) === index;
+                        return isComplex ? this.performComplexDataOperation(actObj.fields.value, mapObject)
+                            : mapObject[actObj.fields.value];
+                    }).indexOf(isComplex ? this.performComplexDataOperation(actObj.fields.value, obj) :
+                        obj[this.actObj.fields.value]) === index;
                 });
             },
             value: fValue as string
         });
         actObj.appendTo(inputValue);
         this.actObj = actObj;
+    }
+
+    private performComplexDataOperation(value: string, mapObject: Object): Object | string {
+        let returnObj: Object | string;
+        let length: number = value.split('.').length;
+        let splits: string[] = value.split('.');
+        let duplicateMap: Object | string = mapObject;
+        for (let i: number = 0; i < length; i++) {
+            returnObj = duplicateMap[splits[i]];
+            duplicateMap = returnObj;
+        }
+        return returnObj;
     }
 
     /**

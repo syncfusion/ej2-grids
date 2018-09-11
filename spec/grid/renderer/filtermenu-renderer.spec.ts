@@ -18,7 +18,7 @@ import { ValueFormatter } from '../../../src/grid/services/value-formatter';
 import { Column } from '../../../src/grid/models/column';
 import { Selection } from '../../../src/grid/actions/selection';
 import { DropDownList, AutoComplete } from '@syncfusion/ej2-dropdowns';
-import { DatePicker } from '@syncfusion/ej2-calendars';
+import { DatePicker, DateTimePicker  } from '@syncfusion/ej2-calendars';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
 import { Query, DataManager } from '@syncfusion/ej2-data';
 import { filterData } from '../base/datasource.spec';
@@ -261,6 +261,57 @@ describe('filter menu module =>', () => {
                 getClickObj(gridObj.getColumnHeaderByField('Verified').querySelector('.e-filtermenudiv')));
 
         });
+
+        afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+
+    describe('filter menu with datetime filtering  =>', () => {
+        let gridObj: Grid;
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: filterData,
+                    allowFiltering: true,
+                    allowPaging: true,
+                    filterSettings: { type: 'Menu' },
+                    columns: [{ field: 'OrderID', type: 'number' },
+                    { field: 'CustomerID', type: 'string' },
+                    { field: 'Freight', format: 'C2', type: 'number', allowFiltering: false },
+                    { field: 'OrderDate', format: 'yMd', type:'datetime' },
+                    { field: 'Verified' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete
+                },
+                done);
+        });
+
+        it('datetime filter ui render testing', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'filterafteropen') {
+                    expect((gridObj.filterModule as any).filterModule.isDialogOpen).toEqual(true);
+                    let instances: string = 'ej2_instances';
+                    let element: Element;
+                    let dateObj: DateTimePicker = document.querySelector('#dateui-' + gridObj.getColumns()[3].uid)[instances][0];
+                    dateObj.value = new Date();
+                    (<HTMLInputElement>document.querySelector('.e-flmenu-okbtn')).click();
+                    expect(gridObj.filterSettings.columns[0].field).toEqual('OrderDate');
+                    expect(gridObj.filterSettings.columns.length).toBe(1);
+                    expect(gridObj.element.querySelectorAll('.e-filtered').length).toBe(1);
+                    gridObj.actionBegin = null;
+                    done();
+
+                }
+            };
+            gridObj.actionComplete = actionComplete;
+            (gridObj.filterModule as any).filterIconClickHandler(
+                getClickObj(gridObj.getColumnHeaderByField('OrderDate').querySelector('.e-filtermenudiv')));
+        });
+
 
         afterAll(() => {
             destroy(gridObj);

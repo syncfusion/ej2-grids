@@ -1,5 +1,5 @@
 import { Browser, EventHandler } from '@syncfusion/ej2-base';
-import { remove, addClass, removeClass } from '@syncfusion/ej2-base';
+import { addClass, removeClass } from '@syncfusion/ej2-base';
 import { formatUnit, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
 import { getScrollBarWidth, getUpdateUsingRaf } from '../base/util';

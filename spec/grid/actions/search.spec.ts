@@ -163,7 +163,7 @@ describe('Search module=>', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: data,
+                    dataSource: data.map(data => data),
                     allowPaging: true,
                     columns: [
                         { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },

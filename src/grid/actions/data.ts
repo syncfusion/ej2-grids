@@ -149,7 +149,6 @@ export class Data implements IDataProcessor {
                 } else {
                     sortGrp.push({ direction: <SortDirection>fn, field: col.field });
                 }
-
             }
             for (let i: number = 0, len: number = sortGrp.length; i < len; i++) {
                 query.sortBy(sortGrp[i].field, sortGrp[i].direction);
@@ -314,6 +313,7 @@ export class Data implements IDataProcessor {
         }
         return this.executeQuery(query);
     }
+
     private executeQuery(query: Query): Promise<Object> {
         if (this.dataManager.ready) {
             let deferred: Deferred = new Deferred();

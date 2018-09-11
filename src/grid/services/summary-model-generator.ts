@@ -5,7 +5,7 @@ import { AggregateColumnModel, AggregateRowModel } from '../models/aggregate-mod
 import { AggregateColumn } from '../models/aggregate';
 import { Column } from '../models/column';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
-import { calculateAggregate } from '../base/util';
+import { calculateAggregate, getUid } from '../base/util';
 import { Group } from '@syncfusion/ej2-data';
 import { CellType } from '../base/enum';
 import { Cell } from '../models/cell';
@@ -83,6 +83,7 @@ export class SummaryModelGenerator implements IModelGenerator<AggregateColumnMod
 
         let row: Row<AggregateColumnModel> = new Row<AggregateColumnModel>({ data: data, attributes: { class: 'e-summaryrow' } });
         row.cells = tmp;
+        row.uid = getUid('grid-row');
         row.visible = tmp.some((cell: Cell<AggregateColumnModel>) => cell.isDataCell && cell.visible);
         return row;
     }

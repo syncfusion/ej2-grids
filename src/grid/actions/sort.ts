@@ -1,6 +1,6 @@
 import { Browser, KeyboardEventArgs } from '@syncfusion/ej2-base';
 import { extend, isNullOrUndefined } from '@syncfusion/ej2-base';
-import { remove, closest, classList } from '@syncfusion/ej2-base';
+import { closest, classList } from '@syncfusion/ej2-base';
 import { SortSettings } from '../base/grid';
 import { Column } from '../models/column';
 import { IGrid, IAction, NotifyArgs } from '../base/interface';
@@ -189,7 +189,7 @@ export class Sort implements IAction {
 
     private refreshSortSettings(): void {
         this.sortedColumns = [];
-        this.sortSettings.columns.forEach((e : Column) => {
+        this.sortSettings.columns.forEach((e: Column) => {
             this.sortedColumns.push(e.field);
         });
     }
@@ -274,7 +274,7 @@ export class Sort implements IAction {
             let gObj: IGrid = this.parent;
             this.contentRefresh = false;
             this.isMultiSort = this.sortSettings.columns.length > 1;
-            for (let col of gObj.sortSettings.columns) {
+            for (let col of gObj.sortSettings.columns.slice()) {
                 if (this.sortedColumns.indexOf(col.field) > -1) {
                     this.sortColumn(col.field, col.direction, true);
                 }

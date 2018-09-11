@@ -338,7 +338,7 @@ export class Filter implements IAction {
             this.updateFilterMsg();
             return;
         }
-        if (this.filterSettings.type === 'FilterBar' && filterCell.value !== filterValue) {
+        if (filterCell && this.filterSettings.type === 'FilterBar' && filterCell.value !== filterValue) {
             filterCell.value = filterValue;
         }
         if (!isNullOrUndefined(this.column.format)) {

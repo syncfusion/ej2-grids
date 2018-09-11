@@ -12,7 +12,7 @@ import { Row } from '../models/row';
 import { Cell } from '../models/cell';
 import { AggregateRowModel, AggregateColumnModel } from '../models/models';
 import * as events from '../base/constant';
-import { prepareColumns, setFormatter, getDatePredicate } from '../base/util';
+import { prepareColumns, setFormatter, getDatePredicate, getObject } from '../base/util';
 import { ServiceLocator } from '../services/service-locator';
 import { RendererFactory } from '../services/renderer-factory';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -201,7 +201,9 @@ export class Render {
         let gObj: IGrid = this.parent;
         let tbody: Element = this.contentRenderer.getTable().querySelector('tbody');
         let tr: Element;
-        remove(tbody);
+        if (!isNullOrUndefined(tbody)) {
+            remove(tbody);
+        }
         tbody = this.parent.createElement('tbody');
         tr = this.parent.createElement('tr', { className: 'e-emptyrow' });
         tr.appendChild(this.parent.createElement('td', {
@@ -227,19 +229,19 @@ export class Render {
 
     private updateColumnType(record: Object): void {
         let columns: Column[] = this.parent.getColumns() as Column[];
-        let value: Object;
+        let value: Date;
         let data: Object = record && (<{ items: Object[] }>record).items ? (<{ items: Object[] }>record).items[0] : record;
         let fmtr: IValueFormatter = this.locator.getService<IValueFormatter>('valueFormatter');
         for (let i: number = 0, len: number = columns.length; i < len; i++) {
-            value = DataUtil.getObject(columns[i].field || '', data);
+            value = getObject(columns[i].field || '', data);
             if (columns[i].isForeignColumn() && columns[i].columnData) {
-                value = DataUtil.getObject(columns[i].foreignKeyValue || '', columns[i].columnData[0]);
+                value = getObject(columns[i].foreignKeyValue || '', columns[i].columnData[0]);
             }
             if (!isNullOrUndefined(value)) {
                 this.isColTypeDef = true;
                 if (!columns[i].type) {
-                    columns[i].type = (value as Date).getDay ? ((value as Date).getHours() > 0 || (value as Date).getMinutes() > 0 ||
-                        (value as Date).getSeconds() > 0 || (value as Date).getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
+                    columns[i].type = value.getDay ? (value.getHours() > 0 || value.getMinutes() > 0 ||
+                        value.getSeconds() > 0 || value.getMilliseconds() > 0 ? 'datetime' : 'date') : typeof (value);
                 }
             } else {
                 columns[i].type = columns[i].type || null;
@@ -426,7 +428,7 @@ export class Render {
                         let context: Object = this.parent;
                         if (type === 'Custom') {
                             element.aggregates[key] = column.customAggregate ?
-                            (<Function>column.customAggregate).call(context, data, column) : '';
+                                (<Function>column.customAggregate).call(context, data, column) : '';
                         } else {
                             element.aggregates[key] = DataUtil.aggregates[type.toLowerCase()](data, column.field);
                         }

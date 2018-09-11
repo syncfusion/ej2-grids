@@ -1,4 +1,4 @@
-import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs, closest } from '@syncfusion/ej2-base';
+import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs, closest, isUndefined } from '@syncfusion/ej2-base';
 import { extend, getValue } from '@syncfusion/ej2-base';
 import { remove } from '@syncfusion/ej2-base';
 import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
@@ -15,10 +15,12 @@ import { InlineEdit } from './inline-edit';
 import { BatchEdit } from './batch-edit';
 import { DialogEdit } from './dialog-edit';
 import { Dialog } from '@syncfusion/ej2-popups';
-import { parentsUntil, changeButtonType } from '../base/util';
+import { parentsUntil, getComplexFieldID, setComplexFieldID } from '../base/util';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { DatePickerEditCell } from '../renderer/datepicker-edit-cell';
 import { calculateRelativeBasedPosition, OffsetPosition } from '@syncfusion/ej2-popups';
+import { EJ2Intance } from '../base/interface';
+import { TemplateEditCell } from '../renderer/template-edit-cell';
 
 /**
  * The `Edit` module is used to handle editing actions.
@@ -33,7 +35,9 @@ export class Edit implements IAction {
     public mFormObj: FormValidator;
     private editCellType: Object = {
         'dropdownedit': DropDownEditCell, 'numericedit': NumericEditCell,
-        'datepickeredit': DatePickerEditCell, 'booleanedit': BooleanEditCell, 'defaultedit': DefaultEditCell
+        'datepickeredit': DatePickerEditCell, 'datetimepickeredit': DatePickerEditCell,
+        'booleanedit': BooleanEditCell, 'defaultedit': DefaultEditCell,
+        'templateedit': TemplateEditCell
     };
     private editType: Object = { 'Inline': InlineEdit, 'Normal': InlineEdit, 'Batch': BatchEdit, 'Dialog': DialogEdit };
     //Module declarations
@@ -47,7 +51,7 @@ export class Edit implements IAction {
     private preventObj: {
         instance: Object,
         handler: Function, arg1?: Object, arg2?: Object, arg3?: Object, arg4?: Object, arg5?: Object, arg6?: Object, arg7?: Object,
-         arg8?: Object
+        arg8?: Object
     };
 
     /**
@@ -65,13 +69,18 @@ export class Edit implements IAction {
     }
 
     private updateColTypeObj(): void {
-        for (let col of this.parent.getColumns() as Column[]) {
-            col.edit = extend(
-                new this.editCellType[col.editType && this.editCellType[col.editType] ?
-                    col.editType : 'defaultedit'](this.parent, this.serviceLocator),
-                col.edit || {}
-            );
-        }
+        (<{columnModel?: Column[]}>this.parent).columnModel.forEach((col: Column) => {
+            if (this.parent.editSettings.template || col.editTemplate) {
+                let templteCell: string = 'templateedit';
+                col.edit = extend(new this.editCellType[templteCell](this.parent), col.edit || {});
+            } else {
+                col.edit = extend(
+                    new this.editCellType[col.editType && this.editCellType[col.editType] ?
+                        col.editType : 'defaultedit'](this.parent, this.serviceLocator),
+                    col.edit || {}
+                );
+            }
+        });
     }
 
     /**
@@ -353,12 +362,12 @@ export class Edit implements IAction {
                 break;
             case 'boolean':
                 if (col.editType !== 'booleanedit') {
-                    val = value === this.l10n.getConstant('True') ? true : false;
+                    val = value === this.l10n.getConstant('True') || value === true ? true : false;
                 }
                 break;
             case 'date':
             case 'datetime':
-                if (col.editType !== 'datepicker' && value && (value as string).length) {
+                if (col.editType !== 'datepickeredit' && col.editType !== 'datetimepickeredit' && value && (value as string).length) {
                     val = new Date(value as string);
                 }
                 break;
@@ -419,7 +428,6 @@ export class Edit implements IAction {
         (options as { buttons: Object[] }).buttons = btnOptions;
         let obj: Dialog = new Dialog(options);
         obj.appendTo(div);
-        changeButtonType(obj.element);
         return obj;
     }
 
@@ -439,6 +447,9 @@ export class Edit implements IAction {
                 this.endEditing();
                 break;
             case this.l10n.getConstant('BatchSaveLostChanges'):
+                if (this.parent.editSettings.mode === 'Batch') {
+                    this.editModule.addCancelWhilePaging();
+                }
                 this.executeAction();
                 break;
         }
@@ -494,26 +505,72 @@ export class Edit implements IAction {
      */
     public getCurrentEditedData(form: Element, editedData: Object): Object {
         let gObj: IGrid = this.parent;
+        if (gObj.editSettings.template) {
+            [].slice.call((<HTMLFormElement>form).elements).forEach((element: HTMLInputElement) => {
+                if (element.hasAttribute('name')) {
+                    let field: string = setComplexFieldID(element.getAttribute('name'));
+                    let column: Column = gObj.getColumnByField(field) || { field: field, type: element.getAttribute('type') } as Column;
+                    let value: string | Date | boolean;
+                    if (column.type === 'checkbox' || column.type === 'boolean') {
+                        value = element.checked;
+                    } else if (element.value) {
+                        value = element.value;
+                        if ((<EJ2Intance>(element as Element)).ej2_instances &&
+                            (<Object[]>(<EJ2Intance>(element as Element)).ej2_instances).length &&
+                            !isNullOrUndefined((<EJ2Intance>(element as Element)).ej2_instances[0].value)) {
+                            element.blur();
+                            value = ((<EJ2Intance>(element as Element)).ej2_instances[0] as { value?: string | boolean | Date }).value;
+                        }
+                    }
+                    if (column.edit && typeof column.edit.read === 'string') {
+                        value = getValue(column.edit.read, window)(element, value);
+                    } else if (column.edit && column.edit.read) {
+                        value = (column.edit.read as Function)(element, value);
+                    }
+                    value = gObj.editModule.getValueFromType(column, value) as string;
+                    setValue(column.field, isUndefined(value) || value === 'null' ? null : value, editedData);
+                }
+            });
+            return editedData;
+        }
+
+        (<{columnModel?: Column[]}>gObj).columnModel.filter((col: Column) => col.editTemplate).forEach((col: Column) => {
+            if (form[getComplexFieldID(col.field)]) {
+                let inputElements: HTMLInputElement[] = [].slice.call(form[getComplexFieldID(col.field)]);
+                inputElements = inputElements.length ? inputElements : [form[getComplexFieldID(col.field)]];
+                inputElements.forEach((input: HTMLInputElement) => {
+                    let value: number | string | Date | boolean  = this.getValue(col, input);
+                    setValue(col.field, isUndefined(value) || value === 'null' ? null : value, editedData);
+                });
+            }
+        });
+
         let inputs: HTMLInputElement[] = [].slice.call(form.querySelectorAll('.e-field'));
         for (let i: number = 0, len: number = inputs.length; i < len; i++) {
             let col: Column = gObj.getColumnByUid(inputs[i].getAttribute('e-mappinguid'));
-            let value: number | string | Date | boolean;
             if (col && col.field) {
-                let temp: Function = col.edit.read as Function;
-                if (col.type !== 'checkbox') {
-                    if (typeof temp === 'string') {
-                        temp = getValue(temp, window);
-                        value = gObj.editModule.getValueFromType(col, (temp)(inputs[i]));
-                    } else {
-                        value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(inputs[i]));
-                    }
-                } else {
-                    value = inputs[i].checked;
-                }
-                setValue(col.field, value, editedData);
+                let value:  number | string | Date | boolean = this.getValue(col, inputs[i]);
+                setValue(col.field, isUndefined(value) || value === 'null' ? null : value, editedData);
             }
         }
         return editedData;
+    }
+
+    private getValue(col: Column, input: HTMLInputElement): string | boolean | number | Date {
+        let value: string | boolean | number | Date  = input.value;
+        let gObj: IGrid = this.parent;
+        let temp: Function = col.edit.read as Function;
+        if (!(col.type === 'checkbox' || col.type === 'boolean')) {
+            if (typeof temp === 'string') {
+                temp = getValue(temp, window);
+                value = gObj.editModule.getValueFromType(col, (temp)(input, value));
+            } else {
+                value = gObj.editModule.getValueFromType(col, (col.edit.read as Function)(input, value));
+            }
+        } else {
+            value = input.checked;
+        }
+        return value;
     }
 
     /**
@@ -523,8 +580,8 @@ export class Edit implements IAction {
         let restrictedRequestTypes: string[] = ['filterafteropen', 'filterbeforeopen', 'filterchoicerequest', 'save'];
         if (this.parent.editSettings.mode !== 'Batch' && this.formObj && !this.formObj.isDestroyed
             && restrictedRequestTypes.indexOf(e.requestType) === -1) {
-            this.destroyForm();
             this.destroyWidgets();
+            this.destroyForm();
         }
     }
 
@@ -532,6 +589,13 @@ export class Edit implements IAction {
      * @hidden
      */
     public destroyWidgets(cols?: Column[]): void {
+        let gObj: IGrid = this.parent;
+        if (gObj.editSettings.template) {
+            this.parent.destroyTemplate(['editSettingsTemplate']);
+        }
+        if ((<{columnModel?: Column[]}>gObj).columnModel.some((column: Column) => !isNullOrUndefined(column.editTemplate))) {
+            this.parent.destroyTemplate(['editTemplate']);
+        }
         cols = cols ? cols : this.parent.getColumns() as Column[];
         for (let col of cols) {
             let temp: Function = col.edit.destroy as Function;
@@ -542,9 +606,17 @@ export class Edit implements IAction {
                 } else {
                     (col.edit.destroy as Function)();
                 }
-
             }
         }
+        [].slice.call((<HTMLFormElement>this.formObj.element).elements).forEach((element: HTMLInputElement) => {
+            if (element.hasAttribute('name')) {
+                if ((<EJ2Intance>(element as Element)).ej2_instances &&
+                    (<Object[]>(<EJ2Intance>(element as Element)).ej2_instances).length &&
+                    !(<EJ2Intance>(element as Element)).ej2_instances[0].isDestroyed) {
+                    (<EJ2Intance>(element as Element)).ej2_instances[0].destroy();
+                }
+            }
+        });
     }
 
     /**
@@ -642,18 +714,22 @@ export class Edit implements IAction {
         let rules: Object = {};
         let mRules: Object = {};
         cols = cols ? cols : gObj.columns as Column[];
-        for (let col of cols) {
-            if (col.validationRules && form.querySelectorAll('#' + gObj.element.id + col.field).length) {
-                rules[col.field] = col.validationRules;
-            } else if (frzCols && col.validationRules
-                && mForm.querySelectorAll('#' + gObj.element.id + col.field).length) {
-                mRules[col.field] = col.validationRules;
+        cols.forEach((col: Column, index: number) => {
+            if (!col.visible) {
+                return;
             }
-        }
-        this.parent.editModule.formObj = this.createFormObj(form, rules);
+            if (index < frzCols && col.validationRules) {
+                rules[getComplexFieldID(col.field)] = col.validationRules;
+            } else if (index >= frzCols && col.validationRules) {
+                mRules[getComplexFieldID(col.field)] = col.validationRules;
+            }
+        });
         if (frzCols && this.parent.editSettings.mode !== 'Dialog') {
             this.parent.editModule.mFormObj = this.createFormObj(mForm, mRules);
+        } else {
+            rules = extend(rules, mRules);
         }
+        this.parent.editModule.formObj = this.createFormObj(form, rules);
     }
 
     private createFormObj(form: HTMLFormElement, rules: Object): FormValidator {
@@ -719,9 +795,8 @@ export class Edit implements IAction {
         let client: ClientRect = table.getBoundingClientRect();
         let left: number = isInline ?
             this.parent.element.getBoundingClientRect().left : client.left;
-        let input: HTMLElement = parentsUntil(element, 'e-rowcell') as HTMLElement;
-        let inputClient: ClientRect = input.getBoundingClientRect();
-        let td: ClientRect = (closest(element, 'td') as HTMLElement).getBoundingClientRect();
+        let input: HTMLElement = closest(element, 'td') as HTMLElement;
+        let inputClient: ClientRect = input ? input.getBoundingClientRect() : element.parentElement.getBoundingClientRect();
         let div: HTMLElement = this.parent.createElement('div', {
             className: 'e-tooltip-wrap e-control e-popup e-griderror',
             id: name + '_Error',
@@ -729,7 +804,7 @@ export class Edit implements IAction {
                 ((isFHdr ? inputClient.top + inputClient.height : inputClient.bottom - client.top
                     - (this.parent.getFrozenColumns() ? fCont.scrollTop : 0)) + table.scrollTop + 9) + 'px;left:' +
                 (inputClient.left - left + table.scrollLeft + inputClient.width / 2) + 'px;' +
-                'max-width:' + td.width + 'px;text-align:center;'
+                'max-width:' + inputClient.width + 'px;text-align:center;'
         });
 
         let content: Element = this.parent.createElement('div', { className: 'e-tip-content' });
@@ -743,7 +818,7 @@ export class Edit implements IAction {
         let lineHeight: number = parseInt(
             document.defaultView.getComputedStyle(div, null).getPropertyValue('font-size'), 10
         );
-        if (div.getBoundingClientRect().width < td.width &&
+        if (div.getBoundingClientRect().width < inputClient.width &&
             div.querySelector('label').getBoundingClientRect().height / (lineHeight * 1.2) >= 2) {
             div.style.width = div.style.maxWidth;
         }

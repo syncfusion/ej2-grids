@@ -44,7 +44,8 @@ export class ColumnWidthService {
     }
 
     private setWidth(width: string | number, index: number): void {
-        if (typeof (width) === 'string' && width.indexOf('%') !== -1) {
+        if (typeof (width) === 'string' && width.indexOf('%') !== -1 &&
+            !(navigator.userAgent.indexOf('Chrome') > -1) && this.parent.allowGrouping) {
             let elementWidth : number = this.parent.element.offsetWidth;
             width = parseInt(width, 10) / 100 * (elementWidth);
         }

@@ -1,7 +1,8 @@
 import { IGrid } from '../base/interface';
 import { Column } from '../models/column';
-import { isNullOrUndefined, addClass } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, addClass, extend, closest } from '@syncfusion/ej2-base';
 import * as events from '../base/constant';
+import { appendChildren } from '../base/util';
 
 /**
  * Edit render module is used to render grid edit row.
@@ -12,6 +13,7 @@ export class InlineEditRender {
 
     //Module declarations
     private parent: IGrid;
+    private isEdit: boolean;
 
     /**
      * Constructor for render module
@@ -20,7 +22,8 @@ export class InlineEditRender {
         this.parent = parent;
     }
 
-    public addNew(elements: Object, args: { row?: Element }): void {
+    public addNew(elements: Object, args: { row?: Element, rowData?: Object }): void {
+        this.isEdit = false;
         let mTbody: Element;
         let tbody: Element;
         if (this.parent.frozenRows) {
@@ -33,9 +36,9 @@ export class InlineEditRender {
             tbody.querySelector('.e-emptyrow').classList.add('e-hide');
         }
         tbody.insertBefore(args.row, tbody.firstChild);
-        args.row.appendChild(this.getEditElement(elements, false));
+        args.row.appendChild(this.getEditElement(elements, false, undefined, args, true));
         if (this.parent.getFrozenColumns()) {
-            let mEle: Element = this.renderMovableform(args.row);
+            let mEle: Element = this.renderMovableform(args.row, args);
             if (this.parent.frozenRows) {
                 mTbody = this.parent.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody');
             } else {
@@ -50,8 +53,14 @@ export class InlineEditRender {
         }
     }
 
-    private renderMovableform(ele: Element): Element {
+    private renderMovableform(ele: Element, args: {rowData?: Object, movableForm?: HTMLFormElement }): Element {
         let mEle: Element = ele.cloneNode(true) as Element;
+        let form: HTMLFormElement = args.movableForm = mEle.querySelector('form');
+        if (this.parent.editSettings.template) {
+            form.innerHTML = '';
+            this.appendChildren(form, args.rowData, false);
+            return mEle;
+        }
         this.renderMovable(ele, mEle);
         mEle.querySelector('colgroup').innerHTML = this.parent.getHeaderContent()
             .querySelector('.e-movableheader').querySelector('colgroup').innerHTML;
@@ -59,6 +68,11 @@ export class InlineEditRender {
     }
 
     private updateFreezeEdit(row: Element, td: HTMLElement[]): HTMLElement[] {
+        td = td.concat([].slice.call(this.getFreezeRow(row).querySelectorAll('td.e-rowcell')));
+        return td;
+    }
+
+    private getFreezeRow(row: Element): Element {
         if (this.parent.getFrozenColumns()) {
             let idx: number = parseInt(row.getAttribute('aria-rowindex'), 10);
             let fCont: Element = this.parent.getContent().querySelector('.e-frozencontent').querySelector('tbody');
@@ -69,28 +83,32 @@ export class InlineEditRender {
                 idx -= this.parent.frozenRows;
             }
             if (fCont.contains(row)) {
-                td = td.concat([].slice.call(mCont.children[idx].querySelectorAll('td.e-rowcell')));
+                return mCont.children[idx];
             } else if (mCont.contains(row)) {
-                td = td.concat([].slice.call(fCont.children[idx].querySelectorAll('td.e-rowcell')));
+                return fCont.children[idx];
             } else if (fHdr.contains(row)) {
-                td = td.concat([].slice.call(mHdr.children[idx].querySelectorAll('td.e-rowcell')));
+                return mHdr.children[idx];
             } else if (mHdr.contains(row)) {
-                td = td.concat([].slice.call(fHdr.children[idx].querySelectorAll('td.e-rowcell')));
+                return fHdr.children[idx];
             }
         }
-        return td;
+        return row;
     }
 
-    public update(elements: Object, args: { row?: Element }): void {
+    public update(elements: Object, args: { row?: Element, rowData?: Object }): void {
+        this.isEdit = true;
+        if (closest(args.row, '.e-movablecontent')) {
+            args.row = this.getFreezeRow(args.row);
+        }
         let tdElement: HTMLElement[] = [].slice.call(args.row.querySelectorAll('td.e-rowcell'));
         args.row.innerHTML = '';
         tdElement = this.updateFreezeEdit(args.row, tdElement);
-        args.row.appendChild(this.getEditElement(elements, true, tdElement));
+        args.row.appendChild(this.getEditElement(elements, true, tdElement, args, true));
         args.row.classList.add('e-editedrow');
-        this.refreshFreezeEdit(args.row);
+        this.refreshFreezeEdit(args.row, args);
     }
 
-    private refreshFreezeEdit(row: Element): void {
+    private refreshFreezeEdit(row: Element, args: {rowData?: Object, movableForm?: HTMLFormElement }): void {
         let td: Element = row.firstChild as Element;
         let fCls: string;
         let cont: Element;
@@ -104,6 +122,11 @@ export class InlineEditRender {
                 fCls = '.e-frozencontent';
             }
             let mTd: Element = td.cloneNode(true) as Element;
+            let form: HTMLFormElement = args.movableForm  = mTd.querySelector('form');
+            if (this.parent.editSettings.template) {
+                form.innerHTML = '';
+                this.appendChildren(form, args.rowData, false);
+            }
             let fRows: Element;
             if (cont.querySelector(fCls).contains(row)) {
                 fRows = this.parent.getMovableRowByIndex(idx);
@@ -119,9 +142,11 @@ export class InlineEditRender {
 
     private updateFrozenCont(row: Element, ele: Element, mEle: Element): void {
         row.innerHTML = '';
-        this.renderMovable(ele, mEle);
-        mEle.querySelector('colgroup').innerHTML = this.parent.getHeaderContent()
+        if (!this.parent.editSettings.template) {
+            this.renderMovable(ele, mEle);
+            mEle.querySelector('colgroup').innerHTML = this.parent.getHeaderContent()
             .querySelector('.e-movableheader').querySelector('colgroup').innerHTML;
+        }
         ele.setAttribute('colspan', this.parent.getVisibleFrozenColumns() + '');
         mEle.setAttribute('colspan', this.parent.getColumns().length - this.parent.getFrozenColumns() + '');
     }
@@ -136,7 +161,8 @@ export class InlineEditRender {
         }
     }
 
-    private getEditElement(elements?: Object, isEdit?: boolean, tdElement?: HTMLElement[]): Element {
+    private getEditElement(elements?: Object, isEdit?: boolean, tdElement?: HTMLElement[], args?: {rowData?: Object}, isFrozen?: boolean):
+    Element {
         let gObj: IGrid = this.parent;
         let gLen: number = 0;
         let isDetail: number = !isNullOrUndefined(gObj.detailTemplate) || !isNullOrUndefined(gObj.childGrid) ? 1 : 0;
@@ -147,8 +173,13 @@ export class InlineEditRender {
             className: 'e-editcell e-normaledit',
             attrs: { colspan: (gObj.getVisibleColumns().length - gObj.getVisibleFrozenColumns() + gLen + isDetail).toString() }
         }) as HTMLTableCellElement;
-        let form: HTMLFormElement = this.parent
-        .createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
+        let form: HTMLFormElement = (<{form: HTMLFormElement}>args).form =
+        this.parent.createElement('form', { id: gObj.element.id + 'EditForm', className: 'e-gridform' }) as HTMLFormElement;
+        if (this.parent.editSettings.template) {
+            this.appendChildren(form, args.rowData, isFrozen);
+            td.appendChild(form);
+            return td;
+        }
         let table: Element = this.parent.createElement('table', { className: 'e-table e-inline-edit', attrs: { cellspacing: '0.25' } });
         table.appendChild(gObj.getContentTable().querySelector('colgroup').cloneNode(true));
         let tbody: Element = this.parent.createElement('tbody');
@@ -195,6 +226,11 @@ export class InlineEditRender {
 
     public removeEventListener(): void {
         //To destroy the renderer
+    }
+
+    private appendChildren(form: Element, data: Object, isFrozen: boolean): void {
+        let dummyData: Object = extend({}, data, {isAdd: !this.isEdit, isFrozen: isFrozen}, true);
+        appendChildren(form, this.parent.getEditTemplate()(dummyData, this.parent, 'editSettingsTemplate'));
     }
 }
 

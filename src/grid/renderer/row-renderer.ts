@@ -1,10 +1,10 @@
-import { isNullOrUndefined, extend, getValue, addClass } from '@syncfusion/ej2-base';
+import { isNullOrUndefined, extend, addClass } from '@syncfusion/ej2-base';
 import { attributes as addAttributes } from '@syncfusion/ej2-base';
 import { Column } from '../models/column';
 import { Row } from '../models/row';
 import { Cell } from '../models/cell';
 import { rowDataBound, queryCellInfo } from '../base/constant';
-import { setStyleAndAttributes } from '../base/util';
+import { setStyleAndAttributes, getObject } from '../base/util';
 import { ICellRenderer, IRowRenderer, IRow, QueryCellInfoEventArgs, RowDataBoundEventArgs, IGrid } from '../base/interface';
 import { CellType } from '../base/enum';
 import { CellRendererFactory } from '../services/cell-render-factory';
@@ -76,7 +76,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         let chekBoxEnable: Column = this.parent.getColumns().filter((col: Column) => col.type === 'checkbox' && col.field)[0];
         let value: boolean = false;
         if (chekBoxEnable) {
-            value = getValue(chekBoxEnable.field, rowArgs.data);
+            value = getObject(chekBoxEnable.field, rowArgs.data);
         }
         if (row.isDataRow) {
             row.isSelected = this.parent.getSelectedRowIndexes().indexOf(row.index) > -1 || value;

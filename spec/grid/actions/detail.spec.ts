@@ -108,7 +108,7 @@ describe('Detail template module', () => {
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
-                    dataSource: filterData,
+                    dataSource: filterData.map(data => data),
                     allowPaging: true,
                     detailTemplate: '#detailtemplate',
                     detailDataBound: detail,

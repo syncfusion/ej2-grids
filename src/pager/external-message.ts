@@ -1,4 +1,4 @@
-import { remove } from '@syncfusion/ej2-base';
+import { createElement, remove } from '@syncfusion/ej2-base';
 import { Pager, IRender } from './pager';
 
 /**
@@ -34,8 +34,7 @@ export class ExternalMessage implements IRender {
      * @hidden
      */
     public render(): void {
-        this.element = this.pagerModule
-        .createElement('div', { className: 'e-pagerexternalmsg', attrs: { 'aria-label': 'Pager external message' } });
+        this.element = createElement('div', { className: 'e-pagerexternalmsg', attrs: { 'aria-label': 'Pager external message' } });
         this.pagerModule.element.appendChild(this.element);
         this.refresh();
     }

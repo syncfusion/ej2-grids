@@ -85,9 +85,9 @@ require.config({
             main: 'ej2-pdf-export.umd.min.js'
         },
         {
-            name: '@syncfusion/ej2-splitbuttons',
-            location: 'node_modules/@syncfusion/ej2-splitbuttons/dist',
-            main: 'ej2-splitbuttons.umd.min.js'
+            name: '@syncfusion/ej2-splitbuttons',
+            location: 'node_modules/@syncfusion/ej2-splitbuttons/dist',
+            main:  'ej2-splitbuttons.umd.min.js'
         }
         // Include dependent packages
     ],

@@ -21,7 +21,7 @@ import { Column } from '../../../src/grid/models/column';
 import { Selection } from '../../../src/grid/actions/selection';
 import { NumericEditCell } from '../../../src/grid/renderer/numeric-edit-cell';
 import { DropDownEditCell } from '../../../src/grid/renderer/dropdown-edit-cell';
-import { DatePicker } from '@syncfusion/ej2-calendars';
+import { DatePicker, DateTimePicker } from '@syncfusion/ej2-calendars';
 import { createGrid, destroy, getKeyUpObj, getClickObj, getKeyActionObj } from '../base/specutil.spec';
 import { data, employeeData, filterData, customerData } from '../base/datasource.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
@@ -33,7 +33,7 @@ describe('Inline Editing module', () => {
     let dataSource: Function = (): Object[] => {
         let datasrc: Object[] = [];
         for (let i = 0; i < 11; i++) {
-            datasrc.push(extend({}, data[i]));
+            datasrc.push(extend({}, {}, data[i], true));
         }
         return datasrc;
     };
@@ -71,7 +71,7 @@ describe('Inline Editing module', () => {
         });
 
         it('Edit start - args.cancel', (done: Function) => {
-            actionBegin = (args?: any): void => {
+            actionBegin = (args?: any): void => {               
                 if (args.requestType === 'beginEdit') {
                     args.cancel = true;
                     expect(gridObj.isEdit).toBeFalsy();
@@ -102,7 +102,7 @@ describe('Inline Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'CustomerID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -115,7 +115,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_edit' } });
@@ -193,7 +193,7 @@ describe('Inline Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'OrderID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -206,7 +206,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check for last action
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             //edited class check for last action
             expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(0);
             gridObj.clearSelection();
@@ -267,7 +267,7 @@ describe('Inline Editing module', () => {
                     //record count check
                     expect(gridObj.currentViewData.length).toBe(11);
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
                     expect(gridObj.isEdit).toBeFalsy();
                     done();
                 }
@@ -280,7 +280,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check for last action
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             //added class check for last action
             expect(gridObj.element.querySelectorAll('.e-addedrow').length).toBe(0);
             gridObj.clearSelection();
@@ -304,7 +304,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_edit' } });
@@ -337,7 +337,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updatednew';
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_cancel' } });
         });
@@ -360,7 +360,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_add' } });
@@ -394,14 +394,14 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
             (gridObj.element.querySelector('#' + gridObj.element.id + 'OrderID') as any).value = 10247;
             (gridObj.element.querySelector('#' + gridObj.element.id + 'CustomerID') as any).value = 'updatednew';
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_cancel' } });
         });
 
         it('toolbar status check', () => {
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             (gridObj.element.querySelector('.e-rowcell') as any).click();
         });
 
@@ -461,6 +461,7 @@ describe('Inline Editing module', () => {
             actionComplete = (args?: any): void => {
                 if (args.requestType === 'add') {
                     gridObj.element.focus();
+                    (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_update' } });
                     let validationEle: HTMLElement = gridObj.element.querySelectorAll('.e-tooltip-wrap')[0] as HTMLElement;
                     expect(validationEle.style.maxWidth).not.toBe(null);
                     expect(validationEle.style.textAlign).toBe('center');
@@ -520,7 +521,7 @@ describe('Inline Editing module', () => {
             };
             gridObj.actionComplete = actionComplete;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             gridObj.keyboardModule.keyAction({ action: 'f2', preventDefault: preventDefault, target: gridObj.getContent().querySelector('.e-row') } as any);
@@ -649,13 +650,13 @@ describe('Inline Editing module', () => {
         it('editing disable testing', () => {
             gridObj.editSettings.allowAdding = false;
             gridObj.dataBind();
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
             gridObj.editSettings.allowDeleting = false;
             gridObj.dataBind();
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(5);
             gridObj.editSettings.allowEditing = false;
             gridObj.dataBind();
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(5);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(6);
             expect(gridObj.editModule).toBeUndefined();
             gridObj.editSettings.allowEditing = true;
             gridObj.dataBind();
@@ -664,7 +665,7 @@ describe('Inline Editing module', () => {
 
         it('adding disable testing', () => {
             gridObj.editModule.addRecord();
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(5);
         });
 
         it('deleting disable testing', () => {
@@ -1185,6 +1186,56 @@ describe('Inline Editing module', () => {
         });
 
     });
+    describe('Datetime picker component rendering', () => {
+        let gridObj: Grid;
+        let actionBegin: () => void;
+        let actionComplete: () => void;
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: dataSource(),
+                    editSettings: { allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Normal', showConfirmDialog: false, showDeleteConfirmDialog: false },
+                    toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                    allowPaging: true,
+                    columns: [
+                        { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: false, validationRules: { required: true } },
+                        { field: 'CustomerID', type: 'string' },
+                        { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                        { field: 'Verified', type: 'boolean', editType: 'booleanedit' },
+                        { field: 'ShipName', isIdentity: true },
+                        { field: 'ShipCountry', type: 'string', editType: 'dropdownedit' },
+                        { field: 'OrderDate', format: { skeleton: 'yMd', type: 'date' }, type: 'datetime', editType: 'datetimepickeredit' }
+                    ],
+                    actionBegin: actionBegin,
+                    actionComplete: actionComplete,
+                }, done);
+        });
+
+        it('render datetimepicker component while adding testing', (done: Function) => {
+            actionComplete = (args?: any): void => {
+                if (args.requestType === 'add') {
+                    expect(gridObj.element.querySelector('.e-gridform').querySelectorAll('td')[6].querySelector('input').classList.contains('e-datetimepicker')).toBeTruthy();
+                    done();
+                }
+            };
+            actionBegin = (args?: any): void => {
+                if (args.requestType === 'add') {
+                    expect(gridObj.isEdit).toBeFalsy();
+                }
+            };
+            gridObj.actionComplete = actionComplete;
+            gridObj.actionBegin = actionBegin;
+            gridObj.clearSelection();
+            gridObj.selectRow(0, true);
+            (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_add' } });
+        });
+
+        afterAll(() => {
+            gridObj.notify('tooltip-destroy', {});
+            destroy(gridObj);
+        });
+
+    });
 
     describe('Inline editing render with Freeze => ', () => {
         let gridObj: any;
@@ -1227,7 +1278,7 @@ describe('Inline Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'CustomerID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -1240,7 +1291,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_edit' } });
@@ -1290,7 +1341,7 @@ describe('Inline Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'OrderID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -1303,7 +1354,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check for last action
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             //edited class check for last action
             expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(0);
             gridObj.clearSelection();
@@ -1353,7 +1404,7 @@ describe('Inline Editing module', () => {
                     //record count check
                     expect(gridObj.currentViewData.length).toBe(11);
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
                     expect(gridObj.isEdit).toBeFalsy();
                     gridObj.freezeModule.dblClickHandler({ target: gridObj.getContent().querySelectorAll('.e-row')[0] });
                     done();
@@ -1367,7 +1418,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check for last action
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             //added class check for last action
             expect(gridObj.element.querySelectorAll('.e-addedrow').length).toBe(0);
             gridObj.clearSelection();
@@ -1390,7 +1441,7 @@ describe('Inline Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'CustomerID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -1403,7 +1454,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             gridObj.clearSelection();
             gridObj.editModule.startEdit(gridObj.getContent().querySelector('.e-movablecontent').querySelector('tr'));
         });
@@ -1454,7 +1505,7 @@ describe('Inline Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'CustomerID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -1467,7 +1518,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_edit' } });
@@ -1516,7 +1567,7 @@ describe('Inline Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'OrderID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -1529,7 +1580,7 @@ describe('Inline Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check for last action
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
             //edited class check for last action
             expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(0);
             gridObj.clearSelection();
@@ -1773,7 +1824,7 @@ describe('Inline Editing module', () => {
         });
 
         it('Initial toolbar staus check', () => {
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(5);
         });
 
 
@@ -1782,7 +1833,7 @@ describe('Inline Editing module', () => {
                 if (args.requestType === 'add') {
                     expect(gridObj.element.querySelectorAll('.e-addedrow').length).toBe(1);
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
                     expect(gridObj.isEdit).toBeTruthy();
                     // double click script error while in edit state.
                     expect(gridObj.getRowInfo(<Element | EventTarget>gridObj.element).toString()).toBe({}.toString());
@@ -1824,7 +1875,7 @@ describe('Inline Editing module', () => {
         });
 
         it('toolbar staus check after 1 record added', () => {
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(2);
+            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
         });
 
         afterAll(() => {
