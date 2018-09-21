@@ -4,10 +4,10 @@ import { FilterSettings } from '../base/grid';
 import { PredicateModel } from '../base/grid-model';
 import { DatePicker, DateTimePicker } from '@syncfusion/ej2-calendars';
 import { isNullOrUndefined } from '@syncfusion/ej2-base';
-import { Internationalization } from '@syncfusion/ej2-base';
 import { ServiceLocator } from '../services/service-locator';
 import { Filter } from '../actions/filter';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
+import {getCustomDateFormat} from '../base/util';
 
 /**
  * `datefilterui` render date column.
@@ -30,10 +30,7 @@ export class DateFilterUI implements IFilterMUI {
     }
 
     public create(args: IFilterCreate): void {
-        let intl: Internationalization = new Internationalization();
-        let colFormat: string = args.column.format as string;
-        let format: string = args.column.type === 'date' ? intl.getDatePattern({ type: 'date', skeleton: colFormat }, false)
-        : intl.getDatePattern({ type: 'dateTime', skeleton: colFormat }, false);
+        let format: string = getCustomDateFormat(args.column.format, args.column.type);
         this.dialogObj = args.dialogObj;
         this.inputElem = this.parent.createElement('input', { className: 'e-flmenu-input', id: 'dateui-' + args.column.uid });
         args.target.appendChild(this.inputElem);

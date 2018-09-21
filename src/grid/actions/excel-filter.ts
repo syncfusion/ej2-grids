@@ -8,13 +8,12 @@ import { ServiceLocator } from '../services/service-locator';
 import { CheckBoxFilter } from '../actions/checkbox-filter';
 import { isNullOrUndefined, L10n, } from '@syncfusion/ej2-base';
 import { PredicateModel } from '../base/grid-model';
-import { Internationalization } from '@syncfusion/ej2-base';
 import { Query, DataManager, Predicate } from '@syncfusion/ej2-data';
 import { Dialog, Popup } from '@syncfusion/ej2-popups';
 import { DropDownList, AutoComplete } from '@syncfusion/ej2-dropdowns';
 import { NumericTextBox } from '@syncfusion/ej2-inputs';
 import { RadioButton, CheckBox } from '@syncfusion/ej2-buttons';
-import { distinctStringValues, isComplexField, getComplexFieldID } from '../base/util';
+import { distinctStringValues, isComplexField, getComplexFieldID, getCustomDateFormat } from '../base/util';
 import { Column } from '../models/column';
 import { generateQuery } from '../base/constant';
 import { ReturnType } from '../base/type';
@@ -688,8 +687,7 @@ export class ExcelFilter extends CheckBoxFilter {
 
     /* tslint:disable-next-line:max-line-length */
     private renderDate(options: IFilterArgs, column: string, inputValue: HTMLElement, fValue: string | number | Date | boolean, isRtl: boolean): void {
-        let intl: Internationalization = new Internationalization();
-        let format: string = intl.getDatePattern({ type: 'date', skeleton: options.format }, false);
+        let format: string = getCustomDateFormat(options.format, options.type);
         this.datePicker = new DatePicker({
             format: format,
             cssClass: 'e-popup-flmenu',
@@ -703,8 +701,7 @@ export class ExcelFilter extends CheckBoxFilter {
 
     /* tslint:disable-next-line:max-line-length */
     private renderDateTime(options: IFilterArgs, column: string, inputValue: HTMLElement, fValue: string | number | Date | boolean, isRtl: boolean): void {
-        let intl: Internationalization = new Internationalization();
-        let format: string = intl.getDatePattern({ type: 'dateTime', skeleton: options.format }, false);
+        let format: string = getCustomDateFormat(options.format, options.type);
         this.dateTimePicker = new DateTimePicker({
             format: format,
             cssClass: 'e-popup-flmenu',

@@ -32,7 +32,7 @@ export class ValueFormatter implements IValueFormatter {
     }
 
     public fromView(value: string, format: Function, type?: string): string | number | Date {
-        if (type === 'date' || type === 'datetime' || type === 'number') {
+        if ((type === 'date' || type === 'datetime' || type === 'number') && (!isNullOrUndefined(format))) {
             return format(value);
         } else {
             return value;

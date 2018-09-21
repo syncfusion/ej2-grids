@@ -2186,8 +2186,11 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      */
 
     /* tslint:disable-next-line:max-line-length */
+    // tslint:disable-next-line:max-func-body-length
     public onPropertyChanged(newProp: GridModel, oldProp: GridModel): void {
-        let requireRefresh: boolean = false; let requireGridRefresh: boolean = false;
+        let requireRefresh: boolean = false;
+        let requireGridRefresh: boolean = false;
+        let freezeRefresh: boolean = false;
         let checkCursor: boolean; let args: Object = { requestType: 'refresh' };
         if (this.isDestroyed) { return; }
         let properties: string[] = Object.keys(newProp);
@@ -2267,7 +2270,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                     this.notify(events.uiUpdate, { module: 'aggregate', properties: newProp }); break;
                 case 'frozenColumns':
                 case 'frozenRows':
-                    requireGridRefresh = true; break;
+                    freezeRefresh = true;
+                    requireGridRefresh = true;
+                    break;
                 case 'enableVirtualization':
                     super.refresh(); break;
                 default:
@@ -2276,7 +2281,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
         }
         if (checkCursor) { this.updateDefaultCursor(); }
         if (requireGridRefresh) {
-            if (this.frozenColumns || this.frozenRows) {
+            if (freezeRefresh || this.frozenColumns || this.frozenRows) {
                 this.freezeRefresh();
             } else {
                 this.refresh();

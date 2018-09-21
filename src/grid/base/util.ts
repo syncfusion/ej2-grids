@@ -1,4 +1,4 @@
-import { ChildProperty, compile as baseTemplateComplier, setValue } from '@syncfusion/ej2-base';
+import { ChildProperty, compile as baseTemplateComplier, setValue, Internationalization } from '@syncfusion/ej2-base';
 import { extend as baseExtend, isNullOrUndefined, getValue, classList, NumberFormatOptions } from '@syncfusion/ej2-base';
 import { setStyleAttribute, addClass, attributes, remove, createElement, DateFormatOptions, removeClass } from '@syncfusion/ej2-base';
 import { IPosition, IGrid, IValueFormatter, IRow, ICell } from './interface';
@@ -625,4 +625,21 @@ export function getObject(field: string = '', object?: Object): any {
         }
         return value as string;
     }
+}
+
+export function getCustomDateFormat(format: string | Object, colType: string): string {
+    let intl: Internationalization = new Internationalization();
+    let formatvalue: string;
+    let formatter: string = 'format';
+    let type: string = 'type';
+    if (colType === 'date') {
+        formatvalue = typeof (format) === 'object' ?
+            intl.getDatePattern({ type: format[type] ? format[type] : 'date', format: format[formatter] }, false) :
+            intl.getDatePattern({ type: 'date', skeleton: format }, false);
+    } else {
+        formatvalue = typeof (format) === 'object' ?
+            intl.getDatePattern({ type: format[type] ? format[type] : 'dateTime', format: format[formatter] }, false) :
+            intl.getDatePattern({ type: 'dateTime', skeleton: format }, false);
+    }
+    return formatvalue;
 }
