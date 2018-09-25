@@ -132,6 +132,7 @@ export class ColumnChooser implements IAction {
                     (<HTMLInputElement>targetElement.parentElement.querySelector('.e-ccsearch')).value = '';
                     this.columnChooserSearch('');
                     this.removeCancelIcon();
+                    this.refreshCheckboxButton();
                 }
             } else {
                 if (!isNullOrUndefined(this.dlgObj) && this.dlgObj.visible && !targetElement.classList.contains('e-toolbar-items')) {
@@ -142,6 +143,9 @@ export class ColumnChooser implements IAction {
                     this.isDlgOpen = false;
                 }
             }
+        }
+        if (this.isCustomizeOpenCC && (e.target as Element).classList.contains('e-cc-cancel')) {
+            this.refreshCheckboxState();
         }
         this.rtlUpdate();
     }
@@ -385,6 +389,11 @@ export class ColumnChooser implements IAction {
     private columnChooserSearch(searchVal: string): void {
         let clearSearch: boolean = false;
         let fltrCol: Column[];
+        let okButton: Button;
+        let buttonEle: HTMLElement = this.dlgDiv.querySelector('.e-footer-content');
+        if (buttonEle) {
+            okButton = (buttonEle.querySelector('.e-btn') as EJ2Intance).ej2_instances[0] as Button;
+        }
         if (searchVal === '') {
             this.removeCancelIcon();
             fltrCol = this.getColumns() as Column[];
@@ -401,6 +410,9 @@ export class ColumnChooser implements IAction {
             this.innerDiv.appendChild(<HTMLElement>this.refreshCheckboxList(fltrCol, searchVal));
             if (!clearSearch) {
                 this.addcancelIcon();
+                this.refreshCheckboxButton();
+            } else {
+                if (okButton) { okButton.disabled = false; }
             }
         } else {
             let nMatchele: HTMLElement = this.parent.createElement('span', { className: 'e-cc e-nmatch' });
@@ -408,6 +420,7 @@ export class ColumnChooser implements IAction {
             this.innerDiv.innerHTML = ' ';
             this.innerDiv.appendChild(nMatchele);
             this.innerDiv.classList.add('e-ccnmdiv');
+            if (okButton) { okButton.disabled = true; }
         }
         this.flag = true;
         this.stopTimer();
@@ -452,7 +465,15 @@ export class ColumnChooser implements IAction {
         let selected: number = this.innerDiv.querySelectorAll('.e-check').length;
         let btn: Button = (this.dlgDiv.querySelector('.e-footer-content').querySelector('.e-btn') as EJ2Intance).ej2_instances[0] as Button;
         btn.disabled = false;
-        if (selected === 0 && searchValue === '') {
+        let srchShowCols: string[] = [];
+        let searchData: NodeListOf<HTMLInputElement> = this.parent.element.querySelectorAll('.e-cc-chbox');
+        for (let i: number = 0, itemsLen: number = searchData.length; i < itemsLen; i++) {
+            let element: HTMLInputElement = searchData[i] as HTMLInputElement;
+            let columnUID: string = parentsUntil(element, 'e-ccheck').getAttribute('uid');
+            srchShowCols.push(columnUID);
+        }
+        let hideCols: string[] = this.showColumn.filter((column: string) => srchShowCols.indexOf(column) !== -1);
+        if (selected === 0 && hideCols.length === 0) {
             btn.disabled = true;
         }
         btn.dataBind();

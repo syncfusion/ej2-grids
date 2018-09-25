@@ -420,7 +420,7 @@ export interface IGrid extends Component<HTMLElement> {
     getMovableDataRows?(): Element[];
     addMovableRows?(fRows: HTMLElement[], mrows: HTMLElement[]): HTMLElement[];
     getPrimaryKeyFieldNames?(): string[];
-    autoFitColumns(fieldNames: string | string[]): void;
+    autoFitColumns(fieldNames?: string | string[]): void;
     groupColumn(columnName: string): void;
     ungroupColumn(columnName: string): void;
     ensureModuleInjected(module: Function): Boolean;

@@ -367,8 +367,8 @@ export class Edit implements IAction {
                 break;
             case 'date':
             case 'datetime':
-                if (col.editType !== 'datepickeredit' && col.editType !== 'datetimepickeredit' && value && (value as string).length) {
-                    val = new Date(value as string);
+                if (col.editType !== 'datepickeredit' && col.editType !== 'datetimepickeredit') {
+                    val = (value && (value as string).length) ? new Date(value as string) : null;
                 }
                 break;
         }

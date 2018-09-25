@@ -1,6 +1,6 @@
 {
   "name": "@syncfusion/ej2-grids",
-  "version": "16.3.21",
+  "version": "16.3.22",
   "description": "Feature-rich JavaScript datagrid (datatable) control with built-in support for editing, filtering, grouping, paging, sorting, and exporting to Excel.",
   "author": "Syncfusion Inc.",
   "license": "SEE LICENSE IN license",
@@ -9,19 +9,19 @@
   "es2015": "./dist/es6/ej2-grids.es2015.js",
   "dependencies": {
     "@syncfusion/ej2-base": "~16.3.21",
-    "@syncfusion/ej2-data": "~16.3.21",
+    "@syncfusion/ej2-data": "~16.3.22",
     "@syncfusion/ej2-navigations": "~16.3.21",
-    "@syncfusion/ej2-inputs": "~16.3.21",
+    "@syncfusion/ej2-inputs": "~16.3.22",
     "@syncfusion/ej2-calendars": "~16.3.21",
     "@syncfusion/ej2-dropdowns": "~16.3.21",
     "@syncfusion/ej2-popups": "~16.3.21",
     "@syncfusion/ej2-buttons": "~16.3.21",
-    "@syncfusion/ej2-lists": "~16.3.21",
+    "@syncfusion/ej2-lists": "~16.3.22",
     "@syncfusion/ej2-excel-export": "~16.3.21",
     "@syncfusion/ej2-pdf-export": "~16.3.21",
     "@syncfusion/ej2-file-utils": "~16.3.21",
     "@syncfusion/ej2-compression": "~16.3.21",
-    "@syncfusion/ej2-splitbuttons": "~16.3.21"
+    "@syncfusion/ej2-splitbuttons": "~16.3.22"
   },
   "devDependencies": {
     "@types/chai": "^3.4.28",

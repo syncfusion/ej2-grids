@@ -163,6 +163,7 @@ export class Render {
     }
 
     private sendBulkRequest(args?: NotifyArgs): void {
+        args.requestType = 'batchsave';
         let promise: Promise<Object> = this.data.saveChanges((<{ changes?: Object }>args).changes,
                                                              this.parent.getPrimaryKeyFieldNames()[0],
                                                              (<{ original?: Object }>args).original);
@@ -298,6 +299,7 @@ export class Render {
                 return;
             }
             this.contentRenderer.setRowElements([]);
+            this.contentRenderer.setRowObjects([]);
             this.renderEmptyRow();
             if (args) {
                 let action: string = (args.requestType || '').toLowerCase() + '-complete';

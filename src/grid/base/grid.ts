@@ -656,8 +656,8 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public localeObj: L10n;
     private defaultLocale: Object;
     private keyConfigs: { [key: string]: string };
-    private keyPress: boolean;
     private toolTipObj: Tooltip;
+    private keyPress: boolean;
     private stackedColumn: Column;
     /** @hidden */
     public prevPageMoving: boolean = false;
@@ -3489,7 +3489,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * ``` 
      *  
      */
-    public autoFitColumns(fieldNames: string | string[]): void {
+    public autoFitColumns(fieldNames?: string | string[]): void {
         this.resizeModule.autoFitColumns(fieldNames);
     }
 

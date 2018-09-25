@@ -84,7 +84,7 @@ export class PagerDropDown {
             this.pagerCons.innerHTML = this.pagerModule.getLocalizedLabel('pagerAllDropDown');
             e.value = this.pagerModule.pageSize;
             if (document.getElementsByClassName('e-popup-open e-alldrop').length) {
-                (<HTMLElement>document.getElementsByClassName('e-alldrop')[1]).style.display = 'none';
+                (<HTMLElement>document.getElementsByClassName('e-popup-open e-alldrop')[0]).style.display = 'none';
             }
         } else {
             this.pagerModule.pageSize = parseInt(this.dropDownListObject.value as string, 10);

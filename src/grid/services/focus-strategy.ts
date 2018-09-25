@@ -577,7 +577,6 @@ export class ContentFocus implements IFocus {
             return false;
         };
     }
-
     protected shouldFocusChange(e: KeyboardEventArgs): boolean {
         let [rIndex = -1, cIndex = -1]: number[] = this.matrix.current;
         if (rIndex < 0 || cIndex < 0) { return true; }
@@ -670,10 +669,12 @@ export class HeaderFocus extends ContentFocus implements IFocus {
         return () => true;
     }
     protected shouldFocusChange(e: KeyboardEventArgs): boolean {
-        let [rIndex, cIndex]: number[] = this.matrix.current;
-        if (rIndex < 0 || cIndex < 0) { return true; }
-        let cell: Element = getValue(`${rIndex}.cells.${cIndex}`, this.getTable().rows);
-        if (!cell) { return true; }
+        let [rowIndex, columnIndex]: number[] = this.matrix.current;
+        if (rowIndex < 0 || columnIndex < 0) { return true; }
+        let cell: Element = getValue(`${rowIndex}.cells.${columnIndex}`, this.getTable().rows);
+        if (!cell) {
+            return true;
+        }
         return e.action === 'enter' || e.action === 'altDownArrow' ? !cell.classList.contains('e-headercell') : true;
     }
 }

@@ -15,8 +15,6 @@ import { NumericTextBox } from '@syncfusion/ej2-inputs';
 import { RadioButton, CheckBox } from '@syncfusion/ej2-buttons';
 import { distinctStringValues, isComplexField, getComplexFieldID, getCustomDateFormat } from '../base/util';
 import { Column } from '../models/column';
-import { generateQuery } from '../base/constant';
-import { ReturnType } from '../base/type';
 import { DatePicker, DateTimePicker } from '@syncfusion/ej2-calendars';
 import { OffsetPosition } from '@syncfusion/ej2-popups';
 /**
@@ -315,10 +313,7 @@ export class ExcelFilter extends CheckBoxFilter {
         this.removeObjects([this.dropOptr, this.datePicker, this.dateTimePicker, this.actObj, this.numericTxtObj, this.dlgObj]);
         remove(this.dlgDiv);
     }
-    private clearBtnClick(field: string): void {
-        this.clearFilter();
-        this.removeDialog();
-    }
+
     private createdDialog(target: Element, column: string): void {
         this.renderCustomFilter(target, column);
         this.dlgObj.element.style.left = '0px';
@@ -419,29 +414,8 @@ export class ExcelFilter extends CheckBoxFilter {
             action: 'filtering', filterCollection: fColl, field: this.options.field,
             ejpredicate: mPredicate, actualPredicate: fColl
         };
-        let fPredicate: { predicate?: Predicate } = {};
-        let filterCollection: PredicateModel[] = [];
         if (col.isForeignColumn()) {
-            (<Promise<Object>>(<DataManager>this.options.column.dataSource).
-                executeQuery(new Query().where(mPredicate))).then((e: ReturnType) => {
-                    this.options.column.columnData = e.result;
-                    this.parent.notify(generateQuery, { predicate: fPredicate, column: col });
-                    (<{ ejpredicate: Predicate[] }>args).ejpredicate = fPredicate.predicate.predicates;
-                    fPredicate.predicate.predicates.forEach((fpred: Predicate) => {
-                        filterCollection.push({
-                            field: fpred.field,
-                            predicate: 'or',
-                            matchCase: fpred.ignoreCase,
-                            ignoreAccent: fpred.ignoreAccent,
-                            operator: fpred.operator,
-                            value: <string>fpred.value,
-                            type: this.options.type
-                        });
-                    });
-                    (<{ filterCollection: PredicateModel[] }>args).filterCollection = filterCollection.length ? filterCollection :
-                        fColl.filter((col: PredicateModel) => col.field = this.options.field);
-                    this.options.handler(args);
-                });
+            this.foreignKeyFilter(args, fColl, mPredicate);
         } else {
             this.options.handler(args);
         }

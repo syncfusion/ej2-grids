@@ -56,6 +56,7 @@ export class Search implements IAction {
         this.parent.on(events.destroy, this.destroy, this);
         this.actionCompleteFunc = this.onActionComplete.bind(this);
         this.parent.addEventListener(events.actionComplete, this.actionCompleteFunc);
+        this.parent.on(events.cancelBegin, this.cancelBeginEvent, this);
     }
     /**
      * @hidden
@@ -66,6 +67,7 @@ export class Search implements IAction {
         this.parent.off(events.searchComplete, this.onSearchComplete);
         this.parent.off(events.destroy, this.destroy);
         this.parent.removeEventListener(events.actionComplete, this.actionCompleteFunc);
+        this.parent.off(events.cancelBegin, this.cancelBeginEvent);
     }
 
     /**
@@ -107,6 +109,12 @@ export class Search implements IAction {
 
     public onActionComplete(e: NotifyArgs): void {
         this.refreshSearch = e.requestType !== 'searching';
+    }
+
+    private cancelBeginEvent(e: { requestType: string }): void {
+        if (e.requestType === 'searching') {
+            this.parent.setProperties({ searchSettings: { key: '' } }, true);
+        }
     }
 
     /**

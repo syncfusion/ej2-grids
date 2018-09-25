@@ -307,7 +307,7 @@ export class NormalEdit {
         this.uid = '';
         (<Column[]>gObj.columns).forEach((col: Column) => {
             if (col.field) {
-                setValue(col.field, isUndefined(col.defaultValue) ? null : col.defaultValue, this.previousData );
+                setValue(col.field, isUndefined(col.defaultValue) ? '' : col.defaultValue, this.previousData );
             }
         });
         let args: AddEventArgs = {

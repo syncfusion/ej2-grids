@@ -1,7 +1,7 @@
 import { getValue } from '@syncfusion/ej2-base';
 import { createGrid, destroy } from '../base/specutil.spec';
 import { Grid, FilterSettings } from '../../../src/grid/base/grid';
-import { fdata, employeeSelectData, fCustomerData } from '../base/datasource.spec';
+import { fdata, employeeSelectData, fCustomerData, data } from '../base/datasource.spec';
 import { DataManager, Predicate, Query, Deferred } from '@syncfusion/ej2-data';
 import { Column } from '../../../src/grid/models/column';
 import { PredicateModel } from '../../../src/grid/base/grid-model';
@@ -314,6 +314,7 @@ describe('Foreign Key =>', () => {
             expect(gridObj.isEdit).toBeTruthy();
             gridObj.endEdit();
             expect(gridObj.isEdit).toBeFalsy();
+            gridObj.dataBound = null;
             done();
         };
         gridObj.columns[2] = {
@@ -373,6 +374,21 @@ describe('Foreign Key =>', () => {
             expect(true).toBeTruthy();
         });
 
+    });
+
+    describe('Binding datasource dynamically with Foreign key =>', () => {
+        it('Bind the data', () => {
+            expect(gridObj.getDataModule().dataManager.dataSource.json.length).toBe(15);
+        });
+        it('Check the data', (done: Function) => {
+            gridObj.actionComplete = (args) => {
+                if (args.requestType === 'refresh') {
+                expect(gridObj.getDataModule().dataManager.dataSource.json.length).toBe(5);
+                done();
+                }
+            };
+            gridObj.dataSource = data.slice(0,5);
+        });
     });
 
     afterAll(() => {

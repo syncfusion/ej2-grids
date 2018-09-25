@@ -341,7 +341,8 @@
     .e-summarycell,
     .e-emptyrow td,
     .e-frozencontent table tr td:first-child:empty,
-    .e-movablecontent table tr td:first-child:empty {
+    .e-movablecontent table tr td:first-child:empty,
+    .e-gridcontent tr td:first-child:empty {
       line-height: $grid-bigger-rowcell-line-height;
     }
 
@@ -366,7 +367,8 @@
 // sass-lint:disable-all
     .e-frozencontent table tr td:first-child:empty,
     .e-movablecontent table tr td:first-child:empty,
-    .e-frozenhdrcont table tr td:first-child:empty {
+    .e-frozenhdrcont table tr td:first-child:empty,
+    .e-gridcontent tr td:first-child:empty {
       height: $grid-bigger-rowcell-line-height + $grid-bigger-content-padding +  $grid-bigger-content-padding;
     }
 
@@ -873,7 +875,8 @@
 
     .e-frozencontent table tr td:first-child:empty,
     .e-movablecontent table tr td:first-child:empty,
-    .e-frozenhdrcont table tr td:first-child:empty {
+    .e-frozenhdrcont table tr td:first-child:empty,
+    .e-gridcontent tr td:first-child:empty {
       height: $grid-rowcell-line-height + $grid-content-padding + $grid-content-padding;
     }
 
@@ -2590,7 +2593,8 @@
 
   .e-frozencontent table tr td:first-child:empty,
   .e-movablecontent table tr td:first-child:empty,
-  .e-frozenhdrcont table tr td:first-child:empty {
+  .e-frozenhdrcont table tr td:first-child:empty,
+  .e-gridcontent tr td:first-child:empty {
     height: 18px;
    }
 }

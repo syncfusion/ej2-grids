@@ -33,13 +33,17 @@ export class Data implements IDataProcessor {
         this.parent = parent;
         this.serviceLocator = serviceLocator;
         this.initDataManager();
-        if (this.parent.isDestroyed) { return; }
+        if (this.parent.isDestroyed || this.getModuleName() === 'foreignKey') { return; }
         this.parent.on(events.rowsAdded, this.addRows, this);
         this.parent.on(events.rowsRemoved, this.removeRows, this);
         this.parent.on(events.dataSourceModified, this.initDataManager, this);
         this.parent.on(events.destroy, this.destroy, this);
         this.parent.on(events.updateData, this.crudActions, this);
         this.parent.on(events.addDeleteAction, this.getData, this);
+    }
+
+    protected getModuleName(): string {
+        return 'data';
     }
 
     /**
@@ -424,7 +428,7 @@ export class Data implements IDataProcessor {
         this.parent.off(events.rowsAdded, this.addRows);
         this.parent.off(events.rowsRemoved, this.removeRows);
         this.parent.off(events.dataSourceModified, this.initDataManager);
-        this.parent.off(events.dataSourceModified, this.destroy);
+        this.parent.off(events.destroy, this.destroy);
         this.parent.off(events.updateData, this.crudActions);
         this.parent.off(events.addDeleteAction, this.getData);
     }

@@ -131,7 +131,6 @@ export class ForeignKey extends Data {
     }
 
     protected destroy(): void {
-        super.destroy();
         this.destroyEvent();
     }
 

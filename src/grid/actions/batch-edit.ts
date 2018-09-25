@@ -589,7 +589,9 @@ export class BatchEdit {
         let data: Object = {};
         let dValues: Object = { 'number': 0, 'string': null, 'boolean': false, 'date': null, 'datetime': null };
         for (let col of gObj.columns as Column[]) {
-            setValue(col.field, col.defaultValue ? col.defaultValue : dValues[col.type], data);
+            if (col.field) {
+                setValue(col.field, col.defaultValue ? col.defaultValue : dValues[col.type], data);
+            }
         }
         return data;
     }

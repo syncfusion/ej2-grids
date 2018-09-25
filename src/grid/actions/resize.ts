@@ -65,7 +65,7 @@ export class Resize implements IAction {
      * @param  {string|string[]} fName - Defines the field name.  
      * @return {void} 
      */
-    public autoFitColumns(fName: string | string[]): void {
+    public autoFitColumns(fName?: string | string[]): void {
         let columnName: string[] = (fName === undefined || fName === null || fName.length <= 0) ?
             this.parent.getColumns().map((x: Column) => x.field) : (typeof fName === 'string') ? [fName] : fName;
         this.findColumn(columnName);

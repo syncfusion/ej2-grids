@@ -171,7 +171,7 @@ export class ContentRender implements IRenderer {
         }
         let idx: number = modelData[0].cells[0].index;
         // tslint:disable-next-line:no-any
-        if ((this.parent as any).registeredTemplate && (this.parent as any).registeredTemplate.template) {
+        if ((this.parent as any).registeredTemplate && (this.parent as any).registeredTemplate.template && !args.isFrozen) {
             this.parent.destroyTemplate(['template']);
         }
         if (this.parent.enableColumnVirtualization) {
@@ -490,5 +490,9 @@ export class ContentRender implements IRenderer {
         if (e.module === 'group' && e.enable) {
             this.generator = this.getModelGenerator();
         }
+    }
+
+    public setRowObjects(rows: Row<Column>[]): void {
+        this.rows = rows;
     }
 }
