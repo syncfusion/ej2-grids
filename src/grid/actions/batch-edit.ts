@@ -1,4 +1,4 @@
-import { extend, addClass, removeClass, setValue, isUndefined } from '@syncfusion/ej2-base';
+import { extend, addClass, removeClass, setValue } from '@syncfusion/ej2-base';
 import { remove, classList } from '@syncfusion/ej2-base';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 import { isNullOrUndefined, KeyboardEventArgs } from '@syncfusion/ej2-base';
@@ -17,6 +17,7 @@ import { IModelGenerator } from '../base/interface';
 import { RowModelGenerator } from '../services/row-model-generator';
 import { Column } from '../models/column';
 import { FocusStrategy } from '../services/focus-strategy';
+import { DataUtil } from '@syncfusion/ej2-data';
 
 /**
  * `BatchEdit` module is used to handle batch editing actions.
@@ -692,7 +693,7 @@ export class BatchEdit {
         if (!rowObj.changes) {
             rowObj.changes = extend({}, {}, rowObj.data, true);
         }
-        setValue(field, isUndefined(value) ? null : value, rowObj.changes);
+        DataUtil.setValue(field, value, rowObj.changes);
         if (rowObj.data[field] !== value) {
             rowObj.isDirty = true;
         }
@@ -779,7 +780,7 @@ export class BatchEdit {
         let cloneEditedData: Object = extend({}, editedData);
         editedData = extend({}, editedData, this.cellDetails.rowData);
         let value: string = getObject(column.field, cloneEditedData);
-        setValue(column.field, isUndefined(value) ? null : value, editedData);
+        setValue(column.field, value, editedData);
         let args: CellSaveArgs = {
             columnName: column.field,
             value: getObject(column.field, editedData),

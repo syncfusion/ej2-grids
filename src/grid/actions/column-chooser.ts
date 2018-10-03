@@ -43,6 +43,7 @@ export class ColumnChooser implements IAction {
     private cBoxTrue: Element;
     private cBoxFalse: Element;
     private searchBoxObj: SearchBox;
+    private searchOperator: string = 'startswith';
     /**
      * Constructor for the Grid ColumnChooser module
      * @hidden
@@ -166,14 +167,15 @@ export class ColumnChooser implements IAction {
     public renderColumnChooser(x?: number, y?: number, target?: Element): void {
         if (!this.dlgObj.visible) {
             let pos: { X: number, Y: number } = { X: null, Y: null };
-            let args1: { requestType: string, element?: Element, columns?: Column[], cancel: boolean } = {
+            let args1: { requestType: string, element?: Element, columns?: Column[], cancel: boolean, searchOperator: string } = {
                 requestType: 'beforeOpenColumnChooser', element: this.parent.element,
-                columns: this.getColumns() as Column[], cancel: false
+                columns: this.getColumns() as Column[], cancel: false, searchOperator: this.searchOperator
             };
             this.parent.trigger(events.beforeOpenColumnChooser, args1);
             if (args1.cancel) {
                 return;
             }
+            this.searchOperator = args1.searchOperator;
             this.refreshCheckboxState();
             this.dlgObj.dataBind();
             this.dlgObj.element.style.maxHeight = '430px';
@@ -401,7 +403,7 @@ export class ColumnChooser implements IAction {
 
         } else {
             fltrCol = new DataManager((this.getColumns() as Object[]) as JSON[]).executeLocal(new Query()
-                .where('headerText', 'startswith', searchVal, true)) as Column[];
+                .where('headerText', this.searchOperator, searchVal, true)) as Column[];
         }
 
         if (fltrCol.length) {

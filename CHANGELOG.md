@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## 16.3.22 (2018-09-25)
+## 16.3.23 (2018-10-03)
 
 ### Grid
 
@@ -21,6 +21,7 @@
 - Resolved issue with dynamic data source change when foreign key is used.
 - Added cancel event argument for search `actionBegin` event.
 - `ODataV4` - Excel filter now uses `groupby` to get distinct data.
+- Autofit columns for empty detail Grid issue is fixed.
 
 ## 16.3.21 (2018-09-22)
 

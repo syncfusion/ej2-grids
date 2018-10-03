@@ -97,7 +97,8 @@ export class Column {
      * Gets the format from the user which can be standard or custom 
      * [`number`](../base/intl.html#number-formatter-and-parser) 
      * and [`date`](../base/intl.html#date-formatter-and-parser) formats.  
-     * @default null 
+     * @default null
+     * @aspType string
      */
 
     public format: string | NumberFormatOptions | DateFormatOptions;
@@ -614,6 +615,7 @@ export interface ColumnModel {
      * [`number`](../base/intl.html#number-formatter-and-parser) 
      * and [`date`](../base/intl.html#date-formatter-and-parser) formats.  
      * @default null
+     * @aspType string
      */
     format?: string | NumberFormatOptions | DateFormatOptions;
 

@@ -148,7 +148,7 @@ export class InlineEditRender {
             .querySelector('.e-movableheader').querySelector('colgroup').innerHTML;
         }
         ele.setAttribute('colspan', this.parent.getVisibleFrozenColumns() + '');
-        mEle.setAttribute('colspan', this.parent.getColumns().length - this.parent.getFrozenColumns() + '');
+        mEle.setAttribute('colspan', this.parent.getVisibleColumns().length - this.parent.getVisibleFrozenColumns() + '');
     }
 
     private renderMovable(ele: Element, mEle: Element): void {

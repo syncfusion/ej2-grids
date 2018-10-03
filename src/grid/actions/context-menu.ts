@@ -300,6 +300,8 @@ export class ContextMenu implements IAction {
         } else {
             this.targetColumn = this.getColumn(args.event);
             this.selectRow(args.event, this.parent.selectionSettings.type !== 'Multiple');
+            let hiddenSepItems: string[] = [];
+            let showSepItems: string[] = [];
             for (let item of args.items) {
                 let key: string = this.getKeyFromId(item.id);
                 let dItem: ContextMenuItemModel = this.defaultItems[key];
@@ -323,11 +325,19 @@ export class ContextMenu implements IAction {
                     }
                 } else if ((item as ContextMenuItemModel).target && args.event &&
                     !this.ensureTarget(args.event.target as HTMLElement, (item as ContextMenuItemModel).target)) {
-                    this.hiddenItems.push(item.text);
+                    if (item.separator) { hiddenSepItems.push(item.id); } else { this.hiddenItems.push(item.text); }
+                } else if (this.ensureTarget(args.event.target as HTMLElement, (item as ContextMenuItemModel).target) && item.separator) {
+                    showSepItems.push(item.id);
                 }
+            }
+            if (showSepItems.length > 0) {
+                this.contextMenu.showItems(showSepItems, true);
             }
             this.contextMenu.enableItems(this.disableItems, false);
             this.contextMenu.hideItems(this.hiddenItems);
+            if (hiddenSepItems.length > 0) {
+                this.contextMenu.hideItems(hiddenSepItems, true);
+            }
             this.eventArgs = args.event;
             args.column = this.targetColumn;
             this.parent.trigger(events.contextMenuOpen, args);

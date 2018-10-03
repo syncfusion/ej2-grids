@@ -786,6 +786,8 @@ export interface ColumnChooserEventArgs {
     columns?: Column[];
     /** Specifies the instance of column chooser dialog. */
     dialogInstance?: Object;
+   /** Defines the operator for column chooser search request */
+   searchOperator?: string;
 }
 
 export interface RowDeselectEventArgs {

@@ -185,7 +185,7 @@
       font-size: $grid-bigger-icons-font-size;
     }
 
-    .e-gridheader .e-icons {
+    .e-gridheader thead .e-icons {
       font-size: $grid-bigger-header-icons-font-size;
     }
 
@@ -576,7 +576,7 @@
       user-select: none;
     }
 
-    .e-gridheader .e-icons {
+    .e-gridheader thead .e-icons {
       font-size: $grid-icon-font-size;
     }
 

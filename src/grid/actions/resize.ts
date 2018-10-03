@@ -111,8 +111,10 @@ export class Resize implements IAction {
                 indentWidth += (<HTMLElement>indentWidthClone[i]).offsetWidth;
             }
         }
-        if (this.parent.detailTemplate || this.parent.childGrid) {
-            indentWidth += (<HTMLElement>contentTable.querySelector('.e-detailrowcollapse')).offsetWidth;
+        let detailsElement: HTMLElement = <HTMLElement>contentTable.querySelector('.e-detailrowcollapse') ||
+         <HTMLElement>contentTable.querySelector('.e-detailrowexpand');
+        if ((this.parent.detailTemplate || this.parent.childGrid) && detailsElement) {
+            indentWidth += detailsElement.offsetWidth;
         }
         let headerText: Element[] = [headerTextClone];
         let contentText: Element[] = [];

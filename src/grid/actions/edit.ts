@@ -1,7 +1,7 @@
-import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs, closest, isUndefined } from '@syncfusion/ej2-base';
+import { KeyboardEventArgs, L10n, EventHandler, TouchEventArgs, closest } from '@syncfusion/ej2-base';
 import { extend, getValue } from '@syncfusion/ej2-base';
 import { remove } from '@syncfusion/ej2-base';
-import { isNullOrUndefined, setValue } from '@syncfusion/ej2-base';
+import { isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, IAction, NotifyArgs, IEdit } from '../base/interface';
 import * as events from '../base/constant';
 import { EditRender } from '../renderer/edit-renderer';
@@ -21,6 +21,7 @@ import { DatePickerEditCell } from '../renderer/datepicker-edit-cell';
 import { calculateRelativeBasedPosition, OffsetPosition } from '@syncfusion/ej2-popups';
 import { EJ2Intance } from '../base/interface';
 import { TemplateEditCell } from '../renderer/template-edit-cell';
+import { DataUtil } from '@syncfusion/ej2-data';
 
 /**
  * The `Edit` module is used to handle editing actions.
@@ -528,7 +529,7 @@ export class Edit implements IAction {
                         value = (column.edit.read as Function)(element, value);
                     }
                     value = gObj.editModule.getValueFromType(column, value) as string;
-                    setValue(column.field, isUndefined(value) || value === 'null' ? null : value, editedData);
+                    DataUtil.setValue(column.field, value, editedData);
                 }
             });
             return editedData;
@@ -540,7 +541,7 @@ export class Edit implements IAction {
                 inputElements = inputElements.length ? inputElements : [form[getComplexFieldID(col.field)]];
                 inputElements.forEach((input: HTMLInputElement) => {
                     let value: number | string | Date | boolean  = this.getValue(col, input);
-                    setValue(col.field, isUndefined(value) || value === 'null' ? null : value, editedData);
+                    DataUtil.setValue(col.field, value, editedData);
                 });
             }
         });
@@ -550,7 +551,7 @@ export class Edit implements IAction {
             let col: Column = gObj.getColumnByUid(inputs[i].getAttribute('e-mappinguid'));
             if (col && col.field) {
                 let value:  number | string | Date | boolean = this.getValue(col, inputs[i]);
-                setValue(col.field, isUndefined(value) || value === 'null' ? null : value, editedData);
+                DataUtil.setValue(col.field, value, editedData);
             }
         }
         return editedData;

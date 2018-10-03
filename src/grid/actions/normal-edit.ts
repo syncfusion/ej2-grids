@@ -1,4 +1,4 @@
-import { extend, setValue, isUndefined } from '@syncfusion/ej2-base';
+import { extend } from '@syncfusion/ej2-base';
 import { remove, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { IGrid, NotifyArgs, EditEventArgs, AddEventArgs, SaveEventArgs } from '../base/interface';
 import { parentsUntil, refreshForeignData, getObject } from '../base/util';
@@ -10,6 +10,7 @@ import { ServiceLocator } from '../services/service-locator';
 import { Column } from '../models/column';
 import { ReturnType } from '../base/type';
 import { FormValidator } from '@syncfusion/ej2-inputs';
+import { DataUtil } from '@syncfusion/ej2-data';
 
 /**
  * `NormalEdit` module is used to handle normal('inline, dialog, external') editing actions.
@@ -307,7 +308,7 @@ export class NormalEdit {
         this.uid = '';
         (<Column[]>gObj.columns).forEach((col: Column) => {
             if (col.field) {
-                setValue(col.field, isUndefined(col.defaultValue) ? '' : col.defaultValue, this.previousData );
+                DataUtil.setValue(col.field, col.defaultValue, this.previousData );
             }
         });
         let args: AddEventArgs = {

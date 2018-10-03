@@ -232,7 +232,7 @@ describe('Dialog Template Editing module', () => {
         it('Add Check =>', (done: Function) => {
             gridObj.actionBegin = (args: any) => {
                 expect(args.requestType).toBe('add');
-                expect(args.data['OrderID']).toBe('');
+                expect(args.data['OrderID']).toBeUndefined();
             };
             gridObj.actionComplete = (args: any) => {
                 expect(args.form).not.toBeUndefined();
@@ -242,7 +242,7 @@ describe('Dialog Template Editing module', () => {
                     expect(element.value).not.toBeNull();
                 });
                 expect((<Column>gridObj.columns[4]).edit.write).toHaveBeenCalled();
-                expect(args.rowData['CustomerID']['CustomerID']).toBe('');
+                expect(args.rowData['CustomerID']['CustomerID']).toBeUndefined();
                 done();
             };
             spyOn((<Column>gridObj.columns[4]).edit, 'write');
@@ -252,7 +252,7 @@ describe('Dialog Template Editing module', () => {
         it ('new Record save check => ', (done: Function) => {
             let length: number = (<any>gridObj.dataSource).length;
             gridObj.actionBegin = (args: any) => {
-                expect(args.rowData['OrderID']).toBe('');
+                expect(args.rowData['OrderID']).toBeUndefined();
                 expect(args.requestType).toBe('save');
             };
             gridObj.actionComplete = (args: any) => {
@@ -483,7 +483,7 @@ describe('Inline Template Editing module', () => {
         it('Add Check =>', (done: Function) => {
             gridObj.actionBegin = (args: any) => {
                 expect(args.requestType).toBe('add');
-                expect(args.data['OrderID']).toBe('');
+                expect(args.data['OrderID']).toBeUndefined();
             };
             gridObj.actionComplete = (args: any) => {
                 expect(args.form).not.toBeUndefined();
@@ -492,7 +492,7 @@ describe('Inline Template Editing module', () => {
                     expect(element.value).not.toBeNull();
                 });
                 expect((<Column>gridObj.columns[4]).edit.write).toHaveBeenCalled();
-                expect(args.rowData['CustomerID']['CustomerID']).toBe('');
+                expect(args.rowData['CustomerID']['CustomerID']).toBeUndefined();
                 done();
             };
             spyOn((<Column>gridObj.columns[4]).edit, 'write');
@@ -502,7 +502,7 @@ describe('Inline Template Editing module', () => {
         it ('new Record save check => ', (done: Function) => {
             let length: number = (<any>gridObj.dataSource).length;
             gridObj.actionBegin = (args: any) => {
-                expect(args.rowData['OrderID']).toBe('');
+                expect(args.rowData['OrderID']).toBeUndefined();
                 expect(args.requestType).toBe('save');
             };
             gridObj.actionComplete = (args: any) => {
@@ -652,7 +652,7 @@ describe('Edit Template Editing module', () => {
         it('Add Check =>', (done: Function) => {
             gridObj.actionBegin = (args: any) => {
                 expect(args.requestType).toBe('add');
-                expect(args.data['OrderID']).toBe('');
+                expect(args.data['OrderID']).toBeUndefined();
             };
             gridObj.actionComplete = (args: any) => {
                 expect(args.form).not.toBeUndefined();
@@ -661,7 +661,7 @@ describe('Edit Template Editing module', () => {
                     expect(element.value).not.toBeNull();
                 });
                 expect((<Column>gridObj.columns[4]).edit.write).toHaveBeenCalled();
-                expect(args.rowData['CustomerID']['CustomerID']).toBe('');
+                expect(args.rowData['CustomerID']['CustomerID']).toBeUndefined();
                 done();
             };
             spyOn((<Column>gridObj.columns[4]).edit, 'write');
@@ -671,7 +671,7 @@ describe('Edit Template Editing module', () => {
         it ('new Record save check => ', (done: Function) => {
             let length: number = (<any>gridObj.dataSource).length;
             gridObj.actionBegin = (args: any) => {
-                expect(args.rowData['OrderID']).toBe('');
+                expect(args.rowData['OrderID']).toBeUndefined();
                 expect(args.requestType).toBe('save');
             };
             gridObj.actionComplete = (args: any) => {

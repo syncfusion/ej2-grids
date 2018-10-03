@@ -2254,11 +2254,6 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 case 'toolbar':
                     this.notify(events.uiUpdate, { module: 'toolbar' }); break;
                 case 'groupSettings':
-                    if (!(isNullOrUndefined(newProp.groupSettings.showDropArea))) {
-                        this.headerModule.refreshUI();
-                        requireRefresh = true;
-                        checkCursor = true;
-                    }
                     this.notify(events.inBoundModelChanged, {
                         module: 'group', properties: newProp.groupSettings,
                         oldProperties: oldProp.groupSettings
@@ -3973,7 +3968,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     }
 
     private keyActionHandler(e: KeyboardEventArgs): void {
-        this.keyPress = true;
+        this.keyPress = e.action !== 'space';
         if (this.isChildGrid(e) ||
             (this.isEdit && e.action !== 'escape' && e.action !== 'enter' && e.action !== 'shiftEnter'
                 && e.action !== 'tab' && e.action !== 'shiftTab')) {
