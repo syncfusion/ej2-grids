@@ -254,6 +254,7 @@ describe('Foreign Key =>', () => {
             expect(gridObj.isEdit).toBeTruthy();
             let dropDownObj: DropDownEditCell = new DropDownEditCell(gridObj);
             (<any>dropDownObj).column = gridObj.getForeignKeyColumns()[0];
+            (<any>dropDownObj).obj = {fields: {value: (<any>dropDownObj).column.foreignKeyField}};
             (<any>dropDownObj).ddActionComplete({ result: (<any>dropDownObj).column.columnData });
             expect((<DataManager>(<Column>(<any>dropDownObj).column).dataSource).dataSource.json.length).toBeGreaterThan(5);
             gridObj.endEdit();

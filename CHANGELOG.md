@@ -8,6 +8,20 @@
 
 #### Bug Fixes
 
+- Prevented the grid refresh action when change the `showDropArea` visibility.
+- Changed the default values while add the empty data.
+- Context menu separators are not hidden properly when open in header.
+- Script error is thrown while auto fit the hierarchy grid with empty data is fixed.
+- Batch changes not passed when the column is edited with spaces.
+- Misalignment occurred while doing show or hide grid column with enable frozen columns is fixed.
+- Support for column chooser can search with user given operators.
+
+## 16.3.22 (2018-09-25)
+
+### Grid
+
+#### Bug Fixes
+
 - Provided `batchsave` as request type for `actionComplete` event of bulk save.
 - Provided optional parameter support for `autoFitColumns` API.
 - Cancel icon is not clearing the searched text when externally opening column chooser fixed.

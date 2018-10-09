@@ -744,12 +744,14 @@ export class CheckBoxFilter {
                 this.createCheckbox(value, this.getCheckedState(isColFiltered, this.values[uid]), getValue('dataObj', data[i]));
                 cBoxes.appendChild(createCboxWithWrap(uid, checkbox, 'e-ftrchk'));
             }
-            this.cBox.innerHTML = cBoxes.innerHTML;
+            this.cBox.innerHTML = '';
+            appendChildren(this.cBox, cBoxes.children);
             this.updateIndeterminatenBtn();
             btn.disabled = false;
         } else {
             cBoxes.appendChild(this.parent.createElement('span', { innerHTML: this.getLocalizedLabel('NoResult') }));
-            this.cBox.innerHTML = cBoxes.innerHTML;
+            this.cBox.innerHTML = '';
+            appendChildren(this.cBox, cBoxes.children);
             btn.disabled = true;
         }
         this.filterState = !btn.disabled;

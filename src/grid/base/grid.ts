@@ -517,7 +517,8 @@ export class GroupSettings extends ChildProperty<GroupSettings> {
 
     /**    
      * The Caption Template allows user to display the string or HTML element in group caption.
-     * > It accepts either the [template string](http://ej2.syncfusion.com/documentation/base/template-engine.html) or the HTML element ID.
+     * > It accepts either the
+     * [template string](http://ej2.syncfusion.com/documentation/common/template-engine.html) or the HTML element ID.
      * @default ''
      */
     @Property()
@@ -1074,7 +1075,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * The row template that renders customized rows from the given template. 
      * By default, Grid renders a table row for every data source item.
-     * > * It accepts either [template string](../base/template-engine.html) or HTML element ID.   
+     * > * It accepts either [template string](../common/template-engine.html) or HTML element ID.   
      * > * The row template must be a table row.  
      * 
      * > Check the [`Row Template`](./row.html) customization.
@@ -1085,7 +1086,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * The detail template allows you to show or hide additional information about a particular row.
      *  
-     * > It accepts either the [template string](../base/template-engine.html) or the HTML element ID.
+     * > It accepts either the [template string](../common/template-engine.html) or the HTML element ID.
      * 
      * {% codeBlock src="grid/detail-template-api/index.ts" %}{% endcodeBlock %}
      */
@@ -1120,9 +1121,9 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     /**    
      * It is used to render grid table rows. 
      * If the `dataSource` is an array of JavaScript objects, 
-     * then Grid will create instance of [`DataManager`](../data/api-dataManager.html) 
+     * then Grid will create instance of [`DataManager`](https://ej2.syncfusion.com/documentation/data/api-dataManager.html) 
      * from this `dataSource`. 
-     * If the `dataSource` is an existing [`DataManager`](../data/api-dataManager.html),
+     * If the `dataSource` is an existing [`DataManager`](https://ej2.syncfusion.com/documentation/data/api-dataManager.html),
      *  the Grid will not initialize a new one. 
      * 
      * > Check the available [`Adaptors`](../data/adaptors.html) to customize the data operation.
@@ -1139,7 +1140,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
     public rowHeight: number;
 
     /**    
-     * Defines the external [`Query`](../data/api-query.html) 
+     * Defines the external [`Query`](https://ej2.syncfusion.com/documentation/data/api-query.html) 
      * that will be executed along with data processing.    
      * @default null    
      */

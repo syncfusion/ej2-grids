@@ -16,6 +16,7 @@ import { Resize } from '../actions/resize';
 
 /**
  * 'column menu module used to handle column menu actions'
+ * @hidden
  */
 export class ColumnMenu implements IAction {
     //internal variables

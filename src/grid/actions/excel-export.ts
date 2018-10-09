@@ -531,7 +531,7 @@ export class ExcelExport {
                 this.rows.push({ index: customIndex, cells: cells });
             } else {
                 let row: Object = {};
-                if (this.groupedColLength < 8) {
+                if (this.groupedColLength < 8 && this.groupedColLength > 0) {
                     let dummyOutlineLevel: string = 'outlineLevel';
                     let dummyGrouping: string = 'grouping';
                     let level: number = this.rows[this.rows.length - 1][dummyGrouping][dummyOutlineLevel];
@@ -807,8 +807,8 @@ export class ExcelExport {
     /* tslint:disable-next-line:no-any */
     private parseStyles(gObj: IGrid, col: any, style: any, index: number): void {
         if (!isNullOrUndefined(col.format)) {
-            if (!isNullOrUndefined(col.format.skeleton)) {
-                style.numberFormat = col.format.skeleton;
+            if (typeof col.format === 'object') {
+                style.numberFormat = !isNullOrUndefined(col.format.format) ? col.format.format : col.format.skeleton;
                 if (!isNullOrUndefined(col.format.type)) {
                     style.type = col.format.type;
                 }

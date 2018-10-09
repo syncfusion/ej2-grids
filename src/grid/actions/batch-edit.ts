@@ -147,7 +147,7 @@ export class BatchEdit {
             switch (e.keyArgs.action) {
                 case 'tab':
                 case 'shiftTab':
-                if (isEdit || this.parent.isLastCellPrimaryKey) {
+                    if (isEdit || this.parent.isLastCellPrimaryKey) {
                         this.editCellFromIndex(rowIndex, cellIndex);
                     }
                     break;
@@ -294,15 +294,19 @@ export class BatchEdit {
 
     public batchSave(): void {
         let gObj: IGrid = this.parent;
+        let deletedRecords: string = 'deletedRecords';
         this.saveCell();
         if (gObj.isEdit || this.editNextValCell() || gObj.isEdit) {
             return;
         }
         let changes: Object = this.getBatchChanges();
+        if (this.parent.getSelectedRecords().length > this.parent.currentViewData.length) {
+            changes[deletedRecords] = this.parent.getCurrentViewRecords().concat(this.parent.getSelectedRecords());
+        }
         let original: Object = {
             changedRecords: this.parent.getRowsObject()
-            .filter((row: Row<Column>) => row.isDirty && ['add', 'delete'].indexOf(row.edit) === -1)
-            .map((row: Row<Column>) => row.data)
+                .filter((row: Row<Column>) => row.isDirty && ['add', 'delete'].indexOf(row.edit) === -1)
+                .map((row: Row<Column>) => row.data)
         };
         let args: BeforeBatchSaveArgs = { batchChanges: changes, cancel: false };
         gObj.trigger(events.beforeBatchSave, args);
@@ -400,30 +404,32 @@ export class BatchEdit {
             return;
         }
         gObj.clearSelection();
-        let uid: string = args.row.getAttribute('data-uid');
-        if (args.row.classList.contains('e-insertedrow')) {
-            this.removeRowObjectFromUID(uid);
-            remove(args.row);
-        } else {
-            let rowObj: Row<Column> = gObj.getRowObjectFromUID(uid);
-            rowObj.isDirty = true;
-            rowObj.edit = 'delete';
-            classList(args.row as HTMLTableRowElement, ['e-hiddenrow', 'e-updatedtd'], []);
-            if (gObj.getFrozenColumns()) {
-                classList(data ? gObj.getMovableRows()[index] : selectedRows[1], ['e-hiddenrow', 'e-updatedtd'], []);
-                if (gObj.frozenRows && index < gObj.frozenRows) {
-                    gObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody')
-                        .appendChild(gObj.getMovableRowByIndex(gObj.frozenRows - 1));
-                    gObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody')
-                        .appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
+        for (let i: number = 0; i < selectedRows.length; i++) {
+            let uid: string = selectedRows[i].getAttribute('data-uid');
+            if (selectedRows[i].classList.contains('e-insertedrow')) {
+                this.removeRowObjectFromUID(uid);
+                remove(selectedRows[i]);
+            } else {
+                let rowObj: Row<Column> = gObj.getRowObjectFromUID(uid);
+                rowObj.isDirty = true;
+                rowObj.edit = 'delete';
+                classList(selectedRows[i] as HTMLTableRowElement, ['e-hiddenrow', 'e-updatedtd'], []);
+                if (gObj.getFrozenColumns()) {
+                    classList(data ? gObj.getMovableRows()[index] : selectedRows[1], ['e-hiddenrow', 'e-updatedtd'], []);
+                    if (gObj.frozenRows && index < gObj.frozenRows) {
+                        gObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody')
+                            .appendChild(gObj.getMovableRowByIndex(gObj.frozenRows - 1));
+                        gObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody')
+                            .appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
+                    }
+                } else if (gObj.frozenRows && index < gObj.frozenRows) {
+                    gObj.getHeaderContent().querySelector('tbody').appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
                 }
-            } else if (gObj.frozenRows && index < gObj.frozenRows) {
-                gObj.getHeaderContent().querySelector('tbody').appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
             }
+            delete selectedRows[i];
         }
         this.refreshRowIdx();
         gObj.selectRow(index);
-        delete args.row;
         gObj.trigger(events.batchDelete, args);
         gObj.notify(events.batchDelete, { rows: this.parent.getRowsObject() });
         gObj.notify(events.toolbarRefresh, {});
@@ -693,7 +699,9 @@ export class BatchEdit {
         if (!rowObj.changes) {
             rowObj.changes = extend({}, {}, rowObj.data, true);
         }
-        DataUtil.setValue(field, value, rowObj.changes);
+        if (!isNullOrUndefined(field)) {
+            DataUtil.setValue(field, value, rowObj.changes);
+        }
         if (rowObj.data[field] !== value) {
             rowObj.isDirty = true;
         }
@@ -780,7 +788,9 @@ export class BatchEdit {
         let cloneEditedData: Object = extend({}, editedData);
         editedData = extend({}, editedData, this.cellDetails.rowData);
         let value: string = getObject(column.field, cloneEditedData);
-        setValue(column.field, value, editedData);
+        if (!isNullOrUndefined(column.field)) {
+            setValue(column.field, value, editedData);
+        }
         let args: CellSaveArgs = {
             columnName: column.field,
             value: getObject(column.field, editedData),

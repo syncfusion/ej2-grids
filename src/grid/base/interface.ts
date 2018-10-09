@@ -580,6 +580,9 @@ export interface IRowRenderer<T> {
     render(row: Row<T>, column: Column[], attributes?: { [x: string]: string }, rowTemplate?: string): Element;
 }
 
+/**
+ * @hidden
+ */
 export interface ICellFormatter {
     getValue(column: Column, data: Object): Object;
 }
@@ -1874,6 +1877,9 @@ export interface SelectionNotifyArgs extends NotifyArgs {
     CheckState?: boolean;
 }
 
+/**
+ * @hidden
+ */
 export interface DataResult {
     result: Object[] | Group[];
     count: number;

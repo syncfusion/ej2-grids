@@ -60,7 +60,7 @@ export class DropDownEditCell implements IEditCell {
     }
 
     private ddActionComplete(e: { result: Object[] }): void {
-        e.result = DataUtil.distinct(e.result, this.column.isForeignColumn() ? this.column.foreignKeyField : this.column.field, true);
+        e.result = DataUtil.distinct(e.result, this.obj.fields.value, true);
         if ((<DataManager>this.column.dataSource)) {
             (<DataManager>this.column.dataSource).dataSource.json = e.result;
         }
