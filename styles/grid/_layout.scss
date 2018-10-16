@@ -1891,7 +1891,7 @@
 
     .e-ccdlg {
 
-      .e-dlg-content {
+      .e-dlg-header-content + .e-dlg-content {
         margin: $grid-columnchooser-content-margin;
         overflow: visible;
         padding: $grid-columnchooser-content-padding;

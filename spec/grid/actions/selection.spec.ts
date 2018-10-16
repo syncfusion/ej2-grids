@@ -3267,3 +3267,49 @@ describe('Grid Touch Selection', () => {
     });
 
 });
+
+describe('Row,cell Selecting in batch edit while adding record => ', () => {
+    let gridObj: Grid;
+    let preventDefault: Function = new Function();
+    let rowSelected: () => void;
+    beforeAll((done: Function) => {
+        gridObj = createGrid(
+            {
+                dataSource: data,
+                editSettings: {
+                    allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Batch',
+                    showConfirmDialog: false, showDeleteConfirmDialog: false
+                },
+                toolbar: ['Add', 'Edit', 'Delete', 'Update', 'Cancel'],
+                allowPaging: true,
+                columns: [
+                    { field: 'OrderID', type: 'number', isPrimaryKey: true, visible: true, validationRules: { required: true } },
+                    { field: 'CustomerID', type: 'string' },
+                    { field: 'EmployeeID', type: 'number', allowEditing: false },
+                    { field: 'Freight', format: 'C2', type: 'number', editType: 'numericedit' },
+                ],
+                rowSelected: rowSelected
+            }, done);
+    });
+    it('rowSelect event while adding new records in batchedit', () => {
+        rowSelected = (args?: any): void => {
+            expect(args.data.OrderID).toBe(0);
+        }
+        gridObj.rowSelected = rowSelected;
+        (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_add' } });
+        (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_add' } });
+        gridObj.editModule.saveCell();
+        expect(gridObj.selectionModule.getCurrentBatchRecordChanges().length).toBe(14);
+    });
+
+    it('rowSelect event while adding delete record in currentview data',() => {
+            gridObj.clearSelection();
+            gridObj.rowSelected = null;
+            gridObj.selectRow(5, true);
+            gridObj.editModule.deleteRecord();
+            expect(gridObj.selectionModule.getCurrentBatchRecordChanges().length).toBe(13);
+    });
+    afterAll(() => {
+        destroy(gridObj);
+    });
+});

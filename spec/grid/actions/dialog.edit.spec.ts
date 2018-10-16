@@ -83,7 +83,7 @@ describe('Dialog Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'CustomerID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
+                    expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(3);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -96,7 +96,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_edit' } });
@@ -149,7 +149,7 @@ describe('Dialog Editing module', () => {
                     //focus check
                     expect(document.activeElement.id).toBe(gridObj.element.id + 'OrderID');
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
+                    expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(3);
                     expect(gridObj.isEdit).toBeTruthy();
                     done();
                 }
@@ -162,7 +162,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check for last action
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             //edited class check for last action
             expect(gridObj.element.querySelectorAll('.e-editedrow').length).toBe(0);
             gridObj.clearSelection();
@@ -211,7 +211,7 @@ describe('Dialog Editing module', () => {
                     //record count check
                     expect(gridObj.currentViewData.length).toBe(71);
                     //toolbar status check
-                    expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+                    expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
                     expect(gridObj.isEdit).toBeFalsy();
                     done();
                 }
@@ -224,7 +224,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check for last action
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             //added class check for last action
             expect(gridObj.element.querySelectorAll('.e-insertedrow').length).toBe(0);
             gridObj.clearSelection();
@@ -248,7 +248,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_edit' } });
@@ -278,7 +278,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(3);
             (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updatednew';
             (gridObj.element.querySelector('#'+ gridObj.element.id +'_dialogEdit_wrapper').querySelectorAll('button') as any)[2].click();
         });
@@ -302,7 +302,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             gridObj.clearSelection();
             gridObj.selectRow(0, true);
             (<any>gridObj.toolbarModule).toolbarClickHandler({ item: { id: gridObj.element.id + '_add' } });
@@ -334,7 +334,7 @@ describe('Dialog Editing module', () => {
             gridObj.actionComplete = actionComplete;
             gridObj.actionBegin = actionBegin;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(4);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(3);
             (gridObj.element.querySelector('#'+ gridObj.element.id +'OrderID') as any).value = 10247;
             (gridObj.element.querySelector('#'+ gridObj.element.id +'CustomerID') as any).value = 'updatednew';
             (gridObj.element.querySelector('#'+ gridObj.element.id +'_dialogEdit_wrapper').querySelectorAll('button') as any)[2].click();
@@ -343,7 +343,7 @@ describe('Dialog Editing module', () => {
         it('toolbar status check', () => {
             expect(gridObj.element.querySelectorAll('.e-gridform').length).toBe(0);
             expect(gridObj.element.querySelectorAll('form').length).toBe(0);
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
         });
 
         it('dbl edit start', (done: Function) => {

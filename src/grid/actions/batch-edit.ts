@@ -404,29 +404,38 @@ export class BatchEdit {
             return;
         }
         gObj.clearSelection();
-        for (let i: number = 0; i < selectedRows.length; i++) {
-            let uid: string = selectedRows[i].getAttribute('data-uid');
-            if (selectedRows[i].classList.contains('e-insertedrow')) {
-                this.removeRowObjectFromUID(uid);
-                remove(selectedRows[i]);
-            } else {
-                let rowObj: Row<Column> = gObj.getRowObjectFromUID(uid);
-                rowObj.isDirty = true;
-                rowObj.edit = 'delete';
-                classList(selectedRows[i] as HTMLTableRowElement, ['e-hiddenrow', 'e-updatedtd'], []);
-                if (gObj.getFrozenColumns()) {
-                    classList(data ? gObj.getMovableRows()[index] : selectedRows[1], ['e-hiddenrow', 'e-updatedtd'], []);
-                    if (gObj.frozenRows && index < gObj.frozenRows) {
-                        gObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody')
-                            .appendChild(gObj.getMovableRowByIndex(gObj.frozenRows - 1));
-                        gObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody')
-                            .appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
-                    }
-                } else if (gObj.frozenRows && index < gObj.frozenRows) {
-                    gObj.getHeaderContent().querySelector('tbody').appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
+        let uid: string = args.row.getAttribute('data-uid');
+        if (args.row.classList.contains('e-insertedrow')) {
+            this.removeRowObjectFromUID(uid);
+            remove(args.row);
+        } else {
+            let rowObj: Row<Column> = gObj.getRowObjectFromUID(uid);
+            rowObj.isDirty = true;
+            rowObj.edit = 'delete';
+            classList(args.row as HTMLTableRowElement, ['e-hiddenrow', 'e-updatedtd'], []);
+            if (gObj.getFrozenColumns()) {
+                classList(data ? gObj.getMovableRows()[index] : selectedRows[1], ['e-hiddenrow', 'e-updatedtd'], []);
+                if (gObj.frozenRows && index < gObj.frozenRows) {
+                    gObj.getHeaderContent().querySelector('.e-movableheader').querySelector('tbody')
+                        .appendChild(gObj.getMovableRowByIndex(gObj.frozenRows - 1));
+                    gObj.getHeaderContent().querySelector('.e-frozenheader').querySelector('tbody')
+                        .appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
                 }
+            } else if (gObj.frozenRows && index < gObj.frozenRows) {
+                gObj.getHeaderContent().querySelector('tbody').appendChild(gObj.getRowByIndex(gObj.frozenRows - 1));
             }
-            delete selectedRows[i];
+        }
+        if (!this.parent.frozenColumns && selectedRows.length > 1) {
+            for (let i: number = 0; i < selectedRows.length; i++) {
+                classList(selectedRows[i] as HTMLTableRowElement, ['e-hiddenrow', 'e-updatedtd'], []);
+                let uniqueid: string = selectedRows[i].getAttribute('data-uid');
+                let selectedRow: Row<Column> = gObj.getRowObjectFromUID(uniqueid);
+                selectedRow.isDirty = true;
+                selectedRow.edit = 'delete';
+                delete selectedRows[i];
+            }
+        } else {
+            delete args.row;
         }
         this.refreshRowIdx();
         gObj.selectRow(index);

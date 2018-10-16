@@ -599,6 +599,8 @@ describe('Grid base module', () => {
         let gridObj: Grid;
         let actionBegin: () => void;
         let actionComplete: () => void;
+        let template: Element = createElement('div', { id: 'template' });
+        template.innerHTML = '<span>$Freight$</span>';
         beforeAll((done: Function) => {
             gridObj = createGrid(
                 {
@@ -622,7 +624,7 @@ describe('Grid base module', () => {
                     filterSettings: { type: 'Menu' },
                     columns: [{ field: 'OrderID', type: 'number', isPrimaryKey: true },
                     { field: 'CustomerID', type: 'string' },
-                    { field: 'Freight', format: 'C2', type: 'number', allowFiltering: false },
+                    { field: 'Freight', format: 'C2', template:'#template', type: 'number', allowFiltering: false },
                     { field: 'OrderDate', format: 'yMd' },
                     { field: 'Verified' }
                     ],
@@ -640,6 +642,11 @@ describe('Grid base module', () => {
             gridObj.setRowData(10250, { OrderID: 1249, CustomerID: 'new value', CustomerName: 'accc' });
             let selRow: any = gridObj.contentModule.getRows()[2];
             expect((<any>selRow).data.CustomerID).toEqual('new value');
+        });
+        it('update template cell', () => {
+            gridObj.setCellValue(10249, 'Freight', 1);
+            let selRow: any = gridObj.contentModule.getRows()[1];
+            expect((<any>selRow).data.Freight).toEqual(1);
         });
         afterAll(() => {
             destroy(gridObj);

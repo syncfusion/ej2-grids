@@ -14,6 +14,7 @@ import { Row } from '../models/row';
 import { Data } from '../actions/data';
 import { ReturnType } from '../base/type';
 import { FocusStrategy } from '../services/focus-strategy';
+import { iterateExtend } from '../base/util';
 
 
 /**
@@ -160,6 +161,29 @@ export class Selection implements IAction {
         return null;
     }
 
+    public getCurrentBatchRecordChanges(): Object[] {
+        let gObj: IGrid = this.parent;
+        let added: string = 'addedRecords';
+        let deleted: string = 'deletedRecords';
+        if (gObj.editSettings.mode === 'Batch') {
+            let currentRecords: Object[] = iterateExtend(this.parent.getCurrentViewRecords());
+            currentRecords = this.parent.editModule.getBatchChanges()[added].concat(currentRecords);
+            let deletedRecords: Object[] = this.parent.editModule.getBatchChanges()[deleted];
+            let primaryKey: string = this.parent.getPrimaryKeyFieldNames()[0];
+            for (let i: number = 0; i < (deletedRecords.length); i++) {
+                for (let j: number = 0; j < currentRecords.length; j++) {
+                    if (deletedRecords[i][primaryKey] === currentRecords[j][primaryKey]) {
+                        currentRecords.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+            return currentRecords;
+        } else {
+            return gObj.getCurrentViewRecords();
+        }
+    }
+
     /** 
      * Selects a row by the given index. 
      * @param  {number} index - Defines the row index. 
@@ -170,7 +194,7 @@ export class Selection implements IAction {
         let gObj: IGrid = this.parent;
         let selectedRow: Element = gObj.getRowByIndex(index);
         let selectedMovableRow: Element = this.getSelectedMovableRow(index);
-        let selectData: Object = gObj.getCurrentViewRecords()[index];
+        let selectData: Object = this.getCurrentBatchRecordChanges()[index];
         if (gObj.enableVirtualization && gObj.allowGrouping && gObj.groupSettings.columns.length && selectedRow) {
             selectData = gObj.getRowObjectFromUID(selectedRow.getAttribute('data-uid')).data;
         }
@@ -190,7 +214,7 @@ export class Selection implements IAction {
             args = {
                 data: selectData, rowIndex: index, isCtrlPressed: this.isMultiCtrlRequest,
                 isShiftPressed: this.isMultiShiftRequest, row: selectedRow,
-                previousRow: gObj.getRows()[this.prevRowIndex], previousRowIndex: this.prevRowIndex, target: this.target, cancel: false
+                previousRow: gObj.getRowByIndex(this.prevRowIndex), previousRowIndex: this.prevRowIndex, target: this.target, cancel: false
             };
             args = this.addMovableArgs(args, selectedMovableRow);
             this.onActionBegin(args, events.rowSelecting);
@@ -207,7 +231,7 @@ export class Selection implements IAction {
         if (!isToggle) {
             args = {
                 data: selectData, rowIndex: index,
-                row: selectedRow, previousRow: gObj.getRows()[this.prevRowIndex],
+                row: selectedRow, previousRow: gObj.getRowByIndex(this.prevRowIndex),
                 previousRowIndex: this.prevRowIndex, target: this.target
             };
             args = this.addMovableArgs(args, selectedMovableRow);
@@ -247,7 +271,7 @@ export class Selection implements IAction {
         let selectedMovableRow: Element = this.getSelectedMovableRow(rowIndex);
         let frzCols: number = gObj.getFrozenColumns();
         let can: string = 'cancel';
-        let selectedData: Object = gObj.getCurrentViewRecords()[rowIndexes[0]];
+        let selectedData: Object = this.getCurrentBatchRecordChanges()[rowIndexes[0]];
         if (!this.isRowType() || this.isEditing()) {
             return;
         }
@@ -573,7 +597,7 @@ export class Selection implements IAction {
         let selectedTable: NodeListOf<Element>;
         let cIdx: number;
         this.currentIndex = cellIndex.rowIndex;
-        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
+        let selectedData: Object = this.getCurrentBatchRecordChanges()[this.currentIndex];
         if (!this.isCellType() || !selectedCell || this.isEditing()) {
             return;
         }
@@ -638,7 +662,7 @@ export class Selection implements IAction {
         let cellIndexes: number[];
         this.currentIndex = startIndex.rowIndex;
         let cncl: string = 'cancel';
-        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
+        let selectedData: Object = this.getCurrentBatchRecordChanges()[this.currentIndex];
         if (this.isSingleSel() || !this.isCellType() || this.isEditing()) {
             return;
         }
@@ -709,7 +733,7 @@ export class Selection implements IAction {
             selectedCell = gObj.getCellFromIndex(rowCellIndexes[0].rowIndex, rowCellIndexes[0].cellIndexes[0]);
         }
         this.currentIndex = rowCellIndexes[0].rowIndex;
-        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
+        let selectedData: Object = this.getCurrentBatchRecordChanges()[this.currentIndex];
         if (this.isSingleSel() || !this.isCellType() || this.isEditing()) {
             return;
         }
@@ -768,7 +792,7 @@ export class Selection implements IAction {
         let frzCols: number = gObj.getFrozenColumns();
         let index: number;
         this.currentIndex = cellIndexes[0].rowIndex;
-        let selectedData: Object = gObj.getCurrentViewRecords()[this.currentIndex];
+        let selectedData: Object = this.getCurrentBatchRecordChanges()[this.currentIndex];
         if (this.isSingleSel() || !this.isCellType() || this.isEditing()) {
             return;
         }
@@ -944,7 +968,7 @@ export class Selection implements IAction {
             let data: Object[] = [];
             let cells: Element[] = [];
             let foreignKeyData: Object[] = [];
-            let currentViewData: Object[] = gObj.getCurrentViewRecords();
+            let currentViewData: Object[] = this.getCurrentBatchRecordChanges();
             let selectedTable: NodeListOf<Element>;
             let frzCols: number = gObj.getFrozenColumns();
 

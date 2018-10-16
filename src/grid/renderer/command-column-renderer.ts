@@ -1,4 +1,4 @@
-import { addClass, removeClass, attributes } from '@syncfusion/ej2-base';
+import { addClass, removeClass, attributes, isNullOrUndefined } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
 import { Column } from '../models/column';
 import { Cell } from '../models/cell';
@@ -58,11 +58,12 @@ export class CommandColumnRenderer extends CellRenderer implements ICellRenderer
         let button: HTMLButtonElement = <HTMLButtonElement>this.buttonElement.cloneNode();
         attributes(button, {
             'id': this.parent.element.id + (buttonOption.type || '') + '_' + index, 'type': 'button',
-            title: buttonOption.buttonOption.content || this.localizer.getConstant(buttonOption.type) || buttonOption.type
+            title: !isNullOrUndefined(buttonOption.title) ? buttonOption.title :
+                buttonOption.buttonOption.content || this.localizer.getConstant(buttonOption.type) || buttonOption.type
         });
         button.onclick = buttonOption.buttonOption.click;
         let buttonObj: Button = new Button(buttonOption.buttonOption, button);
-        (<{commandType?: CommandButtonType}> buttonObj).commandType = buttonOption.type;
+        (<{ commandType?: CommandButtonType }>buttonObj).commandType = buttonOption.type;
         node.firstElementChild.appendChild(buttonObj.element);
         switch (buttonOption.type) {
             case 'Edit':

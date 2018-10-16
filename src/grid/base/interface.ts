@@ -359,6 +359,8 @@ export interface IGrid extends Component<HTMLElement> {
 
     isPreventScrollEvent?: boolean;
 
+    registeredTemplate?: Object;
+
     //public methods
     getHeaderContent?(): Element;
     setGridHeaderContent?(value: Element): void;
@@ -1473,6 +1475,10 @@ export interface CommandButtonOptions extends ButtonModel {
  * Define options for custom command buttons.
  */
 export interface CommandModel {
+    /**
+     * Define the command Button tooltip
+     */
+    title?: string;
     /**
      * Define the command Button type
      */

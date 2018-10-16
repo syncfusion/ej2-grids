@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+## 16.3.25 (2018-10-15)
+
+### Grid
+
+#### Bug Fixes
+
+- Angular Grid printing is not working properly when using ng-template is fixed.
+- dialog template is not working properly when grid contains column template is fixed.
+- `ODataV4` - Need to skip expand and select queries when apply `groupby` is used is added.
+- parse error when valid `json` values are passed into `DataUtil.parse.parseJSON`.
+- field value is undefined while adding the record in batch editing when we enable checkbox selection is resolved.
+- Need to provide whole dataset for the custom aggregate function when use `disablePageWiseAggregates` with no grouping is added.
+- `rowSelected` event arguments are not proper when selecting new records in batch mode is fixed.
+- Custom aggregate function parameters are incorrect when perform grouping with `disablePageWiseAggregates` is resolved.
+- `setCellValue` is not working for template column is fixed.
+- Provided separate title support for command column button.
+
+## 16.3.24 (2018-10-09)
+
+### Grid
+
+#### Bug Fixes
+
+- Excel Exporting with aggregates throws error is fixed.
+- Field value is undefined while adding record in batch editing when enabling checkbox selection is fixed.
+- Column chooser is overridden by search textbox due to padding top property issue is fixed.
+- Rendering dropdown component in grid editing returns only the first record in the dropdown list is fixed.
+- Parent grid column chooser is not opening after expanding child grid in hierarchical is resolved.
+- Grid Excel export not supporting the custom date format instead of skeleton format is resolved.
+- Provided support for range selection delete with Batch mode.
+- Separators are not hidden in context menu is resolved.
+- Using angular services to replace display values in checkbox filter is resolved.
+
 ## 16.3.23 (2018-10-03)
 
 ### Grid

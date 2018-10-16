@@ -2775,7 +2775,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
                 if (this.frozenColumns) {
                     mRow = movableSelectedRow[cells][fieldIdx - this.frozenColumns];
                 }
-                cell.refreshTD(td, !isNullOrUndefined(sRow) ? sRow : mRow, selectedRow[rowData]);
+                cell.refreshTD(td, !isNullOrUndefined(sRow) ? sRow : mRow, selectedRow[rowData], { index: selectedRow[rowIdx] });
                 if (this.aggregates.length > 0) {
                     this.notify(events.refreshFooterRenderer, {});
                     if (this.groupSettings.columns.length > 0) {

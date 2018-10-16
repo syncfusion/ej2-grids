@@ -45,13 +45,13 @@ describe('Toolbar functionalities', () => {
             }, done);
     });
     it('initial checck', () => {
-        expect(gridObj.toolbarModule.getToolbar().firstElementChild.querySelector('.e-hscroll-content').childElementCount).toBe(5);
+        expect(gridObj.toolbarModule.getToolbar().firstElementChild.children.length).toBe(5);
         expect(gridObj.toolbarModule.getToolbar().firstElementChild.querySelectorAll('.e-toolbar-item')[4].getAttribute('title')).toBe('Add');
         expect(gridObj.element.firstElementChild.classList.contains('e-groupdroparea')).toBeTruthy();
     });
     it('check event trigger', (done: Function) => {
         gridObj.toolbarClick = (args: Object) => {
-            expect(args['target']['id']).toBe('');
+            expect(args['target']['id']).toBe('hello');
             done();
         };
         (<any>gridObj.toolbarModule).toolbarClickHandler({ target: gridObj.toolbarModule.getToolbar().firstElementChild.children[2].firstChild });

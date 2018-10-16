@@ -82,7 +82,7 @@ describe('Batch Editing module', () => {
             };
             gridObj.cellEdit = cellEdit;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             gridObj.editModule.editCell(0, 'CustomerID');
         });
 
@@ -107,7 +107,7 @@ describe('Batch Editing module', () => {
             expect(gridObj.editModule.getCurrentEditCellData()).toBe('updated');
             gridObj.editModule.saveCell();
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
         });
 
         it('cell save complete', (done: Function) => {
@@ -121,7 +121,7 @@ describe('Batch Editing module', () => {
             };
             gridObj.cellSave = cellSave;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             gridObj.editModule.saveCell();
         });
 
@@ -132,7 +132,7 @@ describe('Batch Editing module', () => {
             expect(gridObj.getContent().querySelectorAll('.e-row').length).toBe(11);
             //record count check
             expect(gridObj.currentViewData.length).toBe(11);
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(1);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(0);
         });
 
         it('add start', (done: Function) => {
@@ -1980,7 +1980,7 @@ describe('Batch Editing module', () => {
             gridObj.element.querySelector('.e-editedbatchcell').querySelector('input').value = 'updated';
             gridObj.cellSave = cellSave;
             //toolbar status check
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(3);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(2);
             gridObj.editModule.saveCell();
         });
 
@@ -1991,7 +1991,7 @@ describe('Batch Editing module', () => {
             expect(gridObj.getContent().querySelectorAll('.e-row').length).toBe(18);
             //record count check
             expect(gridObj.currentViewData.length).toBe(11);
-            expect(gridObj.element.querySelectorAll('.e-overlay').length).toBe(1);
+            expect(gridObj.element.querySelectorAll('.e-toolbar-item.e-overlay').length).toBe(0);
         });
 
         it('add start', (done: Function) => {

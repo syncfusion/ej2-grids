@@ -429,6 +429,7 @@ export class Render {
                         let data: Object[] = itemGroup.level ? uGroupItem.records : uGroup.items;
                         let context: Object = this.parent;
                         if (type === 'Custom') {
+                            let data: Group = itemGroup.level ? uGroupItem : uGroup;
                             element.aggregates[key] = column.customAggregate ?
                                 (<Function>column.customAggregate).call(context, data, column) : '';
                         } else {
