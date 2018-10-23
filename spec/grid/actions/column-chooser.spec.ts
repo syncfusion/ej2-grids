@@ -6,14 +6,15 @@ import { Grid } from '../../../src/grid/base/grid';
 import { Page } from '../../../src/grid/actions/page';
 import { Button } from '@syncfusion/ej2-buttons';
 import { Toolbar } from '../../../src/grid/actions/toolbar';
-import { data } from '../base/datasource.spec';
+import { data, employeeData } from '../base/datasource.spec';
 import { Freeze } from '../../../src/grid/actions/freeze';
 import { EJ2Intance } from '../../../src/grid/base/interface';
 import { ColumnChooser } from '../../../src/grid/actions/column-chooser';
 import { createGrid, destroy } from '../base/specutil.spec';
 import '../../../node_modules/es6-promise/dist/es6-promise';
+import { DetailRow } from '../../../src/grid/actions/detail-row';
 
-Grid.Inject(Page, Toolbar, ColumnChooser, Freeze);
+Grid.Inject(Page, Toolbar, ColumnChooser, Freeze, DetailRow);
 describe('Column chooser module', () => {
     describe('Column chooser testing', () => {
         let gridObj: Grid;
@@ -478,6 +479,54 @@ describe('Column chooser module', () => {
             (<any>gridObj).columnChooserModule.destroy();          
         });
         afterAll(() => {
+            destroy(gridObj);
+        });
+    });
+    
+    describe('Open the multiple column chooser in hierarchyGrid', () => {
+        let gridObj: Grid;
+        let beforeOpenColumnChooser: () => void;
+        let actionComplete: Function;
+
+        beforeAll((done: Function) => {
+            gridObj = createGrid(
+                {
+                    dataSource: employeeData,
+                    columns: [{ field: 'EmployeeID', headerText: 'Employee ID', textAlign: 'Right', width: 125 },
+                    { field: 'FirstName', headerText: 'Name', width: 125 },
+                    { field: 'Title', headerText: 'Title', width: 180 },
+                    { field: 'City', headerText: 'City', width: 110 },
+                    { field: 'Country', headerText: 'Country', width: 110 }],
+                    allowPaging: true,
+                    showColumnChooser: true,
+                    toolbar: ['ColumnChooser'],
+                    pageSettings: { pageSize: 5 },
+                    beforeOpenColumnChooser: beforeOpenColumnChooser,
+                    childGrid: {
+                        dataSource: [],
+                        queryString: 'EmployeeID',
+                        allowPaging: true,
+                        toolbar:['ColumnChooser'],
+                    showColumnChooser:true,
+                        columns: [
+                            { field: 'OrderID', headerText: 'Order ID', textAlign: 'Right', width: 120 },
+                            { field: 'ShipCity', headerText: 'Ship City', width: 120 },
+                            { field: 'Freight', headerText: 'Freight', width: 120 },
+                            { field: 'ShipName', headerText: 'Ship Name', width: 150 }
+                        ],
+                    }
+                }, done);
+        });
+        it('Show/hide the column chooser in parent grid', (done: Function) => {
+            setTimeout(() => {
+                ;
+                gridObj.columnChooserModule.openColumnChooser();               
+                gridObj.columnChooserModule.openColumnChooser();
+                done();
+            }, 500);
+        });
+        afterAll(() => {
+            (<any>gridObj).columnChooserModule.destroy();
             destroy(gridObj);
         });
     });

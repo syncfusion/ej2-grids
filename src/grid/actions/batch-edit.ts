@@ -300,8 +300,8 @@ export class BatchEdit {
             return;
         }
         let changes: Object = this.getBatchChanges();
-        if (this.parent.getSelectedRecords().length > this.parent.currentViewData.length) {
-            changes[deletedRecords] = this.parent.getCurrentViewRecords().concat(this.parent.getSelectedRecords());
+        if (this.parent.selectionSettings.type === 'Multiple'  && changes[deletedRecords].length) {
+            changes[deletedRecords] =  changes[deletedRecords].concat(this.parent.getSelectedRecords());
         }
         let original: Object = {
             changedRecords: this.parent.getRowsObject()

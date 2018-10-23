@@ -12,6 +12,7 @@ import { Dialog, calculateRelativeBasedPosition } from '@syncfusion/ej2-popups';
 import { createCboxWithWrap, toogleCheckbox, parentsUntil } from '../base/util';
 import { createCheckBox } from '@syncfusion/ej2-buttons';
 import { SearchBox } from '../services/focus-strategy';
+import { Grid } from '../base/grid';
 
 /**
  * The `ColumnChooser` module is used to show or hide columns dynamically.
@@ -44,6 +45,7 @@ export class ColumnChooser implements IAction {
     private cBoxFalse: Element;
     private searchBoxObj: SearchBox;
     private searchOperator: string = 'startswith';
+    private targetdlg: Element;
     /**
      * Constructor for the Grid ColumnChooser module
      * @hidden
@@ -144,6 +146,9 @@ export class ColumnChooser implements IAction {
                     this.isDlgOpen = false;
                 }
             }
+            if (this.parent.detailTemplate || this.parent.childGrid) {
+                this.targetdlg = e.target as Element;
+            }
         }
         if (this.isCustomizeOpenCC && (e.target as Element).classList.contains('e-cc-cancel')) {
             this.refreshCheckboxState();
@@ -165,6 +170,9 @@ export class ColumnChooser implements IAction {
      * @hidden
      */
     public renderColumnChooser(x?: number, y?: number, target?: Element): void {
+        if (!this.dlgObj.visible && (this.parent.detailTemplate || this.parent.childGrid)) {
+            this.hideOpenedDialog();
+        }
         if (!this.dlgObj.visible) {
             let pos: { X: number, Y: number } = { X: null, Y: null };
             let args1: { requestType: string, element?: Element, columns?: Column[], cancel: boolean, searchOperator: string } = {
@@ -176,6 +184,7 @@ export class ColumnChooser implements IAction {
                 return;
             }
             this.searchOperator = args1.searchOperator;
+            if (target) { this.targetdlg = target; }
             this.refreshCheckboxState();
             this.dlgObj.dataBind();
             this.dlgObj.element.style.maxHeight = '430px';
@@ -463,7 +472,7 @@ export class ColumnChooser implements IAction {
     }
 
     private refreshCheckboxButton(): void {
-        let searchValue: string =  (<HTMLInputElement>this.dlgObj.element.querySelector('.e-cc.e-input')).value;
+        let searchValue: string = (<HTMLInputElement>this.dlgObj.element.querySelector('.e-cc.e-input')).value;
         let selected: number = this.innerDiv.querySelectorAll('.e-check').length;
         let btn: Button = (this.dlgDiv.querySelector('.e-footer-content').querySelector('.e-btn') as EJ2Intance).ej2_instances[0] as Button;
         btn.disabled = false;
@@ -493,10 +502,15 @@ export class ColumnChooser implements IAction {
     private refreshCheckboxState(): void {
         (<HTMLInputElement>this.dlgObj.element.querySelector('.e-cc.e-input')).value = '';
         this.columnChooserSearch('');
-        for (let i: number = 0; i < this.parent.element.querySelectorAll('.e-cc-chbox').length; i++) {
-            let element: HTMLInputElement = this.parent.element.querySelectorAll('.e-cc-chbox')[i] as HTMLInputElement;
-            let columnUID: string = parentsUntil(element, 'e-ccheck').getAttribute('uid');
-            let column: Column = this.parent.getColumnByUid(columnUID);
+        let gridObject: IGrid = this.parent;
+        let currentCheckBoxColls: NodeListOf<Element> = this.dlgObj.element.querySelectorAll('.e-cc-chbox');
+        for (let i: number = 0, itemLen: number = currentCheckBoxColls.length; i < itemLen; i++) {
+            let element: HTMLInputElement = currentCheckBoxColls[i] as HTMLInputElement;
+            let columnUID: string;
+            if (this.parent.childGrid || this.parent.detailTemplate) {
+                columnUID = parentsUntil(this.dlgObj.element.querySelectorAll('.e-cc-chbox')[i], 'e-ccheck').getAttribute('uid');
+            } else { columnUID = parentsUntil(element, 'e-ccheck').getAttribute('uid'); }
+            let column: Column = gridObject.getColumnByUid(columnUID);
             if (column.visible) {
                 element.checked = true;
                 this.checkState(element.parentElement.querySelector('.e-icons'), true);
@@ -571,5 +585,14 @@ export class ColumnChooser implements IAction {
     // internally use
     private getModuleName(): string {
         return 'columnChooser';
+    }
+    private hideOpenedDialog(): void {
+        let openCC: Element[] = [].slice.call(document.getElementsByClassName('e-ccdlg')).filter((dlgEle: Element) =>
+            dlgEle.classList.contains('e-popup-open'));
+        for (let i: number = 0, dlgLen: number = openCC.length; i < dlgLen; i++) {
+            if (openCC[i].classList.contains('e-dialog') || this.parent.element.id + '_ccdlg' !== openCC[i].id) {
+                (openCC[i] as EJ2Intance).ej2_instances[0].hide();
+            }
+        }
     }
 }

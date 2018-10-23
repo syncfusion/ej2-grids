@@ -197,7 +197,7 @@ export class Data implements IDataProcessor {
         if (gObj.allowFiltering && gObj.filterSettings.columns.length) {
             let columns: PredicateModel[] = column ? column : gObj.filterSettings.columns;
             let colType: Object = {};
-            for (let col of gObj.columns as Column[]) {
+            for (let col of gObj.getColumns() as Column[]) {
                 colType[col.field] = col.filter.type ? col.filter.type : gObj.filterSettings.type;
             }
             let checkBoxCols: PredicateModel[] = [];

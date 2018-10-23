@@ -3127,7 +3127,7 @@ export class Grid extends Component<HTMLElement> implements INotifyPropertyChang
      * @return {Object[]}
      */
     public getSelectedRecords(): Object[] {
-        return this.selectionModule.getSelectedRecords();
+        return this.selectionModule ? this.selectionModule.getSelectedRecords() : [];
     }
 
     /**

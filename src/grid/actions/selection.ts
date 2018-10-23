@@ -222,7 +222,9 @@ export class Selection implements IAction {
         if (!isNullOrUndefined(args) && args[can] === true) {
             return;
         }
-        this.clearRow();
+        if (!this.selectionSettings.persistSelection) {
+            this.clearRow();
+        }
         if (!isToggle) {
             this.updateRowSelection(selectedRow, index);
             if (gObj.getFrozenColumns()) { this.updateRowSelection(selectedMovableRow, index); }
@@ -1000,6 +1002,7 @@ export class Selection implements IAction {
             this.selectedRowCellIndexes = [];
             this.isCellSelected = false;
             this.cellDeselect(events.cellDeselected, rowCell, data, cells, foreignKeyData);
+            this.prevECIdxs = undefined;
         }
     }
 
@@ -1254,7 +1257,7 @@ export class Selection implements IAction {
             this.chkField = checkboxColumn[0].field;
             this.totalRecordsCount = this.parent.pageSettings.totalRecordsCount;
             if (isNullOrUndefined(this.totalRecordsCount)) {
-                this.totalRecordsCount = this.parent.getCurrentViewRecords().length;
+                this.totalRecordsCount = this.getCurrentBatchRecordChanges().length;
             }
             if (this.isSingleSel()) {
                 gobj.selectionSettings.type = 'Multiple';
@@ -1357,7 +1360,7 @@ export class Selection implements IAction {
             }
             this.isSingleSel() && indexes.length > 0 ? this.selectRow(indexes[0], true) : this.selectRows(indexes);
         }
-        if (this.parent.isCheckBoxSelection && this.parent.getCurrentViewRecords().length > 0) {
+        if (this.parent.isCheckBoxSelection && this.getCurrentBatchRecordChanges().length > 0) {
             this.setCheckAllState();
         }
     }
@@ -1411,10 +1414,10 @@ export class Selection implements IAction {
         let cRenderer: IRenderer = this.getRenderer();
         let editForm: HTMLFormElement = this.parent.element.querySelector('.e-gridform') as HTMLFormElement;
         this.checkedTarget = this.getCheckAllBox();
-        if (checkState && this.parent.getCurrentViewRecords().length) {
+        if (checkState && this.getCurrentBatchRecordChanges().length) {
             this.selectRowsByRange(
                 cRenderer.getVirtualRowIndex(0),
-                cRenderer.getVirtualRowIndex(this.parent.getCurrentViewRecords().length));
+                cRenderer.getVirtualRowIndex(this.getCurrentBatchRecordChanges().length));
             this.parent.checkAllRows = 'Check';
         } else {
             this.clearSelection();
@@ -1444,12 +1447,12 @@ export class Selection implements IAction {
         let stateStr: string = this.getCheckAllStatus(checkBox);
         let state: boolean = stateStr === 'Check';
         if (stateStr === 'Intermediate') {
-            state = this.parent.getCurrentViewRecords().some((data: Object) =>
+            state = this.getCurrentBatchRecordChanges().some((data: Object) =>
                 data[this.primaryKey] in this.selectedRowState);
         }
         this.checkSelectAllAction(!state);
         this.target = null;
-        if (this.parent.getCurrentViewRecords().length > 0) {
+        if (this.getCurrentBatchRecordChanges().length > 0) {
             this.setCheckAllState();
         }
         this.triggerChkChangeEvent(checkBox, !state);
@@ -1532,7 +1535,7 @@ export class Selection implements IAction {
             let checkedLen: number = Object.keys(this.selectedRowState).length;
             if (!this.parent.isPersistSelection) {
                 checkedLen = this.selectedRecords.length;
-                this.totalRecordsCount = this.parent.getCurrentViewRecords().length;
+                this.totalRecordsCount = this.getCurrentBatchRecordChanges().length;
             }
             if (this.getCheckAllBox()) {
                 let spanEle: HTMLElement = this.getCheckAllBox().nextElementSibling as HTMLElement;
@@ -1544,13 +1547,13 @@ export class Selection implements IAction {
                         this.getRenderer().setSelection(null, true, true);
                     }
                     this.parent.checkAllRows = 'Check';
-                } else if (checkedLen === 0 || this.parent.getCurrentViewRecords().length === 0) {
+                } else if (checkedLen === 0 || this.getCurrentBatchRecordChanges().length === 0) {
                     addClass([spanEle], ['e-uncheck']);
                     if (isInteraction) {
                         this.getRenderer().setSelection(null, false, true);
                     }
                     this.parent.checkAllRows = 'Uncheck';
-                    if (checkedLen === 0 && this.parent.getCurrentViewRecords().length === 0) {
+                    if (checkedLen === 0 && this.getCurrentBatchRecordChanges().length === 0) {
                         addClass([spanEle.parentElement], ['e-checkbox-disabled']);
                     } else {
                         removeClass([spanEle.parentElement], ['e-checkbox-disabled']);
@@ -1783,7 +1786,7 @@ export class Selection implements IAction {
 
     private applyDownUpKey(rowIndex?: number, cellIndex?: number): void {
         let gObj: IGrid = this.parent;
-        if (this.parent.isCheckBoxSelection && this.parent.checkAllRows === 'Check') {
+        if (this.parent.isCheckBoxSelection && this.parent.checkAllRows === 'Check' && !this.selectionSettings.persistSelection) {
             this.checkSelectAllAction(false);
             this.checkedTarget = null;
         }

@@ -225,7 +225,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
                 this.pagerMessageModule.render();
             }
             this.renderNextLastDivForDevice();
-            if (this.checkpagesizes()) {
+            if (this.checkpagesizes() && this.pagerdropdownModule) {
                 this.pagerdropdownModule.render();
             }
             this.addAriaLabel();
@@ -286,7 +286,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
                 case 'pageSize':
                 case 'totalRecordsCount':
                 case 'customText':
-                    if (this.checkpagesizes()) {
+                    if (this.checkpagesizes() && this.pagerdropdownModule) {
                         this.pagerdropdownModule.setDropDownValue('value', this.pageSize);
                     }
                     this.refresh();
@@ -307,7 +307,7 @@ export class Pager extends Component<HTMLElement> implements INotifyPropertyChan
                     this.refresh();
                     break;
                 case 'enableExternalMessage':
-                    if (this.enableExternalMessage) {
+                    if (this.enableExternalMessage && this.externalMessageModule) {
                         this.externalMessageModule.render();
                     }
                     break;

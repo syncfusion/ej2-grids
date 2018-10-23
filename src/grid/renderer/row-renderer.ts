@@ -128,7 +128,7 @@ export class RowRenderer<T> implements IRowRenderer<T> {
         }
         if (rowArgs.rowHeight) {
             (tr as HTMLElement).style.height = rowArgs.rowHeight + 'px';
-        } else if (this.parent.rowHeight && tr.querySelector('.e-headercell')) {
+        } else if (this.parent.rowHeight && (tr.querySelector('.e-headercell') || tr.querySelector('.e-groupcaption'))) {
             (tr as HTMLElement).style.height = this.parent.rowHeight + 'px';
         }
         if (row.cssClass) {

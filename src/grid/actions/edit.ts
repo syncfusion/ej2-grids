@@ -752,7 +752,7 @@ export class Edit implements IAction {
             if (!elem) {
                 this.createTooltip(inputElement, error, id, '');
             } else {
-                elem.querySelector('.e-tip-content').innerHTML = error.innerHTML;
+                elem.querySelector('.e-tip-content').innerHTML = error.outerHTML;
             }
         }
     }

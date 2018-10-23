@@ -141,7 +141,7 @@ describe('Stacked header render module', () => {
             let pTxt: string = trs[6].querySelector('.e-headercell').innerText;
             gridObj.reorderColumns('OrderID', 'OrderDate');
             trs = gridObj.getHeaderContent().querySelectorAll('tr');
-            expect(trs[1].querySelector('.e-headercell').innerText).toBe(pTxt);
+            expect(trs[1].querySelector('.e-headercell').innerText).toBe('Order Date');
         });
 
         afterAll(() => {

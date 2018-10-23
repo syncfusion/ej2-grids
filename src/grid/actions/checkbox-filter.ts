@@ -333,7 +333,10 @@ export class CheckBoxFilter {
                 let args: Object = {
                     action: 'filtering', filterCollection: {
                         field: this.options.field,
-                        operator: this.options.column.type === 'date' || this.options.column.type === 'datetime' ? 'equal' : 'contains',
+                        operator: this.parent.getDataModule().isRemote() ?
+                        (this.options.column.type === 'string' ? 'contains' : 'equal') :
+                            (this.options.column.type === 'date' || this.options.column.type === 'datetime' ||
+                                this.options.column.type === 'boolean' ? 'equal' : 'contains'),
                         value: value, matchCase: false, type: this.options.column.type
                     },
                     field: this.options.field

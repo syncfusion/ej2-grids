@@ -105,7 +105,7 @@ describe('Grid checkbox selection functionality', () => {
             gridObj.keyboardModule.keyAction(args);
             expect(rows[0].firstElementChild.classList.contains('e-selectionbackground')).toBeTruthy();
 
-            expect(rows[1].querySelectorAll('.e-check').length).toBe(0);
+            expect(rows[1].querySelectorAll('.e-check').length).toBe(1);
             expect(rows[0].querySelectorAll('.e-check').length).toBe(1);
 
             expect(chkAll.classList.contains('e-stop')).toBeTruthy();
